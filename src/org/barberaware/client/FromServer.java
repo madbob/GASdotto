@@ -1,0 +1,491 @@
+/*  GASdotto 0.1
+ *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *
+ *  This is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.barberaware.client;
+
+import java.lang.*;
+import java.util.*;
+import com.google.gwt.core.client.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.user.client.*;
+import com.google.gwt.json.client.*;
+
+public abstract class FromServer {
+	public static int	STRING		= 0;
+	public static int	INTEGER		= 1;
+	public static int	FLOAT		= 2;
+	public static int	ARRAY		= 3;
+	public static int	OBJECT		= 4;
+	public static int	DATE		= 5;
+	public static int	BOOLEAN		= 6;
+	public static int	LONGSTRING	= 7;
+	public static int	FAKESTRING	= 8;
+	public static int	PERCENTAGE	= 9;
+	public static int	ADDRESS		= 10;
+
+	private class FromServerAttribute {
+		public String			name;
+		public int			type;
+		public Class			object_type	= null;
+
+		private StringFromObjectClosure	fakeString	= null;
+		private String			string		= "";
+		private int			integer		= 0;
+		private float			floating	= 0;
+		private Date			date		= null;
+		private boolean			bool		= false;
+		private Address			addr		= null;
+
+		/*
+			Questi due sono sempre condizionati da object_type
+		*/
+		private ArrayList		array		= null;
+		private FromServer		object		= null;
+
+		private void buildCommon ( String name, int type ) {
+			this.name = name;
+			this.type = type;
+		}
+
+		public FromServerAttribute ( String name, int type, Class reference ) {
+			buildCommon ( name, type );
+			this.object_type = reference;
+		}
+
+		public FromServerAttribute ( String name, int type, StringFromObjectClosure reference ) {
+			buildCommon ( name, type );
+			this.fakeString = reference;
+		}
+
+		public void setString ( String value ) {
+			string = value;
+		}
+
+		public void setInt ( int value ) {
+			integer = value;
+		}
+
+		public void setFloat ( float value ) {
+			floating = value;
+		}
+
+		public void setArray ( ArrayList value ) {
+			array = value;
+		}
+
+		public void setObject ( FromServer value ) {
+			object = value;
+		}
+
+		public void setDate ( Date value ) {
+			date = value;
+		}
+
+		public void setBool ( boolean value ) {
+			bool = value;
+		}
+
+		public void setAddress ( Address value ) {
+			addr = value;
+		}
+
+		public String getString ( FromServer obj ) {
+			if ( fakeString != null )
+				return fakeString.retrive ( obj );
+			else
+				return string;
+		}
+
+		public int getInt () {
+			return integer;
+		}
+
+		public float getFloat () {
+			return floating;
+		}
+
+		public ArrayList getArray () {
+			return array;
+		}
+
+		public FromServer getObject () {
+			return object;
+		}
+
+		public Date getDate () {
+			return date;
+		}
+
+		public boolean getBool () {
+			return bool;
+		}
+
+		public Address getAddress () {
+			return addr;
+		}
+
+		public String getClassName () {
+			return Utils.classFinalName ( object_type.getName () );
+		}
+
+		public JSONValue getJSON () {
+			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE )
+				return new JSONString ( string );
+
+			else if ( type == FromServer.INTEGER )
+				return new JSONString ( Integer.toString ( integer ) );
+
+			else if ( type == FromServer.FLOAT )
+				return new JSONString ( Float.toString ( floating ) );
+
+			else if ( type == FromServer.ARRAY ) {
+				JSONArray arr;
+				FromServer tmp;
+
+				arr = new JSONArray ();
+				for ( int i = 0; i < array.size (); i++ ) {
+					tmp = ( FromServer ) array.get ( i );
+					arr.set ( i, tmp.toJSONObject () );
+				}
+				return arr;
+			}
+
+			else if ( type == FromServer.OBJECT ) {
+				JSONValue ret;
+				if ( object == null )
+					object = FromServerFactory.create ( object_type.getName () );
+
+				ret = object.toJSONObject ();
+				return ret;
+			}
+
+			else if ( type == FromServer.DATE ) {
+				if ( date != null )
+					return new JSONString ( Utils.encodeDate ( date ) );
+				else
+					return new JSONString ( "" );
+			}
+
+			else if ( type == FromServer.BOOLEAN )
+				return new JSONString ( Boolean.toString ( bool ) );
+
+			else if ( type == FromServer.ADDRESS )
+				return addr.toJSON ();
+
+			else
+				return null;
+		}
+	}
+
+	private int		localID;
+	private String		type;
+
+	/**
+		TODO	Sostituire l'ArrayList con una HashMap
+	*/
+
+	private ArrayList	attributes;
+
+	/****************************************************************** init */
+
+	public FromServer () {
+		localID = -1;
+		attributes = new ArrayList ();
+		type = Utils.classFinalName ( this.getClass ().getName () );
+	}
+
+	public int getLocalID () {
+		return localID;
+	}
+
+	protected void addAttribute ( String name, int type ) {
+		addAttribute ( name, type, null );
+	}
+
+	protected void addAttribute ( String name, int type, Class object ) {
+		attributes.add ( new FromServerAttribute ( name, type, object ) );
+	}
+
+	protected void addFakeAttribute ( String name, int type, StringFromObjectClosure value ) {
+		attributes.add ( new FromServerAttribute ( name, type, value ) );
+	}
+
+	private FromServerAttribute getInternalAttribute ( String name ) {
+		int size;
+		FromServerAttribute attr;
+
+		size = attributes.size ();
+
+		for ( int i = 0; i < size; i++ ) {
+			attr = ( FromServerAttribute ) attributes.get ( i );
+
+			if ( attr.name.equals ( name ) )
+				return attr;
+		}
+
+		Window.alert ( "Cercato attributo " + name + " in oggetto tipo " + type );
+		return null;
+	}
+
+	/****************************************************************** set */
+
+	public void setString ( String name, String value ) {
+		getInternalAttribute ( name ).setString ( value );;
+	}
+
+	public void setInt ( String name, int value ) {
+		getInternalAttribute ( name ).setInt ( value );
+	}
+
+	public void setFloat ( String name, float value ) {
+		getInternalAttribute ( name ).setFloat ( value );
+	}
+
+	public void setArray ( String name, ArrayList value ) {
+		getInternalAttribute ( name ).setArray ( value );
+	}
+
+	public void setObject ( String name, FromServer value ) {
+		getInternalAttribute ( name ).setObject ( value );
+	}
+
+	public void setDate ( String name, Date value ) {
+		getInternalAttribute ( name ).setDate ( value );
+	}
+
+	public void setBool ( String name, boolean value ) {
+		getInternalAttribute ( name ).setBool ( value );
+	}
+
+	public void setAddress ( String name, Address value ) {
+		getInternalAttribute ( name ).setAddress ( value );
+	}
+
+	/****************************************************************** get */
+
+	public int getAttributeType ( String type ) {
+		FromServerAttribute attr;
+		attr = getInternalAttribute ( type );
+		return attr.type;
+	}
+
+	public String getString ( String name ) {
+		return getInternalAttribute ( name ).getString ( this );
+	}
+
+	public int getInt ( String name ) {
+		return getInternalAttribute ( name ).getInt ();
+	}
+
+	public float getFloat ( String name ) {
+		return getInternalAttribute ( name ).getFloat ();
+	}
+
+	public ArrayList getArray ( String name ) {
+		return getInternalAttribute ( name ).getArray ();
+	}
+
+	public FromServer getObject ( String name ) {
+		return getInternalAttribute ( name ).getObject ();
+	}
+
+	public Date getDate ( String name ) {
+		return getInternalAttribute ( name ).getDate ();
+	}
+
+	public boolean getBool ( String name ) {
+		return getInternalAttribute ( name ).getBool ();
+	}
+
+	public Address getAddress ( String name ) {
+		return getInternalAttribute ( name ).getAddress ();
+	}
+
+	public String getClassName ( String name ) {
+		return getInternalAttribute ( name ).getClassName ();
+	}
+
+	/****************************************************************** server interface */
+
+	public boolean isValid () {
+		return ( localID != -1 );
+	}
+
+	public ServerResponse defaultSavingCallback () {
+		return
+			new ServerResponse () {
+				public void onComplete ( JSONValue response ) {
+					localID = ( int ) response.isNumber ().getValue ();
+
+					if ( localID == -1 )
+						Utils.showNotification ( "Errore nel salvataggio sul database" );
+				}
+			};
+	}
+
+	public static FromServer instance ( JSONObject obj ) {
+		FromServer tmp;
+
+		tmp = FromServerFactory.create ( obj.get ( "type" ).isString ().stringValue () );
+		tmp.fromJSONObject ( obj );
+		return tmp;
+	}
+
+	/*
+		Se si vuol mantenere coerente il contenuto dell'oggetto salvato la callback
+		passata deve iniziare con una invocazione a
+		oggetto.defaultSavingCallback ().onComplete ( response );
+		Occhio pero' che se tale oggetto appena salvato e' tenuto in una variabile
+		globale si rischia di andare a sovrascrivere qualche stato corrente, in quanto
+		tale funzione viene invocata asincronicamente e magari dopo una successiva
+		assegnazione
+	*/
+	public void save ( ServerResponse callback ) {
+		JSONObject obj;
+
+		obj = this.toJSONObject ();
+
+		if ( callback == null )
+			callback = defaultSavingCallback ();
+
+		if ( obj != null ) {
+			RequestBuilder builder;
+
+			builder = new RequestBuilder ( RequestBuilder.POST, Utils.getServer ().getURL () + "server.php?action=save" );
+
+			try {
+				builder.sendRequest ( obj.toString (), callback );
+				builder.setTimeoutMillis ( 5000 );
+			}
+			catch ( RequestException e ) {
+				Utils.showNotification ( "Impossibile salvare oggetto" );
+			}
+		}
+	}
+
+	public void destroy ( ServerResponse callback ) {
+		JSONObject obj;
+
+		if ( isValid () == false )
+			return;
+
+		obj = this.toJSONObject ();
+
+		if ( obj != null ) {
+			RequestBuilder builder;
+
+			builder = new RequestBuilder ( RequestBuilder.POST, Utils.getServer ().getURL () + "server.php?action=destroy" );
+
+			try {
+				builder.sendRequest ( obj.toString (), callback );
+				builder.setTimeoutMillis ( 5000 );
+			}
+			catch ( RequestException e ) {
+				Utils.showNotification ( "Impossibile eliminare oggetto" );
+			}
+		}
+	}
+
+	public JSONObject toJSONObject () {
+		int attrs_num;
+		FromServerAttribute attr;
+		JSONObject obj;
+
+		obj = new JSONObject ();
+		obj.put ( "id", new JSONString ( Integer.toString ( localID ) ) );
+		obj.put ( "type", new JSONString ( type ) );
+
+		attrs_num = attributes.size ();
+
+		for ( int i = 0; i < attrs_num; i++ ) {
+			attr = ( FromServerAttribute ) attributes.get ( i );
+			obj.put ( attr.name, attr.getJSON () );
+		}
+
+		return obj;
+	}
+
+	public void fromJSONObject ( JSONObject obj ) {
+		int attrs_num;
+		JSONValue value;
+		FromServer tmp;
+		FromServerAttribute attr;
+
+		if ( obj == null )
+			return;
+
+		value = obj.get ( "id" );
+		if ( value != null )
+			localID = Integer.parseInt ( value.isString ().stringValue () );
+
+		attrs_num = attributes.size ();
+
+		for ( int i = 0; i < attrs_num; i++ ) {
+			attr = ( FromServerAttribute ) attributes.get ( i );
+
+			value = obj.get ( attr.name );
+
+			if ( value == null )
+				continue;
+
+			if ( attr.type == FromServer.STRING ||
+					attr.type == FromServer.LONGSTRING ||
+					attr.type == FromServer.PERCENTAGE )
+				attr.setString ( value.isString ().stringValue () );
+
+			else if ( attr.type == FromServer.INTEGER )
+				attr.setInt ( Integer.parseInt ( value.isString ().stringValue () ) );
+
+			else if ( attr.type == FromServer.FLOAT )
+				attr.setFloat ( Float.parseFloat ( value.isString ().stringValue () ) );
+
+			else if ( attr.type == FromServer.ARRAY ) {
+				ArrayList arr;
+				JSONArray array;
+				arr = new ArrayList ();
+				array = value.isArray ();
+
+				for ( int a = 0; a < array.size (); a++ ) {
+					tmp = FromServerFactory.create ( attr.object_type.getName () );
+					tmp.fromJSONObject ( array.get ( a ).isObject () );
+					arr.add ( tmp );
+				}
+
+				attr.setArray ( arr );
+			}
+
+			else if ( attr.type == FromServer.OBJECT ) {
+				tmp = FromServerFactory.create ( attr.object_type.getName () );
+				tmp.fromJSONObject ( value.isObject () );
+				attr.setObject ( tmp );
+			}
+
+			else if ( attr.type == FromServer.DATE )
+				attr.setDate ( Utils.decodeDate ( value.isString ().stringValue () ) );
+
+			else if ( attr.type == FromServer.BOOLEAN )
+				attr.setBool ( Boolean.valueOf ( value.isString ().stringValue () ) );
+
+			else if ( attr.type == FromServer.ADDRESS ) {
+				Address addr;
+				addr = new Address ();
+				addr.fromJSON ( value.isObject () );
+				attr.setAddress ( addr );
+			}
+		}
+	}
+}

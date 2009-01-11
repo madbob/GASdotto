@@ -1,0 +1,46 @@
+-------------------------------------------------------------------------------------------[Readme]
+
+GASdotto 0.1
+Roberto -MadBob- Guido
+Gennaio 2009
+
+--------------------------------------------------------------------------------------------[Intro]
+
+GASdotto e' una applicazione web dedicata ai Gruppi di Acquisto Solidale, utile per gestire
+fornitori, prodotti ed ordini in maniera condivisa.
+Lo scopo primario e' quello di automatizzare e formalizzare la procedura di raccolta degli ordini
+presso i membri del gruppo, i quali potranno svolgere le proprie ordinazioni su un unico canale e
+semplificare la vita dei responsabili.
+Per maggiori informazioni si consulti il sito http://gasdotto.barberaware.org
+
+------------------------------------------------------------------------------------[Installazione]
+
+GASdotto e' strutturato come programma client/server: il client e' implementato in Java e
+destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
+
+Per compilare, installare ed usare il tutto sono necessari:
+Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	versione 1.5.2 o superiore
+PHP			http://php.net/					versione 5.2.6 o superiore
+PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
+Apache			http://apache.org/				testato su versione 2.2.11
+PostgreSQL		http://www.postgresql.org/			testato su versione 7.4.19
+
+- accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
+d'ambiente $CLASSPATH
+- creare un database vuoto in PostgreSQL, eventualmente assegnandolo ad un nuovo utente creato
+ad-hoc. Tale database dovra' essere chiamato "gasdotto_" + una variabile di istanza a propria
+scelta, che dovra' essere iscritta nel file config.php: di default, il nome usato sara'
+"gasdotto_1"
+- editare il file src/org/barberaware/public/server/org.barberaware.GASdotto/server/config.php
+con le credenziali di accesso al proprio database e la variabile di istanza scelta al passaggio
+precedente
+- eseguire install.php nella cartella src/org/barberaware/public/server/ per creare il database
+- eseguire ./GASdotto-compile
+- esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione al
+server web
+
+-----------------------------------------------------------------------------------------[Sviluppo]
+
+Il sito di riferimento del progetto e' http://gasdotto.barberaware.org
+I trackers e le informazioni per coloro che vogliono manipolare il codice e contribuire allo
+sviluppo si trovano presso http://barberaware.org/projects/gasdotto/

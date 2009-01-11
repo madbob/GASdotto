@@ -1,0 +1,223 @@
+.smoothing-notify {
+	opacity:		1.0;
+	z-index:		100;
+	position:		absolute;
+	top:			10px;
+	left:			10%;
+	width:			80%;
+	height:			40px;
+	background-color:	#FF0000;
+}
+
+.main-header {
+	width:			100%;
+	height:			40px;
+	padding:		3px;
+	background-color:	#01A4DF;
+	text-align:		right;
+	vertical-align:		middle;
+}
+
+.main-menu {
+	width:			100%;
+	padding:		10px;
+	background-color:	#01A4DF;
+	text-align:		left;
+	vertical-align:		top;
+}
+
+.main-stack {
+	width:			90%;
+	margin:			20px;
+	font-size:		30px;
+}
+
+.genericpanel {
+}
+
+.genericpanel-header {
+	text-align:		right;
+	vertical-align:		middle;
+}
+
+.element-details {
+	width:			90%;
+	margin:			5px;
+	padding-left:		20px;
+	padding:		10px;
+	border-left:		3px solid #4EDFCE;
+	border-bottom:		3px solid #4EDFCE;
+}
+
+.sub-elements-details {
+	margin:			5px;
+	margin-left:		50px;
+	padding:		5px;
+	border:			2px solid #000000;
+}
+
+.buttons-bar .icons {
+	margin-left:		5px;
+	margin-right:		5px;
+	text-align:		center;
+	cursor:			pointer;
+	cursor:			hand;
+}
+
+.buttons-bar .help {
+	margin-left:		5px;
+	margin-right:		5px;
+	text-align:		center;
+	font-size:		10px;
+}
+
+.element-summary {
+	margin:			5px;
+	vertical-align:		middle;
+}
+
+.bottom-buttons {
+	width:			100%;
+	padding:		10px;
+	text-align:		right;
+}
+
+.element-marker {
+	border:			0px;
+	margin-right:		5px;
+}
+
+.main-footer {
+	width:			100%;
+}
+
+.main-footer td {
+	font-size:		10px;
+	text-align:		center;
+	vertical-align:		middle;
+}
+
+.boolean-selector {
+	cursor:			pointer;
+	cursor:			hand;
+}
+
+.date-selector {
+	background:		#FFFFFF url('images/date_selector.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+}
+
+.address-selector {
+	background:		#FFFFFF url('images/address_selector.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+}
+
+.gwt-DisclosurePanel {
+	width:			100%;
+}
+
+.gwt-DisclosurePanel-closed .header,
+.gwt-DisclosurePanel-closed .header a,
+.gwt-DisclosurePanel-closed .header td {
+	text-decoration:	none;
+	color:			black;
+	cursor:			pointer;
+	cursor:			hand;
+}
+
+.gwt-DisclosurePanel-open .header,
+.gwt-DisclosurePanel-open .header a,
+.gwt-DisclosurePanel-open .header td {
+	text-decoration:	none;
+	color:			black;
+	cursor:			pointer;
+	cursor:			hand;
+}
+
+.gwt-ToggleButton-up,
+.gwt-ToggleButton-down {
+	cursor:			pointer;
+	cursor:			hand;
+}
+
+.gwt-DialogBox {
+	background-color:	#FFFFFF;
+	border:			10px solid #000000;
+	padding:		20px;
+}
+
+.gwt-DialogBox .Caption {
+	background-color:	green;
+	font-weight:		bold;
+	cursor:			default;
+	padding:		5px 10px;
+	text-align:		center;
+}
+
+.gwt-DialogBox td {
+	text-align:		center;
+}
+
+.gwt-DialogBox .gwt-Button {
+	margin:			10px;
+}
+
+.gwt-DialogBox .text {
+	width:			30em;
+	font-size:		80%;
+	padding:		10px;
+	text-align:		left;
+}
+
+.CalendarWidget {
+	border:			1px solid #ACA899;
+	background-color:	#FFFFFF;
+	text-align:		center;
+}
+
+.CalendarWidget .navbar {
+	width:			100%;
+	background-color:	#C3D9FF;
+	vertical-align:		middle;
+	border-bottom:		1px solid #ACA899;
+}
+
+.CalendarWidget .navbar .gwt-Button {
+	padding-left:		5px;
+	padding-right:		5px;
+}
+
+.CalendarWidget .table {
+	font:			10pt sans-serif;
+	text-align:		center;
+}
+
+.CalendarWidget .weekheader {
+	background-color:	#ACA899;
+}
+
+.CalendarWidget .weekheader .days {
+	width:			3em;
+}
+
+.CalendarWidget .cell {
+	cursor:			pointer;
+}
+
+.CalendarWidget .cell .gwt-HTML {
+	border:			1px solid #ACA899;
+}
+
+.CalendarWidget .cell .gwt-HTML span {
+	width:			100%;
+	height:			100%;
+	line-height:		2em;
+}
+
+.CalendarWidget .today .gwt-HTML {
+	background-color:	#C3D9FF;
+}
+
+.CalendarWidget .day .gwt-HTML {
+	border:			1px solid #C3D9FF;
+}
