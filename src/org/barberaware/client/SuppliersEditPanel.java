@@ -66,6 +66,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		VerticalPanel vertical;
 		FlexTable fields;
 		ProductsEditPanel products;
+		ReferenceList references;
 
 		if ( supplier == null )
 			supplier = new Supplier ();
@@ -84,10 +85,9 @@ public class SuppliersEditPanel extends GenericPanel {
 		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
 		fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
 
-		/*
-		fields.setWidget ( 2, 0, new Label ( "Referente" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "reference" ) );
-		*/
+		fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
+		references = new ReferenceList ();
+		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
 
 		fields = new FlexTable ();
 		hor.add ( fields );
@@ -107,10 +107,10 @@ public class SuppliersEditPanel extends GenericPanel {
 		fields.setWidget ( 3, 1, ver.getWidget ( "mail" ) );
 		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
-		ver.add ( new Label ( "Descrizione" ) );
+		ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
 		ver.add ( ver.getWidget ( "description" ) );
 
-		ver.add ( new Label ( "Modalità avanzamento ordine" ) );
+		ver.add ( new Label ( "Modalità avanzamento ordini" ) );
 		ver.add ( ver.getWidget ( "order_mode" ) );
 
 		ver.add ( new Label ( "Modalità pagamento" ) );

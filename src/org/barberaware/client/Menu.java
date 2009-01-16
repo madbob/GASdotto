@@ -28,14 +28,17 @@ public class Menu extends Composite {
 		int panels_num;
 		ArrayList panels;
 		GenericPanel tmp;
+		HTMLTable.RowFormatter format;
 
 		panels = parent.getPanels ();
 		panels_num = panels.size ();
+		format = main.getRowFormatter ();
 
 		for ( int i = 0; i < panels_num; i++ ) {
 			tmp = ( GenericPanel ) panels.get ( i );
 			main.setWidget ( i, 0, tmp.getIcon () );
 			main.setWidget ( i, 1, new Label ( tmp.getName () ) );
+			format.setStyleName ( i, "main-menu-item" );
 		}
 	}
 

@@ -144,9 +144,7 @@ public class OrdersEditPanel extends GenericPanel {
 		status.addState ( "images/order_status_opened.png" );
 		status.addState ( "images/order_status_closed.png" );
 		status.addState ( "images/order_status_suspended.png" );
-		status.setState ( order.getInt ( "status" ) );
-		ver.setExtraWidget ( "status", status );
-		fields.setWidget ( 1, 1, status );
+		fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "status", status ) );
 
 		fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
 		fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
@@ -336,12 +334,8 @@ public class OrdersEditPanel extends GenericPanel {
 
 	private void resetAdditionalAttributes ( FromServerForm form ) {
 		Order order;
-		CyclicToggle status;
 
 		order = ( Order ) form.getObject ();
-
-		status = ( CyclicToggle ) form.retriveInternalWidget ( "status" );
-		status.setState ( order.getInt ( "status" ) );
 
 		/**
 			TODO	Qui c'e' poi da resettare anche la ciclicita'
@@ -389,12 +383,8 @@ public class OrdersEditPanel extends GenericPanel {
 
 	private void retriveAdditionalAttributes ( FromServerForm form ) {
 		Order order;
-		CyclicToggle status;
 
 		order = ( Order ) form.getObject ();
-
-		status = ( CyclicToggle ) form.retriveInternalWidget ( "status" );
-		order.setInt ( "status", status.getState () );
 
 		/**
 			TODO	Qui c'e' poi da aggiungere anche la ciclicita'

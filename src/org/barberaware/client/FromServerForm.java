@@ -35,6 +35,27 @@ public class FromServerForm extends Composite {
 			validation = defaultValidationCallback ();
 		}
 
+		/*
+			Sono forniti tre costruttori per questo tipo di oggetto:
+
+			- in cui si specifica tutto, l'oggetto ed il widget rappresentativo
+				dell'attributo, da usare primariamente per i FromServer.ARRAY
+				(che vengono gestiti con widgets personalizzati e settati con
+				getPersonalizedWidget() )
+			- in cui si specifica oggetto ed attributo, e che ricava da solo il
+				widget da piazzare nel form completo
+			- in cui si specifica il widget per il form, da usare solo per
+				incapsularlo insieme agli altri ma marcato per essere saltato in
+				fase di ricostruzione dell'oggetto completo. Da usare per
+				immettere elementi di formattazione con setExtraWidget()
+		*/
+
+		public FromServerWidget ( FromServer object, String attribute, Widget widget ) {
+			buildCommon ( attribute, object.getAttributeType ( attribute ), widget );
+			initWidget ( widget );
+			set ( object );
+		}
+
 		public FromServerWidget ( FromServer object, String attribute ) {
 			buildCommon ( attribute, object.getAttributeType ( attribute ), null );
 
@@ -107,7 +128,7 @@ public class FromServerForm extends Composite {
 				( ( TextArea ) wid ).setText ( object.getString ( name ) );
 
 			else if ( type == FromServer.INTEGER )
-				( ( NumberBox ) wid ).setValue ( object.getInt ( name ) );
+				( ( IntNumericWidget ) wid ).setValue ( object.getInt ( name ) );
 
 			else if ( type == FromServer.FLOAT )
 				( ( FloatBox ) wid ).setValue ( object.getFloat ( name ) );
@@ -123,6 +144,9 @@ public class FromServerForm extends Composite {
 
 			else if ( type == FromServer.ADDRESS )
 				( ( AddressSelector ) wid ).setValue ( object.getAddress ( name ) );
+
+			else if ( type == FromServer.ARRAY )
+				( ( FromServerArray ) wid ).setElements ( object.getArray ( name ) );
 
 			else if ( type == FromServer.OBJECT )
 				( ( FromServerSelector ) wid ).setSelected ( object.getObject ( name ) );
@@ -142,7 +166,7 @@ public class FromServerForm extends Composite {
 				object.setString ( name, ( ( TextArea ) wid ).getText () );
 
 			else if ( type == FromServer.INTEGER )
-				object.setInt ( name, ( ( NumberBox ) wid ).getValue () );
+				object.setInt ( name, ( ( IntNumericWidget ) wid ).getValue () );
 
 			else if ( type == FromServer.FLOAT )
 				object.setFloat ( name, ( ( FloatBox ) wid ).getValue () );
@@ -158,6 +182,9 @@ public class FromServerForm extends Composite {
 
 			else if ( type == FromServer.ADDRESS )
 				object.setAddress ( name, ( ( AddressSelector ) wid ).getValue () );
+
+			else if ( type == FromServer.ARRAY )
+				object.setArray ( name, ( ( FromServerArray ) wid ).getElements () );
 
 			else if ( type == FromServer.OBJECT )
 				object.setObject ( name, ( ( FromServerSelector ) wid ).getSelected () );
@@ -176,7 +203,7 @@ public class FromServerForm extends Composite {
 				return object.getString ( name ).equals ( ( ( TextArea ) wid ).getText () );
 
 			else if ( type == FromServer.INTEGER )
-				return object.getInt ( name ) == ( ( NumberBox ) wid ).getValue ();
+				return object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getValue ();
 
 			else if ( type == FromServer.FLOAT )
 				return object.getFloat ( name ) == ( ( FloatBox ) wid ).getValue ();
@@ -192,6 +219,33 @@ public class FromServerForm extends Composite {
 
 			else if ( type == FromServer.ADDRESS )
 				return object.getAddress ( name ).equals ( ( ( AddressSelector ) wid ).getValue () );
+
+			else if ( type == FromServer.ARRAY ) {
+				int flen;
+				int slen;
+				ArrayList first;
+				ArrayList second;
+				FromServer ftmp;
+				FromServer stmp;
+
+				first = object.getArray ( name );
+				flen = first.size ();
+				second = ( ( FromServerArray ) wid ).getElements ();
+				slen = second.size ();
+
+				if ( flen != slen )
+					return false;
+
+				for ( int i = 0; i < flen; i++ ) {
+					ftmp = ( FromServer ) first.get ( i );
+					stmp = ( FromServer ) second.get ( i );
+
+					if ( ftmp.getLocalID () != stmp.getLocalID () )
+						return false;
+				}
+
+				return true;
+			}
 
 			else if ( type == FromServer.OBJECT )
 				return object.getObject ( name ).equals ( ( ( FromServerSelector ) wid ).getSelected () );
@@ -370,7 +424,7 @@ public class FromServerForm extends Composite {
 
 	/****************************************************************** build */
 
-	public Widget getWidget ( String attribute ) {
+	private FromServerWidget retriveWidgetFromList ( String attribute ) {
 		int existing;
 		FromServerWidget tmp;
 
@@ -383,41 +437,50 @@ public class FromServerForm extends Composite {
 				return tmp;
 		}
 
-		tmp = new FromServerWidget ( object, attribute );
-		widgets.add ( tmp );
+		return null;
+	}
+
+	public Widget getWidget ( String attribute ) {
+		FromServerWidget tmp;
+
+		tmp = retriveWidgetFromList ( attribute );
+		if ( tmp == null ) {
+			tmp = new FromServerWidget ( object, attribute );
+			widgets.add ( tmp );
+		}
+
+		return tmp;
+	}
+
+	public Widget getPersonalizedWidget ( String attribute, Widget widget ) {
+		FromServerWidget tmp;
+
+		tmp = retriveWidgetFromList ( attribute );
+		if ( tmp == null ) {
+			tmp = new FromServerWidget ( object, attribute, widget );
+			widgets.add ( tmp );
+		}
+
 		return tmp;
 	}
 
 	public Widget retriveInternalWidget ( String attribute ) {
-		int existing;
 		FromServerWidget tmp;
 
-		existing = widgets.size ();
+		tmp = retriveWidgetFromList ( attribute );
 
-		for ( int i = 0; i < existing; i++ ) {
-			tmp = ( FromServerWidget ) widgets.get ( i );
-
-			if ( tmp.name.equals ( attribute ) )
-				return tmp.wid;
-		}
-
-		return null;
+		if ( tmp != null )
+			return tmp.wid;
+		else
+			return null;
 	}
 
 	public void setValidation ( String attribute, FromServerValidateCallback callback ) {
-		int existing;
 		FromServerWidget tmp;
 
-		existing = widgets.size ();
-
-		for ( int i = 0; i < existing; i++ ) {
-			tmp = ( FromServerWidget ) widgets.get ( i );
-
-			if ( tmp.name.equals ( attribute ) ) {
-				tmp.validation = callback;
-				break;
-			}
-		}
+		tmp = retriveWidgetFromList ( attribute );
+		if ( tmp != null )
+			tmp.validation = callback;
 	}
 
 	/*

@@ -21,7 +21,7 @@ import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
 
-public class NumberBox extends TextBox {
+public class NumberBox extends TextBox implements IntNumericWidget {
 	public NumberBox () {
 		setText ( "0" );
 

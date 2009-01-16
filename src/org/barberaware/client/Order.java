@@ -20,9 +20,9 @@ package org.barberaware.client;
 import java.util.*;
 
 public class Order extends FromServer {
-	public static int	OPENED		= 1;
-	public static int	CLOSED		= 2;
-	public static int	SUSPENDED	= 3;
+	public static int	OPENED		= 0;
+	public static int	CLOSED		= 1;
+	public static int	SUSPENDED	= 2;
 
 	public Order () {
 		super ();

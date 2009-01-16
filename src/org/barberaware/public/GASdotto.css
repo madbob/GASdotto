@@ -21,13 +21,19 @@
 .main-menu {
 	width:			100%;
 	padding:		10px;
+	font-size:		10px;
 	background-color:	#01A4DF;
 	text-align:		left;
 	vertical-align:		top;
 }
 
+.main-menu-item {
+	cursor:			pointer;
+	cursor:			hand;
+}
+
 .main-stack {
-	width:			90%;
+	width:			95%;
 	margin:			20px;
 	font-size:		30px;
 }
@@ -41,7 +47,7 @@
 }
 
 .element-details {
-	width:			90%;
+	width:			100%;
 	margin:			5px;
 	padding-left:		20px;
 	padding:		10px;
@@ -110,6 +116,11 @@
 .address-selector {
 	background:		#FFFFFF url('images/address_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
+}
+
+.cyclic-toggle {
+	cursor:			pointer;
+	cursor:			hand;
 }
 
 .gwt-DisclosurePanel {

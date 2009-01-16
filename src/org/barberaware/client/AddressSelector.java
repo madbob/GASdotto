@@ -36,6 +36,7 @@ public class AddressSelector extends Composite {
 		opened = false;
 
 		dialog = new DialogBox ( false );
+		dialog.setText ( "Definisci Indirizzo" );
 		dialog.setWidget ( doDialog () );
 
 		main = new TextBox ();
@@ -65,6 +66,7 @@ public class AddressSelector extends Composite {
 
 	public void setValue ( Address addr ) {
 		currentValue = addr;
+		showAddr ();
 	}
 
 	public void clean () {
@@ -126,5 +128,11 @@ public class AddressSelector extends Composite {
 		currentValue.setStreet ( street.getText () );
 		currentValue.setCap ( cap.getText () );
 		currentValue.setCity ( city.getText () );
+
+		showAddr ();
+	}
+
+	private void showAddr () {
+		main.setText ( currentValue.getStreet () + " " + currentValue.getCap () + " " + currentValue.getCity () );
 	}
 }

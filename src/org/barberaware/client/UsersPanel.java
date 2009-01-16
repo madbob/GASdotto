@@ -41,6 +41,7 @@ public class UsersPanel extends GenericPanel {
 		FromServerForm ver;
 		HorizontalPanel hor;
 		FlexTable fields;
+		CyclicToggle privileges;
 
 		if ( user == null )
 			user = new User ();
@@ -113,6 +114,13 @@ public class UsersPanel extends GenericPanel {
 		*/
 		fields.setWidget ( 1, 0, new Label ( "Quota pagata" ) );
 		fields.setWidget ( 1, 1, ver.getWidget ( "paying" ) );
+
+		fields.setWidget ( 2, 0, new Label ( "Ruolo" ) );
+		privileges = new CyclicToggle ();
+		privileges.addState ( "images/user_role_standard.png" );
+		privileges.addState ( "images/user_role_reference.png" );
+		privileges.addState ( "images/user_role_admin.png" );
+		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
 
 		return ver;
 	}

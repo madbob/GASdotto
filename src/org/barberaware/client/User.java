@@ -22,9 +22,9 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 
 public class User extends FromServer {
-	public static int	USER_COMMON		= 1;
-	public static int	USER_RESPONSABLE	= 2;
-	public static int	USER_ADMIN		= 3;
+	public static int	USER_COMMON		= 0;
+	public static int	USER_RESPONSABLE	= 1;
+	public static int	USER_ADMIN		= 2;
 
 	public User () {
 		super ();
