@@ -21,70 +21,66 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SystemPanel extends GenericPanel {
-	private VerticalPanel	categories;
-	private VerticalPanel	measures;
+	private FormCluster	categories;
+	private FormCluster	measures;
 
 	public SystemPanel () {
 		super ();
 
 		add ( new Label ( "Categorie" ) );
-		categories = new VerticalPanel ();
+		categories = new FormCluster ( "Category", "TODO" ) {
+			protected FromServerForm doEditableRow ( FromServer cat ) {
+				FromServerForm ver;
+				FlexTable fields;
+
+				ver = new FromServerForm ( cat );
+
+				fields = new FlexTable ();
+				ver.add ( fields );
+
+				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+				fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+
+				ver.add ( new Label ( "Descrizione" ) );
+				ver.add ( ver.getWidget ( "description" ) );
+
+				return ver;
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				return doEditableRow ( new Category () );
+			}
+		};
 		add ( categories );
 
 		add ( new HTML ( "<hr>" ) );
 
 		add ( new Label ( "Unità di misura" ) );
-		measures = new VerticalPanel ();
+		measures = new FormCluster ( "Measure", "TODO" ) {
+			protected FromServerForm doEditableRow ( FromServer measure ) {
+				FromServerForm ver;
+				HorizontalPanel hor;
+				FlexTable fields;
+
+				ver = new FromServerForm ( measure );
+
+				fields = new FlexTable ();
+				ver.add ( fields );
+
+				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+				fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+
+				fields.setWidget ( 1, 0, new Label ( "Simbolo" ) );
+				fields.setWidget ( 1, 1, ver.getWidget ( "symbol" ) );
+
+				return ver;
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				return doEditableRow ( new Measure () );
+			}
+		};
 		add ( measures );
-
-		Utils.getServer ().onObjectReceive ( "Category", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				categories.insert ( doCategoryRow ( ( Category ) object ), 0 );
-			}
-		} );
-
-		Utils.getServer ().onObjectReceive ( "Measure", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				measures.insert ( doMeasureRow ( ( Measure ) object ), 0 );
-			}
-		} );
-	}
-
-	private Widget doCategoryRow ( Category category ) {
-		FromServerForm ver;
-		FlexTable fields;
-
-		ver = new FromServerForm ( category );
-
-		fields = new FlexTable ();
-		ver.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
-
-		ver.add ( new Label ( "Descrizione" ) );
-		ver.add ( ver.getWidget ( "description" ) );
-
-		return ver;
-	}
-
-	private Widget doMeasureRow ( Measure measure ) {
-		FromServerForm ver;
-		HorizontalPanel hor;
-		FlexTable fields;
-
-		ver = new FromServerForm ( measure );
-
-		fields = new FlexTable ();
-		ver.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Simbolo" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "symbol" ) );
-
-		return ver;
 	}
 
 	/****************************************************************** GenericPanel */

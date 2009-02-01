@@ -18,6 +18,6 @@
 package org.barberaware.client;
 
 public interface IntNumericWidget {
-	void setValue ( int value );
-	int getValue ();
+	public void setValue ( int value );
+	public int getValue ();
 }

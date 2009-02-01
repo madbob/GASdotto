@@ -21,128 +21,105 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
 public class UsersPanel extends GenericPanel {
+	private FormCluster		main;
+
 	public UsersPanel () {
 		super ();
 
-		Utils.getServer ().onObjectReceive ( "User", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				User tmp;
-				tmp = ( User ) object;
-				addTop ( doEditableRow ( tmp ) );
-			}
-		} );
+		main = new FormCluster ( "User", "images/new_user.png" ) {
+				protected FromServerForm doEditableRow ( FromServer u ) {
+					FromServerForm ver;
+					HorizontalPanel hor;
+					FlexTable fields;
+					User user;
+					CyclicToggle privileges;
 
-		add ( doAddUserButton () );
-	}
+					user = ( User ) u;
+					ver = new FromServerForm ( user );
 
-	/****************************************************************** edit */
+					ver.setAdditionalIconsCallback ( new FromServerFormIcons () {
+						public Panel retrive ( FromServer obj ) {
+							HorizontalPanel hor;
 
-	private FromServerForm doEditableRow ( User user ) {
-		FromServerForm ver;
-		HorizontalPanel hor;
-		FlexTable fields;
-		CyclicToggle privileges;
+							hor = new HorizontalPanel ();
 
-		if ( user == null )
-			user = new User ();
+							if ( obj.getBool ( "paying" ) == false )
+								hor.add ( new Image ( "images/notifications/user_not_paying.png" ) );
 
-		ver = new FromServerForm ( user );
+							return hor;
+						}
+					} );
 
-		ver.setAdditionalIconsCallback ( new FromServerFormIcons () {
-			public Panel retrive ( FromServer obj ) {
-				HorizontalPanel hor;
+					hor = new HorizontalPanel ();
+					ver.add ( hor );
 
-				hor = new HorizontalPanel ();
+					fields = new FlexTable ();
+					hor.add ( fields );
 
-				if ( obj.getBool ( "paying" ) == false )
-					hor.add ( new Image ( "images/notifications/user_not_paying.png" ) );
+					/**
+						TODO	Costruire campo "login" parallelamente a nome e cognome (magari
+							nella classica forma nome.cognome), ma se e solo se non e' gia'
+							stato editato manualmente ed i due campi differiscono
+							completamente
+					*/
 
-				return hor;
-			}
-		} );
+					fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
+					fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
 
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
+					/**
+						TODO	Prevedere aggiornamento della password, qualora qualcuno se la
+							scordasse
+					*/
 
-		fields = new FlexTable ();
-		hor.add ( fields );
+					fields.setWidget ( 1, 0, new Label ( "Nome" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "firstname" ) );
 
-		/**
-			TODO	Costruire campo "login" parallelamente a nome e cognome (magari
-				nella classica forma nome.cognome), ma se e solo se non e' gia'
-				stato editato manualmente ed i due campi differiscono
-				completamente
-		*/
+					fields.setWidget ( 2, 0, new Label ( "Cognome" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "surname" ) );
 
-		fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
+					fields.setWidget ( 3, 0, new Label ( "Telefono" ) );
+					fields.setWidget ( 3, 1, ver.getWidget ( "phone" ) );
+					ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-		/**
-			TODO	Prevedere aggiornamento della password, qualora qualcuno se la
-				scordasse
-		*/
+					fields.setWidget ( 4, 0, new Label ( "Cellulare" ) );
+					fields.setWidget ( 4, 1, ver.getWidget ( "mobile" ) );
+					ver.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-		fields.setWidget ( 1, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "firstname" ) );
+					fields.setWidget ( 5, 0, new Label ( "Mail" ) );
+					fields.setWidget ( 5, 1, ver.getWidget ( "mail" ) );
+					ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
-		fields.setWidget ( 2, 0, new Label ( "Cognome" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "surname" ) );
+					fields = new FlexTable ();
+					hor.add ( fields );
 
-		fields.setWidget ( 3, 0, new Label ( "Telefono" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "phone" ) );
-		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
+					fields.setWidget ( 0, 0, new Label ( "Iscritto da" ) );
+					fields.setWidget ( 0, 1, ver.getWidget ( "join_date" ) );
 
-		fields.setWidget ( 4, 0, new Label ( "Cellulare" ) );
-		fields.setWidget ( 4, 1, ver.getWidget ( "mobile" ) );
-		ver.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
+					/**
+						TODO	Gestire la segnalazione del pagamento della quota in modo
+							diverso. Pier suggeriva di marcare l'anno in cui e' stata pagata
+							l'ultima volta, ma mi sembra poco efficiente, bisognerebbe
+							trovare un compromesso
+					*/
+					fields.setWidget ( 1, 0, new Label ( "Quota pagata" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "paying" ) );
 
-		fields.setWidget ( 5, 0, new Label ( "Mail" ) );
-		fields.setWidget ( 5, 1, ver.getWidget ( "mail" ) );
-		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+					fields.setWidget ( 2, 0, new Label ( "Ruolo" ) );
+					privileges = new CyclicToggle ();
+					privileges.addState ( "images/user_role_standard.png" );
+					privileges.addState ( "images/user_role_reference.png" );
+					privileges.addState ( "images/user_role_admin.png" );
+					fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
 
-		fields = new FlexTable ();
-		hor.add ( fields );
+					return ver;
+				}
 
-		fields.setWidget ( 0, 0, new Label ( "Iscritto da" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "join_date" ) );
+				protected FromServerForm doNewEditableRow () {
+					return doEditableRow ( new User () );
+				}
+		};
 
-		/**
-			TODO	Gestire la segnalazione del pagamento della quota in modo
-				diverso. Pier suggeriva di marcare l'anno in cui e' stata pagata
-				l'ultima volta, ma mi sembra poco efficiente, bisognerebbe
-				trovare un compromesso
-		*/
-		fields.setWidget ( 1, 0, new Label ( "Quota pagata" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "paying" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Ruolo" ) );
-		privileges = new CyclicToggle ();
-		privileges.addState ( "images/user_role_standard.png" );
-		privileges.addState ( "images/user_role_reference.png" );
-		privileges.addState ( "images/user_role_admin.png" );
-		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
-
-		return ver;
-	}
-
-	private Panel doAddUserButton () {
-		PushButton button;
-		HorizontalPanel pan;
-
-		pan = new HorizontalPanel ();
-		pan.setStyleName ( "bottom-buttons" );
-
-		button = new PushButton ( new Image ( "images/new_user.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				FromServerForm new_user;
-				new_user = doEditableRow ( null );
-				new_user.open ( true );
-				addBottom ( new_user );
-			}
-		} );
-
-		pan.add ( button );
-		return pan;
+		addTop ( main );
 	}
 
 	/****************************************************************** GenericPanel */

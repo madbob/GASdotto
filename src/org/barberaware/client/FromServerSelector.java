@@ -36,7 +36,7 @@ public class FromServerSelector extends ListBox {
 
 		addItem ( "Nessuno", "0" );
 
-		Utils.getServer ().onObjectReceive ( type, new ServerObjectReceive () {
+		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				if ( filterCallback != null ) {
 					if ( filterCallback.checkObject ( object ) == false )
@@ -44,6 +44,22 @@ public class FromServerSelector extends ListBox {
 				}
 
 				addItem ( object.getString ( "name" ), Integer.toString ( object.getLocalID () ) );
+			}
+
+			public void onModify ( FromServer object ) {
+				int index;
+
+				index = retrieveObjectIndex ( object );
+				if ( index != -1 )
+					setItemText ( index, object.getString ( "name" ) );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				int index;
+
+				index = retrieveObjectIndex ( object );
+				if ( index != -1 )
+					removeItem ( index );
 			}
 		} );
 
@@ -91,11 +107,29 @@ public class FromServerSelector extends ListBox {
 		int selected;
 		int index;
 
+		if ( getItemCount () == 0 )
+			return null;
+
 		index = getSelectedIndex ();
 		if ( index == 0 )
 			return null;
 
 		selected = Integer.parseInt ( getValue ( index ) );
 		return Utils.getServer ().getObjectFromCache ( type, selected );
+	}
+
+	private int retrieveObjectIndex ( FromServer object ) {
+		int search_id;
+		int id;
+
+		search_id = object.getLocalID ();
+
+		for ( int i = 0; i < getItemCount (); ) {
+			id = Integer.parseInt ( getValue ( i ) );
+			if ( search_id == id )
+				return i;
+		}
+
+		return -1;
 	}
 }

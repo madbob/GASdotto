@@ -24,7 +24,7 @@ public class OrdersPanel extends GenericPanel {
 	public OrdersPanel () {
 		super ();
 
-		Utils.getServer ().onObjectReceive ( "Order", new ServerObjectReceive () {
+		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Order ord;
 
@@ -39,9 +39,21 @@ public class OrdersPanel extends GenericPanel {
 					Utils.getServer ().testObjectReceive ( params );
 				}
 			}
+
+			public void onModify ( FromServer object ) {
+				/**
+					TODO
+				*/
+			}
+
+			public void onDestroy ( FromServer object ) {
+				/**
+					TODO
+				*/
+			}
 		} );
 
-		Utils.getServer ().onObjectReceive ( "OrderUser", new ServerObjectReceive () {
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm order_form;
 				Order order;
@@ -58,6 +70,18 @@ public class OrdersPanel extends GenericPanel {
 						break;
 					}
 				}
+			}
+
+			public void onModify ( FromServer object ) {
+				/**
+					TODO
+				*/
+			}
+
+			public void onDestroy ( FromServer object ) {
+				/**
+					TODO
+				*/
 			}
 		} );
 

@@ -143,8 +143,12 @@ public abstract class FromServer {
 		}
 
 		public JSONValue getJSON () {
-			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE )
-				return new JSONString ( string );
+			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
+				if ( string != null )
+					return new JSONString ( string );
+				else
+					return new JSONString ( "" );
+			}
 
 			else if ( type == FromServer.INTEGER )
 				return new JSONString ( Integer.toString ( integer ) );
@@ -157,15 +161,20 @@ public abstract class FromServer {
 				FromServer tmp;
 
 				arr = new JSONArray ();
-				for ( int i = 0; i < array.size (); i++ ) {
-					tmp = ( FromServer ) array.get ( i );
-					arr.set ( i, tmp.toJSONObject () );
+
+				if ( array != null ) {
+					for ( int i = 0; i < array.size (); i++ ) {
+						tmp = ( FromServer ) array.get ( i );
+						arr.set ( i, tmp.toJSONObject () );
+					}
 				}
+
 				return arr;
 			}
 
 			else if ( type == FromServer.OBJECT ) {
 				JSONValue ret;
+
 				if ( object == null )
 					object = FromServerFactory.create ( object_type.getName () );
 
@@ -210,6 +219,18 @@ public abstract class FromServer {
 
 	public int getLocalID () {
 		return localID;
+	}
+
+	/*
+		E' sconsigliato usare questa funzione direttamente al di fuori delle classi
+		piu' interne (tra cui FromServerResponse)
+	*/
+	public void setLocalID ( int lid ) {
+		localID = lid;
+	}
+
+	public String getType () {
+		return type;
 	}
 
 	protected void addAttribute ( String name, int type ) {
@@ -325,18 +346,6 @@ public abstract class FromServer {
 		return ( localID != -1 );
 	}
 
-	public ServerResponse defaultSavingCallback () {
-		return
-			new ServerResponse () {
-				public void onComplete ( JSONValue response ) {
-					localID = ( int ) response.isNumber ().getValue ();
-
-					if ( localID == -1 )
-						Utils.showNotification ( "Errore nel salvataggio sul database" );
-				}
-			};
-	}
-
 	public static FromServer instance ( JSONObject obj ) {
 		FromServer tmp;
 
@@ -345,30 +354,24 @@ public abstract class FromServer {
 		return tmp;
 	}
 
-	/*
-		Se si vuol mantenere coerente il contenuto dell'oggetto salvato la callback
-		passata deve iniziare con una invocazione a
-		oggetto.defaultSavingCallback ().onComplete ( response );
-		Occhio pero' che se tale oggetto appena salvato e' tenuto in una variabile
-		globale si rischia di andare a sovrascrivere qualche stato corrente, in quanto
-		tale funzione viene invocata asincronicamente e magari dopo una successiva
-		assegnazione
-	*/
 	public void save ( ServerResponse callback ) {
+		int type;
 		JSONObject obj;
+		FromServerResponse true_callback;
 
 		obj = this.toJSONObject ();
 
-		if ( callback == null )
-			callback = defaultSavingCallback ();
+		type = localID == -1 ? FromServerResponse.ACTION_CREATE : FromServerResponse.ACTION_MODIFY;
+		true_callback = new FromServerResponse ( type, this, callback );
 
 		if ( obj != null ) {
 			RequestBuilder builder;
 
-			builder = new RequestBuilder ( RequestBuilder.POST, Utils.getServer ().getURL () + "server.php?action=save" );
+			builder = new RequestBuilder ( RequestBuilder.POST,
+							Utils.getServer ().getURL () + "server.php?action=save" );
 
 			try {
-				builder.sendRequest ( obj.toString (), callback );
+				builder.sendRequest ( obj.toString (), true_callback );
 				builder.setTimeoutMillis ( 5000 );
 			}
 			catch ( RequestException e ) {
@@ -379,19 +382,22 @@ public abstract class FromServer {
 
 	public void destroy ( ServerResponse callback ) {
 		JSONObject obj;
+		FromServerResponse true_callback;
 
 		if ( isValid () == false )
 			return;
 
 		obj = this.toJSONObject ();
+		true_callback = new FromServerResponse ( FromServerResponse.ACTION_DELETE, this, callback );
 
 		if ( obj != null ) {
 			RequestBuilder builder;
 
-			builder = new RequestBuilder ( RequestBuilder.POST, Utils.getServer ().getURL () + "server.php?action=destroy" );
+			builder = new RequestBuilder ( RequestBuilder.POST,
+							Utils.getServer ().getURL () + "server.php?action=destroy" );
 
 			try {
-				builder.sendRequest ( obj.toString (), callback );
+				builder.sendRequest ( obj.toString (), true_callback );
 				builder.setTimeoutMillis ( 5000 );
 			}
 			catch ( RequestException e ) {

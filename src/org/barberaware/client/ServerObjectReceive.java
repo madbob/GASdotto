@@ -56,4 +56,6 @@ public abstract class ServerObjectReceive implements RequestCallback {
 	}
 
 	protected abstract void onReceive ( FromServer object );
+	protected abstract void onModify ( FromServer object );
+	protected abstract void onDestroy ( FromServer object );
 }

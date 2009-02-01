@@ -22,102 +22,179 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class ProductsEditPanel extends Composite {
-	private VerticalPanel	main;
-	private Supplier	supplier;
+	private DeckPanel		main;
+
+	private FormCluster		list;
+	private FromServerTable		table;
+
+	private Supplier		supplier;
 
 	/**
 		TODO	Ordinare i prodotti per categoria
 	*/
 
 	public ProductsEditPanel ( Supplier supp ) {
-		main = new VerticalPanel ();
-		initWidget ( main );
-		main.add ( doAddProductButton () );
+		VerticalPanel container;
+		ToggleButton switchable;
 
 		supplier = supp;
+
+		container = new VerticalPanel ();
+		container.setWidth ( "100%" );
+		initWidget ( container );
+
+		main = new DeckPanel ();
+		container.add ( main );
+
+		main.add ( doListView () );
+		main.add ( doTableView () );
+		main.showWidget ( 0 );
+
+		switchable = new ToggleButton ( "Visualizza Tabella", "Visualizza Lista" );
+		switchable.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				ToggleButton but;
+
+				but = ( ToggleButton ) sender;
+				if ( but.isDown () )
+					main.showWidget ( 1 );
+				else
+					main.showWidget ( 0 );
+			}
+		} );
+		switchable.setStyleName ( "text-button" );
+		container.add ( switchable );
+		container.setCellHorizontalAlignment ( switchable, HasHorizontalAlignment.ALIGN_RIGHT );
 	}
 
 	public void addProduct ( Product product ) {
-		main.insert ( doEditableRow ( product ), 0 );
+		list.addElement ( product );
+		table.addElement ( product );
 	}
 
-	private FromServerForm doEditableRow ( Product product ) {
-		FromServerForm ver;
-		HorizontalPanel hor;
-		FlexTable fields;
-
-		if ( product == null ) {
-			product = new Product ();
-			product.setObject ( "supplier", supplier );
-		}
-
-		ver = new FromServerForm ( product );
-
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Categoria" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "category" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Unità di misura" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "measure" ) );
-
-		fields.setWidget ( 3, 0, new Label ( "Ordinabile" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "available" ) );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Prezzo unitario" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "unit_price" ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Prezzo trasporto" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "shipping_price" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Prezzo variabile" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "mutable_price" ) );
-
-		fields.setWidget ( 3, 0, new Label ( "Sovrapprezzo" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "surplus" ) );
-
-		fields.setWidget ( 4, 0, new Label ( "Dimensione stock" ) );
-		fields.setWidget ( 4, 1, ver.getWidget ( "stock_size" ) );
-
-		fields.setWidget ( 5, 0, new Label ( "Minimo per l'utente" ) );
-		fields.setWidget ( 5, 1, ver.getWidget ( "minimum_order" ) );
-
-		fields.setWidget ( 6, 0, new Label ( "Multiplo per l'utente" ) );
-		fields.setWidget ( 6, 1, ver.getWidget ( "multiple_order" ) );
-
-		ver.add ( new Label ( "Descrizione" ) );
-		ver.add ( ver.getWidget ( "description" ) );
-
-		return ver;
+	public void refreshProduct ( Product product ) {
+		list.refreshElement ( product );
+		table.refreshElement ( product );
 	}
 
-	private Panel doAddProductButton () {
+	public void deleteProduct ( Product product ) {
+		list.deleteElement ( product );
+		table.removeElement ( product );
+	}
+
+	/****************************************************************** lista */
+
+	private Widget doListView () {
+		list = new FormCluster ( "Product", null, false ) {
+				protected FromServerForm doEditableRow ( FromServer product ) {
+					FromServerForm ver;
+					HorizontalPanel hor;
+					FlexTable fields;
+
+					ver = new FromServerForm ( product );
+
+					hor = new HorizontalPanel ();
+					ver.add ( hor );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+					fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+
+					fields.setWidget ( 1, 0, new Label ( "Categoria" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "category" ) );
+
+					fields.setWidget ( 2, 0, new Label ( "Unità di misura" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "measure" ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Ordinabile" ) );
+					fields.setWidget ( 3, 1, ver.getWidget ( "available" ) );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					fields.setWidget ( 0, 0, new Label ( "Prezzo unitario" ) );
+					fields.setWidget ( 0, 1, ver.getWidget ( "unit_price" ) );
+
+					fields.setWidget ( 1, 0, new Label ( "Prezzo trasporto" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "shipping_price" ) );
+
+					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "mutable_price" ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Sovrapprezzo" ) );
+					fields.setWidget ( 3, 1, ver.getWidget ( "surplus" ) );
+
+					fields.setWidget ( 4, 0, new Label ( "Dimensione stock" ) );
+					fields.setWidget ( 4, 1, ver.getWidget ( "stock_size" ) );
+
+					fields.setWidget ( 5, 0, new Label ( "Minimo per l'utente" ) );
+					fields.setWidget ( 5, 1, ver.getWidget ( "minimum_order" ) );
+
+					fields.setWidget ( 6, 0, new Label ( "Multiplo per l'utente" ) );
+					fields.setWidget ( 6, 1, ver.getWidget ( "multiple_order" ) );
+
+					ver.add ( new Label ( "Descrizione" ) );
+					ver.add ( ver.getWidget ( "description" ) );
+
+					return ver;
+				}
+
+				protected FromServerForm doNewEditableRow () {
+					Product product;
+
+					product = new Product ();
+					product.setObject ( "supplier", supplier );
+					return doEditableRow ( product );
+				}
+		};
+
+		return list;
+	}
+
+	/****************************************************************** tabella */
+
+	private Widget doTableView () {
+		VerticalPanel container;
 		PushButton button;
-		HorizontalPanel pan;
+		ButtonsBar buttons;
 
-		pan = new HorizontalPanel ();
-		pan.setStyleName ( "bottom-buttons" );
+		container = new VerticalPanel ();
 
-		button = new PushButton ( new Image ( "images/new_product.png" ), new ClickListener () {
+		table = new FromServerTable ();
+		table.addColumn ( "Nome", "name", false );
+		table.addColumn ( "Prezzo Unitario", "unit_price", true );
+		table.addColumn ( "Ordinabile", "available", true );
+		container.add ( table );
+
+		buttons = new ButtonsBar ();
+		container.add ( buttons );
+
+		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
-				FromServerForm new_product;
-				new_product = doEditableRow ( null );
-				new_product.open ( true );
-				main.insert ( new_product, main.getWidgetCount () - 1 );
+				table.revertChanges ();
 			}
 		} );
+		buttons.add ( button, "Annulla" );
 
-		pan.add ( button );
-		return pan;
+		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
+			public void onClick ( Widget sender ) {
+				int size;
+				ArrayList products;
+				Product prod;
+
+				products = table.getElements ();
+				size = products.size ();
+
+				for ( int i = 0; i < size; i++ ) {
+					prod = ( Product ) products.get ( i );
+					prod.save ( null );
+				}
+			}
+		} );
+		buttons.add ( button, "Salva" );
+
+		return container;
 	}
 }

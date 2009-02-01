@@ -57,9 +57,28 @@ public class ReferenceList extends FromServerArray {
 		initWidget ( main );
 		clean ();
 
-		Utils.getServer ().onObjectReceive ( "User", new ServerObjectReceive () {
+		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				doSelectableRow ( ( User ) object );
+			}
+
+			public void onModify ( FromServer object ) {
+				int a;
+				Label name;
+
+				a = retrieveUserIndex ( object );
+				if ( a != -1 ) {
+					name = ( Label ) items.getWidget ( a, 2 );
+					name.setText ( object.getString ( "name" ) );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				int a;
+
+				a = retrieveUserIndex ( object );
+				if ( a != -1 )
+					items.removeRow ( a );
 			}
 		} );
 	}
@@ -104,14 +123,16 @@ public class ReferenceList extends FromServerArray {
 	}
 
 	private void doSelectableRow ( User user ) {
-		int index;
+		if ( user.getInt ( "privileges" ) >= User.USER_RESPONSABLE ) {
+			int index;
 
-		index = items.getRowCount ();
-		items.insertRow ( index );
+			index = items.getRowCount ();
+			items.insertRow ( index );
 
-		items.setWidget ( index, 0, new Hidden ( Integer.toString ( user.getLocalID () ) ) );
-		items.setWidget ( index, 1, new CheckBox () );
-		items.setWidget ( index, 2, new Label ( user.getString ( "name" ) ) );
+			items.setWidget ( index, 0, new Hidden ( Integer.toString ( user.getLocalID () ) ) );
+			items.setWidget ( index, 1, new CheckBox () );
+			items.setWidget ( index, 2, new Label ( user.getString ( "name" ) ) );
+		}
 	}
 
 	private void retriveMainString () {
@@ -139,6 +160,7 @@ public class ReferenceList extends FromServerArray {
 	}
 
 	private void syncToDialog () {
+		int a;
 		int sel_num;
 		int avail_num;
 		String tmp_id;
@@ -158,16 +180,11 @@ public class ReferenceList extends FromServerArray {
 
 		for ( int i = 0; i < sel_num; i++ ) {
 			tmp = ( User ) selected.get ( i );
-			tmp_id = Integer.toString ( tmp.getLocalID () );
 
-			for ( int a = 0; a < avail_num; a++ ) {
-				hid = ( Hidden ) items.getWidget ( i, 0 );
-
-				if ( tmp_id.equals ( hid.getName () ) ) {
-					check = ( CheckBox ) items.getWidget ( i, 1 );
-					check.setChecked ( true );
-					break;
-				}
+			a = retrieveUserIndex ( tmp );
+			if ( a != -1 ) {
+				check = ( CheckBox ) items.getWidget ( a, 1 );
+				check.setChecked ( true );
 			}
 		}
 	}
@@ -197,6 +214,26 @@ public class ReferenceList extends FromServerArray {
 
 		retriveMainString ();
 	}
+
+	private int retrieveUserIndex ( FromServer user ) {
+		int avail_num;
+		String id;
+		Hidden hid;
+
+		id = Integer.toString ( user.getLocalID () );
+		avail_num = items.getRowCount ();
+
+		for ( int i = 0; i < avail_num; i++ ) {
+			hid = ( Hidden ) items.getWidget ( i, 0 );
+
+			if ( id.equals ( hid.getName () ) )
+				return i;
+		}
+
+		return -1;
+	}
+
+	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
 		/* dummy */

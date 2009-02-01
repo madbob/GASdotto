@@ -42,7 +42,7 @@ public class HomePanel extends GenericPanel {
 		orders = new VerticalPanel ();
 		orders.add ( new Label ( "Non ci sono ordini aperti in questo momento." ) );
 
-		Utils.getServer ().onObjectReceive ( "Order", new ServerObjectReceive () {
+		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				if ( hasOrders == false ) {
 					orders.remove ( 0 );
@@ -52,6 +52,18 @@ public class HomePanel extends GenericPanel {
 
 				orders.add ( doOrderRow ( ( Order ) object ) );
 			}
+
+			public void onModify ( FromServer object ) {
+				/**
+					TODO
+				*/
+			}
+
+			public void onDestroy ( FromServer object ) {
+				/**
+					TODO
+				*/
+			}
 		} );
 
 		return orders;
@@ -59,7 +71,8 @@ public class HomePanel extends GenericPanel {
 
 	private Widget doOrderRow ( Order order ) {
 		/**
-			TODO	Questa funzione
+			TODO	Rendere le righe degli ordini cliccabili per raggiungere
+				direttamente il form di input
 		*/
 
 		return new Label ( order.getString ( "name" ) );

@@ -20,12 +20,6 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
-/**
-	TODO	Far convergere questo oggetto con la NumberBox per mezzo di una interfaccia
-		comune, in modo da poterli gestire in modo univoco automaticamente in
-		FromServerForm
-*/
-
 public class CyclicToggle extends Composite implements IntNumericWidget {
 	private DeckPanel		main;
 

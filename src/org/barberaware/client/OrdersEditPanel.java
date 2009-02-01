@@ -22,16 +22,195 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class OrdersEditPanel extends GenericPanel {
+	private FormCluster		main;
+
 	public OrdersEditPanel () {
 		super ();
 
-		Utils.getServer ().onObjectReceive ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				addTop ( doEditableRow ( ( Order ) object ) );
-			}
-		} );
+		main = new FormCluster ( "Order", "images/new_order.png" ) {
+				protected FromServerForm doEditableRow ( FromServer ord ) {
+					final FromServerForm ver;
+					HorizontalPanel hor;
+					FlexTable fields;
+					Order order;
+					CyclicToggle status;
 
-		Utils.getServer ().onObjectReceive ( "Product", new ServerObjectReceive () {
+					order = ( Order ) ord;
+
+					ver = new FromServerForm ( order );
+					ver.setCallback ( new FromServerFormCallbacks () {
+						public void onSave ( FromServerForm form ) {
+							retriveInputData ( form );
+						}
+
+						public void onReset ( FromServerForm form ) {
+							resetOrderRow ( form );
+						}
+
+						public void onDelete ( FromServerForm form ) {
+							/* dummy */
+						}
+					} );
+
+					hor = new HorizontalPanel ();
+					ver.add ( hor );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
+					fields.setWidget ( 0, 1, new Label ( order.getObject ( "supplier" ).getString ( "name" ) ) );
+
+					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
+
+					fields.setWidget ( 2, 0, new Label ( "Data chiusura" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
+					fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					fields.setWidget ( 0, 0, new Label ( "Referente" ) );
+					fields.setWidget ( 0, 1, ver.getWidget ( "reference" ) );
+					getOrderReferenceSelector ( ver );
+
+					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
+					status = new CyclicToggle ();
+					status.addState ( "images/order_status_opened.png" );
+					status.addState ( "images/order_status_closed.png" );
+					status.addState ( "images/order_status_suspended.png" );
+					fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "status", status ) );
+
+					fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
+					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+
+					addProductsList ( ver );
+					return ver;
+				}
+
+				protected FromServerForm doNewEditableRow () {
+					Order order;
+					final FromServerForm ver;
+					HorizontalPanel hor;
+					FlexTable fields;
+					Widget suppliers_main;
+					FromServerSelector suppliers;
+					FlexTable products;
+					DateSelector date;
+					Date now;
+
+					order = new Order ();
+
+					ver = new FromServerForm ( order );
+					ver.setCallback ( new FromServerFormCallbacks () {
+						public void onSave ( FromServerForm form ) {
+							retriveInputData ( form );
+						}
+
+						public void onReset ( FromServerForm form ) {
+							resetOrderRow ( form );
+						}
+
+						public void onDelete ( FromServerForm form ) {
+							/* dummy */
+						}
+					} );
+
+					hor = new HorizontalPanel ();
+					ver.add ( hor );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
+					suppliers_main = ver.getWidget ( "supplier" );
+					suppliers = ( FromServerSelector ) ver.retriveInternalWidget ( "supplier" );
+
+					suppliers.addChangeListener ( new ChangeListener () {
+						public void onChange ( Widget sender ) {
+							FromServerSelector suppliers;
+							FromServer supp;
+							FlexTable products_list;
+
+							suppliers = ( FromServerSelector ) sender;
+							supp = suppliers.getSelected ();
+
+							products_list = ( FlexTable ) ver.retriveInternalWidget ( "list" );
+							while ( products_list.getRowCount () != 0 )
+								products_list.removeRow ( 0 );
+
+							if ( supp != null ) {
+								ServerRequest params;
+
+								ver.getObject ().setObject ( "supplier", supp );
+								loadExistingProducts ( products_list, supp );
+
+								params = new ServerRequest ( "Product" );
+								params.add ( "supplier", supp );
+								Utils.getServer ().testObjectReceive ( params );
+							}
+							else
+								products_list.setWidget ( 0, 0, new Label ( "Nessun fornitore selezionato" ) );
+						}
+					} );
+					fields.setWidget ( 0, 1, suppliers_main );
+
+					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
+
+					fields.setWidget ( 2, 0, new Label ( "Data chiusura" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
+					fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					fields.setWidget ( 0, 0, new Label ( "Referente" ) );
+					fields.setWidget ( 0, 1, ver.getWidget ( "reference" ) );
+					getOrderReferenceSelector ( ver );
+
+					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
+					fields.setWidget ( 1, 1, new Label ( "Nuovo" ) );
+
+					fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
+					fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
+					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+
+					now = new Date ( System.currentTimeMillis () );
+					date = ( DateSelector ) ver.retriveInternalWidget ( "startdate" );
+					date.setValue ( now );
+
+					now.setMonth ( now.getMonth () + 3 );
+					if ( now.getMonth () < 3 )
+						now.setYear ( now.getYear () + 1 );
+
+					date = ( DateSelector ) ver.retriveInternalWidget ( "enddate" );
+					date.setValue ( now );
+					date = ( DateSelector ) ver.retriveInternalWidget ( "shippingdate" );
+					date.setValue ( now );
+
+					fields = new FlexTable ();
+					hor.add ( fields );
+
+					products = addProductsList ( ver );
+					products.setWidget ( 0, 0, new Label ( "Nessun fornitore selezionato" ) );
+					return ver;
+				}
+		};
+
+		addTop ( main );
+
+		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Product product;
 				Supplier supplier;
@@ -49,8 +228,8 @@ public class OrdersEditPanel extends GenericPanel {
 
 				supplier = ( Supplier ) product.getObject ( "supplier" );
 
-				for ( int i = 1; i < getWidgetCount () - 1; i++ ) {
-					order_form = ( FromServerForm ) getWidget ( i );
+				for ( int i = 1; i < main.getWidgetCount () - 1; i++ ) {
+					order_form = ( FromServerForm ) main.getWidget ( i );
 					tmp_order = ( Order ) order_form.getObject ();
 					tmp_supplier = ( Supplier ) tmp_order.getObject ( "supplier" );
 
@@ -85,194 +264,19 @@ public class OrdersEditPanel extends GenericPanel {
 					*/
 				}
 			}
-		} );
 
-		add ( doAddOrderButton () );
-	}
-
-	private FromServerForm doEditableRow ( Order order ) {
-		final FromServerForm ver;
-		HorizontalPanel hor;
-		FlexTable fields;
-		FlexTable products;
-		CyclicToggle status;
-
-		ver = new FromServerForm ( order );
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSave ( FromServerForm form ) {
-				retriveAdditionalAttributes ( form );
-				retriveInputData ( form );
+			public void onModify ( FromServer object ) {
+				/**
+					TODO
+				*/
 			}
 
-			public void onReset ( FromServerForm form ) {
-				resetAdditionalAttributes ( form );
-				resetOrderRow ( form );
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
+			public void onDestroy ( FromServer object ) {
+				/**
+					TODO
+				*/
 			}
 		} );
-
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-		fields.setWidget ( 0, 1, new Label ( order.getObject ( "supplier" ).getString ( "name" ) ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Data chiusura" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
-
-		fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Referente" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "reference" ) );
-		getOrderReferenceSelector ( ver );
-
-		fields.setWidget ( 1, 0, new Label ( "Stato" ) );
-		status = new CyclicToggle ();
-		status.addState ( "images/order_status_opened.png" );
-		status.addState ( "images/order_status_closed.png" );
-		status.addState ( "images/order_status_suspended.png" );
-		fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "status", status ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
-
-		/**
-			TODO	Aggiungere settaggio ordini ciclici
-		*/
-		fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
-		fields.setWidget ( 3, 1, new Label ( "TODO!!!" ) );
-
-		addProductsList ( ver );
-		return ver;
-	}
-
-	private FromServerForm doNewOrderRow () {
-		Order order;
-		final FromServerForm ver;
-		HorizontalPanel hor;
-		FlexTable fields;
-		Widget suppliers_main;
-		FromServerSelector suppliers;
-		FlexTable products;
-		DateSelector date;
-		Date now;
-
-		order = new Order ();
-
-		ver = new FromServerForm ( order );
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSave ( FromServerForm form ) {
-				retriveInputData ( form );
-			}
-
-			public void onReset ( FromServerForm form ) {
-				resetOrderRow ( form );
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
-			}
-		} );
-
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-		suppliers_main = ver.getWidget ( "supplier" );
-		suppliers = ( FromServerSelector ) ver.retriveInternalWidget ( "supplier" );
-
-		suppliers.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				FromServerSelector suppliers;
-				FromServer supp;
-				FlexTable products_list;
-
-				suppliers = ( FromServerSelector ) sender;
-				supp = suppliers.getSelected ();
-
-				products_list = ( FlexTable ) ver.retriveInternalWidget ( "list" );
-				while ( products_list.getRowCount () != 0 )
-					products_list.removeRow ( 0 );
-
-				if ( supp != null ) {
-					ServerRequest params;
-
-					ver.getObject ().setObject ( "supplier", supp );
-					loadExistingProducts ( products_list, supp );
-
-					params = new ServerRequest ( "Product" );
-					params.add ( "supplier", supp );
-					Utils.getServer ().testObjectReceive ( params );
-				}
-				else
-					products_list.setWidget ( 0, 0, new Label ( "Nessun fornitore selezionato" ) );
-			}
-		} );
-		fields.setWidget ( 0, 1, suppliers_main );
-
-		fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Data chiusura" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
-
-		fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Referente" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "reference" ) );
-		getOrderReferenceSelector ( ver );
-
-		fields.setWidget ( 1, 0, new Label ( "Stato" ) );
-		fields.setWidget ( 1, 1, new Label ( "Nuovo" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
-
-		/**
-			TODO	Aggiungere settaggio ordini ciclici
-		*/
-		fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
-		fields.setWidget ( 3, 1, new Label ( "TODO!!!" ) );
-
-		now = new Date ( System.currentTimeMillis () );
-		date = ( DateSelector ) ver.retriveInternalWidget ( "startdate" );
-		date.setValue ( now );
-
-		now.setMonth ( now.getMonth () + 3 );
-		if ( now.getMonth () < 3 )
-			now.setYear ( now.getYear () + 1 );
-
-		date = ( DateSelector ) ver.retriveInternalWidget ( "enddate" );
-		date.setValue ( now );
-		date = ( DateSelector ) ver.retriveInternalWidget ( "shippingdate" );
-		date.setValue ( now );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		products = addProductsList ( ver );
-		products.setWidget ( 0, 0, new Label ( "Nessun fornitore selezionato" ) );
-		return ver;
 	}
 
 	private void getOrderReferenceSelector ( final FromServerForm ver ) {
@@ -332,16 +336,6 @@ public class OrdersEditPanel extends GenericPanel {
 		}
 	}
 
-	private void resetAdditionalAttributes ( FromServerForm form ) {
-		Order order;
-
-		order = ( Order ) form.getObject ();
-
-		/**
-			TODO	Qui c'e' poi da resettare anche la ciclicita'
-		*/
-	}
-
 	private void resetOrderRow ( FromServerForm form ) {
 		Order order;
 		FlexTable fields;
@@ -381,16 +375,6 @@ public class OrdersEditPanel extends GenericPanel {
 			form.setVisible ( false );
 	}
 
-	private void retriveAdditionalAttributes ( FromServerForm form ) {
-		Order order;
-
-		order = ( Order ) form.getObject ();
-
-		/**
-			TODO	Qui c'e' poi da aggiungere anche la ciclicita'
-		*/
-	}
-
 	private void retriveInputData ( FromServerForm form ) {
 		Order order;
 		FlexTable fields;
@@ -419,26 +403,6 @@ public class OrdersEditPanel extends GenericPanel {
 				products.add ( prod );
 			}
 		}
-	}
-
-	private Panel doAddOrderButton () {
-		PushButton button;
-		HorizontalPanel pan;
-
-		pan = new HorizontalPanel ();
-		pan.setStyleName ( "bottom-buttons" );
-
-		button = new PushButton ( new Image ( "images/new_order.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				FromServerForm new_order;
-				new_order = doNewOrderRow ();
-				new_order.open ( true );
-				addBottom ( new_order );
-			}
-		} );
-
-		pan.add ( button );
-		return pan;
 	}
 
 	/****************************************************************** GenericPanel */

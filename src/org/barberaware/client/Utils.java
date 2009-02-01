@@ -20,14 +20,18 @@ package org.barberaware.client;
 import java.lang.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.ui.*;
+import com.google.gwt.json.client.*;
 
 public class Utils {
 	private static SmoothingNotify	notifies;
 	private static ServerHook	server;
+	private static Stack		buttonsStack;
 
 	public static void initEnvironment () {
 		notifies = new SmoothingNotify ();
 		server = new ServerHook ();
+		buttonsStack = new Stack ();
 	}
 
 	/****************************************************** notifiche */
@@ -101,5 +105,23 @@ public class Utils {
 
 	public static String printableDate ( Date d ) {
 		return d.getDate () + " " + months [ d.getMonth () ] + " " + ( d.getYear () + 1900 );
+	}
+
+	/****************************************************** json */
+
+	public static JSONArray JSONArrayRemove ( JSONArray array, int index ) {
+		int size;
+		JSONArray tmp;
+
+		tmp = new JSONArray ();
+		size = array.size ();
+
+		for ( int i = 0; i < index; i++ )
+			tmp.set ( i, array.get ( i ) );
+
+		for ( int i = index + 1; i < size; i++ )
+			tmp.set ( i, array.get ( i ) );
+
+		return tmp;
 	}
 }

@@ -82,9 +82,12 @@ class FromServerAttribute {
 			case "INTEGER":
 			case "FLOAT":
 			case "DATE":
-			case "BOOLEAN":
 			case "PERCENTAGE":
 				return $this->value . "";
+				break;
+
+			case "BOOLEAN":
+				return $this->value == 1 ? "true" : "false";
 				break;
 
 			case "ADDRESS":

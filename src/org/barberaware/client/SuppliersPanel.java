@@ -21,68 +21,67 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SuppliersPanel extends GenericPanel {
+	private FormCluster		main;
+
 	public SuppliersPanel () {
 		super ();
 
-		Utils.getServer ().onObjectReceive ( "Supplier", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				insert ( doRow ( ( Supplier ) object ), 0 );
-			}
-		} );
-
-		Utils.getServer ().onObjectReceive ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				/**
-					TODO	Andare a piazzare la notifica di ordine
-						disponibile, e magari anche il pulsante per
-						accedervi
-				*/
-			}
-		} );
-
-		addFirstTempRow ( new Label ( "Non ci sono fornitori registrati." ) );
-	}
-
-	private Widget doRow ( Supplier supplier ) {
-		FromServerForm ver;
-		HorizontalPanel hor;
-		FlexTable fields;
-
-		ver = new FromServerForm ( supplier );
-
-		ver.setAdditionalIconsCallback ( new FromServerFormIcons () {
-			public Panel retrive ( FromServer obj ) {
+		main = new FormCluster ( "Supplier", null ) {
+			protected FromServerForm doEditableRow ( FromServer supp ) {
+				FromServerForm ver;
 				HorizontalPanel hor;
+				FlexTable fields;
+				Supplier supplier;
+
+				supplier = ( Supplier ) supp;
+				ver = new FromServerForm ( supplier );
+
+				ver.setAdditionalIconsCallback ( new FromServerFormIcons () {
+					public Panel retrive ( FromServer obj ) {
+						HorizontalPanel hor;
+
+						hor = new HorizontalPanel ();
+
+						/**
+							TODO	Completare creazione icone notifica
+						*/
+
+						return hor;
+					}
+				} );
 
 				hor = new HorizontalPanel ();
+				ver.add ( hor );
 
-				/**
-					TODO	Completare creazione icone notifica
-				*/
+				fields = new FlexTable ();
+				hor.add ( fields );
 
-				return hor;
+				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+				fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
+
+				fields = new FlexTable ();
+				hor.add ( fields );
+
+				fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
+				fields.setWidget ( 1, 1, new Label ( supplier.getString ( "address" ) ) );
+
+				ver.add ( new Label ( "Descrizione" ) );
+				ver.add ( new Label ( supplier.getString ( "description" ) ) );
+
+				return ver;
 			}
-		} );
 
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
+			protected FromServerForm doNewEditableRow () {
+				/* dummy */
+				return null;
+			}
+		};
 
-		fields = new FlexTable ();
-		hor.add ( fields );
+		addTop ( main );
 
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
-		fields.setWidget ( 1, 1, new Label ( supplier.getString ( "address" ) ) );
-
-		ver.add ( new Label ( "Descrizione" ) );
-		ver.add ( new Label ( supplier.getString ( "description" ) ) );
-
-		return ver;
+		/**
+			TODO	Aggiungere lista ordini aperti per ogni fornitore
+		*/
 	}
 
 	/****************************************************************** GenericPanel */

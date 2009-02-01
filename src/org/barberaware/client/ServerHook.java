@@ -82,6 +82,26 @@ public class ServerHook {
 
 	/****************************************************************** monitors */
 
+	private void addObjectIntoMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+		monitor.objects.add ( obj );
+		monitor.comparingObjects.set ( monitor.comparingObjects.size (), new JSONNumber ( obj.getLocalID () ) );
+	}
+
+	private void deleteObjectFromMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+		int i;
+		FromServer iter;
+
+		for ( i = 0; i < monitor.objects.size (); i++ ) {
+			iter = ( FromServer ) monitor.objects.get ( i );
+			if ( iter.equals ( obj ) ) {
+				monitor.objects.remove ( i );
+				break;
+			}
+		}
+
+		monitor.comparingObjects = Utils.JSONArrayRemove ( monitor.comparingObjects, i );
+	}
+
 	private void executeMonitor ( final ServerMonitor monitor, ServerRequest params ) {
 		params.put ( "has", monitor.comparingObjects );
 		executingMonitor = true;
@@ -96,25 +116,9 @@ public class ServerHook {
 				arr = response.isArray ();
 
 				if ( arr != null && arr.size () != 0 ) {
-					existing = monitor.comparingObjects.size ();
-
 					for ( int i = 0; i < arr.size (); i++ ) {
 						tmp = FromServer.instance ( arr.get ( i ).isObject () );
-
-						monitor.objects.add ( tmp );
-
-						/**
-							TODO	Occorrerebbe inventarsi un modo per gestire
-								non solo i nuovi oggetti ma anche quelli
-								vecchi che son stati modificati: il
-								problema non e' tanto aggiornare gli array
-								locali quanto notificare correttamente i
-								frammenti che hanno aperto il monitor
-						*/
-
-						monitor.comparingObjects.set ( existing,
-										new JSONNumber ( tmp.getLocalID () ) );
-						existing++;
+						addObjectIntoMonitorCache ( monitor, tmp );
 
 						for ( int a = 0; a < monitor.callbacks.size (); a++ ) {
 							callback = ( ServerObjectReceive ) monitor.callbacks.get ( a );
@@ -131,7 +135,7 @@ public class ServerHook {
 		} );
 	}
 
-	public void onObjectReceive ( String type, ServerObjectReceive callback ) {
+	public void onObjectEvent ( String type, ServerObjectReceive callback ) {
 		ServerMonitor tmp;
 		FromServer obj;
 
@@ -177,6 +181,49 @@ public class ServerHook {
 			monitorSchedulingQueue.add ( params );
 		else
 			testObjectReceiveImpl ( params );
+	}
+
+	public void triggerObjectCreation ( FromServer object ) {
+		ServerMonitor tmp;
+		ServerObjectReceive callback;
+
+		tmp = getMonitor ( object.getType () );
+		if ( tmp != null ) {
+			addObjectIntoMonitorCache ( tmp, object );
+
+			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+				callback.onReceive ( object );
+			}
+		}
+	}
+
+	public void triggerObjectModification ( FromServer object ) {
+		ServerMonitor tmp;
+		ServerObjectReceive callback;
+
+		tmp = getMonitor ( object.getType () );
+		if ( tmp != null ) {
+			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+				callback.onModify ( object );
+			}
+		}
+	}
+
+	public void triggerObjectDeletion ( FromServer object ) {
+		ServerMonitor tmp;
+		ServerObjectReceive callback;
+
+		tmp = getMonitor ( object.getType () );
+		if ( tmp != null ) {
+			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+				callback.onDestroy ( object );
+			}
+
+			deleteObjectFromMonitorCache ( tmp, object );
+		}
 	}
 
 	/*

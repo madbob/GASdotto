@@ -133,7 +133,7 @@ else {
 			$id = escape_string ( $obj->localid );
 			$query = sprintf ( "DELETE FROM %s WHERE id = %d", $type, $id );
 			query_and_check ( $query, "Impossibile rimuovere oggetto " + $type );
-			$ret = 1;
+			$ret = $obj->localid;
 			break;
 
 		default:

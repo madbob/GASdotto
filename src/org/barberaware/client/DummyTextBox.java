@@ -17,36 +17,14 @@
 
 package org.barberaware.client;
 
-import java.util.*;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.json.client.*;
 
-public class NotificationsBox extends Composite {
-	private VerticalPanel		main;
-
-	public NotificationsBox () {
-		main = new VerticalPanel ();
-		main.setStyleName ( "notifications-box" );
-		initWidget ( main );
-
-		Utils.getServer ().onObjectEvent ( "Notification", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				Notification tmp;
-				tmp = ( Notification ) object;
-				main.add ( tmp.show () );
-			}
-
-			public void onModify ( FromServer object ) {
-				/* dummy */
-			}
-
-			public void onDestroy ( FromServer object ) {
-				/* dummy */
-			}
-		} );
+public class DummyTextBox extends TextBox implements StringWidget {
+	public void setValue ( String value ) {
+		setText ( value );
 	}
 
-	public void syncList () {
-		Utils.getServer ().testObjectReceive ( "Notification" );
+	public String getValue () {
+		return getText ();
 	}
 }

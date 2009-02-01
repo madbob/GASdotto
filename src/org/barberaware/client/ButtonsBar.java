@@ -32,11 +32,11 @@ public class ButtonsBar extends Composite {
 
 		container.addMouseListener ( new MouseListener () {
 			public void onMouseEnter ( Widget sender ) {
-				main.getRowFormatter ().setVisible ( 1, true );
+				showCells ( true );
 			}
 
 			public void onMouseLeave ( Widget sender ) {
-				main.getRowFormatter ().setVisible ( 1, false );
+				showCells ( false );
 			}
 
 			public void onMouseMove ( Widget sender, int x, int y ) {
@@ -80,17 +80,32 @@ public class ButtonsBar extends Composite {
 		formatter = main.getRowFormatter ();
 		formatter.addStyleName ( 0, "icons" );
 		formatter.addStyleName ( 1, "help" );
-		formatter.setVisible ( 1, false );
 	}
 
 	public void add ( Widget button, String help ) {
 		int col;
 
 		col = main.getCellCount ( 0 );
-
 		main.setWidget ( 0, col, button );
 
-		if ( help != null )
-			main.setWidget ( 1, col, new Label ( help ) );
+		if ( help != null ) {
+			Label label;
+
+			label = new Label ( help );
+			main.setWidget ( 1, col, label );
+			label.setVisible ( false );
+		}
+	}
+
+	private void showCells ( boolean show ) {
+		int tot;
+		Widget wid;
+
+		tot = main.getCellCount ( 1 );
+
+		for ( int i = 0; i < tot; i++ ) {
+			wid = main.getWidget ( 1, i );
+			wid.setVisible ( show );
+		}
 	}
 }

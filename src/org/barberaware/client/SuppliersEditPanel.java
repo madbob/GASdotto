@@ -22,129 +22,132 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SuppliersEditPanel extends GenericPanel {
+	private FormCluster		main;
+
 	public SuppliersEditPanel () {
 		super ();
 
-		Utils.getServer ().onObjectReceive ( "Supplier", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				addTop ( doEditableRow ( ( Supplier ) object ) );
-			}
-		} );
+		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
+			protected FromServerForm doEditableRow ( FromServer supp ) {
+				final FromServerForm ver;
+				HorizontalPanel hor;
+				VerticalPanel vertical;
+				FlexTable fields;
+				Supplier supplier;
+				ProductsEditPanel products;
+				ReferenceList references;
 
-		Utils.getServer ().onObjectReceive ( "Product", new ServerObjectReceive () {
+				supplier = ( Supplier ) supp;
+				ver = new FromServerForm ( supplier );
+
+				hor = new HorizontalPanel ();
+				ver.add ( hor );
+
+				fields = new FlexTable ();
+				hor.add ( fields );
+
+				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+				fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+
+				fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
+				fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
+
+				fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
+				references = new ReferenceList ();
+				fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
+
+				fields = new FlexTable ();
+				hor.add ( fields );
+
+				fields.setWidget ( 0, 0, new Label ( "Nome Contatto" ) );
+				fields.setWidget ( 0, 1, ver.getWidget ( "contact" ) );
+
+				fields.setWidget ( 1, 0, new Label ( "Telefono" ) );
+				fields.setWidget ( 1, 1, ver.getWidget ( "phone" ) );
+				ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+				fields.setWidget ( 2, 0, new Label ( "Fax" ) );
+				fields.setWidget ( 2, 1, ver.getWidget ( "fax" ) );
+				ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+				fields.setWidget ( 3, 0, new Label ( "Mail" ) );
+				fields.setWidget ( 3, 1, ver.getWidget ( "mail" ) );
+				ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+
+				ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
+				ver.add ( ver.getWidget ( "description" ) );
+
+				ver.add ( new Label ( "Modalità avanzamento ordini" ) );
+				ver.add ( ver.getWidget ( "order_mode" ) );
+
+				ver.add ( new Label ( "Modalità pagamento" ) );
+				ver.add ( ver.getWidget ( "paying_mode" ) );
+
+				vertical = new VerticalPanel ();
+				vertical.addStyleName ( "sub-elements-details" );
+				ver.add ( vertical );
+				vertical.add ( new Label ( "Prodotti" ) );
+				products = new ProductsEditPanel ( supplier );
+				ver.setExtraWidget ( "products", products );
+				vertical.add ( products );
+
+				return ver;
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				return doEditableRow ( new Supplier () );
+			}
+
+		};
+
+		addTop ( main );
+
+		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Product product;
-				FromServerForm supplier_form;
-				ProductsEditPanel product_form;
-				Supplier tmp_supp;
-				Supplier supplier;
+				ProductsEditPanel panel;
 
 				product = ( Product ) object;
-				supplier = ( Supplier ) product.getObject ( "supplier" );
+				panel = retrieveProductsPanel ( product );
+				if ( panel != null )
+					panel.addProduct ( product );
+			}
 
-				for ( int i = 1; i < getWidgetCount () - 1; i++ ) {
-					supplier_form = ( FromServerForm ) getWidget ( i );
-					tmp_supp = ( Supplier ) supplier_form.getObject ();
+			public void onModify ( FromServer object ) {
+				Product product;
+				ProductsEditPanel panel;
 
-					if ( tmp_supp.getLocalID () == supplier.getLocalID () ) {
-						product_form = ( ProductsEditPanel ) supplier_form.retriveInternalWidget ( "products" );
-						product_form.addProduct ( product );
-						break;
-					}
-				}
+				product = ( Product ) object;
+
+				panel = retrieveProductsPanel ( product );
+				if ( panel != null )
+					panel.refreshProduct ( product );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				Product product;
+				ProductsEditPanel panel;
+
+				product = ( Product ) object;
+
+				panel = retrieveProductsPanel ( product );
+				if ( panel != null )
+					panel.deleteProduct ( product );
 			}
 		} );
-
-		add ( doAddSupplierButton () );
 	}
 
-	/****************************************************************** edit */
+	private ProductsEditPanel retrieveProductsPanel ( Product product ) {
+		Supplier supplier;
+		FromServerForm supplier_form;
 
-	private FromServerForm doEditableRow ( Supplier supplier ) {
-		final FromServerForm ver;
-		HorizontalPanel hor;
-		VerticalPanel vertical;
-		FlexTable fields;
-		ProductsEditPanel products;
-		ReferenceList references;
+		supplier = ( Supplier ) product.getObject ( "supplier" );
+		supplier_form = main.retriveForm ( supplier );
 
-		if ( supplier == null )
-			supplier = new Supplier ();
-
-		ver = new FromServerForm ( supplier );
-
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
-		references = new ReferenceList ();
-		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
-
-		fields = new FlexTable ();
-		hor.add ( fields );
-
-		fields.setWidget ( 0, 0, new Label ( "Nome Contatto" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "contact" ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Telefono" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "phone" ) );
-		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-		fields.setWidget ( 2, 0, new Label ( "Fax" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "fax" ) );
-		ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-		fields.setWidget ( 3, 0, new Label ( "Mail" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "mail" ) );
-		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
-
-		ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
-		ver.add ( ver.getWidget ( "description" ) );
-
-		ver.add ( new Label ( "Modalità avanzamento ordini" ) );
-		ver.add ( ver.getWidget ( "order_mode" ) );
-
-		ver.add ( new Label ( "Modalità pagamento" ) );
-		ver.add ( ver.getWidget ( "paying_mode" ) );
-
-		vertical = new VerticalPanel ();
-		vertical.addStyleName ( "sub-elements-details" );
-		ver.add ( vertical );
-		vertical.add ( new Label ( "Prodotti" ) );
-		products = new ProductsEditPanel ( supplier );
-		ver.setExtraWidget ( "products", products );
-		vertical.add ( products );
-
-		return ver;
-	}
-
-	private Panel doAddSupplierButton () {
-		PushButton button;
-		HorizontalPanel pan;
-
-		pan = new HorizontalPanel ();
-		pan.setStyleName ( "bottom-buttons" );
-
-		button = new PushButton ( new Image ( "images/new_supplier.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				FromServerForm new_supplier;
-				new_supplier = doEditableRow ( null );
-				new_supplier.open ( true );
-				addBottom ( new_supplier );
-			}
-		} );
-
-		pan.add ( button );
-		return pan;
+		if ( supplier_form != null )
+			return ( ProductsEditPanel ) supplier_form.retriveInternalWidget ( "products" );
+		else
+			return null;
 	}
 
 	/****************************************************************** GenericPanel */
