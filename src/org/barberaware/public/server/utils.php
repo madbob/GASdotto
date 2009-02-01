@@ -33,7 +33,7 @@ require_once ( "Order.php" );
 
 function error_exit ( $string ) {
 	$json = new Services_JSON ();
-	$output = $json->encode ( $string );
+	$output = $json->encode ( "Errore: " . $string );
 	print ( $output );
 	exit;
 }

@@ -118,12 +118,7 @@ public class ServerHook {
 				if ( arr != null && arr.size () != 0 ) {
 					for ( int i = 0; i < arr.size (); i++ ) {
 						tmp = FromServer.instance ( arr.get ( i ).isObject () );
-						addObjectIntoMonitorCache ( monitor, tmp );
-
-						for ( int a = 0; a < monitor.callbacks.size (); a++ ) {
-							callback = ( ServerObjectReceive ) monitor.callbacks.get ( a );
-							callback.onReceive ( tmp );
-						}
+						triggerObjectCreation ( tmp );
 					}
 				}
 

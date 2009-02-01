@@ -192,8 +192,12 @@ public abstract class FromServer {
 			else if ( type == FromServer.BOOLEAN )
 				return new JSONString ( Boolean.toString ( bool ) );
 
-			else if ( type == FromServer.ADDRESS )
+			else if ( type == FromServer.ADDRESS ) {
+				if ( addr == null )
+					addr = new Address ();
+
 				return addr.toJSON ();
+			}
 
 			else
 				return null;
@@ -361,7 +365,7 @@ public abstract class FromServer {
 
 		obj = this.toJSONObject ();
 
-		type = localID == -1 ? FromServerResponse.ACTION_CREATE : FromServerResponse.ACTION_MODIFY;
+		type = ( ( localID == -1 ) ? FromServerResponse.ACTION_CREATE : FromServerResponse.ACTION_MODIFY );
 		true_callback = new FromServerResponse ( type, this, callback );
 
 		if ( obj != null ) {

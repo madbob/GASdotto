@@ -41,7 +41,7 @@ public class FromServerResponse extends ServerResponse {
 	public void onComplete ( JSONValue response ) {
 		int localID;
 
-		localID = ( int ) response.isNumber ().getValue ();
+		localID = Integer.parseInt ( response.isString ().stringValue () );
 
 		if ( localID < 0 )
 			Utils.showNotification ( "Errore nel salvataggio sul database" );

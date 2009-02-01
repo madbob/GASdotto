@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,11 @@
 package org.barberaware.client;
 
 import com.google.gwt.user.client.ui.*;
+
+/*
+	L'unica utilita' di questo widget e' wrappare una semplice TextBox in una interfaccia
+	StringWidget
+*/
 
 public class DummyTextBox extends TextBox implements StringWidget {
 	public void setValue ( String value ) {

@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class FromServerWidget extends Composite {
@@ -93,7 +94,7 @@ public class FromServerWidget extends Composite {
 			wid = new AddressSelector ();
 
 		/*
-			Il tipo FromServer.ARRAY non viene gestito
+			Il tipo FromServer.ARRAY non viene gestito direttamente
 		*/
 
 		else if ( type == FromServer.OBJECT )
@@ -147,7 +148,7 @@ public class FromServerWidget extends Composite {
 			( ( FromServerArray ) wid ).setElements ( object.getArray ( name ) );
 
 		else if ( type == FromServer.OBJECT )
-			( ( FromServerSelector ) wid ).setSelected ( object.getObject ( name ) );
+			( ( ObjectWidget ) wid ).setValue ( object.getObject ( name ) );
 	}
 
 	public boolean assign ( FromServer object ) {
@@ -185,38 +186,42 @@ public class FromServerWidget extends Composite {
 			object.setArray ( name, ( ( FromServerArray ) wid ).getElements () );
 
 		else if ( type == FromServer.OBJECT )
-			object.setObject ( name, ( ( FromServerSelector ) wid ).getSelected () );
+			object.setObject ( name, ( ( ObjectWidget ) wid ).getValue () );
 
 		return true;
 	}
 
 	public boolean compare ( FromServer object ) {
+		boolean ret;
+
+		ret = true;
+
 		if ( type == -1 )
-			return true;
+			ret = true;
 
 		else if ( type == FromServer.STRING )
-			return object.getString ( name ).equals ( ( ( StringWidget ) wid ).getValue () );
+			ret = object.getString ( name ).equals ( ( ( StringWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.LONGSTRING )
-			return object.getString ( name ).equals ( ( ( TextArea ) wid ).getText () );
+			ret = object.getString ( name ).equals ( ( ( TextArea ) wid ).getText () );
 
 		else if ( type == FromServer.INTEGER )
-			return object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getValue ();
+			ret = object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getValue ();
 
 		else if ( type == FromServer.FLOAT )
-			return object.getFloat ( name ) == ( ( FloatBox ) wid ).getValue ();
+			ret = object.getFloat ( name ) == ( ( FloatBox ) wid ).getValue ();
 
 		else if ( type == FromServer.PERCENTAGE )
-			return object.getString ( name ).equals ( ( ( PercentageBox ) wid ).getValue () );
+			ret = object.getString ( name ).equals ( ( ( PercentageBox ) wid ).getValue () );
 
 		else if ( type == FromServer.DATE )
-			return object.getDate ( name ).equals ( ( ( DateSelector ) wid ).getValue () );
+			ret = object.getDate ( name ).equals ( ( ( DateSelector ) wid ).getValue () );
 
 		else if ( type == FromServer.BOOLEAN )
-			return object.getBool ( name ) == ( ( BooleanSelector ) wid ).isDown ();
+			ret = object.getBool ( name ) == ( ( BooleanSelector ) wid ).isDown ();
 
 		else if ( type == FromServer.ADDRESS )
-			return object.getAddress ( name ).equals ( ( ( AddressSelector ) wid ).getValue () );
+			ret = object.getAddress ( name ).equals ( ( ( AddressSelector ) wid ).getValue () );
 
 		else if ( type == FromServer.ARRAY ) {
 			int flen;
@@ -232,22 +237,44 @@ public class FromServerWidget extends Composite {
 			slen = second.size ();
 
 			if ( flen != slen )
-				return false;
+				ret = false;
 
-			for ( int i = 0; i < flen; i++ ) {
-				ftmp = ( FromServer ) first.get ( i );
-				stmp = ( FromServer ) second.get ( i );
+			else {
+				int i;
 
-				if ( ftmp.getLocalID () != stmp.getLocalID () )
-					return false;
+				for ( i = 0; i < flen; i++ ) {
+					ftmp = ( FromServer ) first.get ( i );
+					stmp = ( FromServer ) second.get ( i );
+
+					if ( ftmp.getLocalID () != stmp.getLocalID () ) {
+						ret = false;
+						break;
+					}
+				}
+
+				if ( i == flen )
+					ret = true;
 			}
-
-			return true;
 		}
 
-		else if ( type == FromServer.OBJECT )
-			return object.getObject ( name ).equals ( ( ( FromServerSelector ) wid ).getSelected () );
+		else if ( type == FromServer.OBJECT ) {
+			FromServer previous;
+			FromServer selected;
 
-		return true;
+			previous = object.getObject ( name );
+			selected = ( ( ObjectWidget ) wid ).getValue ();
+
+			if ( previous != null && selected != null )
+				ret = previous.equals ( selected );
+
+			else {
+				if ( previous == null && selected == null )
+					ret = true;
+				else
+					ret = false;
+			}
+		}
+
+		return ret;
 	}
 }

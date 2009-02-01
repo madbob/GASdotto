@@ -65,6 +65,9 @@ public class AddressSelector extends Composite {
 	}
 
 	public void setValue ( Address addr ) {
+		if ( addr == null )
+			addr = new Address ();
+
 		currentValue = addr;
 		showAddr ();
 	}

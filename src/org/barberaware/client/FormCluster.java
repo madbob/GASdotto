@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,7 @@
 
 package org.barberaware.client;
 
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class FormCluster extends VerticalPanel {
@@ -76,37 +77,44 @@ public abstract class FormCluster extends VerticalPanel {
 		return pan;
 	}
 
-	public FromServerForm retriveForm ( FromServer obj ) {
+	public FromServerForm retrieveForm ( FromServer obj ) {
+		int i;
 		int id;
 		int tot;
 		FromServerForm iter;
 
 		iter = null;
 		id = obj.getLocalID ();
-
 		tot = latestIterableIndex ();
 
-		for ( int i = 0; i < tot; i++ ) {
+		for ( i = 0; i < tot; i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			if ( iter.getObject ().getLocalID () == id )
 				break;
 		}
 
+		if ( i == tot )
+			iter = null;
+
 		return iter;
 	}
 
-	private int latestIterableIndex () {
+	public int latestIterableIndex () {
 		return getWidgetCount () - ( addable ? 1 : 0 );
 	}
 
 	public void addElement ( FromServer object ) {
-		insert ( doEditableRow ( object ), 0 );
+		FromServerForm iter;
+
+		iter = retrieveForm ( object );
+		if ( iter == null )
+			insert ( doEditableRow ( object ), 0 );
 	}
 
 	public void refreshElement ( FromServer object ) {
 		FromServerForm iter;
 
-		iter = retriveForm ( object );
+		iter = retrieveForm ( object );
 		if ( iter != null )
 			iter.refreshContents ( object );
 	}
@@ -114,7 +122,7 @@ public abstract class FormCluster extends VerticalPanel {
 	public void deleteElement ( FromServer object ) {
 		FromServerForm iter;
 
-		iter = retriveForm ( object );
+		iter = retrieveForm ( object );
 		if ( iter != null )
 			iter.setVisible ( false );
 	}

@@ -22,6 +22,10 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class OrdersEditPanel extends GenericPanel {
+	private abstract class ForeachProductListCallback {
+		public abstract void doIt ( Order order, FlexTable list, Product product );
+	}
+
 	private FormCluster		main;
 
 	public OrdersEditPanel () {
@@ -33,9 +37,12 @@ public class OrdersEditPanel extends GenericPanel {
 					HorizontalPanel hor;
 					FlexTable fields;
 					Order order;
+					Supplier supplier;
 					CyclicToggle status;
+					ReferenceBySupplierList reference;
 
 					order = ( Order ) ord;
+					supplier = ( Supplier ) order.getObject ( "supplier" );
 
 					ver = new FromServerForm ( order );
 					ver.setCallback ( new FromServerFormCallbacks () {
@@ -59,7 +66,7 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-					fields.setWidget ( 0, 1, new Label ( order.getObject ( "supplier" ).getString ( "name" ) ) );
+					fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
@@ -74,8 +81,8 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Referente" ) );
-					fields.setWidget ( 0, 1, ver.getWidget ( "reference" ) );
-					getOrderReferenceSelector ( ver );
+					reference = new ReferenceBySupplierList ( supplier );
+					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "reference", reference ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
 					status = new CyclicToggle ();
@@ -90,7 +97,7 @@ public class OrdersEditPanel extends GenericPanel {
 					fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
 					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
-					addProductsList ( ver );
+					addProductsList ( ver, true );
 					return ver;
 				}
 
@@ -100,10 +107,11 @@ public class OrdersEditPanel extends GenericPanel {
 					HorizontalPanel hor;
 					FlexTable fields;
 					Widget suppliers_main;
+					Date now;
 					FromServerSelector suppliers;
 					FlexTable products;
 					DateSelector date;
-					Date now;
+					ReferenceBySupplierList reference;
 
 					order = new Order ();
 
@@ -137,23 +145,22 @@ public class OrdersEditPanel extends GenericPanel {
 							FromServerSelector suppliers;
 							FromServer supp;
 							FlexTable products_list;
+							ReferenceBySupplierList reference;
 
 							suppliers = ( FromServerSelector ) sender;
-							supp = suppliers.getSelected ();
+							supp = suppliers.getValue ();
+
+							reference = ( ReferenceBySupplierList ) ver.retriveInternalWidget ( "reference" );
+							reference.setSupplier ( ( Supplier ) supp );
 
 							products_list = ( FlexTable ) ver.retriveInternalWidget ( "list" );
 							while ( products_list.getRowCount () != 0 )
 								products_list.removeRow ( 0 );
 
 							if ( supp != null ) {
-								ServerRequest params;
-
 								ver.getObject ().setObject ( "supplier", supp );
 								loadExistingProducts ( products_list, supp );
-
-								params = new ServerRequest ( "Product" );
-								params.add ( "supplier", supp );
-								Utils.getServer ().testObjectReceive ( params );
+								claimProductsBySupplier ( supp );
 							}
 							else
 								products_list.setWidget ( 0, 0, new Label ( "Nessun fornitore selezionato" ) );
@@ -174,8 +181,8 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Referente" ) );
-					fields.setWidget ( 0, 1, ver.getWidget ( "reference" ) );
-					getOrderReferenceSelector ( ver );
+					reference = new ReferenceBySupplierList ( null );
+					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "reference", reference ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
 					fields.setWidget ( 1, 1, new Label ( "Nuovo" ) );
@@ -202,7 +209,7 @@ public class OrdersEditPanel extends GenericPanel {
 					fields = new FlexTable ();
 					hor.add ( fields );
 
-					products = addProductsList ( ver );
+					products = addProductsList ( ver, false );
 					products.setWidget ( 0, 0, new Label ( "Nessun fornitore selezionato" ) );
 					return ver;
 				}
@@ -212,42 +219,29 @@ public class OrdersEditPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				Product product;
-				Supplier supplier;
-				FromServerForm order_form;
-				Order tmp_order;
-				ArrayList tmp_order_products;
-				Supplier tmp_supplier;
-				FlexTable product_list;
-				BooleanSelector sel;
-				Product tmp_product;
+				iterateProductsList ( ( Product ) object, new ForeachProductListCallback () {
+					public void doIt ( Order order, FlexTable list, Product product ) {
+						ArrayList order_products;
+						BooleanSelector sel;
 
-				product = ( Product ) object;
-				if ( product.getBool ( "available" ) == false )
-					return;
+						if ( product.getBool ( "available" ) == false )
+							return;
 
-				supplier = ( Supplier ) product.getObject ( "supplier" );
+						list.insertRow ( 0 );
 
-				for ( int i = 1; i < main.getWidgetCount () - 1; i++ ) {
-					order_form = ( FromServerForm ) main.getWidget ( i );
-					tmp_order = ( Order ) order_form.getObject ();
-					tmp_supplier = ( Supplier ) tmp_order.getObject ( "supplier" );
-
-					if ( tmp_supplier.getLocalID () == supplier.getLocalID () ) {
-						tmp_order_products = tmp_order.getArray ( "products" );
-
-						product_list = ( FlexTable ) order_form.retriveInternalWidget ( "list" );
-						product_list.insertRow ( 0 );
-
-						product_list.setWidget ( 0, 0, new Hidden ( "id", Integer.toString ( product.getLocalID () ) ) );
-						product_list.setWidget ( 0, 1, new Label ( product.getString ( "name" ) ) );
+						list.setWidget ( 0, 0, new Hidden ( "id", Integer.toString ( product.getLocalID () ) ) );
+						list.setWidget ( 0, 1, new Label ( product.getString ( "name" ) ) );
 
 						sel = new BooleanSelector ();
-						product_list.setWidget ( 0, 2, sel );
+						list.setWidget ( 0, 2, sel );
 
-						if ( tmp_order_products != null ) {
-							for ( int a = 0; a < tmp_order_products.size (); a++ ) {
-								tmp_product = ( Product ) tmp_order_products.get ( a );
+						order_products = order.getArray ( "products" );
+
+						if ( order_products != null ) {
+							Product tmp_product;
+
+							for ( int a = 0; a < order_products.size (); a++ ) {
+								tmp_product = ( Product ) order_products.get ( a );
 
 								if ( tmp_product.getLocalID () == product.getLocalID () ) {
 									sel.setDown ( true );
@@ -256,25 +250,47 @@ public class OrdersEditPanel extends GenericPanel {
 							}
 						}
 					}
-
-					/*
-						Non e' detto che ci sia un solo ordine per il
-						dato fornitore, dunque me li passo e li controllo
-						tutti
-					*/
-				}
+				} );
 			}
 
 			public void onModify ( FromServer object ) {
-				/**
-					TODO
-				*/
+				iterateProductsList ( ( Product ) object, new ForeachProductListCallback () {
+					public void doIt ( Order order, FlexTable list, Product product ) {
+						int id;
+						int iter_id;
+
+						id = product.getLocalID ();
+
+						for ( int i = 0; i < list.getRowCount (); i++ ) {
+							iter_id = Integer.parseInt ( ( ( Hidden ) list.getWidget ( i, 0 ) ).getValue () );
+
+							if ( id == iter_id ) {
+								( ( Label ) list.getWidget ( i, 1 ) ).setText ( product.getString ( "name" ) );
+								break;
+							}
+						}
+					}
+				} );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				/**
-					TODO
-				*/
+				iterateProductsList ( ( Product ) object, new ForeachProductListCallback () {
+					public void doIt ( Order order, FlexTable list, Product product ) {
+						int id;
+						int iter_id;
+
+						id = product.getLocalID ();
+
+						for ( int i = 0; i < list.getRowCount (); i++ ) {
+							iter_id = Integer.parseInt ( ( ( Hidden ) list.getWidget ( i, 0 ) ).getValue () );
+
+							if ( id == iter_id ) {
+								list.removeRow ( i );
+								break;
+							}
+						}
+					}
+				} );
 			}
 		} );
 	}
@@ -303,7 +319,7 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 	}
 
-	private FlexTable addProductsList ( FromServerForm ver ) {
+	private FlexTable addProductsList ( FromServerForm ver, boolean download ) {
 		VerticalPanel vertical;
 		FlexTable products;
 
@@ -314,7 +330,19 @@ public class OrdersEditPanel extends GenericPanel {
 		products = new FlexTable ();
 		ver.setExtraWidget ( "list", products );
 		vertical.add ( products );
+
+		if ( download )
+			claimProductsBySupplier ( ver.getObject ().getObject ( "supplier" ) );
+
 		return products;
+	}
+
+	private void claimProductsBySupplier ( FromServer supplier ) {
+		ServerRequest params;
+
+		params = new ServerRequest ( "Product" );
+		params.add ( "supplier", supplier );
+		Utils.getServer ().testObjectReceive ( params );
 	}
 
 	private void loadExistingProducts ( FlexTable list, FromServer supplier ) {
@@ -401,6 +429,27 @@ public class OrdersEditPanel extends GenericPanel {
 				id = Integer.parseInt ( ( ( Hidden ) fields.getWidget ( i, 0 ) ).getValue () );
 				prod = Utils.getServer ().getObjectFromCache ( "Product", id );
 				products.add ( prod );
+			}
+		}
+	}
+
+	private void iterateProductsList ( Product product, ForeachProductListCallback callback ) {
+		FromServerForm order_form;
+		Supplier supplier;
+		Supplier tmp_supplier;
+		Order order;
+		FlexTable list;
+
+		supplier = ( Supplier ) product.getObject ( "supplier" );
+
+		for ( int i = 0; i < main.latestIterableIndex (); i++ ) {
+			order_form = ( FromServerForm ) main.getWidget ( i );
+			order = ( Order ) order_form.getObject ();
+			tmp_supplier = ( Supplier ) order.getObject ( "supplier" );
+
+			if ( tmp_supplier.getLocalID () == supplier.getLocalID () ) {
+				list = ( FlexTable ) order_form.retriveInternalWidget ( "list" );
+				callback.doIt ( order, list, product );
 			}
 		}
 	}

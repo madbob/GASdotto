@@ -36,11 +36,14 @@ public abstract class ServerResponse implements RequestCallback {
 	public void onResponseReceived ( Request request, Response response ) {
 		JSONValue jsonObject;
 		String str;
+		JSONString ret;
 
 		str = response.getText ();
 
 		jsonObject = JSONParser.parse ( str );
-		if ( jsonObject.isString () != null ) {
+		ret = jsonObject.isString ();
+
+		if ( ret != null && ret.stringValue ().startsWith ( "Errore: " ) ) {
 			Utils.showNotification ( str );
 			onError ();
 		}

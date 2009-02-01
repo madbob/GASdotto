@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,15 +26,20 @@ import com.google.gwt.user.client.ui.*;
 	l'attributo "name" in forma di stringa
 */
 
-public class FromServerSelector extends ListBox {
-	private String				type;
-	private FromServerValidateCallback	filterCallback;
+public class FromServerSelector extends ObjectWidget {
+	private ListBox					main;
+	private String					type;
+	private FromServerValidateCallback		filterCallback;
+	private DelegatingChangeListenerCollection	changeListeners;
 
 	public FromServerSelector ( String t ) {
+		main = new ListBox ();
+		initWidget ( main );
+
 		type = t;
 		filterCallback = null;
 
-		addItem ( "Nessuno", "0" );
+		main.addItem ( "Nessuno", "0" );
 
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -43,7 +48,7 @@ public class FromServerSelector extends ListBox {
 						return;
 				}
 
-				addItem ( object.getString ( "name" ), Integer.toString ( object.getLocalID () ) );
+				main.addItem ( object.getString ( "name" ), Integer.toString ( object.getLocalID () ) );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -51,7 +56,7 @@ public class FromServerSelector extends ListBox {
 
 				index = retrieveObjectIndex ( object );
 				if ( index != -1 )
-					setItemText ( index, object.getString ( "name" ) );
+					main.setItemText ( index, object.getString ( "name" ) );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -59,7 +64,7 @@ public class FromServerSelector extends ListBox {
 
 				index = retrieveObjectIndex ( object );
 				if ( index != -1 )
-					removeItem ( index );
+					main.removeItem ( index );
 			}
 		} );
 
@@ -72,50 +77,15 @@ public class FromServerSelector extends ListBox {
 
 		filterCallback = filter;
 
-		for ( int i = 0; i < getItemCount (); ) {
-			id = Integer.parseInt ( getValue ( i ) );
+		for ( int i = 0; i < main.getItemCount (); ) {
+			id = Integer.parseInt ( main.getValue ( i ) );
 			tmp = Utils.getServer ().getObjectFromCache ( type, id );
 
 			if ( filterCallback.checkObject ( tmp ) == false )
-				removeItem ( i );
+				main.removeItem ( i );
 			else
 				i++;
 		}
-	}
-
-	public void setSelected ( FromServer selected ) {
-		int num;
-		String sel;
-
-		if ( selected == null )
-			setItemSelected ( 0, true );
-
-		else {
-			num = getItemCount ();
-			sel = Integer.toString ( selected.getLocalID () );
-
-			for ( int i = 0; i < num; i++ ) {
-				if ( sel.equals ( getValue ( i ) ) ) {
-					setItemSelected ( i, true );
-					break;
-				}
-			}
-		}
-	}
-
-	public FromServer getSelected () {
-		int selected;
-		int index;
-
-		if ( getItemCount () == 0 )
-			return null;
-
-		index = getSelectedIndex ();
-		if ( index == 0 )
-			return null;
-
-		selected = Integer.parseInt ( getValue ( index ) );
-		return Utils.getServer ().getObjectFromCache ( type, selected );
 	}
 
 	private int retrieveObjectIndex ( FromServer object ) {
@@ -124,12 +94,59 @@ public class FromServerSelector extends ListBox {
 
 		search_id = object.getLocalID ();
 
-		for ( int i = 0; i < getItemCount (); ) {
-			id = Integer.parseInt ( getValue ( i ) );
+		for ( int i = 0; i < main.getItemCount (); ) {
+			id = Integer.parseInt ( main.getValue ( i ) );
 			if ( search_id == id )
 				return i;
 		}
 
 		return -1;
+	}
+
+	protected ListBox getListWidget () {
+		return main;
+	}
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeListeners == null )
+			changeListeners = new DelegatingChangeListenerCollection ( this, main );
+		changeListeners.add ( listener );
+	}
+
+	/****************************************************************** ObjectWidget */
+
+	public void setValue ( FromServer selected ) {
+		int num;
+		String sel;
+
+		if ( selected == null )
+			main.setItemSelected ( 0, true );
+
+		else {
+			num = main.getItemCount ();
+			sel = Integer.toString ( selected.getLocalID () );
+
+			for ( int i = 0; i < num; i++ ) {
+				if ( sel.equals ( main.getValue ( i ) ) ) {
+					main.setItemSelected ( i, true );
+					break;
+				}
+			}
+		}
+	}
+
+	public FromServer getValue () {
+		int selected;
+		int index;
+
+		if ( main.getItemCount () == 0 )
+			return null;
+
+		index = main.getSelectedIndex ();
+		if ( index == 0 )
+			return null;
+
+		selected = Integer.parseInt ( main.getValue ( index ) );
+		return Utils.getServer ().getObjectFromCache ( type, selected );
 	}
 }

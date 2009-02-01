@@ -89,6 +89,9 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 5, 1, ver.getWidget ( "mail" ) );
 					ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
+					fields.setWidget ( 6, 0, new Label ( "Indirizzo" ) );
+					fields.setWidget ( 6, 1, ver.getWidget ( "address" ) );
+
 					fields = new FlexTable ();
 					hor.add ( fields );
 

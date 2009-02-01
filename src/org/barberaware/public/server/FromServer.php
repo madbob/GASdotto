@@ -54,7 +54,8 @@ class FromServerAttribute {
 
 				for ( $i = 0; $i < count ( $tokens ); $i++ ) {
 					list ( $name, $value ) = explode ( ":", $tokens [ $i ] );
-					$obj->$name = $value;
+					if ( $name != "" )
+						$obj->$name = $value;
 				}
 
 				return $obj;
@@ -202,6 +203,17 @@ abstract class FromServer {
 
 			if ( strncmp ( $attr->type, "OBJECT", strlen ( "OBJECT" ) ) == 0 )
 				$attr->value = $val->id . "";
+
+			/**
+				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
+				Aggiungere trattamento indirizzi
+
+				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+			*/
+			else if ( strcmp ( $attr->type, "ADDRESS" ) == 0 )
+				$attr->value = "";
+
 			else
 				$attr->value = $val . "";
 		}
@@ -282,6 +294,8 @@ abstract class FromServer {
 			$query = sprintf ( "INSERT INTO %s ( %s )
 						VALUES ( %s )",
 							$this->tablename, join ( ", ", $names ), join ( ", ", $values ) );
+			query_and_check ( $query, "Impossibile salvare oggetto " . $this->classname );
+
 			$ret = last_id ( $this->tablename );
 		}
 		else {
@@ -303,11 +317,28 @@ abstract class FromServer {
 			$query = sprintf ( "UPDATE %s SET %s
 						WHERE id = %d",
 							$this->tablename, join ( ", ", $values ), $id );
+			query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
+
 			$ret = $id;
 		}
 
-		query_and_check ( $query, "Impossibile salvare oggetto " . $this->classname );
 		return $ret;
+	}
+
+	public function destroy ( $obj ) {
+		$this->from_object_to_internal ( $obj );
+
+		$attr = $this->getAttribute ( "id" );
+		$id = $attr->value;
+
+		if ( $id != -1 ) {
+			$query = sprintf ( "DELETE FROM %s
+						WHERE id = %d",
+							$this->tablename, $id );
+			query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
+		}
+
+		return $id;
 	}
 
 	public function exportable () {

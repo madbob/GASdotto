@@ -164,22 +164,10 @@ public class FromServerTable extends FromServerArray {
 	}
 
 	public void removeElement ( FromServer element ) {
-		int num;
-		int element_id;
 		int i;
-		FromServer obj;
 
-		num = rows.size ();
-		element_id = element.getLocalID ();
-
-		for ( i = 0; i < num; i++ ) {
-			obj = ( FromServer ) rows.get ( i );
-
-			if ( obj.getLocalID () == element_id )
-				break;
-		}
-
-		if ( i == num )
+		i = retrieveElementRow ( element );
+		if ( i == -1 )
 			return;
 
 		main.removeRow ( i + 1 );
@@ -187,13 +175,49 @@ public class FromServerTable extends FromServerArray {
 	}
 
 	public void refreshElement ( FromServer element ) {
-		/**
-			TODO
-		*/
+		int cols;
+		int row;
+		Label lab;
+		FromServerTableColumn c;
+		FromServerWidget wid;
+
+		cols = columns.size ();
+		row = retrieveElementRow ( element );
+
+		for ( int i = 0; i < cols; i++ ) {
+			c = ( FromServerTableColumn ) columns.get ( i );
+
+			if ( c.edit == true ) {
+				wid = ( FromServerWidget ) main.getWidget ( row, i );
+				wid.set ( element );
+			}
+			else {
+				lab = ( Label ) main.getWidget ( row, i );
+				lab.setText ( element.getString ( c.attr ) );
+			}
+		}
 	}
 
 	public ArrayList getElements () {
 		syncRowsContents ();
 		return rows;
+	}
+
+	private int retrieveElementRow ( FromServer element ) {
+		int num;
+		int element_id;
+		FromServer obj;
+
+		num = rows.size ();
+		element_id = element.getLocalID ();
+
+		for ( int i = 0; i < num; i++ ) {
+			obj = ( FromServer ) rows.get ( i );
+
+			if ( obj.getLocalID () == element_id )
+				return i;
+		}
+
+		return -1;
 	}
 }

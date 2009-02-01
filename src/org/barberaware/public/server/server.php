@@ -130,10 +130,9 @@ else {
 			*/
 
 			$type = escape_string ( $obj->type );
-			$id = escape_string ( $obj->localid );
-			$query = sprintf ( "DELETE FROM %s WHERE id = %d", $type, $id );
-			query_and_check ( $query, "Impossibile rimuovere oggetto " + $type );
-			$ret = $obj->localid;
+			$class = class_name ( $type );
+			$ret = new $class;
+			$ret = $ret->destroy ( $obj );
 			break;
 
 		default:

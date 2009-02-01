@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -59,7 +59,9 @@ public class ReferenceList extends FromServerArray {
 
 		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				doSelectableRow ( ( User ) object );
+				if ( object.getInt ( "privileges" ) >= User.USER_RESPONSABLE ) {
+					doSelectableRow ( ( User ) object );
+				}
 			}
 
 			public void onModify ( FromServer object ) {
@@ -67,10 +69,18 @@ public class ReferenceList extends FromServerArray {
 				Label name;
 
 				a = retrieveUserIndex ( object );
-				if ( a != -1 ) {
-					name = ( Label ) items.getWidget ( a, 2 );
-					name.setText ( object.getString ( "name" ) );
+
+				if ( object.getInt ( "privileges" ) >= User.USER_RESPONSABLE ) {
+					if ( a != -1 ) {
+						name = ( Label ) items.getWidget ( a, 2 );
+						name.setText ( object.getString ( "name" ) );
+					}
+					else
+						onReceive ( object );
 				}
+				else
+					if ( a != -1 )
+						onDestroy ( object );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -123,16 +133,14 @@ public class ReferenceList extends FromServerArray {
 	}
 
 	private void doSelectableRow ( User user ) {
-		if ( user.getInt ( "privileges" ) >= User.USER_RESPONSABLE ) {
-			int index;
+		int index;
 
-			index = items.getRowCount ();
-			items.insertRow ( index );
+		index = items.getRowCount ();
+		items.insertRow ( index );
 
-			items.setWidget ( index, 0, new Hidden ( Integer.toString ( user.getLocalID () ) ) );
-			items.setWidget ( index, 1, new CheckBox () );
-			items.setWidget ( index, 2, new Label ( user.getString ( "name" ) ) );
-		}
+		items.setWidget ( index, 0, new Hidden ( Integer.toString ( user.getLocalID () ) ) );
+		items.setWidget ( index, 1, new CheckBox () );
+		items.setWidget ( index, 2, new Label ( user.getString ( "name" ) ) );
 	}
 
 	private void retriveMainString () {
@@ -240,10 +248,12 @@ public class ReferenceList extends FromServerArray {
 	}
 
 	public void setElements ( ArrayList elements ) {
-		if ( elements == null )
-			selected.clear ();
-		else
-			selected = elements;
+		selected.clear ();
+
+		if ( elements != null ) {
+			for ( int i = 0; i < elements.size (); i++ )
+				selected.add ( elements.get ( i ) );
+		}
 
 		retriveMainString ();
 	}

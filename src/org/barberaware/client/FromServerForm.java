@@ -274,17 +274,21 @@ public class FromServerForm extends Composite {
 
 	private boolean contentsChanged () {
 		int num;
+		boolean ret;
 		FromServerWidget tmp;
 
 		num = widgets.size ();
+		ret = false;
 
 		for ( int i = 0; i < num; i++ ) {
 			tmp = ( FromServerWidget ) widgets.get ( i );
-			if ( tmp.compare ( object ) == false )
-				return true;
+			if ( tmp.compare ( object ) == false ) {
+				ret = true;
+				break;
+			}
 		}
 
-		return false;
+		return ret;
 	}
 
 	private boolean rebuildObject () {

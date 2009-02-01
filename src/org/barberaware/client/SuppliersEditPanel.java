@@ -142,7 +142,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		FromServerForm supplier_form;
 
 		supplier = ( Supplier ) product.getObject ( "supplier" );
-		supplier_form = main.retriveForm ( supplier );
+		supplier_form = main.retrieveForm ( supplier );
 
 		if ( supplier_form != null )
 			return ( ProductsEditPanel ) supplier_form.retriveInternalWidget ( "products" );
