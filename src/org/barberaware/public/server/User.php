@@ -34,6 +34,37 @@ class User extends FromServer {
 		$this->addAttribute ( "paying", "BOOLEAN", "false" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
 	}
+
+	public function save ( $obj ) {
+		$newly_created = ( $obj->id == -1 );
+		$id = parent::save ( $obj );
+
+		if ( $obj->password != "" || $newly_created ) {
+			$password = md5 ( $obj->password );
+
+			if ( $newly_created )
+				$query = sprintf ( "INSERT INTO accounts ( username, password )
+							VALUES ( %d, '%s' )",
+								$id, $password );
+			else
+				$query = sprintf ( "UPDATE accounts SET password = '%s'
+							WHERE username = %d",
+								$password, $id );
+
+			query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+		}
+
+		return $id;
+	}
+
+	public function destroy ( $obj ) {
+		$id = parent::destroy ( $obj );
+
+		$query = sprintf ( "DELETE FROM accounts WHERE id = %d", $id );
+		query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
+
+		return $id;
+	}
 }
 
 ?>

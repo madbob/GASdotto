@@ -65,6 +65,8 @@ public class DateSelector extends Composite {
 	}
 
 	public Date getValue () {
+		Date ret;
+
 		/*
 			Qui per sapere se una data e' stata davvero selezionata o meno si
 			confronta la stringa all'interno del pulsante: se e' uguale a quella
@@ -72,9 +74,11 @@ public class DateSelector extends Composite {
 			mantenibile
 		*/
 		if ( main.getText ().equals ( "Scegli una data" ) )
-			return null;
+			ret = null;
 		else
-			return cal.getDate ();
+			ret = cal.getDate ();
+
+		return ret;
 	}
 
 	public void setValue ( Date date ) {

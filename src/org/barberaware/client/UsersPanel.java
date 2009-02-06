@@ -66,11 +66,6 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
 
-					/**
-						TODO	Prevedere aggiornamento della password, qualora qualcuno se la
-							scordasse
-					*/
-
 					fields.setWidget ( 1, 0, new Label ( "Nome" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "firstname" ) );
 
@@ -113,6 +108,9 @@ public class UsersPanel extends GenericPanel {
 					privileges.addState ( "images/user_role_reference.png" );
 					privileges.addState ( "images/user_role_admin.png" );
 					fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
+
+					fields.setWidget ( 3, 0, new Label ( "Password" ) );
+					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
 					return ver;
 				}

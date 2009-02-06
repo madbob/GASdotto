@@ -214,8 +214,20 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.PERCENTAGE )
 			ret = object.getString ( name ).equals ( ( ( PercentageBox ) wid ).getValue () );
 
-		else if ( type == FromServer.DATE )
-			ret = object.getDate ( name ).equals ( ( ( DateSelector ) wid ).getValue () );
+		else if ( type == FromServer.DATE ) {
+			Date newer;
+			Date older;
+
+			newer = ( ( DateSelector ) wid ).getValue ();
+			older = object.getDate ( name );
+
+			if ( newer == null && older == null )
+				ret = true;
+			else if ( newer == null || older == null )
+				ret = false;
+			else
+				ret = older.equals ( newer );
+		}
 
 		else if ( type == FromServer.BOOLEAN )
 			ret = object.getBool ( name ) == ( ( BooleanSelector ) wid ).isDown ();

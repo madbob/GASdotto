@@ -282,6 +282,7 @@ public class FromServerForm extends Composite {
 
 		for ( int i = 0; i < num; i++ ) {
 			tmp = ( FromServerWidget ) widgets.get ( i );
+
 			if ( tmp.compare ( object ) == false ) {
 				ret = true;
 				break;

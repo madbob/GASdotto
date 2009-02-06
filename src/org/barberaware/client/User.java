@@ -45,6 +45,7 @@ public class User extends FromServer {
 		} );
 
 		addAttribute ( "login", FromServer.STRING );
+		addAttribute ( "password", FromServer.STRING );
 		addAttribute ( "firstname", FromServer.STRING );
 		addAttribute ( "surname", FromServer.STRING );
 		addAttribute ( "join_date", FromServer.DATE );
