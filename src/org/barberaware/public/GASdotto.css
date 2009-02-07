@@ -42,8 +42,14 @@
 }
 
 .genericpanel-header {
+	font-size:		20px;
 	text-align:		right;
 	vertical-align:		middle;
+	padding-right:		50px;
+}
+
+.form-cluster {
+	width:			100%;
 }
 
 .element-summary {

@@ -40,6 +40,7 @@ function install_main_db () {
 					name varchar ( 100 ) default '',
 					mail varchar ( 100 ) default '',
 					image varchar ( 100 ) default '',
+					payments boolean default false,
 					description varchar ( 500 ) default '',
 					primary key ( id )
 				)"

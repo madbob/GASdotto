@@ -23,9 +23,10 @@ class GAS extends FromServer {
 	public function __construct () {
 		parent::__construct ( "GAS" );
 
-		parent::addAttribute ( "name", "STRING" );
-		parent::addAttribute ( "mail", "STRING" );
-		parent::addAttribute ( "image", "STRING" );
-		parent::addAttribute ( "description", "STRING" );
+		$this->addAttribute ( "name", "STRING" );
+		$this->addAttribute ( "mail", "STRING" );
+		$this->addAttribute ( "image", "STRING" );
+		$this->addAttribute ( "payments", "BOOLEAN" );
+		$this->addAttribute ( "description", "STRING" );
 	}
 }

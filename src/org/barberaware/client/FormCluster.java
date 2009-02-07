@@ -47,6 +47,8 @@ public abstract class FormCluster extends VerticalPanel {
 			add ( doAddButton ( icon_path ) );
 			addable = true;
 		}
+
+		setStyleName ( "form-cluster" );
 	}
 
 	public FormCluster ( String type, String icon_path, boolean auto ) {

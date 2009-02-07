@@ -93,14 +93,24 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 0, 0, new Label ( "Iscritto da" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "join_date" ) );
 
-					/**
-						TODO	Gestire la segnalazione del pagamento della quota in modo
-							diverso. Pier suggeriva di marcare l'anno in cui e' stata pagata
-							l'ultima volta, ma mi sembra poco efficiente, bisognerebbe
-							trovare un compromesso
+					/*
+						Se il settaggio sul pagamento delle quote viene modificato
+						l'applicazione viene riavviata, pertanto non c'e' bisogno di
+						correggere questo pannello ma semplicemente attendere che sia
+						ricaricato
 					*/
-					fields.setWidget ( 1, 0, new Label ( "Quota pagata" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "paying" ) );
+					if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+						/**
+							TODO	Gestire la segnalazione del pagamento della quota in modo
+								diverso. Pier suggeriva di marcare l'anno in cui e' stata pagata
+								l'ultima volta, ma mi sembra poco efficiente, bisognerebbe
+								trovare un compromesso
+						*/
+						fields.setWidget ( 1, 0, new Label ( "Quota pagata" ) );
+						fields.setWidget ( 1, 1, ver.getWidget ( "paying" ) );
+					}
+					else
+						user.setBool ( "paying", true );
 
 					fields.setWidget ( 2, 0, new Label ( "Ruolo" ) );
 					privileges = new CyclicToggle ();
