@@ -21,94 +21,51 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class ReferenceBySupplierList extends ObjectWidget {
+public class UserSelector extends ObjectWidget {
 	private ListBox				main;
-	private Supplier			supplier;
 
-	public ReferenceBySupplierList ( Supplier supp ) {
+	public UserSelector () {
 		main = new ListBox ();
 		initWidget ( main );
 
-		supplier = supp;
-		refreshList ( supp );
-
-		Utils.getServer ().onObjectEvent ( "Supplier", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				/*dummy  */
-			}
-
-			public void onModify ( FromServer object ) {
-				if ( supplier != null && supplier.equals ( object ) ) {
-					supplier = ( Supplier ) object;
-					refreshList ( supplier );
-				}
-			}
-
-			public void onDestroy ( FromServer object ) {
-				/*
-					Se il fornitore viene rimosso il widget di per se' non fa
-					nulla, e' il suo contenitore che deve sparire
-				*/
-			}
-		} );
+		main.addItem ( "Seleziona Utente", "none" );
 
 		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				/*dummy  */
+				main.addItem ( object.getString ( "name" ), Integer.toString ( object.getLocalID () ) );
 			}
 
 			public void onModify ( FromServer object ) {
-				int num;
-				String sel;
+				int index;
 
-				num = main.getItemCount ();
-				sel = Integer.toString ( object.getLocalID () );
-
-				for ( int i = 0; i < num; i++ ) {
-					if ( sel.equals ( main.getValue ( i ) ) ) {
-						main.setItemText ( i, object.getString ( "name" ) );
-						break;
-					}
-				}
+				index = retrieveUserIndex ( object );
+				if ( index != -1 )
+					main.setItemText ( index, object.getString ( "name" ) );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				/*dummy  */
+				int index;
+
+				index = retrieveUserIndex ( object );
+				if ( index != -1 )
+					main.removeItem ( index );
 			}
 		} );
 	}
 
-	public void setSupplier ( Supplier supp ) {
-		supplier = supp;
-		refreshList ( supp );
-	}
+	private int retrieveUserIndex ( FromServer user ) {
+		int num;
+		String sel;
 
-	private void refreshList ( Supplier supp ) {
-		int selected_index;
-		ArrayList references;
-		FromServer selected;
-		User u;
+		num = main.getItemCount ();
+		sel = Integer.toString ( user.getLocalID () );
 
-		selected = getValue ();
-		selected_index = 0;
-
-		main.clear ();
-		main.addItem ( "Nessuno", "-1" );
-
-		if ( supp == null )
-			return;
-
-		references = supp.getArray ( "references" );
-
-		for ( int i = 0; i < references.size (); i++ ) {
-			u = ( User ) references.get ( i );
-			main.addItem ( u.getString ( "name" ), Integer.toString ( u.getLocalID () ) );
-
-			if ( selected != null && selected.equals ( u ) )
-				selected_index = i;
+		for ( int i = 0; i < num; i++ ) {
+			if ( sel.equals ( main.getValue ( i ) ) )
+				return i;
 		}
 
-		main.setItemSelected ( selected_index, true );
+		return -1;
 	}
 
 	/****************************************************************** ObjectWidget */

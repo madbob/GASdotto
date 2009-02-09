@@ -20,8 +20,6 @@ package org.barberaware.client;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class GenericPanel extends VerticalPanel {
-	private boolean		showingFirstTemp;
-
 	protected class GenericPanelHead extends Composite {
 		public GenericPanelHead ( GenericPanel panel ) {
 			HorizontalPanel head;
@@ -38,8 +36,6 @@ public abstract class GenericPanel extends VerticalPanel {
 	public GenericPanel () {
 		GenericPanelHead head;
 
-		showingFirstTemp = false;
-
 		setStyleName ( "genericpanel" );
 		setSize ( "100%", "100%" );
 
@@ -47,28 +43,6 @@ public abstract class GenericPanel extends VerticalPanel {
 		add ( head );
 		setCellWidth ( head, "100%" );
 		setCellHorizontalAlignment ( head, HasHorizontalAlignment.ALIGN_RIGHT );
-	}
-
-	public void addFirstTempRow ( Widget widget ) {
-		if ( showingFirstTemp == true )
-			return;
-
-		showingFirstTemp = true;
-		widget.setStyleName ( "empty-list-placeholder" );
-		add ( widget );
-	}
-
-	/*
-		Viene wrappata la funzione insert() originale per il trattamento della eventuale
-		prima riga speciale aggiunta con addFirstTempRow()
-	*/
-	public void insert ( Widget widget, int index ) {
-		if ( showingFirstTemp == true ) {
-			showingFirstTemp = false;
-			remove ( 1 );
-		}
-
-		super.insert ( widget, index );
 	}
 
 	protected void addTop ( Widget to_add ) {

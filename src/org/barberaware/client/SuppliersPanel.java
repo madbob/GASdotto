@@ -34,7 +34,7 @@ public class SuppliersPanel extends GenericPanel {
 				Supplier supplier;
 
 				supplier = ( Supplier ) supp;
-				ver = new FromServerForm ( supplier );
+				ver = new FromServerForm ( supplier, false );
 
 				ver.setAdditionalIconsCallback ( new FromServerFormIcons () {
 					public Panel retrive ( FromServer obj ) {
@@ -50,22 +50,6 @@ public class SuppliersPanel extends GenericPanel {
 					}
 				} );
 
-				hor = new HorizontalPanel ();
-				ver.add ( hor );
-
-				fields = new FlexTable ();
-				hor.add ( fields );
-
-				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-				fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
-
-				fields = new FlexTable ();
-				hor.add ( fields );
-
-				fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
-				fields.setWidget ( 1, 1, new Label ( supplier.getString ( "address" ) ) );
-
-				ver.add ( new Label ( "Descrizione" ) );
 				ver.add ( new Label ( supplier.getString ( "description" ) ) );
 
 				return ver;

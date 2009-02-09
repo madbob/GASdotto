@@ -56,7 +56,7 @@ class Product extends FromServer {
 			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti product" );
 
 			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-				$obj = new Product;
+				$obj = new Product ();
 				$obj->readFromDB ( $row [ 'id' ] );
 				array_push ( $ret, $obj->exportable () );
 			}

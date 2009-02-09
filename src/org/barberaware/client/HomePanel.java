@@ -50,32 +50,71 @@ public class HomePanel extends GenericPanel {
 					hasOrders = true;
 				}
 
-				orders.add ( doOrderRow ( ( Order ) object ) );
+				orders.add ( doOrderRow ( ( Order ) object, null ) );
 			}
 
 			public void onModify ( FromServer object ) {
-				/**
-					TODO
-				*/
+				int index;
+
+				index = retrieveOrderRow ( object );
+				if ( index != -1 )
+					doOrderRow ( ( Order ) object, ( HorizontalPanel ) orders.getWidget ( index ) );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				/**
-					TODO
-				*/
+				int index;
+
+				index = retrieveOrderRow ( object );
+				if ( index != -1 )
+					orders.remove ( index );
 			}
 		} );
 
 		return orders;
 	}
 
-	private Widget doOrderRow ( Order order ) {
+	private Widget doOrderRow ( Order order, HorizontalPanel hor ) {
+		String name;
+		Label label;
+
 		/**
 			TODO	Rendere le righe degli ordini cliccabili per raggiungere
 				direttamente il form di input
 		*/
 
-		return new Label ( order.getString ( "name" ) );
+		name = order.getString ( "name" );
+
+		if ( hor == null ) {
+			hor = new HorizontalPanel ();
+			hor.add ( new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
+
+			label = new Label ( name );
+			hor.add ( label );
+		}
+		else {
+			label = ( Label ) hor.getWidget ( 1 );
+			label.setText ( name );
+		}
+
+		return hor;
+	}
+
+	private int retrieveOrderRow ( FromServer target ) {
+		String target_id_str;
+		HorizontalPanel row;
+		Hidden id;
+
+		target_id_str = Integer.toString ( target.getLocalID () );
+
+		for ( int i = 0; i < orders.getWidgetCount (); i++ ) {
+			row = ( HorizontalPanel ) orders.getWidget ( i );
+			id = ( Hidden ) row.getWidget ( 0 );
+
+			if ( target_id_str.equals ( id.getValue () ) )
+				return i;
+		}
+
+		return -1;
 	}
 
 	/****************************************************************** GenericPanel */

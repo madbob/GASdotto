@@ -38,7 +38,7 @@ public class FromServerForm extends Composite {
 
 	/****************************************************************** init */
 
-	public FromServerForm ( FromServer obj ) {
+	private void buildCommon ( FromServer obj, boolean editable ) {
 		object = obj;
 
 		widgets = new ArrayList ();
@@ -85,9 +85,17 @@ public class FromServerForm extends Composite {
 		contents.setStyleName ( "element-details" );
 		main.add ( contents );
 
-		buttons = doButtons ();
+		buttons = doButtons ( editable );
 		contents.add ( buttons );
 		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+	}
+
+	public FromServerForm ( FromServer obj ) {
+		buildCommon ( obj, true );
+	}
+
+	public FromServerForm ( FromServer obj, boolean editable ) {
+		buildCommon ( obj, editable );
 	}
 
 	public void add ( Widget wid ) {
@@ -136,26 +144,28 @@ public class FromServerForm extends Composite {
 		return main;
 	}
 
-	private ButtonsBar doButtons () {
+	private ButtonsBar doButtons ( boolean editable ) {
 		ButtonsBar panel;
 		PushButton button;
 		final FromServerForm myself		= this;
 
 		panel = new ButtonsBar ();
 
-		button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				/**
-					TODO	Chiedere conferma per l'eliminazione
-				*/
+		if ( editable ) {
+			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
+				public void onClick ( Widget sender ) {
+					/**
+						TODO	Chiedere conferma per l'eliminazione
+					*/
 
-				callbacks.onDelete ( myself );
-				object.destroy ( null );
-				main.setOpen ( false );
-				main.setVisible ( false );
-			}
-		} );
-		panel.add ( button, "Elimina" );
+					callbacks.onDelete ( myself );
+					object.destroy ( null );
+					main.setOpen ( false );
+					main.setVisible ( false );
+				}
+			} );
+			panel.add ( button, "Elimina" );
+		}
 
 		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
@@ -169,19 +179,21 @@ public class FromServerForm extends Composite {
 		} );
 		panel.add ( button, "Annulla" );
 
-		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				if ( contentsChanged () ) {
-					rebuildObject ();
-					callbacks.onSave ( myself );
-					object.save ( null );
-					summary.setText ( object.getString ( "name" ) );
-				}
+		if ( editable ) {
+			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
+				public void onClick ( Widget sender ) {
+					if ( contentsChanged () ) {
+						rebuildObject ();
+						callbacks.onSave ( myself );
+						object.save ( null );
+						summary.setText ( object.getString ( "name" ) );
+					}
 
-				main.setOpen ( false );
-			}
-		} );
-		panel.add ( button, "Salva" );
+					main.setOpen ( false );
+				}
+			} );
+			panel.add ( button, "Salva" );
+		}
 
 		return panel;
 	}

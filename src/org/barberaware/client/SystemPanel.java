@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SystemPanel extends GenericPanel {
@@ -63,13 +64,27 @@ public class SystemPanel extends GenericPanel {
 		FromServerForm ver;
 		FlexTable fields;
 
-		/**
-			TODO	Poiche' i settaggi sul GAS possono andare a toccare numerosissimi
-				aspetti dell'interfaccia, provvedere qui ad un riavvio
-				dell'applicazione quando i settaggi sono modificati e salvati
-		*/
-
 		ver = new FromServerForm ( Session.getGAS () );
+
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onSave ( FromServerForm form ) {
+				/*
+					Poiche' i settaggi sul GAS possono andare a toccare
+					numerosissimi aspetti dell'interfaccia, provvedere qui ad
+					un riavvio dell'applicazione quando i settaggi sono
+					modificati e salvati
+				*/
+				Window.Location.reload ();
+			}
+
+			public void onReset ( FromServerForm form ) {
+				/* dummy */
+			}
+
+			public void onDelete ( FromServerForm form ) {
+				/* dummy */
+			}
+		} );
 
 		fields = new FlexTable ();
 		ver.add ( fields );

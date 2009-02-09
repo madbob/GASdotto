@@ -244,8 +244,14 @@ public class FromServerWidget extends Composite {
 			FromServer stmp;
 
 			first = object.getArray ( name );
-			flen = first.size ();
 			second = ( ( FromServerArray ) wid ).getElements ();
+
+			if ( first == null && second == null )
+				return true;
+			else if ( first == null || second == null )
+				return false;
+
+			flen = first.size ();
 			slen = second.size ();
 
 			if ( flen != slen )

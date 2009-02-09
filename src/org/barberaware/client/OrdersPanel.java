@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class OrdersPanel extends GenericPanel {
@@ -32,24 +33,29 @@ public class OrdersPanel extends GenericPanel {
 				if ( ord.getInt ( "status" ) == Order.OPENED ) {
 					ServerRequest params;
 
-					insert ( doOrderRow ( ord ), 0 );
+					insert ( doOrderRow ( ord ), 1 );
 
 					params = new ServerRequest ( "OrderUser" );
 					params.add ( "order", ord );
+					params.add ( "user", Session.getUser () );
 					Utils.getServer ().testObjectReceive ( params );
 				}
 			}
 
 			public void onModify ( FromServer object ) {
-				/**
-					TODO
-				*/
+				int index;
+
+				index = retrieveOrderForm ( ( Order ) object );
+				if ( index != -1 )
+					syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				/**
-					TODO
-				*/
+				int index;
+
+				index = retrieveOrderForm ( ( Order ) object );
+				if ( index != -1 )
+					remove ( index );
 			}
 		} );
 
@@ -73,98 +79,73 @@ public class OrdersPanel extends GenericPanel {
 			}
 
 			public void onModify ( FromServer object ) {
-				/**
-					TODO
-				*/
+				int index;
+				FromServerForm form;
+
+				index = retrieveOrderForm ( ( Order ) object.getObject ( "order" ) );
+				if ( index != -1 ) {
+					form = ( FromServerForm ) getWidget ( index );
+					form.refreshContents ( object );
+				}
 			}
 
 			public void onDestroy ( FromServer object ) {
-				/**
-					TODO
-				*/
+				int index;
+
+				index = retrieveOrderForm ( ( Order ) object.getObject ( "order" ) );
+				if ( index != -1 )
+					remove ( index );
 			}
 		} );
-
-		addFirstTempRow ( new Label ( "Non ci sono ordini aperti in questo momento." ) );
 	}
 
 	private Widget doOrderRow ( Order order ) {
 		FromServerForm ver;
-		FlexTable fields;
 		OrderUser uorder;
-		ArrayList products;
-		int num_products;
-		Product prod;
+		ProductsUserSelection products;
 
 		uorder = new OrderUser ();
+		uorder.setObject ( "order", order );
+
 		/**
 			TODO	Validare l'utente sul lato server
 		*/
 		uorder.setObject ( "user", Session.getUser () );
-		uorder.setObject ( "order", order );
 
 		ver = new FromServerForm ( uorder );
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSave ( FromServerForm form ) {
-				retriveInputData ( form );
-			}
-
-			public void onReset ( FromServerForm form ) {
-				alignOrderRow ( form, ( OrderUser ) form.getObject () );
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
-			}
-		} );
-
-		fields = new FlexTable ();
-		ver.setExtraWidget ( "list", fields );
-		ver.add ( fields );
-
-		products = order.getArray ( "products" );
-		num_products = products.size ();
-
-		for ( int i = 0; i < num_products; i++ ) {
-			prod = ( Product ) products.get ( i );
-			fields.setWidget ( i, 0, new Hidden ( "product", Integer.toString ( prod.getLocalID () ) ) );
-			fields.setWidget ( i, 1, new Label ( prod.getString ( "name" ) ) );
-			fields.setWidget ( i, 2, new FloatBox () );
-			fields.setWidget ( i, 3, new Label ( prod.getObject ( "measure" ).getString ( "symbol" ) ) );
-		}
+		products = new ProductsUserSelection ( order.getArray ( "products" ) );
+		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
 		return ver;
 	}
 
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
-		FlexTable fields;
-		ArrayList products;
-		int num_products;
-		ProductUser prod;
-		String parent_id;
+		ProductsUserSelection products;
 
-		fields = ( FlexTable ) ver.getWidget ( "list" );
-
-		products = uorder.getArray ( "products" );
-		num_products = products.size ();
-
-		for ( int i = 0; i < num_products; i++ ) {
-			prod = ( ProductUser ) products.get ( i );
-			parent_id = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
-
-			for ( int a = 0; a < fields.getRowCount (); a++ ) {
-				if ( parent_id.equals ( ( ( Hidden ) fields.getWidget ( i, 0 ) ).getValue () ) ) {
-					( ( FloatBox ) fields.getWidget ( i, 2 ) ).setValue ( prod.getFloat ( "quantity" ) );
-					break;
-				}
-			}
-		}
+		products = ( ProductsUserSelection ) ver.getWidget ( "products" );
+		products.setElements ( uorder.getArray ( "products" ) );
 	}
 
-	private void retriveInputData ( FromServerForm form ) {
-		/**
-			TODO
-		*/
+	private int retrieveOrderForm ( Order parent ) {
+		FromServerForm form;
+		Order tmp_order;
+
+		for ( int i = 0; i < getWidgetCount (); i++ ) {
+			form = ( FromServerForm ) getWidget ( i );
+			tmp_order = ( Order ) form.getObject ();
+
+			if ( parent.getLocalID () == tmp_order.getObject ( "order" ).getLocalID () )
+				return i;
+		}
+
+		return -1;
+	}
+
+	private void syncProductsInForm ( FromServerForm form, Order order ) {
+		ProductsUserSelection select;
+
+		select = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
+		select.upgradeProductsList ( order.getArray ( "products" ) );
 	}
 
 	/****************************************************************** GenericPanel */
