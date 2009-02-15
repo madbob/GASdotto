@@ -85,7 +85,7 @@ public class ProductsEditPanel extends Composite {
 	/****************************************************************** lista */
 
 	private Widget doListView () {
-		list = new FormCluster ( "Product", null, false ) {
+		list = new FormCluster ( "Product", "images/new_product.png", false ) {
 				protected FromServerForm doEditableRow ( FromServer product ) {
 					FromServerForm ver;
 					HorizontalPanel hor;
@@ -122,6 +122,11 @@ public class ProductsEditPanel extends Composite {
 
 					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile" ) );
 					fields.setWidget ( 2, 1, ver.getWidget ( "mutable_price" ) );
+
+					/**
+						TODO	Gestire in qualche modo strutturato le
+							motivazioni per i sovrapprezzi
+					*/
 
 					fields.setWidget ( 3, 0, new Label ( "Sovrapprezzo" ) );
 					fields.setWidget ( 3, 1, ver.getWidget ( "surplus" ) );

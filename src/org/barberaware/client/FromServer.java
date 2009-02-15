@@ -439,8 +439,15 @@ public abstract class FromServer {
 			return;
 
 		value = obj.get ( "id" );
-		if ( value != null )
-			localID = Integer.parseInt ( value.isString ().stringValue () );
+		if ( value != null ) {
+			String str;
+
+			str = value.isString ().stringValue ();
+			if ( str.length () != 0 )
+				localID = Integer.parseInt ( str );
+			else
+				return;
+		}
 
 		attrs_num = attributes.size ();
 
@@ -457,8 +464,15 @@ public abstract class FromServer {
 					attr.type == FromServer.PERCENTAGE )
 				attr.setString ( value.isString ().stringValue () );
 
-			else if ( attr.type == FromServer.INTEGER )
-				attr.setInt ( Integer.parseInt ( value.isString ().stringValue () ) );
+			else if ( attr.type == FromServer.INTEGER ) {
+				String str;
+
+				str = value.isString ().stringValue ();
+				if ( str.length () != 0 )
+					attr.setInt ( Integer.parseInt ( str ) );
+				else
+					attr.setInt ( 0 );
+			}
 
 			else if ( attr.type == FromServer.FLOAT )
 				attr.setFloat ( Float.parseFloat ( value.isString ().stringValue () ) );
@@ -466,6 +480,7 @@ public abstract class FromServer {
 			else if ( attr.type == FromServer.ARRAY ) {
 				ArrayList arr;
 				JSONArray array;
+
 				arr = new ArrayList ();
 				array = value.isArray ();
 

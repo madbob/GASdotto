@@ -29,13 +29,14 @@ class FromServerAttribute {
 		$this->type = $type;
 
 		list ( $type, $objtype ) = explode ( "::", $type );
+
 		if ( $type == "ARRAY" )
 			$this->value = array ();
 		else
 			$this->value = "";
 	}
 
-	public function traslate_field ( $value ) {
+	public function traslate_field ( $parent, $value ) {
 		list ( $type, $objtype ) = explode ( "::", $this->type );
 
 		switch ( $type ) {
@@ -68,14 +69,32 @@ class FromServerAttribute {
 				break;
 
 			case "ARRAY":
+				$ret = array ();
+				$attr = $parent->getAttribute ( "id" );
+				$id = $attr->value;
+
+				$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d",
+							$parent->tablename, $this->name, $id );
+
+				$existing = query_and_check ( $query, "Impossibile recuperare array per " . $parent->classname );
+
+				while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
+					$subobj = new $objtype;
+					$subobj->readFromDB ( $row [ 'target' ] );
+					array_push ( $ret, $subobj );
+				}
+
+				return $ret;
 				break;
 
 			default:
 				return null;
 		}
+
+		return null;
 	}
 
-	public function export_field () {
+	public function export_field ( $parent ) {
 		list ( $type, $objtype ) = explode ( "::", $this->type );
 
 		switch ( $type ) {
@@ -101,23 +120,28 @@ class FromServerAttribute {
 
 			case "ARRAY":
 				$ret = array ();
-				for ( $i = 0; $i < count ( $this->value ); $i++ ) {
+				$elements_num = count ( $this->value );
+
+				for ( $i = 0; $i < $elements_num; $i++ ) {
 					$obj = $this->value [ $i ];
 					array_push ( $ret, $obj->exportable () );
 				}
+
 				return $ret;
 				break;
 
 			default:
 				return null;
 		}
+
+		return null;
 	}
 }
 
 abstract class FromServer {
-	protected	$classname	= "";
-	protected	$tablename	= "";
-	protected	$attributes	= array ();
+	public		$classname	= "";
+	public		$tablename	= "";
+	public		$attributes	= array ();
 
 	protected function __construct ( $name, $tablename = '' ) {
 		$this->classname = $name;
@@ -160,7 +184,9 @@ abstract class FromServer {
 			$attr = $this->attributes [ $i ];
 
 			if ( isset ( $row [ $attr->name ] ) )
-				$attr->value = $attr->traslate_field ( $row [ $attr->name ] );
+				$attr->value = $attr->traslate_field ( $this, $row [ $attr->name ] );
+			else
+				$attr->value = $attr->traslate_field ( $this, null );
 		}
 	}
 
@@ -169,15 +195,12 @@ abstract class FromServer {
 
 		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s
-						WHERE id NOT IN ( %s )
-							ORDER BY id",
-								$this->tablename, $ids );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) ORDER BY id",
+						$this->tablename, $ids );
 		}
 		else
-			$query = sprintf ( "SELECT id FROM %s
-						ORDER BY id",
-							$this->tablename );
+			$query = sprintf ( "SELECT id FROM %s ORDER BY id",
+						$this->tablename );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 
@@ -247,24 +270,90 @@ abstract class FromServer {
 				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 			*/
 			case "ADDRESS":
+				// $ret = null;
 				break;
 
-			/**
-				@todo	Attualmente gli array non sono gestiti in modo automatico, in
-					quanto si presuppone che i dati all'interno di un array siano da
-					trattare in modo particolare (magari in una tabella diversa da
-					quella principale per il tipo. Sarebbe opportuno inventarsi un
-					modo per trattare in modo trasparente anche tali dati, magari
-					definendo in fase di specifica del campo quale tabella deve
-					contenere suddetti elementi ed appoggiandosi su un formalismo
-					unico con cui maneggiarli sempre allo stesso modo
-			*/
 			case "ARRAY":
+				/*
+					Gli array non vengono trattati in questa funzione, si
+					occupa poi save_arrays() di salvare su DB le raccolte di
+					oggetti
+				*/
 				$ret = null;
 				break;
 		}
 
 		return $ret;
+	}
+
+	protected function save_arrays ( $fresh, $obj, $id ) {
+		if ( $fresh == true ) {
+			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+				$attr = $this->attributes [ $i ];
+				list ( $type, $objtype ) = explode ( "::", $attr->type );
+
+				if ( $type == "ARRAY" ) {
+					$name = $attr->name;
+					$arr = $obj->$name;
+
+					for ( $a = 0; $a < count ( $arr ); $a++ ) {
+						$element = $arr [ $a ];
+						$singleid = $element->id;
+
+						$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
+									$this->tablename, $name, $id, $singleid );
+
+						query_and_check ( $query, "Impossibile salvare array" );
+					}
+				}
+			}
+		}
+		else {
+			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+				$attr = $this->attributes [ $i ];
+				list ( $type, $objtype ) = explode ( "::", $attr->type );
+
+				if ( $type == "ARRAY" ) {
+					$name = $attr->name;
+					$arr = $obj->$name;
+
+					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d",
+								$this->tablename, $name, $id );
+					$existing = query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+
+					while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
+						$found = false;
+
+						for ( $a = 0; $a < count ( $arr ); $a++ ) {
+							$element = $arr [ $a ];
+							$singleid = $element->id;
+
+							if ( $singleid == $row [ 'target' ] ) {
+								$element->id = -1;
+								$found = true;
+								break;
+							}
+						}
+
+						if ( $found == false ) {
+							$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d AND target = %d",
+										$this->tablename, $name, $id, $row [ 'target' ] );
+							query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+						}
+					}
+
+					for ( $a = 0; $a < count ( $arr ); $a++ ) {
+						$single_data = $arr [ $a ];
+
+						if ( $single_data->id != -1 ) {
+							$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
+										$this->tablename, $name, $id, $single_data->id );
+							query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+						}
+					}
+				}
+			}
+		}
 	}
 
 	public function save ( $obj ) {
@@ -291,12 +380,12 @@ abstract class FromServer {
 				array_push ( $values, $value );
 			}
 
-			$query = sprintf ( "INSERT INTO %s ( %s )
-						VALUES ( %s )",
-							$this->tablename, join ( ", ", $names ), join ( ", ", $values ) );
+			$query = sprintf ( "INSERT INTO %s ( %s ) VALUES ( %s )",
+						$this->tablename, join ( ", ", $names ), join ( ", ", $values ) );
 			query_and_check ( $query, "Impossibile salvare oggetto " . $this->classname );
 
 			$ret = last_id ( $this->tablename );
+			$this->save_arrays ( true, $obj, $ret );
 		}
 		else {
 			$values = array ();
@@ -314,12 +403,12 @@ abstract class FromServer {
 				array_push ( $values, ( $attr->name . " = " . $value ) );
 			}
 
-			$query = sprintf ( "UPDATE %s SET %s
-						WHERE id = %d",
-							$this->tablename, join ( ", ", $values ), $id );
+			$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
+						$this->tablename, join ( ", ", $values ), $id );
 			query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
 
 			$ret = $id;
+			$this->save_arrays ( false, $obj, $ret );
 		}
 
 		return $ret;
@@ -332,9 +421,8 @@ abstract class FromServer {
 		$id = $attr->value;
 
 		if ( $id != -1 ) {
-			$query = sprintf ( "DELETE FROM %s
-						WHERE id = %d",
-							$this->tablename, $id );
+			$query = sprintf ( "DELETE FROM %s WHERE id = %d",
+						$this->tablename, $id );
 			query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
 		}
 
@@ -349,7 +437,7 @@ abstract class FromServer {
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
 			$name = $attr->name;
-			$obj->$name = $attr->export_field ();
+			$obj->$name = $attr->export_field ( $this );
 		}
 
 		return $obj;

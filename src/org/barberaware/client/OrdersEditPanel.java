@@ -358,8 +358,9 @@ public class OrdersEditPanel extends GenericPanel {
 
 			if ( product.getObject ( "supplier" ).getLocalID () == supplier_locald_id ) {
 				list.insertRow ( 0 );
-				list.setWidget ( 0, 0, new Label ( product.getString ( "name" ) ) );
-				list.setWidget ( 0, 1, new BooleanSelector () );
+				list.setWidget ( 0, 0, new Hidden ( "id", Integer.toString ( product.getLocalID () ) ) );
+				list.setWidget ( 0, 1, new Label ( product.getString ( "name" ) ) );
+				list.setWidget ( 0, 2, new BooleanSelector () );
 			}
 		}
 	}
@@ -404,6 +405,7 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	private void retriveInputData ( FromServerForm form ) {
+		int rows;
 		Order order;
 		FlexTable fields;
 		ArrayList products;
@@ -413,6 +415,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		order = ( Order ) form.getObject ();
 		fields = ( FlexTable ) form.retriveInternalWidget ( "list" );
+		rows = fields.getRowCount ();
 
 		products = order.getArray ( "products" );
 		if ( products == null ) {
@@ -422,7 +425,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		products.clear ();
 
-		for ( int i = 0; i < fields.getRowCount (); i++ ) {
+		for ( int i = 0; i < rows; i++ ) {
 			toggler = ( ToggleButton ) fields.getWidget ( i, 2 );
 
 			if ( toggler.isDown () == true ) {

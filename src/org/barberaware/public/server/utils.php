@@ -30,6 +30,7 @@ require_once ( "Measure.php" );
 require_once ( "Category.php" );
 require_once ( "Product.php" );
 require_once ( "Order.php" );
+require_once ( "ProductUser.php" );
 require_once ( "OrderUser.php" );
 
 function error_exit ( $string ) {
