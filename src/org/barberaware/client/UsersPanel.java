@@ -37,18 +37,11 @@ public class UsersPanel extends GenericPanel {
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
 
-					ver.setAdditionalIconsCallback ( new FromServerFormIcons () {
-						public Panel retrive ( FromServer obj ) {
-							HorizontalPanel hor;
-
-							hor = new HorizontalPanel ();
-
-							if ( obj.getBool ( "paying" ) == false )
-								hor.add ( new Image ( "images/notifications/user_not_paying.png" ) );
-
-							return hor;
-						}
-					} );
+					if ( u.getBool ( "paying" ) == false ) {
+						IconsBar icons;
+						icons = ver.getIconsBar ();
+						icons.addImage ( "images/notifications/user_not_paying.png" );
+					}
 
 					hor = new HorizontalPanel ();
 					ver.add ( hor );

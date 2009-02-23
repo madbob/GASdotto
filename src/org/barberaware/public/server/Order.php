@@ -33,21 +33,6 @@ class Order extends FromServer {
 		$this->addAttribute ( "nextdate", "STRING" );
 		$this->addAttribute ( "anticipated", "STRING" );
 	}
-
-	public function readFromDB ( $id ) {
-		parent::readFromDB ( $id );
-
-		$products = $this->getAttribute ( "products" );
-
-		$query = sprintf ( "SELECT * FROM orderdetails WHERE parent = %d", $id );
-		$returned = query_and_check ( $query, "Impossibile recuperare lista prodotti per ordine " . $id );
-
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-			$obj = new Product ();
-			$obj->readFromDB ( $row [ "product" ] );
-			array_push ( $products->value, $obj );
-		}
-	}
 }
 
 ?>

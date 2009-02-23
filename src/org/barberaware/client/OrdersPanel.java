@@ -36,8 +36,8 @@ public class OrdersPanel extends GenericPanel {
 					insert ( doOrderRow ( ord ), 1 );
 
 					params = new ServerRequest ( "OrderUser" );
-					params.add ( "order", ord );
-					params.add ( "user", Session.getUser () );
+					params.add ( "baseorder", ord );
+					params.add ( "baseuser", Session.getUser () );
 					Utils.getServer ().testObjectReceive ( params );
 				}
 			}
@@ -65,13 +65,13 @@ public class OrdersPanel extends GenericPanel {
 				Order order;
 				Order tmp_order;
 
-				order = ( Order ) object.getObject ( "order" );
+				order = ( Order ) object.getObject ( "baseorder" );
 
 				for ( int i = 0; i < getWidgetCount (); i++ ) {
 					order_form = ( FromServerForm ) getWidget ( i );
 					tmp_order = ( Order ) order_form.getObject ();
 
-					if ( order.getLocalID () == tmp_order.getObject ( "order" ).getLocalID () ) {
+					if ( order.getLocalID () == tmp_order.getObject ( "baseorder" ).getLocalID () ) {
 						alignOrderRow ( order_form, ( OrderUser ) object );
 						break;
 					}
@@ -82,7 +82,7 @@ public class OrdersPanel extends GenericPanel {
 				int index;
 				FromServerForm form;
 
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "order" ) );
+				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
 				if ( index != -1 ) {
 					form = ( FromServerForm ) getWidget ( index );
 					form.refreshContents ( object );
@@ -92,7 +92,7 @@ public class OrdersPanel extends GenericPanel {
 			public void onDestroy ( FromServer object ) {
 				int index;
 
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "order" ) );
+				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
 				if ( index != -1 )
 					remove ( index );
 			}
@@ -105,12 +105,12 @@ public class OrdersPanel extends GenericPanel {
 		ProductsUserSelection products;
 
 		uorder = new OrderUser ();
-		uorder.setObject ( "order", order );
+		uorder.setObject ( "baseorder", order );
 
 		/**
 			TODO	Validare l'utente sul lato server
 		*/
-		uorder.setObject ( "user", Session.getUser () );
+		uorder.setObject ( "baseuser", Session.getUser () );
 
 		ver = new FromServerForm ( uorder );
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
@@ -128,13 +128,13 @@ public class OrdersPanel extends GenericPanel {
 
 	private int retrieveOrderForm ( Order parent ) {
 		FromServerForm form;
-		Order tmp_order;
+		OrderUser tmp_order;
 
 		for ( int i = 0; i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
-			tmp_order = ( Order ) form.getObject ();
+			tmp_order = ( OrderUser ) form.getObject ();
 
-			if ( parent.getLocalID () == tmp_order.getObject ( "order" ).getLocalID () )
+			if ( parent.getLocalID () == tmp_order.getObject ( "baseorder" ).getLocalID () )
 				return i;
 		}
 

@@ -61,6 +61,12 @@ public class FloatBox extends TextBox {
 	}
 
 	public float getValue () {
-		return Float.parseFloat ( getText () );
+		String str;
+
+		str = getText ();
+		if ( str.equals ( "" ) )
+			return 0;
+
+		return Float.parseFloat ( str );
 	}
 }

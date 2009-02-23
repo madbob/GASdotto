@@ -22,9 +22,10 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class ProductUserSelector extends ObjectWidget {
-	private FloatBox		quantity;
-	private Label			measure;
-	private ProductUser		currentValue;
+	private FloatBox				quantity;
+	private Label					measure;
+	private ProductUser				currentValue;
+	private DelegatingChangeListenerCollection	changeListeners;
 
 	public ProductUserSelector ( Product prod ) {
 		HorizontalPanel main;
@@ -57,6 +58,43 @@ public class ProductUserSelector extends ObjectWidget {
 
 	public void setQuantity ( float quant ) {
 		quantity.setValue ( quant );
+	}
+
+	public float getQuantity () {
+		return quantity.getValue ();
+	}
+
+	public float getTotalPrice () {
+		float q;
+		float price;
+		float tot;
+		Product p;
+
+		q = getQuantity ();
+
+		if ( q == 0 )
+			return 0;
+
+		else {
+			p = ( Product ) currentValue.getObject ( "product" );
+			tot = q * p.getFloat ( "unit_price" );
+
+			price = p.getFloat ( "shipping_price" );
+			if ( price != 0 )
+				tot += q * price;
+
+			/**
+				TODO	Gestire anche il surplus, che e' una percentuale
+			*/
+
+			return tot;
+		}
+	}
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeListeners == null )
+			changeListeners = new DelegatingChangeListenerCollection ( this, quantity );
+		changeListeners.add ( listener );
 	}
 
 	/****************************************************************** ObjectWidget */

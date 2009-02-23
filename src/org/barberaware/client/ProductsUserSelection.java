@@ -23,23 +23,40 @@ import com.google.gwt.user.client.ui.*;
 
 public class ProductsUserSelection extends FromServerArray {
 	private FlexTable		main;
+	private Label			total;
 
 	public ProductsUserSelection ( ArrayList products ) {
+		int i;
 		int num_products;
 		Product prod;
 
 		main = new FlexTable ();
+		initWidget ( main );
+		main.setCellSpacing ( 5 );
+
+		i = 0;
 
 		if ( products != null ) {
 			num_products = products.size ();
 
-			for ( int i = 0; i < num_products; i++ ) {
+			for ( i = 0; i < num_products; i++ ) {
 				prod = ( Product ) products.get ( i );
 				addProductRow ( i, prod );
 			}
 		}
 
-		initWidget ( main );
+		addTotalRow ( i );
+	}
+
+	private void addTotalRow ( int index ) {
+		main.setWidget ( index, 0, new HTML ( "<hr>" ) );
+		main.getFlexCellFormatter ().setColSpan ( index, 0, 2 );
+
+		index++;
+
+		total = new Label ( "0 €" );
+		main.setWidget ( index, 0, new Label ( "Totale" ) );
+		main.setWidget ( index, 1, total );
 	}
 
 	public void upgradeProductsList ( ArrayList products ) {
@@ -54,7 +71,7 @@ public class ProductsUserSelection extends FromServerArray {
 		ProductUserSelector selector;
 
 		num_products = products.size ();
-		original_rows = main.getRowCount ();
+		original_rows = main.getRowCount () - 2;
 
 		for ( i = 0; i < num_products; i++ ) {
 			prod = ( Product ) products.get ( i );
@@ -93,12 +110,51 @@ public class ProductsUserSelection extends FromServerArray {
 	}
 
 	private void addProductRow ( int index, Product product ) {
+		String price;
+		float plus;
+		Measure measure;
 		ProductUserSelector sel;
+
+		measure = ( Measure ) product.getObject ( "measure" );
 
 		main.setWidget ( index, 0, new Label ( product.getString ( "name" ) ) );
 
 		sel = new ProductUserSelector ( product );
 		main.setWidget ( index, 1, sel );
+		sel.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				updateTotal ();
+			}
+		} );
+
+		plus = product.getFloat ( "unit_price" );
+		price = plus + " € / " + measure.getString ( "symbol" );
+
+		plus = product.getFloat ( "shipping_price" );
+		if ( plus != 0 )
+			price += " + " + plus + " € trasporto";
+
+		plus = product.getFloat ( "surplus" );
+		if ( plus != 0 )
+			price += " + " + plus + " € surplus";
+
+		main.setWidget ( index, 2, new Label ( price ) );
+	}
+
+	private void updateTotal () {
+		int rows;
+		float price;
+		ProductUserSelector selector;
+
+		rows = main.getRowCount () - 2;
+		price = 0;
+
+		for ( int i = 0; i < rows; i++ ) {
+			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
+			price += selector.getTotalPrice ();
+		}
+
+		total.setText ( price + " €" );
 	}
 
 	/****************************************************************** FromServerArray */
@@ -109,12 +165,15 @@ public class ProductsUserSelection extends FromServerArray {
 
 	public void setElements ( ArrayList elements ) {
 		int num_elements;
+		int rows;
 		ProductUser prod;
 		String id_target;
 		ProductUserSelector selector;
 
 		if ( elements == null ) {
-			for ( int i = 0; i < main.getRowCount (); i++ ) {
+			rows = main.getRowCount () - 2;
+
+			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 				selector.setQuantity ( 0 );
 			}
@@ -126,8 +185,9 @@ public class ProductsUserSelection extends FromServerArray {
 			for ( int a = 0; a < num_elements; a++ ) {
 				prod = ( ProductUser ) elements.get ( a );
 				id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
+				rows = main.getRowCount () - 2;
 
-				for ( int i = 0; i < main.getRowCount (); i++ ) {
+				for ( int i = 0; i < rows; i++ ) {
 					selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 
 					if ( selector.getValue ().equals ( prod ) ) {
@@ -137,6 +197,8 @@ public class ProductsUserSelection extends FromServerArray {
 				}
 			}
 		}
+
+		updateTotal ();
 	}
 
 	public void removeElement ( FromServer element ) {
@@ -152,7 +214,7 @@ public class ProductsUserSelection extends FromServerArray {
 		Hidden id;
 
 		list = new ArrayList ();
-		num_rows = main.getRowCount ();
+		num_rows = main.getRowCount () - 2;
 
 		for ( int i = 0; i < num_rows; i++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );

@@ -24,11 +24,11 @@ import com.google.gwt.user.client.ui.*;
 public class FromServerForm extends Composite {
 	private FromServer		object;
 	private DisclosurePanel		main;
+	private IconsBar		icons;
 	private Label			summary;
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
 	private FromServerFormCallbacks	callbacks;
-	private FromServerFormIcons	iconsCallback;
 
 	/**
 		TODO	Sostituire l'ArrayList con una HashMap
@@ -54,12 +54,6 @@ public class FromServerForm extends Composite {
 
 			public void onDelete ( FromServerForm form ) {
 				/* dummy */
-			}
-		};
-
-		iconsCallback = new FromServerFormIcons () {
-			public Panel retrive ( FromServer obj ) {
-				return null;
 			}
 		};
 
@@ -119,10 +113,6 @@ public class FromServerForm extends Composite {
 		callbacks = routine;
 	}
 
-	public void setAdditionalIconsCallback ( FromServerFormIcons callback ) {
-		FromServerFormIcons iconsCallback = callback;
-	}
-
 	public void addEventHandler ( DisclosureHandler handler ) {
 		main.addEventHandler ( handler );
 	}
@@ -141,7 +131,19 @@ public class FromServerForm extends Composite {
 		summary = new Label ( object.getString ( "name" ) );
 		main.add ( summary );
 
+		/**
+			TODO	Allineare icone a destra
+		*/
+		icons = doIconsBar ();
+		main.add ( icons );
+
 		return main;
+	}
+
+	private IconsBar doIconsBar () {
+		IconsBar bar;
+		bar = new IconsBar ();
+		return bar;
 	}
 
 	private ButtonsBar doButtons ( boolean editable ) {
@@ -271,6 +273,10 @@ public class FromServerForm extends Composite {
 	*/
 	public void setExtraWidget ( String name, Widget extra ) {
 		widgets.add ( new FromServerWidget ( name, extra ) );
+	}
+
+	public IconsBar getIconsBar () {
+		return icons;
 	}
 
 	/****************************************************************** handling */

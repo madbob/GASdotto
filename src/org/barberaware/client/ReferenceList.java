@@ -134,11 +134,21 @@ public class ReferenceList extends FromServerArray {
 
 	private void doSelectableRow ( User user ) {
 		int index;
+		String str_id;
+		Hidden iter;
 
+		str_id = Integer.toString ( user.getLocalID () );
 		index = items.getRowCount ();
+
+		for ( int i = 0; i < index; i++ ) {
+			iter = ( Hidden ) items.getWidget ( index, 0 );
+			if ( iter.getName ().equals ( str_id ) )
+				return;
+		}
+
 		items.insertRow ( index );
 
-		items.setWidget ( index, 0, new Hidden ( Integer.toString ( user.getLocalID () ) ) );
+		items.setWidget ( index, 0, new Hidden ( str_id ) );
 		items.setWidget ( index, 1, new CheckBox () );
 		items.setWidget ( index, 2, new Label ( user.getString ( "name" ) ) );
 	}
@@ -148,6 +158,10 @@ public class ReferenceList extends FromServerArray {
 		int num;
 		String mainstring;
 		User user;
+
+		/**
+			TODO	Verificare che la stringa venga costruita correttamente
+		*/
 
 		num = selected.size ();
 		mainstring = "";
@@ -173,7 +187,6 @@ public class ReferenceList extends FromServerArray {
 		int avail_num;
 		String tmp_id;
 		CheckBox check;
-		Hidden hid;
 		User tmp;
 
 		sel_num = selected.size ();

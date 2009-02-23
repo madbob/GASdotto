@@ -234,19 +234,61 @@ function install_main_db () {
 
 	query_and_check ( $query, "Impossibile creare tabella order" );
 
-	/*
+        /*
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE orderdetails (
+        $query = sprintf ( "CREATE TABLE orders_products (
 					id serial,
 					parent int references orders ( id ) on delete cascade,
-					product int references product ( id ) on delete cascade,
+					target int references product ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
 
-	query_and_check ( $query, "Impossibile creare tabella order" );
+	query_and_check ( $query, "Impossibile creare tabella orders_products" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE orderuser (
+					id serial,
+					baseorder int references orders ( id ) on delete cascade,
+					baseuser int references users ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella orderuser" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE productuser (
+					id serial,
+					product int references product ( id ) on delete cascade,
+					quantity float,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuser" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE orderuser_products (
+					id serial,
+					parent int references orderuser ( id ) on delete cascade,
+					target int references productuser ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella orderuser_products" );
 }
 
 ?>

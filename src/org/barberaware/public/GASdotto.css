@@ -53,8 +53,20 @@
 }
 
 .element-summary {
+	font-size:		20px;
+	font-family:		arial, sans-serif
 	margin:			3px;
 	vertical-align:		middle;
+}
+
+.element-summary div {
+	background-color:	#FFFFFF;
+	padding:		3px;
+}
+
+.element-summary div:hover {
+	background-color:	#4EDFCE;
+	padding:		3px;
 }
 
 .element-details {

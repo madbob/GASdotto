@@ -300,6 +300,11 @@ abstract class FromServer {
 						$element = $arr [ $a ];
 						$singleid = $element->id;
 
+						if ( $singleid == -1 ) {
+							$tmpobj = new $element->type ();
+							$singleid = $tmpobj->save ( $element );
+						}
+
 						$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
 									$this->tablename, $name, $id, $singleid );
 

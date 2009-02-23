@@ -25,12 +25,12 @@ public class OrderUser extends FromServer {
 
 		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
 			public String retrive ( FromServer obj ) {
-				return obj.getObject ( "order" ).getString ( "name" );
+				return obj.getObject ( "baseorder" ).getString ( "name" );
 			}
 		} );
 
-		addAttribute ( "user", FromServer.OBJECT, User.class );
-		addAttribute ( "order", FromServer.OBJECT, Order.class );
+		addAttribute ( "baseuser", FromServer.OBJECT, User.class );
+		addAttribute ( "baseorder", FromServer.OBJECT, Order.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
 	}
 }
