@@ -34,65 +34,6 @@ class Supplier extends FromServer {
 		$this->addAttribute ( "description", "STRING" );
 		$this->addAttribute ( "references", "ARRAY::User" );
 	}
-
-	public function readFromDB ( $id ) {
-		parent::readFromDB ( $id );
-
-		$references = $this->getAttribute ( "references" );
-
-		$query = sprintf ( "SELECT * FROM supplier_references WHERE parent = %d", $id );
-		$returned = query_and_check ( $query, "Impossibile recuperare lista referenti per fornitore " . $id );
-
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-			$obj = new User ();
-			$obj->readFromDB ( $row [ "target" ] );
-			array_push ( $references->value, $obj );
-		}
-	}
-
-	public function save ( $obj ) {
-		$id = parent::save ( $obj );
-
-		$query = sprintf ( "SELECT target FROM supplier_references
-					WHERE parent = %d",
-						$id );
-		$existing = query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
-
-		while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
-			$found = false;
-
-			for ( $i = 0; $i < count ( $obj->references ); $i++ ) {
-				$ref = $obj->references [ $i ];
-
-				if ( $ref->id == $row [ 'target' ] ) {
-					$ref->id = -1;
-					$found = true;
-					break;
-				}
-			}
-
-			if ( $found == false ) {
-				$query = sprintf ( "DELETE FROM supplier_references
-							WHERE parent = %d
-							AND target = %d",
-								$id, $row [ 'target' ] );
-				query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
-			}
-		}
-
-		for ( $i = 0; $i < count ( $obj->references ); $i++ ) {
-			$ref = $obj->references [ $i ];
-
-			if ( $ref->id != -1 ) {
-				$query = sprintf ( "INSERT INTO supplier_references ( parent, target )
-							VALUES ( %d, %d )",
-								$id, $ref->id );
-				query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
-			}
-		}
-
-		return $id;
-	}
 }
 
 ?>

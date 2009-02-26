@@ -124,8 +124,11 @@ public class ServerHook {
 
 				executingMonitor = false;
 
-				if ( monitorSchedulingQueue.size () != 0 )
-					testObjectReceiveImpl ( ( ServerRequest ) monitorSchedulingQueue.remove ( 0 ) );
+				if ( monitorSchedulingQueue.size () != 0 ) {
+					ServerRequest next;
+					next = ( ServerRequest ) monitorSchedulingQueue.remove ( 0 );
+					testObjectReceiveImpl ( next );
+				}
 			}
 		} );
 	}
@@ -157,10 +160,8 @@ public class ServerHook {
 	*/
 	public void testObjectReceive ( String type ) {
 		ServerRequest params;
-
 		params = new ServerRequest ( type );
 		testObjectReceive ( params );
-		params = null;
 	}
 
 	private void testObjectReceiveImpl ( ServerRequest params ) {

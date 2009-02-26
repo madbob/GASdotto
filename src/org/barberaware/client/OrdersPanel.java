@@ -25,40 +25,6 @@ public class OrdersPanel extends GenericPanel {
 	public OrdersPanel () {
 		super ();
 
-		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				Order ord;
-
-				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.OPENED ) {
-					ServerRequest params;
-
-					insert ( doOrderRow ( ord ), 1 );
-
-					params = new ServerRequest ( "OrderUser" );
-					params.add ( "baseorder", ord );
-					params.add ( "baseuser", Session.getUser () );
-					Utils.getServer ().testObjectReceive ( params );
-				}
-			}
-
-			public void onModify ( FromServer object ) {
-				int index;
-
-				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 )
-					syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				int index;
-
-				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 )
-					remove ( index );
-			}
-		} );
-
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm order_form;
@@ -67,11 +33,11 @@ public class OrdersPanel extends GenericPanel {
 
 				order = ( Order ) object.getObject ( "baseorder" );
 
-				for ( int i = 0; i < getWidgetCount (); i++ ) {
+				for ( int i = 1; i < getWidgetCount (); i++ ) {
 					order_form = ( FromServerForm ) getWidget ( i );
-					tmp_order = ( Order ) order_form.getObject ();
+					tmp_order = ( Order ) order_form.getObject ().getObject ( "baseorder" );
 
-					if ( order.getLocalID () == tmp_order.getObject ( "baseorder" ).getLocalID () ) {
+					if ( order.getLocalID () == tmp_order.getLocalID () ) {
 						alignOrderRow ( order_form, ( OrderUser ) object );
 						break;
 					}
@@ -93,6 +59,36 @@ public class OrdersPanel extends GenericPanel {
 				int index;
 
 				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
+				if ( index != -1 )
+					remove ( index );
+			}
+		} );
+
+		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				Order ord;
+
+				ord = ( Order ) object;
+				if ( ord.getInt ( "status" ) == Order.OPENED )
+					insert ( doOrderRow ( ord ), 1 );
+			}
+
+			public void onModify ( FromServer object ) {
+				int index;
+
+				index = retrieveOrderForm ( ( Order ) object );
+				if ( index != -1 ) {
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
+					else
+						remove ( index );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				int index;
+
+				index = retrieveOrderForm ( ( Order ) object );
 				if ( index != -1 )
 					remove ( index );
 			}
@@ -122,7 +118,7 @@ public class OrdersPanel extends GenericPanel {
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
 		ProductsUserSelection products;
 
-		products = ( ProductsUserSelection ) ver.getWidget ( "products" );
+		products = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
 		products.setElements ( uorder.getArray ( "products" ) );
 	}
 
@@ -130,7 +126,7 @@ public class OrdersPanel extends GenericPanel {
 		FromServerForm form;
 		OrderUser tmp_order;
 
-		for ( int i = 0; i < getWidgetCount (); i++ ) {
+		for ( int i = 1; i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
 			tmp_order = ( OrderUser ) form.getObject ();
 
@@ -164,5 +160,12 @@ public class OrdersPanel extends GenericPanel {
 		params = new ServerRequest ( "Order" );
 		params.add ( "status", Order.OPENED );
 		Utils.getServer ().testObjectReceive ( params );
+
+		/**
+			TODO	Per qualche ragione non carica correttamente i dati relativi agli
+				ordini gia' effettuati, sembra quasi non mandare manco la
+				richiesta al server
+		*/
+		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }

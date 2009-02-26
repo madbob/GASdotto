@@ -39,6 +39,12 @@ public abstract class GenericPanel extends VerticalPanel {
 		setStyleName ( "genericpanel" );
 		setSize ( "100%", "100%" );
 
+		/*
+			Da tenere sempre presente il fatto che l'elemento in posizione 0 del
+			pannello e' il suo header, iniziare le iterazioni sui contenuti a partire
+			da 1
+		*/
+
 		head = new GenericPanelHead ( this );
 		add ( head );
 		setCellWidth ( head, "100%" );

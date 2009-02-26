@@ -36,7 +36,7 @@ public class DateSelector extends Composite {
 				public void onChange ( Widget sender ) {
 					dialog.hide ();
 					opened = false;
-					main.setText ( Utils.printableDate ( cal.getDate () ) );
+					syncDate ( cal.getDate () );
 				}
 			}
 		);
@@ -64,6 +64,11 @@ public class DateSelector extends Composite {
 		clean ();
 	}
 
+	private void syncDate ( Date date ) {
+		cal.setDate ( date.getYear () + 1900, date.getMonth (), date.getDate () );
+		main.setText ( Utils.printableDate ( date ) );
+	}
+
 	public Date getValue () {
 		Date ret;
 
@@ -84,11 +89,8 @@ public class DateSelector extends Composite {
 	public void setValue ( Date date ) {
 		if ( date == null )
 			clean ();
-
-		else {
-			cal.setDate ( date.getYear () + 1900, date.getMonth (), date.getDate () );
-			main.setText ( Utils.printableDate ( cal.getDate () ) );
-		}
+		else
+			syncDate ( date );
 	}
 
 	public void setEnabled ( boolean enabled ) {

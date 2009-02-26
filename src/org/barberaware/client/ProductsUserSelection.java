@@ -112,6 +112,7 @@ public class ProductsUserSelection extends FromServerArray {
 	private void addProductRow ( int index, Product product ) {
 		String price;
 		float plus;
+		boolean raw;
 		Measure measure;
 		ProductUserSelector sel;
 
@@ -129,6 +130,15 @@ public class ProductsUserSelection extends FromServerArray {
 
 		plus = product.getFloat ( "unit_price" );
 		price = plus + " € / " + measure.getString ( "symbol" );
+
+		/**
+			TODO	Aggiungere una icona per indicare i prodotti il cui prezzo viene
+				fissato alla consegna
+		*/
+
+		raw = product.getBool ( "mutable_price" );
+		if ( raw == true )
+			price += " (il prodotto viene misurato alla consegna)";
 
 		plus = product.getFloat ( "shipping_price" );
 		if ( plus != 0 )

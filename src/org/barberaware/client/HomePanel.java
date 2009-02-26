@@ -50,15 +50,21 @@ public class HomePanel extends GenericPanel {
 					hasOrders = true;
 				}
 
-				orders.add ( doOrderRow ( ( Order ) object, null ) );
+				if ( object.getInt ( "status" ) == Order.OPENED )
+					orders.add ( doOrderRow ( ( Order ) object, null ) );
 			}
 
 			public void onModify ( FromServer object ) {
 				int index;
 
 				index = retrieveOrderRow ( object );
-				if ( index != -1 )
-					doOrderRow ( ( Order ) object, ( HorizontalPanel ) orders.getWidget ( index ) );
+
+				if ( index != -1 ) {
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						doOrderRow ( ( Order ) object, ( HorizontalPanel ) orders.getWidget ( index ) );
+					else
+						orders.remove ( index );
+				}
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -106,7 +112,10 @@ public class HomePanel extends GenericPanel {
 
 		target_id_str = Integer.toString ( target.getLocalID () );
 
-		for ( int i = 0; i < orders.getWidgetCount (); i++ ) {
+		/*
+			Come al solito, qui si parte da 1 perche' in 0 c'e' l'intestazione
+		*/
+		for ( int i = 1; i < orders.getWidgetCount (); i++ ) {
 			row = ( HorizontalPanel ) orders.getWidget ( i );
 			id = ( Hidden ) row.getWidget ( 0 );
 

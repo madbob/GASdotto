@@ -159,10 +159,6 @@ public class ReferenceList extends FromServerArray {
 		String mainstring;
 		User user;
 
-		/**
-			TODO	Verificare che la stringa venga costruita correttamente
-		*/
-
 		num = selected.size ();
 		mainstring = "";
 

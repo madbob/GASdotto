@@ -33,6 +33,33 @@ class Order extends FromServer {
 		$this->addAttribute ( "nextdate", "STRING" );
 		$this->addAttribute ( "anticipated", "STRING" );
 	}
+
+	public function get ( $request ) {
+		if ( isset ( $request->status ) ) {
+			$ret = array ();
+
+			$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
+
+			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+				$ids = join ( ',', $request->has );
+				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+			}
+
+			$query .= "ORDER BY id";
+
+			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+
+			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+				$obj = new $this->classname;
+				$obj->readFromDB ( $row [ 'id' ] );
+				array_push ( $ret, $obj->exportable () );
+			}
+
+			return $ret;
+		}
+		else
+			return parent::get ( $request );
+	}
 }
 
 ?>

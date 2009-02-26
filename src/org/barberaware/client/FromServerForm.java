@@ -62,10 +62,10 @@ public class FromServerForm extends Composite {
 		main.addEventHandler ( new DisclosureHandler () {
 			public void onClose ( DisclosureEvent event ) {
 				if ( contentsChanged () ) {
-					/**
-						TODO	Chiedere se si vogliono annullare le
-							modifiche fatte
-					*/
+					if ( Window.confirm ( "Vuoi salvare le modifiche effettuate?" ) == true )
+						savingObject ();
+					else
+						resetObject ();
 				}
 			}
 
@@ -131,11 +131,9 @@ public class FromServerForm extends Composite {
 		summary = new Label ( object.getString ( "name" ) );
 		main.add ( summary );
 
-		/**
-			TODO	Allineare icone a destra
-		*/
 		icons = doIconsBar ();
 		main.add ( icons );
+		main.setCellHorizontalAlignment ( icons, HasHorizontalAlignment.ALIGN_RIGHT );
 
 		return main;
 	}
@@ -156,14 +154,12 @@ public class FromServerForm extends Composite {
 		if ( editable ) {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
-					/**
-						TODO	Chiedere conferma per l'eliminazione
-					*/
-
-					callbacks.onDelete ( myself );
-					object.destroy ( null );
-					main.setOpen ( false );
-					main.setVisible ( false );
+					if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
+						callbacks.onDelete ( myself );
+						object.destroy ( null );
+						main.setOpen ( false );
+						main.setVisible ( false );
+					}
 				}
 			} );
 			panel.add ( button, "Elimina" );
@@ -184,12 +180,8 @@ public class FromServerForm extends Composite {
 		if ( editable ) {
 			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
-					if ( contentsChanged () ) {
-						rebuildObject ();
-						callbacks.onSave ( myself );
-						object.save ( null );
-						summary.setText ( object.getString ( "name" ) );
-					}
+					if ( contentsChanged () )
+						savingObject ();
 
 					main.setOpen ( false );
 				}
@@ -308,6 +300,13 @@ public class FromServerForm extends Composite {
 		}
 
 		return ret;
+	}
+
+	private void savingObject () {
+  		rebuildObject ();
+		callbacks.onSave ( this );
+		object.save ( null );
+		summary.setText ( object.getString ( "name" ) );
 	}
 
 	private boolean rebuildObject () {

@@ -25,6 +25,7 @@ import java.util.Date;
 
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.ChangeListener;
 import com.google.gwt.user.client.ui.ChangeListenerCollection;
@@ -45,8 +46,6 @@ public class CalendarWidget extends Composite
 
     public DockPanel bar = new DockPanel();
     public Button prevMonth = new Button("&lt;", this);
-    public Button prevYear = new Button("&lt;&lt;", this);
-    public Button nextYear = new Button("&gt;&gt;", this);
     public Button nextMonth = new Button("&gt;", this);
     public HTML title = new HTML();
 
@@ -61,10 +60,8 @@ public class CalendarWidget extends Composite
 
       HorizontalPanel prevButtons = new HorizontalPanel();
       prevButtons.add(prevMonth);
-      prevButtons.add(prevYear);
 
       HorizontalPanel nextButtons = new HorizontalPanel();
-      nextButtons.add(nextYear);
       nextButtons.add(nextMonth);
 
       bar.add(prevButtons, DockPanel.WEST);
@@ -81,10 +78,6 @@ public class CalendarWidget extends Composite
     public void onClick(Widget sender) {
       if (sender == prevMonth) {
         calendar.prevMonth();
-      } else if (sender == prevYear) {
-        calendar.prevYear();
-      } else if (sender == nextYear) {
-        calendar.nextYear();
       } else if (sender == nextMonth) {
         calendar.nextMonth();
       }
@@ -109,6 +102,7 @@ public class CalendarWidget extends Composite
   private Grid grid;
 
   private Date date = new Date();
+  private Date originalDate;
 
   private ChangeListenerCollection changeListeners;
 
@@ -118,6 +112,7 @@ public class CalendarWidget extends Composite
     exit = new Button ( "Annulla", new ClickListener () {
       public void onClick ( Widget sender ) {
         if (changeListeners != null) {
+          date = originalDate;
           changeListeners.fireChange(null);
         }
       }
@@ -232,18 +227,9 @@ public class CalendarWidget extends Composite
     drawCalendar();
   }
 
-  public void prevYear() {
-    setYear(getYear() - 1);
-    drawCalendar();
-  }
-
-  public void nextYear() {
-    setYear(getYear() + 1);
-    drawCalendar();
-  }
-
   public void setDate(int year, int month, int day) {
     date = new Date(year - 1900, month, day);
+    originalDate = ( Date ) date.clone ();
     drawCalendar();
   }
 

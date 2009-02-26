@@ -32,6 +32,8 @@ public class MainApp extends Composite {
 		initWidget ( main );
 		main.setSize ( "100%", "100%" );
 
+		main.add ( Utils.getNotificationsArea () );
+
 		header = new Header ();
 		main.add ( header );
 		main.setCellHeight ( header, "40px" );
