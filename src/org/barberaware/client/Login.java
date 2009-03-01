@@ -29,8 +29,8 @@ public class Login extends Composite {
 	public Login () {
 		VerticalPanel main;
 		HTML text;
-		Grid form;
-		Button button;
+		VerticalPanel container;
+		Widget login;
 		GAS gas;
 
 		main = new VerticalPanel ();
@@ -51,70 +51,105 @@ public class Login extends Composite {
 		else {
 			main.add ( Utils.getNotificationsArea () );
 
-			form = new Grid ( 3, 2 );
+			container = new VerticalPanel ();
 
-			/**
-				TODO	Visualizzare informazioni generiche in merito al GAS
-			*/
+			container.add ( doPresentationHeader ( gas ) );
 
-			username = new TextBox ();
-			username.setVisibleLength ( 20 );
+			login = doCredentials ();
+			container.add ( login );
+			container.setCellHorizontalAlignment ( login, HasHorizontalAlignment.ALIGN_CENTER );
 
-			password = new PasswordTextBox ();
-			password.setVisibleLength ( 20 );
-
-			form.setWidget ( 0, 0, new Label ( "Username" ) );
-			form.setWidget ( 0, 1, username );
-			form.setWidget ( 1, 0, new Label ( "Password" ) );
-			form.setWidget ( 1, 1, password );
-
-			button = new Button ( "Login", new ClickListener () {
-				public void onClick ( Widget sender ) {
-					String user;
-					String pwd;
-					ServerRequest params;
-
-					user = username.getText ();
-					if ( user.equals ( "" ) ) {
-						Utils.showNotification ( "Non hai immesso alcun username" );
-						return;
-					}
-
-					pwd = password.getText ();
-
-					params = new ServerRequest ( "Login" );
-					params.add ( "username", user );
-					params.add ( "password", pwd );
-
-					Utils.getServer ().serverGet ( params, new ServerResponse () {
-						public void onComplete ( JSONValue response ) {
-							User utente;
-
-							utente = new User ();
-							utente.fromJSONObject ( response.isObject () );
-
-							if ( utente.isValid () )
-								Window.Location.reload ();
-
-							else {
-								Utils.showNotification ( "Autenticazione fallita. Riprova" );
-								username.setText ( "" );
-								password.setText ( "" );
-							}
-
-							utente = null;
-						}
-					} );
-
-					params = null;
-				}
-			} );
-
-			form.setWidget ( 2, 1, button );
-			form.getCellFormatter ().setHorizontalAlignment ( 2, 1, HasHorizontalAlignment.ALIGN_RIGHT );
-
-			username.setFocus ( true );
-			main.add ( form );
+			main.add ( container );
 		}
+	}
+
+	private Widget doPresentationHeader ( GAS gas ) {
+		String desc;
+		VerticalPanel container;
+		Label label;
+
+		container = new VerticalPanel ();
+
+		desc = gas.getString ( "name" );
+		if ( desc.equals ( "" ) == false ) {
+			label = new Label ( desc );
+			label.setStyleName ( "genericpanel-header" );
+			container.add ( label );
+		}
+
+		desc = gas.getString ( "description" );
+		if ( desc.equals ( "" ) == false )
+			container.add ( new Label ( desc ) );
+
+		container.add ( new HTML ( "<hr>" ) );
+
+		return container;
+	}
+
+	private Widget doCredentials () {
+		FlexTable form;
+		Button button;
+
+		form = new FlexTable ();
+
+		username = new TextBox ();
+		username.setVisibleLength ( 20 );
+
+		password = new PasswordTextBox ();
+		password.setVisibleLength ( 20 );
+
+		form.setWidget ( 0, 0, new Label ( "Username" ) );
+		form.setWidget ( 0, 1, username );
+		form.setWidget ( 1, 0, new Label ( "Password" ) );
+		form.setWidget ( 1, 1, password );
+
+		button = new Button ( "Login", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				String user;
+				String pwd;
+				ServerRequest params;
+
+				user = username.getText ();
+				if ( user.equals ( "" ) ) {
+					Utils.showNotification ( "Non hai immesso alcun username" );
+					return;
+				}
+
+				pwd = password.getText ();
+
+				params = new ServerRequest ( "Login" );
+				params.add ( "username", user );
+				params.add ( "password", pwd );
+
+				Utils.getServer ().serverGet ( params, new ServerResponse () {
+					public void onComplete ( JSONValue response ) {
+						User utente;
+
+						utente = new User ();
+						utente.fromJSONObject ( response.isObject () );
+
+						if ( utente.isValid () )
+							Window.Location.reload ();
+
+						else {
+							Utils.showNotification ( "Autenticazione fallita. Riprova" );
+							username.setText ( "" );
+							password.setText ( "" );
+						}
+
+						utente = null;
+					}
+				} );
+
+				params = null;
+			}
+		} );
+
+		form.setWidget ( 2, 1, button );
+		form.getCellFormatter ().setHorizontalAlignment ( 3, 1, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		username.setFocus ( true );
+
+		return form;
 	}
 }

@@ -154,11 +154,16 @@ public class FromServerForm extends Composite {
 		if ( editable ) {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
-					if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
-						callbacks.onDelete ( myself );
-						object.destroy ( null );
-						main.setOpen ( false );
+					if ( object.isValid () == false )
 						main.setVisible ( false );
+
+					else {
+						if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
+							callbacks.onDelete ( myself );
+							object.destroy ( null );
+							main.setOpen ( false );
+							main.setVisible ( false );
+						}
 					}
 				}
 			} );
@@ -167,12 +172,14 @@ public class FromServerForm extends Composite {
 
 		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
-				resetObject ();
-				callbacks.onReset ( myself );
-				main.setOpen ( false );
-
 				if ( object.isValid () == false )
 					main.setVisible ( false );
+
+				else {
+					resetObject ();
+					callbacks.onReset ( myself );
+					main.setOpen ( false );
+				}
 			}
 		} );
 		panel.add ( button, "Annulla" );
