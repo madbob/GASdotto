@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 
 public class Address implements Comparator {
@@ -81,6 +82,20 @@ public class Address implements Comparator {
 			city = value.isString ().stringValue ();
 	}
 
+	/****************************************************************** Object */
+
+	public Object clone () {
+		Address dup;
+
+		dup = new Address ();
+		dup.street = street;
+		dup.cap = cap;
+		dup.city = city;
+		return dup;
+	}
+
+	/****************************************************************** Comparator */
+
 	public int compare ( Object first, Object second ) {
 		Address f;
 		Address s;
@@ -106,6 +121,9 @@ public class Address implements Comparator {
 
 	public boolean equals ( Object second ) {
 		Address other;
+
+		if ( second == null )
+			return false;
 
 		other = ( Address ) second;
 		return ( street.equals ( other.street ) && cap.equals ( other.cap ) && city.equals ( other.city ) );

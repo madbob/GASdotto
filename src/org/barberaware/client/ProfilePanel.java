@@ -40,6 +40,11 @@ public class ProfilePanel extends GenericPanel {
 		fields = new FlexTable ();
 		hor.add ( fields );
 
+		/*
+			Per non creare troppa confusione ho mantenuto laddove possibile lo stesso
+			layout del pannello di configurazioni globale degli utenti
+		*/
+
 		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 		fields.setWidget ( 0, 1, ver.getWidget ( "firstname" ) );
 

@@ -54,9 +54,11 @@ class FromServerAttribute {
 				$tokens = explode ( ";", $value );
 
 				for ( $i = 0; $i < count ( $tokens ); $i++ ) {
-					list ( $name, $value ) = explode ( ":", $tokens [ $i ] );
-					if ( $name != "" )
-						$obj->$name = $value;
+					if ( strlen ( $tokens [ $i ] ) != 0 ) {
+						list ( $name, $value ) = explode ( ":", $tokens [ $i ] );
+						if ( $name != "" )
+							$obj->$name = $value;
+					}
 				}
 
 				return $obj;
@@ -227,15 +229,16 @@ abstract class FromServer {
 			if ( strncmp ( $attr->type, "OBJECT", strlen ( "OBJECT" ) ) == 0 )
 				$attr->value = $val->id . "";
 
-			/**
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+			else if ( strcmp ( $attr->type, "ADDRESS" ) == 0 ) {
+				$final = "";
+				$addr_fields = get_object_vars ( $val );
+				$addr_keys = array_keys ( $addr_fields );
 
-				Aggiungere trattamento indirizzi
+				for ( $a = 0; $a < count ( $addr_fields ); $a++ )
+					$final .= $addr_keys [ $a ] . ":" . $addr_fields [ $addr_keys [ $a ] ] . ";";
 
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-			*/
-			else if ( strcmp ( $attr->type, "ADDRESS" ) == 0 )
-				$attr->value = "";
+				$attr->value = $final;
+			}
 
 			else
 				$attr->value = $val . "";
@@ -247,6 +250,7 @@ abstract class FromServer {
 
 		switch ( $type ) {
 			case "STRING":
+			case "ADDRESS":
 				$ret = "'" . ( addslashes ( $attr->value ) ) . "'";
 				break;
 
@@ -260,17 +264,6 @@ abstract class FromServer {
 
 			case "DATE":
 				$ret = "DATE('" . $attr->value . "')";
-				break;
-
-			/**
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-
-				Aggiungere trattamento indirizzi
-
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-			*/
-			case "ADDRESS":
-				// $ret = null;
 				break;
 
 			case "ARRAY":
