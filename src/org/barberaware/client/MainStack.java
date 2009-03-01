@@ -38,6 +38,12 @@ public class MainStack extends Composite {
 			main.add ( new UsersPanel () );
 			main.add ( new SuppliersEditPanel () );
 			main.add ( new OrdersEditPanel () );
+
+			/**
+				TODO	Aggiungere un maxi-pannello per cercare tra i prodotti di
+					tutti i fornitori e modificarli
+			*/
+
 			main.add ( new SystemPanel () );
 		}
 		else {

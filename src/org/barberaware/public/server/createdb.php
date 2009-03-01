@@ -68,6 +68,9 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella users" );
 
+	$query = sprintf ( "INSERT INTO users ( login, firstname, paying, privileges ) VALUES ( 'root', 'Root', true, 2 )" );
+	query_and_check ( $query, "Impossibile inizializzare tabella accounts" );
+
 	/*
 		=======================================================================================
 	*/
@@ -79,7 +82,7 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella accounts" );
 
-	$query = sprintf ( "INSERT INTO accounts ( username, password ) VALUES ( 'root', '27b4b5b01b0d1fcab2046369720ff75e' )" );
+	$query = sprintf ( "INSERT INTO accounts ( username, password ) VALUES ( 1, '27b4b5b01b0d1fcab2046369720ff75e' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella accounts" );
 
 	/*

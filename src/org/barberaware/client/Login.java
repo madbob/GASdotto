@@ -53,6 +53,10 @@ public class Login extends Composite {
 
 			form = new Grid ( 3, 2 );
 
+			/**
+				TODO	Visualizzare informazioni generiche in merito al GAS
+			*/
+
 			username = new TextBox ();
 			username.setVisibleLength ( 20 );
 

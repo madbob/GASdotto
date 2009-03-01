@@ -27,25 +27,29 @@ public class ProductsUserSelection extends FromServerArray {
 
 	public ProductsUserSelection ( ArrayList products ) {
 		int i;
+		int a;
 		int num_products;
 		Product prod;
 
 		main = new FlexTable ();
+		main.setStyleName ( "products-selection" );
 		initWidget ( main );
+		main.setWidth ( "100%" );
 		main.setCellSpacing ( 5 );
 
 		i = 0;
+		a = 0;
 
 		if ( products != null ) {
 			num_products = products.size ();
 
-			for ( i = 0; i < num_products; i++ ) {
+			for ( i = 0, a = 0; i < num_products; i++, a += 2 ) {
 				prod = ( Product ) products.get ( i );
-				addProductRow ( i, prod );
+				addProductRow ( a, prod );
 			}
 		}
 
-		addTotalRow ( i );
+		addTotalRow ( a );
 	}
 
 	private void addTotalRow ( int index ) {
@@ -77,7 +81,7 @@ public class ProductsUserSelection extends FromServerArray {
 			prod = ( Product ) products.get ( i );
 			rows = main.getRowCount ();
 
-			for ( a = 0; a < rows; a++ ) {
+			for ( a = 0; a < rows; a += 2 ) {
 				selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
 				if ( selector.getValue ().equals ( prod ) )
 					break;
@@ -110,11 +114,14 @@ public class ProductsUserSelection extends FromServerArray {
 	}
 
 	private void addProductRow ( int index, Product product ) {
-		String price;
+		String info_str;
 		float plus;
 		boolean raw;
+		FlexTable.FlexCellFormatter formatter;
 		Measure measure;
 		ProductUserSelector sel;
+
+		formatter = main.getFlexCellFormatter ();
 
 		measure = ( Measure ) product.getObject ( "measure" );
 
@@ -128,8 +135,12 @@ public class ProductsUserSelection extends FromServerArray {
 			}
 		} );
 
+		/*
+			Prezzo
+		*/
+
 		plus = product.getFloat ( "unit_price" );
-		price = plus + " € / " + measure.getString ( "symbol" );
+		info_str = plus + " € / " + measure.getString ( "symbol" );
 
 		/**
 			TODO	Aggiungere una icona per indicare i prodotti il cui prezzo viene
@@ -138,17 +149,28 @@ public class ProductsUserSelection extends FromServerArray {
 
 		raw = product.getBool ( "mutable_price" );
 		if ( raw == true )
-			price += " (il prodotto viene misurato alla consegna)";
+			info_str += " (il prodotto viene misurato alla consegna)";
 
 		plus = product.getFloat ( "shipping_price" );
 		if ( plus != 0 )
-			price += " + " + plus + " € trasporto";
+			info_str += " + " + plus + " € trasporto";
 
 		plus = product.getFloat ( "surplus" );
 		if ( plus != 0 )
-			price += " + " + plus + " € surplus";
+			info_str += " + " + plus + " € surplus";
 
-		main.setWidget ( index, 2, new Label ( price ) );
+		main.setWidget ( index, 2, new Label ( info_str ) );
+
+		formatter.setHorizontalAlignment ( index, 2, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		/*
+			Informazioni aggiuntive
+		*/
+
+		info_str = product.getString ( "description" );
+		main.setWidget ( index + 1, 0, new Label ( info_str ) );
+		formatter.setColSpan ( index + 1, 0, 3 );
+		formatter.setStyleName ( index + 1, 0, "description" );
 	}
 
 	private void updateTotal () {
@@ -159,7 +181,7 @@ public class ProductsUserSelection extends FromServerArray {
 		rows = main.getRowCount () - 2;
 		price = 0;
 
-		for ( int i = 0; i < rows; i++ ) {
+		for ( int i = 0; i < rows; i += 2 ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 			price += selector.getTotalPrice ();
 		}
@@ -183,7 +205,7 @@ public class ProductsUserSelection extends FromServerArray {
 		if ( elements == null ) {
 			rows = main.getRowCount () - 2;
 
-			for ( int i = 0; i < rows; i++ ) {
+			for ( int i = 0; i < rows; i += 2 ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 				selector.setQuantity ( 0 );
 			}
@@ -197,7 +219,7 @@ public class ProductsUserSelection extends FromServerArray {
 				id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
 				rows = main.getRowCount () - 2;
 
-				for ( int i = 0; i < rows; i++ ) {
+				for ( int i = 0; i < rows; i += 2 ) {
 					selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 
 					if ( selector.getValue ().equals ( prod ) ) {
@@ -226,7 +248,7 @@ public class ProductsUserSelection extends FromServerArray {
 		list = new ArrayList ();
 		num_rows = main.getRowCount () - 2;
 
-		for ( int i = 0; i < num_rows; i++ ) {
+		for ( int i = 0; i < num_rows; i += 2 ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 			prod = ( ProductUser ) selector.getValue ();
 

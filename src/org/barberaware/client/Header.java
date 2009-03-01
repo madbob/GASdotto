@@ -68,23 +68,56 @@ public class Header extends Composite {
 		logout.setWidget ( contents );
 	}
 
-	public Header () {
-		HorizontalPanel main;
-		PushButton button;
+	public Widget doLogoutButton () {
+		FocusPanel main;
+		HorizontalPanel container;
 
-		main = new HorizontalPanel ();
-		main.setStyleName ( "main-header" );
-		main.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_RIGHT );
-		initWidget ( main );
+		main = new FocusPanel ();
 
-		doLogout ();
+		container = new HorizontalPanel ();
+		container.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		container.add ( new Label ( "Logout" ) );
+		container.add ( new Image ( "images/logout.png" ) );
 
-		button = new PushButton ( new Image ( "images/logout.png" ), new ClickListener () {
+		main.add ( container );
+
+		main.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
 				logout.center ();
 				logout.show ();
 			}
 		} );
-		main.add ( button );
+
+		return main;
+	}
+
+	public Widget doGreetings () {
+		String text;
+		User user;
+		Label label;
+
+		user = Session.getUser ();
+		text = "Ciao, " + user.getString ( "firstname" ) + " " + user.getString ( "surname" );
+		label = new Label ( text );
+		return label;
+	}
+
+	public Header () {
+		HorizontalPanel main;
+		Widget item;
+
+		main = new HorizontalPanel ();
+		main.setStyleName ( "main-header" );
+		initWidget ( main );
+
+		doLogout ();
+
+		item = doGreetings ();
+		main.add ( item );
+		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_LEFT );
+
+		item = doLogoutButton ();
+		main.add ( item );
+		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_RIGHT );
 	}
 }
