@@ -122,7 +122,7 @@ public class SuppliersPanel extends GenericPanel {
 				OpenedOrdersList orders;
 
 				supplier = ( Supplier ) supp;
-				ver = new FromServerForm ( supplier, false );
+				ver = new FromServerForm ( supplier, FromServerForm.NOT_EDITABLE );
 
 				ver.add ( new Label ( supplier.getString ( "description" ) ) );
 

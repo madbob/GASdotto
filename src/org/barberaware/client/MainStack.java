@@ -33,6 +33,7 @@ public class MainStack extends Composite {
 		privileges = Session.getPrivileges ();
 
 		main.add ( new HomePanel () );
+		main.add ( new ProfilePanel () );
 
 		if ( privileges >= User.USER_RESPONSABLE ) {
 			main.add ( new UsersPanel () );

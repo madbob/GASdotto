@@ -28,6 +28,7 @@ public class FromServerForm extends Composite {
 	private Label			summary;
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
+	private boolean			alwaysShow;
 	private FromServerFormCallbacks	callbacks;
 
 	/**
@@ -36,9 +37,13 @@ public class FromServerForm extends Composite {
 
 	private ArrayList		widgets;
 
+	public static int		FULL_EDITABLE		= 0;
+	public static int		EDITABLE_UNDELETABLE	= 1;
+	public static int		NOT_EDITABLE		= 2;
+
 	/****************************************************************** init */
 
-	private void buildCommon ( FromServer obj, boolean editable ) {
+	private void buildCommon ( FromServer obj, int editable ) {
 		object = obj;
 
 		widgets = new ArrayList ();
@@ -82,13 +87,15 @@ public class FromServerForm extends Composite {
 		buttons = doButtons ( editable );
 		contents.add ( buttons );
 		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		alwaysShow = false;
 	}
 
 	public FromServerForm ( FromServer obj ) {
-		buildCommon ( obj, true );
+		buildCommon ( obj, FULL_EDITABLE );
 	}
 
-	public FromServerForm ( FromServer obj, boolean editable ) {
+	public FromServerForm ( FromServer obj, int editable ) {
 		buildCommon ( obj, editable );
 	}
 
@@ -115,6 +122,24 @@ public class FromServerForm extends Composite {
 
 	public void addEventHandler ( DisclosureHandler handler ) {
 		main.addEventHandler ( handler );
+	}
+
+	public void alwaysOpened ( boolean open ) {
+		alwaysShow = open;
+
+		if ( alwaysShow == true ) {
+			main.setOpen ( open );
+
+			main.addEventHandler ( new DisclosureHandler () {
+				public void onClose ( DisclosureEvent event ) {
+					main.setOpen ( true );
+				}
+
+				public void onOpen ( DisclosureEvent event ) {
+					/* dummy */
+				}
+			} );
+		}
 	}
 
 	private Panel doSummary ( FromServer object ) {
@@ -144,14 +169,14 @@ public class FromServerForm extends Composite {
 		return bar;
 	}
 
-	private ButtonsBar doButtons ( boolean editable ) {
+	private ButtonsBar doButtons ( int editable ) {
 		ButtonsBar panel;
 		PushButton button;
 		final FromServerForm myself		= this;
 
 		panel = new ButtonsBar ();
 
-		if ( editable ) {
+		if ( editable == FULL_EDITABLE ) {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					if ( object.isValid () == false )
@@ -184,7 +209,7 @@ public class FromServerForm extends Composite {
 		} );
 		panel.add ( button, "Annulla" );
 
-		if ( editable ) {
+		if ( editable == FULL_EDITABLE || editable == EDITABLE_UNDELETABLE ) {
 			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					if ( contentsChanged () )
