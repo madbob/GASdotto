@@ -140,7 +140,7 @@ public class ReferenceList extends FromServerArray {
 		str_id = Integer.toString ( user.getLocalID () );
 		index = items.getRowCount ();
 
-		for ( int i = 0; i < index; i++ ) {
+		for ( int i = 0; i < index - 1; i++ ) {
 			iter = ( Hidden ) items.getWidget ( index, 0 );
 			if ( iter.getName ().equals ( str_id ) )
 				return;
