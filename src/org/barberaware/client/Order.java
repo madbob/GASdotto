@@ -47,7 +47,6 @@ public class Order extends FromServer {
 		} );
 
 		addAttribute ( "supplier", FromServer.OBJECT, Supplier.class );
-		addAttribute ( "reference", FromServer.OBJECT, User.class );
 		addAttribute ( "products", FromServer.ARRAY, Product.class );
 		addAttribute ( "startdate", FromServer.DATE );
 		addAttribute ( "enddate", FromServer.DATE );

@@ -227,7 +227,6 @@ function install_main_db () {
 	$query = sprintf ( "CREATE TABLE orders (
 					id serial,
 					supplier int references supplier ( id ) on delete cascade,
-					reference int references users ( id ) on delete cascade,
 					startdate date,
 					enddate date,
 					status int default 0,

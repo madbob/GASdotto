@@ -24,7 +24,6 @@ class Order extends FromServer {
 		parent::__construct ( "Order", "orders" );
 
 		$this->addAttribute ( "supplier", "OBJECT::Supplier" );
-		$this->addAttribute ( "reference", "OBJECT::User" );
 		$this->addAttribute ( "products", "ARRAY::Product" );
 		$this->addAttribute ( "startdate", "DATE" );
 		$this->addAttribute ( "enddate", "DATE" );

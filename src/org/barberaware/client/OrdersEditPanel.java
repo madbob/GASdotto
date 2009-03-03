@@ -39,7 +39,6 @@ public class OrdersEditPanel extends GenericPanel {
 					Order order;
 					Supplier supplier;
 					CyclicToggle status;
-					ReferenceBySupplierList reference;
 
 					order = ( Order ) ord;
 					supplier = ( Supplier ) order.getObject ( "supplier" );
@@ -80,10 +79,6 @@ public class OrdersEditPanel extends GenericPanel {
 					fields = new FlexTable ();
 					hor.add ( fields );
 
-					fields.setWidget ( 0, 0, new Label ( "Referente" ) );
-					reference = new ReferenceBySupplierList ( supplier );
-					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "reference", reference ) );
-
 					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
 					status = new CyclicToggle ();
 					status.addState ( "images/order_status_opened.png" );
@@ -111,7 +106,6 @@ public class OrdersEditPanel extends GenericPanel {
 					FromServerSelector suppliers;
 					FlexTable products;
 					DateSelector date;
-					ReferenceBySupplierList reference;
 
 					order = new Order ();
 
@@ -145,13 +139,9 @@ public class OrdersEditPanel extends GenericPanel {
 							FromServerSelector suppliers;
 							FromServer supp;
 							FlexTable products_list;
-							ReferenceBySupplierList reference;
 
 							suppliers = ( FromServerSelector ) sender;
 							supp = suppliers.getValue ();
-
-							reference = ( ReferenceBySupplierList ) ver.retriveInternalWidget ( "reference" );
-							reference.setSupplier ( ( Supplier ) supp );
 
 							products_list = ( FlexTable ) ver.retriveInternalWidget ( "list" );
 							while ( products_list.getRowCount () != 0 )
@@ -179,10 +169,6 @@ public class OrdersEditPanel extends GenericPanel {
 
 					fields = new FlexTable ();
 					hor.add ( fields );
-
-					fields.setWidget ( 0, 0, new Label ( "Referente" ) );
-					reference = new ReferenceBySupplierList ( null );
-					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "reference", reference ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
 					fields.setWidget ( 1, 1, new Label ( "Nuovo" ) );
@@ -291,30 +277,6 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					}
 				} );
-			}
-		} );
-	}
-
-	private void getOrderReferenceSelector ( final FromServerForm ver ) {
-		FromServerSelector reference;
-
-		reference = ( FromServerSelector ) ver.retriveInternalWidget ( "reference" );
-		reference.addFilter ( new FromServerValidateCallback () {
-			public boolean checkObject ( FromServer obj ) {
-				FromServer order;
-				FromServer supplier;
-				ArrayList available;
-
-				order = ver.getObject ();
-				supplier = order.getObject ( "supplier" );
-				available = supplier.getArray ( "references" );
-
-				for ( int i = 0; i < available.size (); i++ ) {
-					if ( ( ( FromServer ) available.get ( i ) ) == obj )
-						return true;
-				}
-
-				return false;
 			}
 		} );
 	}
