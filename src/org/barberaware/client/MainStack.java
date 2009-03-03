@@ -35,18 +35,19 @@ public class MainStack extends Composite {
 		main.add ( new HomePanel () );
 		main.add ( new ProfilePanel () );
 
-		if ( privileges >= User.USER_RESPONSABLE ) {
+		if ( privileges == User.USER_ADMIN ) {
 			main.add ( new UsersPanel () );
 			main.add ( new SuppliersEditPanel () );
 			main.add ( new OrdersEditPanel () );
-
-			/**
-				TODO	Aggiungere un maxi-pannello per cercare tra i prodotti di
-					tutti i fornitori e modificarli
-			*/
-
 			main.add ( new SystemPanel () );
 		}
+
+		else if ( privileges == User.USER_RESPONSABLE ) {
+			main.add ( new SuppliersEditPanel () );
+			main.add ( new OrdersEditPanel () );
+			main.add ( new SystemPanel () );
+		}
+
 		else {
 			main.add ( new SuppliersPanel () );
 			main.add ( new OrdersPanel () );

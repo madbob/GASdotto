@@ -33,16 +33,30 @@ public class Order extends FromServer {
 				String sup;
 				String start;
 				String end;
+				User current;
 
 				supplier = ( Supplier ) obj.getObject ( "supplier" );
 				if ( supplier == null )
 					return "Nuovo Ordine";
 
+				current = Session.getUser ();
 				sup = supplier.getString ( "name" );
-				start = Utils.printableDate ( obj.getDate ( "startdate" ) );
-				end = Utils.printableDate ( obj.getDate ( "enddate" ) );
 
-				return sup + " (" + start + " / " + end + ")";
+				/*
+					Si assume che all'utente comune non importi la data di
+					apertura dell'ordine ma solo entro quando puo' avanzare
+					la richiesta, dunque e' inutile visualizzare informazioni
+					ridondanti
+				*/
+				if ( current.getInt ( "privileges" ) == User.USER_COMMON ) {
+					end = Utils.printableDate ( obj.getDate ( "enddate" ) );
+					return sup + " (fino al " + end + ")";
+				}
+				else {
+					start = Utils.printableDate ( obj.getDate ( "startdate" ) );
+					end = Utils.printableDate ( obj.getDate ( "enddate" ) );
+					return sup + " (" + start + " / " + end + ")";
+				}
 			}
 		} );
 

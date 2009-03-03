@@ -98,9 +98,10 @@ public class AddressSelector extends Composite {
 
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				syncFromDialog ();
-				opened = false;
-				dialog.hide ();
+				if ( syncFromDialog () == true ) {
+					opened = false;
+					dialog.hide ();
+				}
 			}
 		} );
 		pan.setWidget ( 3, 0, but );
@@ -125,15 +126,38 @@ public class AddressSelector extends Composite {
 		city.setText ( currentValue.getCity () );
 	}
 
-	private void syncFromDialog () {
+	private boolean syncFromDialog () {
+		String postalcode;
+		char c;
+
+		postalcode = cap.getText ();
+
+		/*
+			Probabilmente invece di fare il controllo esplicito sulla natura del CAP
+			(che deve essere interalmente numerico) si poteva sostituire la TextBox
+			con una NumberBox, ma per evitare futuri possibili impicci (dopotutto il
+			CAP e' un codice, tanto vale rappresentarlo come stringa) si adotta
+			questa soluzione
+		*/
+
+		for ( int i = 0; i < postalcode.length (); i++ ) {
+			c = postalcode.charAt ( i );
+
+			if ( Character.isDigit ( c ) == false ) {
+				Utils.showNotification ( "CAP non valido" );
+				return false;
+			}
+		}
+
 		if ( currentValue == null )
 			currentValue = new Address ();
 
 		currentValue.setStreet ( street.getText () );
-		currentValue.setCap ( cap.getText () );
+		currentValue.setCap ( postalcode );
 		currentValue.setCity ( city.getText () );
 
 		showAddr ();
+		return true;
 	}
 
 	private void showAddr () {
