@@ -213,7 +213,8 @@ public class FromServerForm extends Composite {
 			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					if ( contentsChanged () )
-						savingObject ();
+						if ( savingObject () == false )
+							return;
 
 					main.setOpen ( false );
 				}
@@ -334,11 +335,14 @@ public class FromServerForm extends Composite {
 		return ret;
 	}
 
-	private void savingObject () {
-  		rebuildObject ();
+	private boolean savingObject () {
+  		if ( rebuildObject () == false )
+			return false;
+
 		callbacks.onSave ( this );
 		object.save ( null );
 		summary.setText ( object.getString ( "name" ) );
+		return true;
 	}
 
 	private boolean rebuildObject () {
@@ -349,7 +353,6 @@ public class FromServerForm extends Composite {
 
 		for ( int i = 0; i < num; i++ ) {
 			tmp = ( FromServerWidget ) widgets.get ( i );
-
 			if ( tmp.assign ( object ) == false )
 				return false;
 		}

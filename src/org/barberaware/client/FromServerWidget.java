@@ -155,7 +155,7 @@ public class FromServerWidget extends Composite {
 		if ( type == -1 )
 			return true;
 
-		if ( validation.checkAttribute ( object, name, wid ) == false )
+		if ( validation.check ( object, name, wid ) == false )
 			return false;
 
 		else if ( type == FromServer.STRING )

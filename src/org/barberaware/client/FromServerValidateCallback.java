@@ -18,10 +18,11 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class FromServerValidateCallback {
-	public boolean checkAttribute ( FromServer object, String attribute, Widget widget ) {
+	public boolean check ( FromServer object, String attribute, Widget widget ) {
 		/* dummy */
 		return true;
 	}
@@ -31,21 +32,32 @@ public abstract class FromServerValidateCallback {
 		return true;
 	}
 
+	/*
+		Copiato da http://groups.google.com/group/Google-Web-Toolkit/browse_frm/thread/3ed2c77c45e784d7/ed59614bee075350
+		Thanks to Menno van Gangelen
+	*/
+	private static native boolean isValidEmail ( String email ) /*-{
+		var reg1 = /(@.*@)|(\.\.)|(@\.)|(\.@)|(^\.)/; // not valid
+		var reg2 = /^.+\@(\[?)[a-zA-Z0-9\-\.]+\.([a-zA-Z]{2,3}|[0-9]{1,3})(\]?)$/; // valid
+		return !reg1.test(email) && reg2.test(email);
+	}-*/;
+
 	public static FromServerValidateCallback defaultMailValidationCallback () {
 		return
 			new FromServerValidateCallback () {
 				public boolean check ( FromServer object, String attribute, Widget widget ) {
 					String text;
+					boolean ret;
 
 					text = ( ( TextBox ) widget ).getText ();
 					if ( text.equals ( "" ) )
 						return true;
 
-					/**
-						TODO	Finire callback validazione mail
-					*/
+					ret = isValidEmail ( text );
+					if ( ret == false )
+						Utils.showNotification ( "Mail non valida" );
 
-					return true;
+					return ret;
 				}
 			};
 	}
@@ -68,8 +80,10 @@ public abstract class FromServerValidateCallback {
 						puo' essere '+'
 					*/
 					c = text.charAt ( 0 );
-					if ( Character.isDigit ( c ) == false && c != '+' )
+					if ( Character.isDigit ( c ) == false && c != '+' ) {
+						Utils.showNotification ( "Numero telefonico non valido" );
 						return false;
+					}
 
 					/*
 						Qui vengono validate anche stringhe che
@@ -81,8 +95,10 @@ public abstract class FromServerValidateCallback {
 					for ( int i = 1; i < text.length (); i++ ) {
 						c = text.charAt ( i );
 
-						if ( Character.isDigit ( c ) == false && c != ' ' )
+						if ( Character.isDigit ( c ) == false && c != ' ' ) {
+							Utils.showNotification ( "Numero telefonico non valido" );
 							return false;
+						}
 					}
 
 					return true;
