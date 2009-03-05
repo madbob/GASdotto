@@ -33,4 +33,14 @@ public class OrderUser extends FromServer {
 		addAttribute ( "baseorder", FromServer.OBJECT, Order.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
 	}
+
+	/*
+		Un OrderUser e' sempre valido, o meglio esiste anche se non e' salvato sul
+		server. Questo perche' anche se non viene avanzata nessuna richiesta per un dato
+		Order di riferimento comunque l'oggetto e' valido in quanto puo' essere editato
+		in un qualsiasi altro momento
+	*/
+	public boolean isValid () {
+		return true;
+	}
 }

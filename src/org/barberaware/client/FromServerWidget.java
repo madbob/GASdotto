@@ -93,12 +93,13 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.ADDRESS )
 			wid = new AddressSelector ();
 
-		/*
-			Il tipo FromServer.ARRAY non viene gestito direttamente
-		*/
-
 		else if ( type == FromServer.OBJECT )
-			wid = new FromServerSelector ( object.getClassName ( attribute ) );
+			wid = new FromServerSelector ( object.getClassName ( attribute ), false );
+
+		/*
+			Il tipo FromServer.ARRAY non viene gestito direttamente, occorre
+			implementare un FromServerArray
+		*/
 
 		initWidget ( wid );
 		set ( object );

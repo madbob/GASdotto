@@ -90,6 +90,7 @@ public class ProductsEditPanel extends Composite {
 					FromServerForm ver;
 					HorizontalPanel hor;
 					FlexTable fields;
+					FromServerSelector select;
 
 					ver = new FromServerForm ( product );
 
@@ -102,11 +103,13 @@ public class ProductsEditPanel extends Composite {
 					fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
 
+					select = new FromServerSelector ( "Category", true );
 					fields.setWidget ( 1, 0, new Label ( "Categoria" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "category" ) );
+					fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "category", select ) );
 
+					select = new FromServerSelector ( "Measure", true );
 					fields.setWidget ( 2, 0, new Label ( "Unità di misura" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "measure" ) );
+					fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "measure", select ) );
 
 					fields.setWidget ( 3, 0, new Label ( "Ordinabile" ) );
 					fields.setWidget ( 3, 1, ver.getWidget ( "available" ) );

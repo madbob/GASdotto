@@ -39,12 +39,14 @@ public class MainStack extends Composite {
 			main.add ( new UsersPanel () );
 			main.add ( new SuppliersEditPanel () );
 			main.add ( new OrdersEditPanel () );
+			main.add ( new OrdersPanel () );
 			main.add ( new SystemPanel () );
 		}
 
 		else if ( privileges == User.USER_RESPONSABLE ) {
 			main.add ( new SuppliersEditPanel () );
 			main.add ( new OrdersEditPanel () );
+			main.add ( new OrdersPanel () );
 			main.add ( new SystemPanel () );
 		}
 

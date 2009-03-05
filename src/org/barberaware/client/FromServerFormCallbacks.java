@@ -21,4 +21,5 @@ public interface FromServerFormCallbacks {
 	public void onSave ( FromServerForm form );
 	public void onReset ( FromServerForm form );
 	public void onDelete ( FromServerForm form );
+	public void onClose ( FromServerForm form );
 }

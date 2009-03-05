@@ -96,19 +96,64 @@ public class OrdersPanel extends GenericPanel {
 	}
 
 	private Widget doOrderRow ( Order order ) {
-		FromServerForm ver;
+		final FromServerForm ver;
 		OrderUser uorder;
+		User current_user;
 		ProductsUserSelection products;
 
 		uorder = new OrderUser ();
 		uorder.setObject ( "baseorder", order );
 
-		/**
-			TODO	Validare l'utente sul lato server
-		*/
-		uorder.setObject ( "baseuser", Session.getUser () );
+		current_user = Session.getUser ();
 
-		ver = new FromServerForm ( uorder );
+		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
+
+		if ( current_user.getInt ( "privileges" ) == User.USER_COMMON ) {
+			/**
+				TODO	Validare l'utente sul lato server
+			*/
+			uorder.setObject ( "baseuser", current_user );
+		}
+		else {
+			HorizontalPanel pan;
+
+			pan = new HorizontalPanel ();
+			pan.add ( new Label ( "Ordine eseguito a nome di " ) );
+
+			/**
+				TODO	Quando viene selezionato un utente, caricare eventuali
+					dati dell'ordine gia' eseguito
+			*/
+
+			pan.add ( ver.getWidget ( "baseuser" ) );
+			ver.add ( pan );
+
+			ver.setCallback ( new FromServerFormCallbacks () {
+				public void onSave ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onReset ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onDelete ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onClose ( FromServerForm form ) {
+					FromServerSelector user;
+					ProductsUserSelection products;
+
+					user = ( FromServerSelector ) form.retriveInternalWidget ( "baseuser" );
+					user.setValue ( null );
+
+					products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
+					products.setElements ( null );
+				}
+			} );
+		}
+
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 

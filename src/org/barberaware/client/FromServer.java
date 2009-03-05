@@ -266,6 +266,15 @@ public abstract class FromServer {
 		return null;
 	}
 
+	/*
+		A futura memoria: avevo pensato di aggiungere una funzione mayBeNull() che di
+		default tornasse true e potesse essere reimplementata dai singoli oggetti, ma
+		questo genere di informazione non puo' essere gestito globalmente ed
+		universalmente ma nel singolo contesto. Dunque, i singoli widget che
+		rappresentano dei FromServer permettono di avere o non avere l'opzione che
+		indichi "null"
+	*/
+
 	/****************************************************************** set */
 
 	public void setString ( String name, String value ) {

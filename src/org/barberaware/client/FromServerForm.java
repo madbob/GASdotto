@@ -60,6 +60,10 @@ public class FromServerForm extends Composite {
 			public void onDelete ( FromServerForm form ) {
 				/* dummy */
 			}
+
+			public void onClose ( FromServerForm form ) {
+				/* dummy */
+			}
 		};
 
 		main = new DisclosurePanel ( doSummary ( object ) );
@@ -72,6 +76,8 @@ public class FromServerForm extends Composite {
 					else
 						resetObject ();
 				}
+
+				onCloseCb ();
 			}
 
 			public void onOpen ( DisclosureEvent event ) {
@@ -227,6 +233,10 @@ public class FromServerForm extends Composite {
 
 	private void onOpenCb () {
 		// DOM.scrollIntoView ( main.getElement () );
+	}
+
+	private void onCloseCb () {
+		callbacks.onClose ( this );
 	}
 
 	/****************************************************************** build */

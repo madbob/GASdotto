@@ -56,6 +56,10 @@ public class OrdersEditPanel extends GenericPanel {
 						public void onDelete ( FromServerForm form ) {
 							/* dummy */
 						}
+
+						public void onClose ( FromServerForm form ) {
+							/* dummy */
+						}
 					} );
 
 					hor = new HorizontalPanel ();
@@ -120,6 +124,10 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 
 						public void onDelete ( FromServerForm form ) {
+							/* dummy */
+						}
+
+						public void onClose ( FromServerForm form ) {
 							/* dummy */
 						}
 					} );
@@ -426,7 +434,7 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	public Image getIcon () {
-		return new Image ( "images/path_orders.png" );
+		return new Image ( "images/path_orders_edit.png" );
 	}
 
 	public void initView () {

@@ -84,6 +84,10 @@ public class SystemPanel extends GenericPanel {
 			public void onDelete ( FromServerForm form ) {
 				/* dummy */
 			}
+
+			public void onClose ( FromServerForm form ) {
+				/* dummy */
+			}
 		} );
 
 		fields = new FlexTable ();

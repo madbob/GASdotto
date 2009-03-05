@@ -32,14 +32,15 @@ public class FromServerSelector extends ObjectWidget {
 	private FromServerValidateCallback		filterCallback;
 	private DelegatingChangeListenerCollection	changeListeners;
 
-	public FromServerSelector ( String t ) {
+	public FromServerSelector ( String t, boolean hide_void ) {
 		main = new ListBox ();
 		initWidget ( main );
 
 		type = t;
 		filterCallback = null;
 
-		main.addItem ( "Nessuno", "0" );
+		if ( hide_void == false )
+			main.addItem ( "Nessuno", "0" );
 
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -120,7 +121,8 @@ public class FromServerSelector extends ObjectWidget {
 		String sel;
 
 		if ( selected == null )
-			main.setItemSelected ( 0, true );
+			if ( main.getItemCount () != 0 )
+				main.setItemSelected ( 0, true );
 
 		else {
 			num = main.getItemCount ();

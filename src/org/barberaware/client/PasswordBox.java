@@ -113,9 +113,12 @@ public class PasswordBox extends Composite implements StringWidget {
 
 	public void setValue ( String value ) {
 		/*
-			Il campo della password non puo' essere riempito con un qualche valore
-			esistente: sul lato server si provvede a verificare poi se la stringa e'
-			vuota o piena, e si salva opportunamente il valore
+			Il campo della password viene lasciato volutamente vuoto:
+
+			1) se la password non viene modificata al server deve essere passata una
+				stringa vuota affinche' non faccia nulla
+			2) in questo modo appare chiaro (campo pieno / campo vuoto) se il
+				contenuto e' stato editato o meno
 		*/
 	}
 
