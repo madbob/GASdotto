@@ -113,6 +113,38 @@ public class OrdersPanel extends GenericPanel {
 				TODO	Validare l'utente sul lato server
 			*/
 			uorder.setObject ( "baseuser", current_user );
+
+			ver.setCallback ( new FromServerFormCallbacks () {
+				public void onSave ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onReset ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onDelete ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onClose ( FromServerForm form ) {
+					ProductsUserSelection products;
+					IconsBar icons;
+					Label label;
+					float total;
+
+					label = ( Label ) form.retriveInternalWidget ( "price_sum" );
+
+					if ( label != null ) {
+						products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
+						total = products.getTotalPrice ();
+						if ( total != 0 )
+							label.setText ( total + " €" );
+						else
+							label.setText ( "" );
+					}
+				}
+			} );
 		}
 		else {
 			HorizontalPanel pan;
@@ -145,6 +177,11 @@ public class OrdersPanel extends GenericPanel {
 					FromServerSelector user;
 					ProductsUserSelection products;
 
+					/*
+						Una volta salvato il tutto, riazzero il form per
+						essere pronto ad un ordine a nome terzi
+					*/
+
 					user = ( FromServerSelector ) form.retriveInternalWidget ( "baseuser" );
 					user.setValue ( null );
 
@@ -161,10 +198,40 @@ public class OrdersPanel extends GenericPanel {
 	}
 
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
-		ProductsUserSelection products;
+		ArrayList products;
+		ProductsUserSelection table;
+		IconsBar icons;
+		float total;
+		String total_text;
+		Label total_view;
 
-		products = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
-		products.setElements ( uorder.getArray ( "products" ) );
+		products = uorder.getArray ( "products" );
+
+		table = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
+		table.setElements ( products );
+
+		total = table.getTotalPrice ();
+
+		if ( total != 0 )
+			total_text = total + " €";
+		else
+			total_text = "";
+
+		total_view = ( Label ) ver.retriveInternalWidget ( "price_sum" );
+
+		if ( total_view == null ) {
+			icons = ver.getIconsBar ();
+			total_view = icons.addText ( total_text );
+
+			/*
+				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale
+				label viene poi eventualmente aggiornata quando il sottopannello relativo
+				viene chiuso a seguito di qualche correzione
+			*/
+			ver.setExtraWidget ( "price_sum", total_view );
+		}
+		else
+			total_view.setText ( total_text );
 	}
 
 	private int retrieveOrderForm ( Order parent ) {
@@ -206,11 +273,6 @@ public class OrdersPanel extends GenericPanel {
 		params.add ( "status", Order.OPENED );
 		Utils.getServer ().testObjectReceive ( params );
 
-		/**
-			TODO	Per qualche ragione non carica correttamente i dati relativi agli
-				ordini gia' effettuati, sembra quasi non mandare manco la
-				richiesta al server
-		*/
 		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }

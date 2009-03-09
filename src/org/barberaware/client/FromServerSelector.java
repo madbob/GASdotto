@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.*;
 public class FromServerSelector extends ObjectWidget {
 	private ListBox					main;
 	private String					type;
+	private boolean					noVoidArticat;
 	private FromServerValidateCallback		filterCallback;
 	private DelegatingChangeListenerCollection	changeListeners;
 
@@ -38,6 +39,7 @@ public class FromServerSelector extends ObjectWidget {
 
 		type = t;
 		filterCallback = null;
+		noVoidArticat = hide_void;
 
 		if ( hide_void == false )
 			main.addItem ( "Nessuno", "0" );
@@ -145,7 +147,12 @@ public class FromServerSelector extends ObjectWidget {
 			return null;
 
 		index = main.getSelectedIndex ();
-		if ( index == 0 )
+
+		/*
+			Se noVoidArticat == false, in posizione 0 si trova la voce appositamente
+			iniettata nel costruttore che rappresenta il valore nullo
+		*/
+		if ( noVoidArticat == false && index == 0 )
 			return null;
 
 		selected = Integer.parseInt ( main.getValue ( index ) );

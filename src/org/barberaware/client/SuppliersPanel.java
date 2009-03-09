@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SuppliersPanel extends GenericPanel {
@@ -26,13 +27,22 @@ public class SuppliersPanel extends GenericPanel {
 		private FromServerForm	mainForm;
 		private int		num;
 
-		public OpenedOrdersList ( FromServerForm reference ) {
+		public OpenedOrdersList ( FromServer supplier, FromServerForm reference ) {
 			main = new FlexTable ();
 			initWidget ( main );
 
 			mainForm = reference;
 
 			clean ();
+
+			/*
+				Problema: il monitor registrato sugli Order non basta, in quanto
+				viene eseguito prima che vengano creati i form dei fornitori e
+				gli ordini non vengono dunque assegnati correttamente. Pertanto
+				qui rieseguo il controllo su tutti gli ordini in cache e popolo
+				il OpenedOrdersList
+			*/
+			checkExistingOrders ( supplier );
 		}
 
 		private void clean () {
@@ -62,6 +72,21 @@ public class SuppliersPanel extends GenericPanel {
 				TODO	Rendere gli ordini cliccabili
 			*/
 			main.setWidget ( num, 0, new Label ( order.getString ( "name" ) ) );
+		}
+
+		private void checkExistingOrders ( FromServer supplier ) {
+			ArrayList list;
+			FromServer ord;
+			int supp_id;
+
+			list = Utils.getServer ().getObjectsFromCache ( "Order" );
+			supp_id = supplier.getLocalID ();
+
+			for ( int i = 0; i < list.size (); i++ ) {
+				ord = ( FromServer ) list.get ( i );
+				if ( ord.getObject ( "supplier" ).getLocalID () == supp_id )
+					addOrder ( ( Order ) ord );
+			}
 		}
 
 		private int retrieveOrder ( Order order ) {
@@ -126,7 +151,7 @@ public class SuppliersPanel extends GenericPanel {
 
 				ver.add ( new Label ( supplier.getString ( "description" ) ) );
 
-				orders = new OpenedOrdersList ( ver );
+				orders = new OpenedOrdersList ( supp, ver );
 
 				ver.setExtraWidget ( "orders", orders );
 				ver.add ( orders );
@@ -135,13 +160,22 @@ public class SuppliersPanel extends GenericPanel {
 			}
 
 			protected FromServerForm doNewEditableRow () {
-				/* dummy */
+				/*
+					Il pannello qui descritto serve solo per mostrare la
+					lista di fornitori, dunque nessun form di creazione e'
+					previsto
+				*/
 				return null;
 			}
 		};
 
 		addTop ( main );
 
+		/*
+			Questo viene eseguito appunto quando arriva qualche dato nuovo dal
+			server, non per inizializzare pannelli esistenti.
+			Cfr. OpenedOrdersList::OpenedOrdersList()
+		*/
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;

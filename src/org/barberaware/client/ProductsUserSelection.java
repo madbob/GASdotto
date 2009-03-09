@@ -23,7 +23,8 @@ import com.google.gwt.user.client.ui.*;
 
 public class ProductsUserSelection extends FromServerArray {
 	private FlexTable		main;
-	private Label			total;
+	private float			total;
+	private Label			totalLabel;
 
 	public ProductsUserSelection ( ArrayList products ) {
 		int i;
@@ -58,9 +59,9 @@ public class ProductsUserSelection extends FromServerArray {
 
 		index++;
 
-		total = new Label ( "0 €" );
+		totalLabel = new Label ( "0 €" );
 		main.setWidget ( index, 0, new Label ( "Totale" ) );
-		main.setWidget ( index, 1, total );
+		main.setWidget ( index, 1, totalLabel );
 	}
 
 	public void upgradeProductsList ( ArrayList products ) {
@@ -111,6 +112,10 @@ public class ProductsUserSelection extends FromServerArray {
 				original_rows--;
 			}
 		}
+	}
+
+	public float getTotalPrice () {
+		return total;
 	}
 
 	private void addProductRow ( int index, Product product ) {
@@ -186,7 +191,8 @@ public class ProductsUserSelection extends FromServerArray {
 			price += selector.getTotalPrice ();
 		}
 
-		total.setText ( price + " €" );
+		total = price;
+		totalLabel.setText ( price + " €" );
 	}
 
 	/****************************************************************** FromServerArray */
@@ -199,6 +205,7 @@ public class ProductsUserSelection extends FromServerArray {
 		int num_elements;
 		int rows;
 		ProductUser prod;
+		Product prod_internal;
 		String id_target;
 		ProductUserSelector selector;
 
@@ -216,13 +223,14 @@ public class ProductsUserSelection extends FromServerArray {
 
 			for ( int a = 0; a < num_elements; a++ ) {
 				prod = ( ProductUser ) elements.get ( a );
+				prod_internal = ( Product ) prod.getObject ( "product" );
 				id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
 				rows = main.getRowCount () - 2;
 
 				for ( int i = 0; i < rows; i += 2 ) {
 					selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 
-					if ( selector.getValue ().equals ( prod ) ) {
+					if ( selector.getValue ().getObject ( "product" ).equals ( prod_internal ) ) {
 						selector.setValue ( prod );
 						break;
 					}

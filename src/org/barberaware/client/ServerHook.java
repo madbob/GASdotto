@@ -42,13 +42,22 @@ public class ServerHook {
 	private int		CurrentRequests		= 0;
 	private DialogBox	loadingDialog		= null;
 	private ArrayList	monitors;
-	private boolean		executingMonitor;
+	private int		executingMonitor;
 	private ArrayList	monitorSchedulingQueue;
+
+	/*
+		Si forza il numero massimo di richieste concorrenti verso il server a 2, onde
+		evitare strane sovrapposizioni. Da notare che limitando ad una sola (dunque
+		trattando executingMonitor come un booleano) pare ci sia comunque un qualche
+		problema, e le richieste schedulate non vengano eseguite: tenere presente questa
+		limitazione qualora si volesse ritoccare questo parametro
+	*/
+	private static int	MAXIMUM_CONCURRENT_REQUESTS	= 2;
 
 	public ServerHook () {
 		monitors = new ArrayList ();
 
-		executingMonitor = false;
+		executingMonitor = 0;
 		monitorSchedulingQueue = new ArrayList ();
 	}
 
@@ -104,7 +113,7 @@ public class ServerHook {
 
 	private void executeMonitor ( final ServerMonitor monitor, ServerRequest params ) {
 		params.put ( "has", monitor.comparingObjects );
-		executingMonitor = true;
+		executingMonitor++;
 
 		serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
@@ -122,7 +131,7 @@ public class ServerHook {
 					}
 				}
 
-				executingMonitor = false;
+				executingMonitor--;
 
 				if ( monitorSchedulingQueue.size () != 0 ) {
 					ServerRequest next;
@@ -131,6 +140,27 @@ public class ServerHook {
 				}
 			}
 		} );
+	}
+
+	private void testObjectReceiveImpl ( ServerRequest params ) {
+		ServerMonitor tmp;
+
+		tmp = getMonitor ( params.getType () );
+		if ( tmp != null )
+			executeMonitor ( tmp, params );
+	}
+
+	private ServerMonitor getMonitor ( String type ) {
+		ServerMonitor tmp;
+
+		for ( int i = 0; i < monitors.size (); i++ ) {
+			tmp = ( ServerMonitor ) monitors.get ( i );
+
+			if ( tmp.type.equals ( type ) )
+				return tmp;
+		}
+
+		return null;
 	}
 
 	public void onObjectEvent ( String type, ServerObjectReceive callback ) {
@@ -164,16 +194,8 @@ public class ServerHook {
 		testObjectReceive ( params );
 	}
 
-	private void testObjectReceiveImpl ( ServerRequest params ) {
-		ServerMonitor tmp;
-
-		tmp = getMonitor ( params.getType () );
-		if ( tmp != null )
-			executeMonitor ( tmp, params );
-	}
-
 	public void testObjectReceive ( ServerRequest params ) {
-		if ( executingMonitor == true )
+		if ( executingMonitor > MAXIMUM_CONCURRENT_REQUESTS )
 			monitorSchedulingQueue.add ( params );
 		else
 			testObjectReceiveImpl ( params );
@@ -260,19 +282,6 @@ public class ServerHook {
 			ret.add ( tmp.objects.get ( i ) );
 
 		return ret;
-	}
-
-	private ServerMonitor getMonitor ( String type ) {
-		ServerMonitor tmp;
-
-		for ( int i = 0; i < monitors.size (); i++ ) {
-			tmp = ( ServerMonitor ) monitors.get ( i );
-
-			if ( tmp.type.equals ( type ) )
-				return tmp;
-		}
-
-		return null;
 	}
 
 	/****************************************************************** loading */

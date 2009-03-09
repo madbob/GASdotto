@@ -215,6 +215,7 @@ function install_main_db () {
 					stock_size int default 0,
 					mutable_price boolean default false,
 					available boolean default true,
+					archived boolean default false,
 					primary key ( id )
 				)"
 	);

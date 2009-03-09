@@ -53,11 +53,42 @@ class Order extends FromServer {
 				$obj->readFromDB ( $row [ 'id' ] );
 				array_push ( $ret, $obj->exportable () );
 			}
-
-			return $ret;
 		}
 		else
-			return parent::get ( $request );
+			$ret = parent::get ( $request );
+
+		return $ret;
+	}
+
+	public function save ( $obj ) {
+		$obj->products = array ();
+		$prod = new Product ();
+
+		/*
+			Quando salvo un nuovo ordine prendo per buoni i prodotti correntemente
+			ordinabili presso il fornitore di riferimento, e li scrivo nell'apposita
+			tabella
+		*/
+		if ( $obj->id == -1 )
+			$query = sprintf ( "SELECT id FROM %s
+						WHERE supplier = %d
+						AND available = true
+						AND archived = false
+						ORDER BY id",
+							$prod->tablename, $obj->supplier->id );
+		else
+			$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY id",
+						$this->tablename, $prod->tablename, $obj->id );
+
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $prod->tablename );
+
+		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+			$product = new $prod->classname;
+			$product->readFromDB ( $row [ 'id' ] );
+			array_push ( $obj->products, $product->exportable () );
+		}
+
+		return parent::save ( $obj );
 	}
 }
 

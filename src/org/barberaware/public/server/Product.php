@@ -41,30 +41,52 @@ class Product extends FromServer {
 	public function get ( $request ) {
 		$ret = array ();
 
-		if ( isset ( $request->supplier ) ) {
-			$ret = array ();
-
-			$query = sprintf ( "SELECT id FROM product
-						WHERE supplier = %d", $request->supplier->id );
-
-			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-				$ids = join ( ',', $request->has );
-				$query .= sprintf ( " AND id NOT IN ( %s ) ", $ids );
-			}
-
-			$query .= sprintf ( " ORDER BY id" );
-			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti product" );
-
-			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-				$obj = new Product ();
-				$obj->readFromDB ( $row [ 'id' ] );
-				array_push ( $ret, $obj->exportable () );
-			}
-
-			return $ret;
+		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+			$ids = join ( ',', $request->has );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND archived = false ORDER BY id",
+						$this->tablename, $ids );
 		}
 		else
-			return parent::get ( $request );
+			$query = sprintf ( "SELECT id FROM %s WHERE archived = false ORDER BY id",
+						$this->tablename );
+
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+
+		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+			$obj = new $this->classname;
+			$obj->readFromDB ( $row [ 'id' ] );
+			array_push ( $ret, $obj->exportable () );
+		}
+
+		return $ret;
+	}
+
+	public function save ( $obj ) {
+		/*
+			FIXME	COMMENTAMI
+		*/
+
+		$is_new = false;
+
+		if ( $obj->id != -1 ) {
+			$query = sprintf ( "SELECT id FROM orders_products WHERE target = %d", $obj->id );
+			$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
+
+			if ( $returned->rowCount () != 0 ) {
+				$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );
+				$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
+				$obj->id = -1;
+			}
+
+			$is_new = true;
+		}
+
+		$id = parent::save ( $obj );
+
+		$query = sprintf ( "UPDATE %s SET archived = false WHERE target = %d", $this->tablename, $id );
+		$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
+
+		return $id;
 	}
 }
 

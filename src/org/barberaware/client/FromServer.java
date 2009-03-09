@@ -24,7 +24,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 
-public abstract class FromServer {
+public abstract class FromServer implements Comparator {
 	public static int	STRING		= 0;
 	public static int	INTEGER		= 1;
 	public static int	FLOAT		= 2;
@@ -521,5 +521,36 @@ public abstract class FromServer {
 				attr.setAddress ( addr );
 			}
 		}
+	}
+
+	/****************************************************************** Comparator */
+
+	public int compare ( Object first, Object second ) {
+		FromServer f;
+		FromServer s;
+		int fid;
+		int sid;
+
+		f = ( FromServer ) first;
+		fid = f.getLocalID ();
+		s = ( FromServer ) second;
+		sid = s.getLocalID ();
+
+		if ( fid < sid )
+			return -1;
+		else if ( fid > sid )
+			return 1;
+
+		return 0;
+	}
+
+	public boolean equals ( Object second ) {
+		FromServer other;
+
+		if ( second == null )
+			return false;
+
+		other = ( FromServer ) second;
+		return getLocalID () == other.getLocalID ();
 	}
 }

@@ -26,6 +26,7 @@ public class IconsBar extends Composite {
 
 	public IconsBar () {
 		main = new HorizontalPanel ();
+		main.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_RIGHT );
 		initWidget ( main );
 	}
 
@@ -58,5 +59,13 @@ public class IconsBar extends Composite {
 				break;
 			}
 		}
+	}
+
+	public Label addText ( String text ) {
+		Label lab;
+
+		lab = new Label ( text );
+		main.add ( lab );
+		return lab;
 	}
 }
