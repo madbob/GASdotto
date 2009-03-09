@@ -35,11 +35,21 @@ public class OrdersPanel extends GenericPanel {
 
 				for ( int i = 1; i < getWidgetCount (); i++ ) {
 					order_form = ( FromServerForm ) getWidget ( i );
-					tmp_order = ( Order ) order_form.getObject ().getObject ( "baseorder" );
 
-					if ( order.getLocalID () == tmp_order.getLocalID () ) {
-						alignOrderRow ( order_form, ( OrderUser ) object );
-						break;
+					/*
+						Provvedo all'allineamento se al form non e'
+						ancora stato settato alcun OrderUser realmente
+						valido, ma trovo solo quello fittizio assegnato
+						in fase di allocazione
+					*/
+					if ( order_form.getObject ().getLocalID () == -1 ) {
+						tmp_order = ( Order ) order_form.getObject ().getObject ( "baseorder" );
+
+						if ( order.getLocalID () == tmp_order.getLocalID () ) {
+							order_form.setObject ( object );
+							alignOrderRow ( order_form, ( OrderUser ) object );
+							break;
+						}
 					}
 				}
 			}

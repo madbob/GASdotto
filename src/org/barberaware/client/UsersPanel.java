@@ -49,13 +49,6 @@ public class UsersPanel extends GenericPanel {
 					fields = new FlexTable ();
 					hor.add ( fields );
 
-					/**
-						TODO	Costruire campo "login" parallelamente a nome e cognome (magari
-							nella classica forma nome.cognome), ma se e solo se non e' gia'
-							stato editato manualmente ed i due campi differiscono
-							completamente
-					*/
-
 					fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
 
@@ -77,14 +70,21 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 5, 1, ver.getWidget ( "mail" ) );
 					ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
-					fields.setWidget ( 6, 0, new Label ( "Indirizzo" ) );
-					fields.setWidget ( 6, 1, ver.getWidget ( "address" ) );
+					fields.setWidget ( 6, 0, new Label ( "Mail 2" ) );
+					fields.setWidget ( 6, 1, ver.getWidget ( "mail2" ) );
+					ver.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
+
+					fields.setWidget ( 7, 0, new Label ( "Indirizzo" ) );
+					fields.setWidget ( 7, 1, ver.getWidget ( "address" ) );
 
 					fields = new FlexTable ();
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Iscritto da" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "join_date" ) );
+
+					fields.setWidget ( 1, 0, new Label ( "Numero Tessera" ) );
+					fields.setWidget ( 1, 1, ver.getWidget ( "card_number" ) );
 
 					/*
 						Se il settaggio sul pagamento delle quote viene modificato
@@ -99,21 +99,21 @@ public class UsersPanel extends GenericPanel {
 								l'ultima volta, ma mi sembra poco efficiente, bisognerebbe
 								trovare un compromesso
 						*/
-						fields.setWidget ( 1, 0, new Label ( "Quota pagata" ) );
-						fields.setWidget ( 1, 1, ver.getWidget ( "paying" ) );
+						fields.setWidget ( 2, 0, new Label ( "Quota pagata" ) );
+						fields.setWidget ( 2, 1, ver.getWidget ( "paying" ) );
 					}
 					else
 						user.setBool ( "paying", true );
 
-					fields.setWidget ( 2, 0, new Label ( "Ruolo" ) );
+					fields.setWidget ( 3, 0, new Label ( "Ruolo" ) );
 					privileges = new CyclicToggle ();
 					privileges.addState ( "images/user_role_standard.png" );
 					privileges.addState ( "images/user_role_reference.png" );
 					privileges.addState ( "images/user_role_admin.png" );
-					fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
+					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
 
-					fields.setWidget ( 3, 0, new Label ( "Password" ) );
-					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
+					fields.setWidget ( 4, 0, new Label ( "Password" ) );
+					fields.setWidget ( 4, 1, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
 					return ver;
 				}

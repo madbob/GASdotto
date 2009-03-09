@@ -27,9 +27,11 @@ class User extends FromServer {
 		$this->addAttribute ( "firstname", "STRING" );
 		$this->addAttribute ( "surname", "STRING" );
 		$this->addAttribute ( "join_date", "DATE" );
+		$this->addAttribute ( "card_number", "STRING" );
 		$this->addAttribute ( "phone", "STRING" );
 		$this->addAttribute ( "mobile", "STRING" );
 		$this->addAttribute ( "mail", "STRING" );
+		$this->addAttribute ( "mail2", "STRING" );
 		$this->addAttribute ( "address", "ADDRESS" );
 		$this->addAttribute ( "paying", "BOOLEAN", "false" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );

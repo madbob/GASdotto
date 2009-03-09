@@ -39,6 +39,7 @@ public class OrdersEditPanel extends GenericPanel {
 					Order order;
 					Supplier supplier;
 					CyclicToggle status;
+					OrderSummary complete_list;
 
 					order = ( Order ) ord;
 					supplier = ( Supplier ) order.getObject ( "supplier" );
@@ -79,9 +80,10 @@ public class OrdersEditPanel extends GenericPanel {
 					fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
 					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
-					/**
-						TODO	Aggiungere qui riassunto prodotti gia' ordinati
-					*/
+					complete_list = new OrderSummary ( order );
+					ver.setExtraWidget ( "summary", complete_list );
+					ver.add ( complete_list );
+					complete_list.addStyleName ( "sub-elements-details" );
 
 					return ver;
 				}
@@ -152,6 +154,34 @@ public class OrdersEditPanel extends GenericPanel {
 				}
 		};
 
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			private void syncOrder ( OrderUser user ) {
+				Order order;
+				FromServerForm form;
+				OrderSummary summary;
+
+				order = ( Order ) user.getObject ( "baseorder" );
+				form = main.retrieveForm ( order );
+
+				if ( form != null ) {
+					summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+					summary.syncOrders ();
+				}
+			}
+
+			public void onReceive ( FromServer object ) {
+				syncOrder ( ( OrderUser ) object );
+			}
+
+			public void onModify ( FromServer object ) {
+				syncOrder ( ( OrderUser ) object );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				syncOrder ( ( OrderUser ) object );
+			}
+		} );
+
 		addTop ( main );
 	}
 
@@ -167,5 +197,6 @@ public class OrdersEditPanel extends GenericPanel {
 
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Order" );
+		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }

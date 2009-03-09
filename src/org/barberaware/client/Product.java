@@ -39,4 +39,21 @@ public class Product extends FromServer {
 
 		setString ( "name", "Nuovo Prodotto" );
 	}
+
+	public float getTotalPrice () {
+		float tot;
+		float price;
+
+		tot = getFloat ( "unit_price" );
+
+		price = getFloat ( "shipping_price" );
+		if ( price != 0 )
+			tot += price;
+
+		/**
+			TODO	Gestire anche il surplus, che e' una percentuale
+		*/
+
+		return tot;
+	}
 }

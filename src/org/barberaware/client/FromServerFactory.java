@@ -31,8 +31,6 @@ public class FromServerFactory {
 			return new Notification ();
 		else if ( name.equals ( "Order" ) )
 			return new Order ();
-		else if ( name.equals ( "OrderStatus" ) )
-			return new OrderStatus ();
 		else if ( name.equals ( "OrderUser" ) )
 			return new OrderUser ();
 		else if ( name.equals ( "Product" ) )

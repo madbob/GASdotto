@@ -193,7 +193,6 @@ public class ProductUserSelector extends ObjectWidget {
 
 	public float getTotalPrice () {
 		float q;
-		float price;
 		float tot;
 		Product p;
 
@@ -204,16 +203,7 @@ public class ProductUserSelector extends ObjectWidget {
 
 		else {
 			p = ( Product ) currentValue.getObject ( "product" );
-			tot = q * p.getFloat ( "unit_price" );
-
-			price = p.getFloat ( "shipping_price" );
-			if ( price != 0 )
-				tot += q * price;
-
-			/**
-				TODO	Gestire anche il surplus, che e' una percentuale
-			*/
-
+			tot = q * p.getTotalPrice ();
 			return tot;
 		}
 	}

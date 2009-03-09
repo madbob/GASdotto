@@ -158,9 +158,12 @@ public class FromServerForm extends Composite {
 		marker = new Image ( "images/details-closed.png" );
 		marker.setStyleName ( "element-marker" );
 		main.add ( marker );
+		main.setCellWidth ( marker, "5%" );
+		main.setCellHorizontalAlignment ( marker, HasHorizontalAlignment.ALIGN_LEFT );
 
 		summary = new Label ( object.getString ( "name" ) );
 		main.add ( summary );
+		main.setCellHorizontalAlignment ( summary, HasHorizontalAlignment.ALIGN_LEFT );
 
 		icons = doIconsBar ();
 		main.add ( icons );

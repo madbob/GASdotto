@@ -49,9 +49,11 @@ public class User extends FromServer {
 		addAttribute ( "firstname", FromServer.STRING );
 		addAttribute ( "surname", FromServer.STRING );
 		addAttribute ( "join_date", FromServer.DATE );
+		addAttribute ( "card_number", FromServer.STRING );
 		addAttribute ( "phone", FromServer.STRING );
 		addAttribute ( "mobile", FromServer.STRING );
 		addAttribute ( "mail", FromServer.STRING );
+		addAttribute ( "mail2", FromServer.STRING );
 		addAttribute ( "address", FromServer.ADDRESS );
 		addAttribute ( "paying", FromServer.BOOLEAN );
 		addAttribute ( "privileges", FromServer.INTEGER );
