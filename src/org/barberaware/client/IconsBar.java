@@ -26,6 +26,7 @@ public class IconsBar extends Composite {
 
 	public IconsBar () {
 		main = new HorizontalPanel ();
+		main.setStyleName ( "icons-bar" );
 		main.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_RIGHT );
 		initWidget ( main );
 	}

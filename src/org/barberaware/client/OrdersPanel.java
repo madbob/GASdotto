@@ -119,9 +119,6 @@ public class OrdersPanel extends GenericPanel {
 		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
 
 		if ( current_user.getInt ( "privileges" ) == User.USER_COMMON ) {
-			/**
-				TODO	Validare l'utente sul lato server
-			*/
 			uorder.setObject ( "baseuser", current_user );
 
 			ver.setCallback ( new FromServerFormCallbacks () {

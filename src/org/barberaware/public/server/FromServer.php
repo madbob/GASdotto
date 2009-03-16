@@ -144,6 +144,7 @@ abstract class FromServer {
 	public		$classname	= "";
 	public		$tablename	= "";
 	public		$sorting	= "id";
+	public		$user_check	= null;
 	public		$attributes	= array ();
 
 	protected function __construct ( $name, $tablename = '' ) {
@@ -160,7 +161,23 @@ abstract class FromServer {
 	}
 
 	protected function setSorting ( $sorter ) {
+		/*
+			Hack!!! Attenzione!!!
+			Sul lato client quando arriva un array di elementi (solitamenti allo
+			startup) vengono immessi nei pannelli in ordine inverso (viene riempita
+			sempre la posizione 0, quella piu' in alto, a alla fine l'ultimo risulta
+			essere il primo). Per bilanciare tale problema e fare in modo che alla
+			fine siano visualizzati nell'ordine atteso glieli si fornisce ordinati al
+			contrario.
+			Questo si potrebbe risolvere mettendo via via gli elementi nei pannelli
+			al fondo anziche' in cima, ma sarebbe un po' piu' lento; valutare un
+			compromesso operativo
+		*/
 		$this->sorting = $sorter . " DESC";
+	}
+
+	protected function enforceUserCheck ( $field_to_check ) {
+		$this->user_check = $field_to_check;
 	}
 
 	protected function addAttribute ( $name, $type, $default = "" ) {
@@ -198,16 +215,29 @@ abstract class FromServer {
 	}
 
 	public function get ( $request ) {
+		global $current_user;
+
 		$ret = array ();
 
 		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) ORDER BY %s",
-						$this->tablename, $ids, $this->sorting );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $this->tablename, $ids );
 		}
-		else
-			$query = sprintf ( "SELECT id FROM %s ORDER BY %s",
-						$this->tablename, $this->sorting );
+		else {
+			/*
+				Per far quagliare la concatenazione di altri frammenti di query
+				forzo l'esistenza di uno statement WHERE cui accodare gli altri
+				in AND
+			*/
+			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
+		}
+
+		if ( $this->user_check != null ) {
+			if ( current_permissions () == 0 )
+				$query .= sprintf ( " AND %s = %d ", $this->user_check, $current_user );
+		}
+
+		$query .= sprintf ( " ORDER BY %s", $this->sorting );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 
@@ -360,7 +390,18 @@ abstract class FromServer {
 	}
 
 	public function save ( $obj ) {
+		global $current_user;
+
 		$this->from_object_to_internal ( $obj );
+
+		$check_query = "";
+		if ( $this->user_check != null ) {
+			if ( current_permissions () == 0 ) {
+				$verify = $this->getAttribute ( $this->user_check );
+				if ( $verify->value != $current_user )
+					error_exit ( "Invalid user" );
+			}
+		}
 
 		$attr = $this->getAttribute ( "id" );
 		$id = $attr->value;

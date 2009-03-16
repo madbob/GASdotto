@@ -72,6 +72,10 @@
 	padding:		3px;
 }
 
+.icons-bar img {
+	border:			0px;
+}
+
 .element-details {
 	width:			100%;
 	margin:			5px;

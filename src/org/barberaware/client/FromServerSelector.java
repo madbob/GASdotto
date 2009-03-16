@@ -46,12 +46,23 @@ public class FromServerSelector extends ObjectWidget {
 
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
+				int index;
+
 				if ( filterCallback != null ) {
 					if ( filterCallback.checkObject ( object ) == false )
 						return;
 				}
 
-				main.addItem ( object.getString ( "name" ), Integer.toString ( object.getLocalID () ) );
+				/*
+					Caldamente sconsigliato procedere qui con un controllo
+					sull'esistenza dell'elemento che si sta aggiungendo:
+					quando tratto grosse quantita' di dati (gli utenti
+					registrati) e' facile far andare in palla il browser
+					ciclando e ri-ciclando su moli di elementi costantemente
+					crescenti ad ogni iterazione
+				*/
+				main.addItem ( object.getString ( "name" ),
+						Integer.toString ( object.getLocalID () ) );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -70,8 +81,6 @@ public class FromServerSelector extends ObjectWidget {
 					main.removeItem ( index );
 			}
 		} );
-
-		Utils.getServer ().testObjectReceive ( type );
 	}
 
 	public void addFilter ( FromServerValidateCallback filter ) {

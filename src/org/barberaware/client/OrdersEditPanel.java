@@ -53,6 +53,11 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
+					/**
+						TODO	Sostituire con combo box che contenga
+							solo i fornitori per cui l'utente e'
+							referente
+					*/
 					fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );

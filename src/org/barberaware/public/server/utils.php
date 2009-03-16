@@ -147,4 +147,14 @@ function check_session () {
 	return true;
 }
 
+function current_permissions () {
+	/**
+		TODO	Qui si puo' evitare di leggere tutto l'utente ma solo i permessi
+			direttamente dal DB
+	*/
+	$u = new User ();
+	$u->readFromDB ( $current_user );
+	return $u->privileges;
+}
+
 ?>
