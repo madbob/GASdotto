@@ -35,6 +35,8 @@ class User extends FromServer {
 		$this->addAttribute ( "address", "ADDRESS" );
 		$this->addAttribute ( "paying", "BOOLEAN", "false" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
+
+		$this->setSorting ( "surname" );
 	}
 
 	public function save ( $obj ) {
@@ -62,7 +64,7 @@ class User extends FromServer {
 	public function destroy ( $obj ) {
 		$id = parent::destroy ( $obj );
 
-		$query = sprintf ( "DELETE FROM accounts WHERE id = %d", $id );
+		$query = sprintf ( "DELETE FROM accounts WHERE username = %d", $id );
 		query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
 
 		return $id;

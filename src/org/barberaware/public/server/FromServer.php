@@ -143,6 +143,7 @@ class FromServerAttribute {
 abstract class FromServer {
 	public		$classname	= "";
 	public		$tablename	= "";
+	public		$sorting	= "id";
 	public		$attributes	= array ();
 
 	protected function __construct ( $name, $tablename = '' ) {
@@ -156,6 +157,10 @@ abstract class FromServer {
 		$attr = new FromServerAttribute ( 'id', "STRING" );
 		$attr->value = "-1";
 		array_push ( $this->attributes, $attr );
+	}
+
+	protected function setSorting ( $sorter ) {
+		$this->sorting = $sorter . " DESC";
 	}
 
 	protected function addAttribute ( $name, $type, $default = "" ) {
@@ -197,12 +202,12 @@ abstract class FromServer {
 
 		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) ORDER BY id",
-						$this->tablename, $ids );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) ORDER BY %s",
+						$this->tablename, $ids, $this->sorting );
 		}
 		else
-			$query = sprintf ( "SELECT id FROM %s ORDER BY id",
-						$this->tablename );
+			$query = sprintf ( "SELECT id FROM %s ORDER BY %s",
+						$this->tablename, $this->sorting );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 

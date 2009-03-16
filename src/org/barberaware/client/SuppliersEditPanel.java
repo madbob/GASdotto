@@ -30,12 +30,34 @@ public class SuppliersEditPanel extends GenericPanel {
 		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				final FromServerForm ver;
+				User myself;
 				HorizontalPanel hor;
 				VerticalPanel vertical;
 				FlexTable fields;
 				Supplier supplier;
 				ProductsEditPanel products;
 				ReferenceList references;
+
+				myself = Session.getUser ();
+				if ( myself.getInt ( "privileges" ) != User.USER_ADMIN ) {
+					int myself_id;
+					ArrayList refs;
+					boolean found;
+					int i;
+
+					myself_id = myself.getLocalID ();
+					refs = supp.getArray ( "references" );
+					found = false;
+
+					for ( i = 0; i < refs.size (); i++ )
+						if ( ( ( User ) refs.get ( i ) ).getLocalID () == myself_id ) {
+							found = true;
+							break;
+						}
+
+					if ( found == false )
+						return null;
+				}
 
 				supplier = ( Supplier ) supp;
 				ver = new FromServerForm ( supplier );

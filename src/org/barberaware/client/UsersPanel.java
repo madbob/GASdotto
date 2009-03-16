@@ -28,16 +28,19 @@ public class UsersPanel extends GenericPanel {
 
 		main = new FormCluster ( "User", "images/new_user.png" ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
+					boolean handle_payments;
 					FromServerForm ver;
 					HorizontalPanel hor;
 					FlexTable fields;
 					User user;
 					CyclicToggle privileges;
 
+					handle_payments = ( Session.getGAS ().getBool ( "payments" ) == true );
+
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
 
-					if ( u.getBool ( "paying" ) == false ) {
+					if ( handle_payments && u.getBool ( "paying" ) == false ) {
 						IconsBar icons;
 						icons = ver.getIconsBar ();
 						icons.addImage ( "images/notifications/user_not_paying.png" );
@@ -92,7 +95,7 @@ public class UsersPanel extends GenericPanel {
 						correggere questo pannello ma semplicemente attendere che sia
 						ricaricato
 					*/
-					if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+					if ( handle_payments == true ) {
 						/**
 							TODO	Gestire la segnalazione del pagamento della quota in modo
 								diverso. Pier suggeriva di marcare l'anno in cui e' stata pagata

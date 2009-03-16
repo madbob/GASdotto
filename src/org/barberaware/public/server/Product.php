@@ -83,7 +83,7 @@ class Product extends FromServer {
 
 		$id = parent::save ( $obj );
 
-		$query = sprintf ( "UPDATE %s SET archived = false WHERE target = %d", $this->tablename, $id );
+		$query = sprintf ( "UPDATE %s SET archived = false WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
 
 		return $id;

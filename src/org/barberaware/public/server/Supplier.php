@@ -33,6 +33,8 @@ class Supplier extends FromServer {
 		$this->addAttribute ( "paying_mode", "STRING" );
 		$this->addAttribute ( "description", "STRING" );
 		$this->addAttribute ( "references", "ARRAY::User" );
+
+		$this->setSorting ( "name" );
 	}
 }
 

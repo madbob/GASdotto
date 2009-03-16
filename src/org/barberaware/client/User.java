@@ -40,7 +40,7 @@ public class User extends FromServer {
 				if ( name.equals ( "" ) && surname.equals ( "" ) )
 					return "Nuovo Utente";
 				else
-					return name + " " + surname;
+					return surname + " " + name;
 			}
 		} );
 

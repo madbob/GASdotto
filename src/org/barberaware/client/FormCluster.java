@@ -109,8 +109,11 @@ public abstract class FormCluster extends VerticalPanel {
 		FromServerForm iter;
 
 		iter = retrieveForm ( object );
-		if ( iter == null )
-			insert ( doEditableRow ( object ), 0 );
+		if ( iter == null ) {
+			iter = doEditableRow ( object );
+			if ( iter != null )
+				insert ( iter, 0 );
+		}
 	}
 
 	public void refreshElement ( FromServer object ) {
