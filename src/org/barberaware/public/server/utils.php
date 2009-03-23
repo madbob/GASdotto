@@ -143,18 +143,26 @@ function check_session () {
 		error_exit ( "Impossibile accedere alla sessione" );
 
 	$row = $result->fetch ( PDO::FETCH_NUM );
+	/*
+		Nella tabella "current_sessions" il campo "username" contiene l'ID dell'utente.
+		Triste scelta di nome...
+	*/
 	$current_user = $row [ 0 ];
 	return true;
 }
 
 function current_permissions () {
+	global $current_user;
+
 	/**
 		TODO	Qui si puo' evitare di leggere tutto l'utente ma solo i permessi
 			direttamente dal DB
 	*/
+
 	$u = new User ();
 	$u->readFromDB ( $current_user );
-	return $u->privileges;
+	$privileges = $u->getAttribute ( "privileges" );
+	return $privileges->value;
 }
 
 ?>

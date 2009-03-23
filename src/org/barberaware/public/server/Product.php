@@ -63,22 +63,72 @@ class Product extends FromServer {
 
 	public function save ( $obj ) {
 		/*
-			FIXME	COMMENTAMI
+			Immenso trigo per il salvataggio dei prodotti, dovuto al fatto che essi
+			devono essere allineati con gli ordini aperti.
+
+			Quando aggiungo un prodotto nuovo (ed ordinabile) devo vedere se e' per
+			un fornitore per il quale c'e' un ordine attivo, e nel caso introdurlo
+			nella lista di quelli ordinabili.
+
+			Quando modifico un prodotto esistente
+				- se non c'e' alcun ordine (aperto o chiuso che sia) che lo
+					contempla tiro dritto
+				- se c'e' un ordine (aperto o chiuso che sia), il prodotto viene
+					duplicato in modo che i vecchi riferimenti continuino a
+					puntare a quello vecchio ed i successivi vadano a quello
+					nuovo
+				- ma se e' stata modificata solo la disponibilita', mi limito ad
+					allineare eventuali ordini aperti rimuovendone o
+					aggiungendone il riferimento
+
+			Questa modalita' permette di garantire un certo allineamento automatico
+			tra ordini e prodotti, senza avere pannelli a livello utente che
+			gestiscono questa cosa, sebbene ponga molti limiti all'interazione
+			(appunto perche' e' costruita su un sacco di assunzioni)
 		*/
 
-		$is_new = false;
+		$align_existing_orders = false;
 
 		if ( $obj->id != -1 ) {
-			$query = sprintf ( "SELECT id FROM orders_products WHERE target = %d", $obj->id );
+			$prod = new Product ();
+			$prod->readFromDB ( $obj->id );
+
+			if ( $prod->available != $obj->available )
+				$align_existing_orders = true;
+
+			else {
+				$query = sprintf ( "SELECT id FROM orders_products WHERE target = %d", $obj->id );
+				$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
+
+				if ( $returned->rowCount () != 0 ) {
+					$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );
+					$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
+					$obj->id = -1;
+				}
+			}
+		}
+		else
+			$align_existing_orders = true;
+
+		if ( $align_existing_orders == true ) {
+			$query = sprintf ( "SELECT id FROM orders WHERE supplier = %d AND enddate > DATE('%s')",
+						$obj->supplier->id, date ( "Y-m-d" ) );
 			$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
 
-			if ( $returned->rowCount () != 0 ) {
-				$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );
-				$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
-				$obj->id = -1;
+			if ( $obj->available == "true" ) {
+				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+					$query = sprintf ( "INSERT INTO orders_products ( parent, target ) VALUES ( %d, %d )",
+								$row [ "id" ], $obj->id );
+					query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
+				}
 			}
-
-			$is_new = true;
+			else {
+				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+					$query = sprintf ( "DELETE FROM orders_products WHERE parent = %d AND target = %d",
+								$row [ "id" ], $obj->id );
+					query_and_check ( $query, "Impossibile eliminare prodotto non piu' ordinabile" );
+				}
+			}
 		}
 
 		$id = parent::save ( $obj );

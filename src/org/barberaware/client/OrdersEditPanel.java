@@ -152,9 +152,6 @@ public class OrdersEditPanel extends GenericPanel {
 					date = ( DateSelector ) ver.retriveInternalWidget ( "shippingdate" );
 					date.setValue ( now );
 
-					fields = new FlexTable ();
-					hor.add ( fields );
-
 					return ver;
 				}
 		};
@@ -201,6 +198,7 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		Utils.getServer ().testObjectReceive ( "Supplier" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}

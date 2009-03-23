@@ -36,6 +36,7 @@ public class FromServerForm extends Composite {
 	*/
 
 	private ArrayList		widgets;
+	private ArrayList		addictionalData;
 
 	public static int		FULL_EDITABLE		= 0;
 	public static int		EDITABLE_UNDELETABLE	= 1;
@@ -47,6 +48,12 @@ public class FromServerForm extends Composite {
 		object = obj;
 
 		widgets = new ArrayList ();
+
+		/**
+			TODO	L'array di dati addizionali e' usato solo raramente, forse non
+				val la pena di allocarlo sempre...
+		*/
+		addictionalData = new ArrayList ();
 
 		callbacks = new FromServerFormCallbacks () {
 			public void onSave ( FromServerForm form ) {
@@ -326,6 +333,14 @@ public class FromServerForm extends Composite {
 			iter = ( FromServerWidget ) widgets.get ( i );
 			iter.set ( obj );
 		}
+	}
+
+	public void addAddictionalData ( Object data ) {
+		addictionalData.add ( data );
+	}
+
+	public ArrayList getAddictionalData () {
+		return addictionalData;
 	}
 
 	private boolean contentsChanged () {

@@ -30,6 +30,7 @@ public class FromServerSelector extends ObjectWidget {
 	private ListBox					main;
 	private String					type;
 	private boolean					noVoidArticat;
+	private int					scheduledSelectionID;
 	private FromServerValidateCallback		filterCallback;
 	private DelegatingChangeListenerCollection	changeListeners;
 
@@ -40,6 +41,7 @@ public class FromServerSelector extends ObjectWidget {
 		type = t;
 		filterCallback = null;
 		noVoidArticat = hide_void;
+		scheduledSelectionID = -1;
 
 		if ( hide_void == false )
 			main.addItem ( "Nessuno", "0" );
@@ -47,11 +49,14 @@ public class FromServerSelector extends ObjectWidget {
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int index;
+				int id;
 
 				if ( filterCallback != null ) {
 					if ( filterCallback.checkObject ( object ) == false )
 						return;
 				}
+
+				id = object.getLocalID ();
 
 				/*
 					Caldamente sconsigliato procedere qui con un controllo
@@ -61,8 +66,10 @@ public class FromServerSelector extends ObjectWidget {
 					ciclando e ri-ciclando su moli di elementi costantemente
 					crescenti ad ogni iterazione
 				*/
-				main.addItem ( object.getString ( "name" ),
-						Integer.toString ( object.getLocalID () ) );
+				main.addItem ( object.getString ( "name" ), Integer.toString ( id ) );
+
+				if ( scheduledSelectionID == id )
+					setValue ( object );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -131,18 +138,24 @@ public class FromServerSelector extends ObjectWidget {
 		int num;
 		String sel;
 
-		if ( selected == null )
+		if ( selected == null ) {
 			if ( main.getItemCount () != 0 )
 				main.setItemSelected ( 0, true );
-
+		}
 		else {
 			num = main.getItemCount ();
-			sel = Integer.toString ( selected.getLocalID () );
 
-			for ( int i = 0; i < num; i++ ) {
-				if ( sel.equals ( main.getValue ( i ) ) ) {
-					main.setItemSelected ( i, true );
-					break;
+			if ( num == 0 )
+				scheduledSelectionID = selected.getLocalID ();
+
+			else {
+				sel = Integer.toString ( selected.getLocalID () );
+
+				for ( int i = 0; i < num; i++ ) {
+					if ( sel.equals ( main.getValue ( i ) ) ) {
+						main.setItemSelected ( i, true );
+						break;
+					}
 				}
 			}
 		}

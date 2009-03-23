@@ -25,4 +25,13 @@ public class ProductUser extends FromServer {
 		addAttribute ( "product", FromServer.OBJECT, Product.class );
 		addAttribute ( "quantity", FromServer.FLOAT );
 	}
+
+	public float getTotalPrice () {
+		float quantity;
+		Product product;
+
+		quantity = getFloat ( "quantity" );
+		product = ( Product ) getObject ( "product" );
+		return quantity * product.getTotalPrice ();
+	}
 }

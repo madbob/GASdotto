@@ -38,6 +38,7 @@ public class Product extends FromServer {
 		addAttribute ( "available", FromServer.BOOLEAN );
 
 		setString ( "name", "Nuovo Prodotto" );
+		setBool ( "available", true );
 	}
 
 	public float getTotalPrice () {
