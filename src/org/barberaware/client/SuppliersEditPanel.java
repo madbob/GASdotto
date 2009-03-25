@@ -29,87 +29,17 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
-				final FromServerForm ver;
-				User myself;
-				HorizontalPanel hor;
+				FromServerForm ver;
 				VerticalPanel vertical;
-				FlexTable fields;
-				Supplier supplier;
 				ProductsEditPanel products;
-				ReferenceList references;
 
-				myself = Session.getUser ();
-				if ( myself.getInt ( "privileges" ) != User.USER_ADMIN ) {
-					int myself_id;
-					ArrayList refs;
-					boolean found;
-					int i;
-
-					myself_id = myself.getLocalID ();
-					refs = supp.getArray ( "references" );
-					found = false;
-
-					for ( i = 0; i < refs.size (); i++ )
-						if ( ( ( User ) refs.get ( i ) ).getLocalID () == myself_id ) {
-							found = true;
-							break;
-						}
-
-					if ( found == false )
-						return null;
-				}
-
-				supplier = ( Supplier ) supp;
-				ver = new FromServerForm ( supplier );
-
-				hor = new HorizontalPanel ();
-				ver.add ( hor );
-
-				fields = new FlexTable ();
-				hor.add ( fields );
-
-				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-				fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
-
-				fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
-				fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
-
-				fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
-				references = new ReferenceList ();
-				fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
-
-				fields = new FlexTable ();
-				hor.add ( fields );
-
-				fields.setWidget ( 0, 0, new Label ( "Nome Contatto" ) );
-				fields.setWidget ( 0, 1, ver.getWidget ( "contact" ) );
-
-				fields.setWidget ( 1, 0, new Label ( "Telefono" ) );
-				fields.setWidget ( 1, 1, ver.getWidget ( "phone" ) );
-				ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-				fields.setWidget ( 2, 0, new Label ( "Fax" ) );
-				fields.setWidget ( 2, 1, ver.getWidget ( "fax" ) );
-				ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-				fields.setWidget ( 3, 0, new Label ( "Mail" ) );
-				fields.setWidget ( 3, 1, ver.getWidget ( "mail" ) );
-				ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
-
-				ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
-				ver.add ( ver.getWidget ( "description" ) );
-
-				ver.add ( new Label ( "Modalità avanzamento ordini" ) );
-				ver.add ( ver.getWidget ( "order_mode" ) );
-
-				ver.add ( new Label ( "Modalità pagamento" ) );
-				ver.add ( ver.getWidget ( "paying_mode" ) );
+				ver = commonFormBuilder ( supp );
 
 				vertical = new VerticalPanel ();
 				vertical.addStyleName ( "sub-elements-details" );
 				ver.add ( vertical );
 				vertical.add ( new Label ( "Prodotti" ) );
-				products = new ProductsEditPanel ( supplier );
+				products = new ProductsEditPanel ( ( Supplier ) supp );
 				ver.setExtraWidget ( "products", products );
 				vertical.add ( products );
 
@@ -117,7 +47,21 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 
 			protected FromServerForm doNewEditableRow () {
-				return doEditableRow ( new Supplier () );
+				FromServerForm ver;
+				Label notify;
+
+				ver = commonFormBuilder ( new Supplier () );
+
+				/**
+					TODO	Un giorno si potra' provvedere ad un sistema piu'
+						furbo per gestire i prodotti da salvare per
+						fornitori ancora non salvati
+				*/
+				notify = new Label ( "Dopo aver confermato il salvataggio del fornitore, sarà qui possibile definirne i prodotti" );
+				notify.addStyleName ( "sub-elements-details" );
+				ver.add ( notify );
+
+				return ver;
 			}
 
 		};
@@ -157,6 +101,84 @@ public class SuppliersEditPanel extends GenericPanel {
 					panel.deleteProduct ( product );
 			}
 		} );
+	}
+
+	private FromServerForm commonFormBuilder ( FromServer supp ) {
+		final FromServerForm ver;
+		User myself;
+		HorizontalPanel hor;
+		FlexTable fields;
+		Supplier supplier;
+		ReferenceList references;
+
+		myself = Session.getUser ();
+		if ( myself.getInt ( "privileges" ) != User.USER_ADMIN ) {
+			int myself_id;
+			ArrayList refs;
+			boolean found;
+			int i;
+
+			myself_id = myself.getLocalID ();
+			refs = supp.getArray ( "references" );
+			found = false;
+
+			for ( i = 0; i < refs.size (); i++ )
+				if ( ( ( User ) refs.get ( i ) ).getLocalID () == myself_id ) {
+					found = true;
+					break;
+				}
+
+			if ( found == false )
+				return null;
+		}
+
+		supplier = ( Supplier ) supp;
+		ver = new FromServerForm ( supplier );
+
+		hor = new HorizontalPanel ();
+		ver.add ( hor );
+
+		fields = new FlexTable ();
+		hor.add ( fields );
+
+		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+
+		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
+		fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
+
+		fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
+		references = new ReferenceList ();
+		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
+
+		fields = new FlexTable ();
+		hor.add ( fields );
+
+		fields.setWidget ( 0, 0, new Label ( "Nome Contatto" ) );
+		fields.setWidget ( 0, 1, ver.getWidget ( "contact" ) );
+
+		fields.setWidget ( 1, 0, new Label ( "Telefono" ) );
+		fields.setWidget ( 1, 1, ver.getWidget ( "phone" ) );
+		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+		fields.setWidget ( 2, 0, new Label ( "Fax" ) );
+		fields.setWidget ( 2, 1, ver.getWidget ( "fax" ) );
+		ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+		fields.setWidget ( 3, 0, new Label ( "Mail" ) );
+		fields.setWidget ( 3, 1, ver.getWidget ( "mail" ) );
+		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+
+		ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
+		ver.add ( ver.getWidget ( "description" ) );
+
+		ver.add ( new Label ( "Modalità avanzamento ordini" ) );
+		ver.add ( ver.getWidget ( "order_mode" ) );
+
+		ver.add ( new Label ( "Modalità pagamento" ) );
+		ver.add ( ver.getWidget ( "paying_mode" ) );
+
+		return ver;
 	}
 
 	private ProductsEditPanel retrieveProductsPanel ( Product product ) {
