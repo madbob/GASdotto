@@ -21,10 +21,14 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class OrdersPrivilegedPanel extends GenericPanel {
-	public OrdersPrivilegedPanel () {
+public class DeliveryPanel extends GenericPanel {
+	public DeliveryPanel () {
 		super ();
 
+		add ( new Label ( "TODO" ) );
+		return;
+
+		/*
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
@@ -94,6 +98,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					remove ( index );
 			}
 		} );
+
+		*/
 	}
 
 	private Widget doOrderRow ( Order order ) {
@@ -112,7 +118,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		pan = new HorizontalPanel ();
 		pan.add ( new Label ( "Ordine eseguito a nome di " ) );
 
-		users = new FromServerSelector ( "User", false );
+		users = new FromServerSelector ( "User", true );
 		users.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				FromServerSelector selector;
@@ -180,6 +186,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		float total;
 		ArrayList orders;
 		OrderUser iter;
+		ArrayList products;
+		ProductUser prod;
 		String total_text;
 		Label total_view;
 
@@ -201,19 +209,22 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					return;
 				else if ( action == 1 ) {
 					orders.remove ( i );
-					continue;
+					iter = uorder;
 				}
 				else if ( action == 2 )
 					continue;
 			}
 
-			total += iter.getTotalPrice ();
+			products = iter.getArray ( "products" );
+
+			for ( int a = 0; a < products.size (); a++ ) {
+				prod = ( ProductUser ) products.get ( a );
+				total += prod.getTotalPrice ();
+			}
 		}
 
-		if ( action == 0 || action == 1 ) {
+		if ( action == 0 || action == 1 )
 			orders.add ( uorder );
-			total += uorder.getTotalPrice ();
-		}
 
 		if ( total != 0 )
 			total_text = total + " €";
@@ -248,19 +259,18 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		user_id = user.getLocalID ();
 		orders = form.getAddictionalData ();
 
+		Window.alert ( "selezionato utente " + user_id + ", lo cerco su " + orders.size () + " ordini" );
+
 		for ( int i = 0; i < orders.size (); i++ ) {
 			iter = ( OrderUser ) orders.get ( i );
 			existing_user = ( User ) iter.getObject ( "baseuser" );
 
 			if ( existing_user.getLocalID () == user_id ) {
-				Window.alert ( "ordine trovato" );
 				alignOrderRow ( form, iter );
 				form.setObject ( iter );
-				return;
+				break;
 			}
 		}
-
-		cleanForm ( form );
 	}
 
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
@@ -270,13 +280,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		products = uorder.getArray ( "products" );
 		table = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
 		table.setElements ( products );
-	}
-
-	private void cleanForm ( FromServerForm form ) {
-		ProductsUserSelection table;
-
-		table = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-		table.setElements ( null );
 	}
 
 	private int retrieveOrderForm ( Order parent ) {
@@ -304,11 +307,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	/****************************************************************** GenericPanel */
 
 	public String getName () {
-		return "Ordini";
+		return "Consegne";
 	}
 
 	public Image getIcon () {
-		return new Image ( "images/path_orders.png" );
+		return new Image ( "images/path_delivery.png" );
 	}
 
 	public void initView () {

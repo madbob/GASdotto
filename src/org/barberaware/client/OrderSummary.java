@@ -75,10 +75,13 @@ public class OrderSummary extends Composite {
 			essere assai migliorato...
 		*/
 		cached_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		total_price = 0;
+
 		for ( int i = 0; i < cached_orders.size (); i++ ) {
 			user_ord = ( OrderUser ) cached_orders.get ( i );
 
 			if ( user_ord.getObject ( "baseorder" ).getLocalID () == my_id ) {
+				total_price += user_ord.getTotalPrice ();
 				user_products = user_ord.getArray ( "products" );
 
 				for ( int a = 0; a < user_products.size (); a++ ) {
@@ -97,13 +100,10 @@ public class OrderSummary extends Composite {
 			}
 		}
 
-		total_price = 0;
-
 		for ( int i = 0; i < products.size (); i++ ) {
 			order_product = ( Product ) products.get ( i );
 			product_quantity_sum = ( Label ) main.getWidget ( i, 3 );
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
-			total_price = quantities [ i ] * order_product.getTotalPrice ();
 		}
 
 		totalLabel.setText ( total_price + " €" );

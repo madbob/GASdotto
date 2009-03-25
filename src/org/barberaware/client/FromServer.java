@@ -385,7 +385,7 @@ public abstract class FromServer implements Comparator {
 
 			try {
 				builder.sendRequest ( obj.toString (), true_callback );
-				builder.setTimeoutMillis ( 5000 );
+				builder.setTimeoutMillis ( 15000 );
 			}
 			catch ( RequestException e ) {
 				Utils.showNotification ( "Impossibile salvare oggetto" );
@@ -411,7 +411,7 @@ public abstract class FromServer implements Comparator {
 
 			try {
 				builder.sendRequest ( obj.toString (), true_callback );
-				builder.setTimeoutMillis ( 5000 );
+				builder.setTimeoutMillis ( 15000 );
 			}
 			catch ( RequestException e ) {
 				Utils.showNotification ( "Impossibile eliminare oggetto" );

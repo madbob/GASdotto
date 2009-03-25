@@ -207,7 +207,9 @@ public class ProductsUserSelection extends FromServerArray {
 		ProductUser prod;
 		Product prod_internal;
 		String id_target;
+		boolean found;
 		ProductUserSelector selector;
+		Product sel_prod;
 
 		if ( elements == null ) {
 			rows = main.getRowCount () - 2;
@@ -221,6 +223,12 @@ public class ProductsUserSelection extends FromServerArray {
 		else {
 			num_elements = elements.size ();
 
+			/**
+				TODO	Qui un ordinamento degli array eviterebbe di fare tanti
+					giri ed ottimizzare
+			*/
+
+			/*
 			for ( int a = 0; a < num_elements; a++ ) {
 				prod = ( ProductUser ) elements.get ( a );
 				prod_internal = ( Product ) prod.getObject ( "product" );
@@ -235,6 +243,30 @@ public class ProductsUserSelection extends FromServerArray {
 						break;
 					}
 				}
+			}
+			*/
+
+			rows = main.getRowCount () - 2;
+
+			for ( int i = 0; i < rows; i += 2 ) {
+				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
+				sel_prod = ( Product ) selector.getValue ().getObject ( "product" );
+				found = false;
+
+				for ( int a = 0; a < num_elements; a++ ) {
+					prod = ( ProductUser ) elements.get ( a );
+					prod_internal = ( Product ) prod.getObject ( "product" );
+					id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
+
+					if ( sel_prod.equals ( prod_internal ) ) {
+						selector.setValue ( prod );
+						found = true;
+						break;
+					}
+				}
+
+				if ( found == false )
+					selector.setQuantity ( 0 );
 			}
 		}
 

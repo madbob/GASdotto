@@ -78,7 +78,7 @@ public class ServerHook {
 		builder = new RequestBuilder ( RequestBuilder.POST, getURL () + "server.php?action=get" );
 
 		try {
-			builder.setTimeoutMillis ( 5000 );
+			builder.setTimeoutMillis ( 15000 );
 			response = builder.sendRequest ( request.toString (), handler );
 			engageLoadingBar ();
 			return true;

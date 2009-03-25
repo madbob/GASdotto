@@ -43,4 +43,20 @@ public class OrderUser extends FromServer {
 	public boolean isValid () {
 		return true;
 	}
+
+	public float getTotalPrice () {
+		float total;
+		ArrayList products;
+		ProductUser prod;
+
+		total = 0;
+		products = getArray ( "products" );
+
+		for ( int i = 0; i < products.size (); i++ ) {
+			prod = ( ProductUser ) products.get ( i );
+			total += prod.getTotalPrice ();
+		}
+
+		return total;
+	}
 }

@@ -40,6 +40,7 @@ public class MainStack extends Composite {
 			main.add ( new SuppliersEditPanel () );
 			main.add ( new OrdersEditPanel () );
 			main.add ( new OrdersPrivilegedPanel () );
+			main.add ( new DeliveryPanel () );
 			main.add ( new SystemPanel () );
 		}
 
@@ -47,6 +48,7 @@ public class MainStack extends Composite {
 			main.add ( new SuppliersEditPanel () );
 			main.add ( new OrdersEditPanel () );
 			main.add ( new OrdersPrivilegedPanel () );
+			main.add ( new DeliveryPanel () );
 			main.add ( new SystemPanel () );
 		}
 
