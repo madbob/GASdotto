@@ -69,4 +69,9 @@ public class IconsBar extends Composite {
 		main.add ( lab );
 		return lab;
 	}
+
+	public Widget addWidget ( Widget wid ) {
+		main.add ( wid );
+		return wid;
+	}
 }

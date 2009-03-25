@@ -180,8 +180,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		float total;
 		ArrayList orders;
 		OrderUser iter;
-		String total_text;
-		Label total_view;
+		PriceViewer total_view;
 
 		total = 0;
 		uorder_id = uorder.getLocalID ();
@@ -215,18 +214,14 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			total += uorder.getTotalPrice ();
 		}
 
-		if ( total != 0 )
-			total_text = total + " €";
-		else
-			total_text = "";
-
-		total_view = ( Label ) ver.retriveInternalWidget ( "price_sum" );
+		total_view = ( PriceViewer ) ver.retriveInternalWidget ( "price_sum" );
 
 		if ( total_view == null ) {
 			IconsBar icons;
 
 			icons = ver.getIconsBar ();
-			total_view = icons.addText ( total_text );
+			total_view = new PriceViewer ();
+			icons.addWidget ( total_view );
 
 			/*
 				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale
@@ -235,8 +230,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			*/
 			ver.setExtraWidget ( "price_sum", total_view );
 		}
-		else
-			total_view.setText ( total_text );
+
+		total_view.setValue ( total );
 	}
 
 	private void retrieveCurrentOrderByUser ( FromServerForm form, User user ) {

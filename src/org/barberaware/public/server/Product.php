@@ -93,7 +93,7 @@ class Product extends FromServer {
 			$prod = new Product ();
 			$prod->readFromDB ( $obj->id );
 
-			if ( $prod->available != $obj->available )
+			if ( $prod->getAttribute ( "available" )->value != $obj->available )
 				$align_existing_orders = true;
 
 			else {

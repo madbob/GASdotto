@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.*;
 public class OrderSummary extends Composite {
 	private Order			currentOrder;
 	private FlexTable		main;
-	private Label			totalLabel;
+	private PriceViewer		totalLabel;
 
 	public OrderSummary ( Order order ) {
 		currentOrder = order;
@@ -106,7 +106,7 @@ public class OrderSummary extends Composite {
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
 		}
 
-		totalLabel.setText ( total_price + " €" );
+		totalLabel.setValue ( total_price );
 	}
 
 	private String measureSymbol ( Product prod ) {
@@ -142,9 +142,9 @@ public class OrderSummary extends Composite {
 		i++;
 
 		if ( totalLabel == null )
-			totalLabel = new Label ( "0 €" );
+			totalLabel = new PriceViewer ();
 		else
-			totalLabel.setText ( "0 €" );
+			totalLabel.setValue ( 0 );
 
 		main.setWidget ( i, 2, totalLabel );
 	}

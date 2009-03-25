@@ -24,7 +24,7 @@ import com.google.gwt.user.client.ui.*;
 public class ProductsUserSelection extends FromServerArray {
 	private FlexTable		main;
 	private float			total;
-	private Label			totalLabel;
+	private PriceViewer		totalLabel;
 
 	public ProductsUserSelection ( ArrayList products ) {
 		int i;
@@ -59,7 +59,7 @@ public class ProductsUserSelection extends FromServerArray {
 
 		index++;
 
-		totalLabel = new Label ( "0 €" );
+		totalLabel = new PriceViewer ();
 		main.setWidget ( index, 0, new Label ( "Totale" ) );
 		main.setWidget ( index, 1, totalLabel );
 	}
@@ -192,7 +192,7 @@ public class ProductsUserSelection extends FromServerArray {
 		}
 
 		total = price;
-		totalLabel.setText ( price + " €" );
+		totalLabel.setValue ( price );
 	}
 
 	/****************************************************************** FromServerArray */
