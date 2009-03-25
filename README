@@ -2,7 +2,7 @@
 
 GASdotto 0.1
 Roberto -MadBob- Guido
-Gennaio 2009
+Marzo 2009
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -23,7 +23,7 @@ Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	versione 1.5.2 o s
 PHP			http://php.net/					versione 5.2.6 o superiore
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 Apache			http://apache.org/				testato su versione 2.2.11
-PostgreSQL		http://www.postgresql.org/			testato su versione 7.4.19
+PostgreSQL		http://www.postgresql.org/			testato su versione 8.1.11
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH
