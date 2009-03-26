@@ -86,9 +86,50 @@ public class Login extends Composite {
 		return container;
 	}
 
+	private void executeLogin () {
+		String user;
+		String pwd;
+		ServerRequest params;
+
+		user = username.getText ();
+		if ( user.equals ( "" ) ) {
+			Utils.showNotification ( "Non hai immesso alcun username" );
+			return;
+		}
+
+		pwd = password.getText ();
+
+		params = new ServerRequest ( "Login" );
+		params.add ( "username", user );
+		params.add ( "password", pwd );
+
+		Utils.getServer ().serverGet ( params, new ServerResponse () {
+			public void onComplete ( JSONValue response ) {
+				User utente;
+
+				utente = new User ();
+				utente.fromJSONObject ( response.isObject () );
+
+				if ( utente.isValid () )
+					Window.Location.reload ();
+
+				else {
+					Utils.showNotification ( "Autenticazione fallita. Riprova" );
+					username.setText ( "" );
+					password.setText ( "" );
+				}
+
+				utente = null;
+			}
+		} );
+
+		params = null;
+	}
+
 	private Widget doCredentials () {
 		FlexTable form;
 		Button button;
+		KeyboardListenerAdapter enter_key;
 
 		form = new FlexTable ();
 
@@ -105,43 +146,7 @@ public class Login extends Composite {
 
 		button = new Button ( "Login", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				String user;
-				String pwd;
-				ServerRequest params;
-
-				user = username.getText ();
-				if ( user.equals ( "" ) ) {
-					Utils.showNotification ( "Non hai immesso alcun username" );
-					return;
-				}
-
-				pwd = password.getText ();
-
-				params = new ServerRequest ( "Login" );
-				params.add ( "username", user );
-				params.add ( "password", pwd );
-
-				Utils.getServer ().serverGet ( params, new ServerResponse () {
-					public void onComplete ( JSONValue response ) {
-						User utente;
-
-						utente = new User ();
-						utente.fromJSONObject ( response.isObject () );
-
-						if ( utente.isValid () )
-							Window.Location.reload ();
-
-						else {
-							Utils.showNotification ( "Autenticazione fallita. Riprova" );
-							username.setText ( "" );
-							password.setText ( "" );
-						}
-
-						utente = null;
-					}
-				} );
-
-				params = null;
+				executeLogin ();
 			}
 		} );
 
@@ -149,6 +154,21 @@ public class Login extends Composite {
 		form.getCellFormatter ().setHorizontalAlignment ( 3, 1, HasHorizontalAlignment.ALIGN_RIGHT );
 
 		username.setFocus ( true );
+
+		/*
+			Per permettere l'autenticazione con la pressione del tasto Enter
+		*/
+
+		enter_key = new KeyboardListenerAdapter () {
+			public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
+				if ( keyCode == KeyboardListener.KEY_ENTER ) {
+					executeLogin ();
+				}
+			}
+		};
+
+		username.addKeyboardListener ( enter_key );
+		password.addKeyboardListener ( enter_key );
 
 		return form;
 	}
