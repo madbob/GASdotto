@@ -76,18 +76,6 @@ public class SystemPanel extends GenericPanel {
 				*/
 				Window.Location.reload ();
 			}
-
-			public void onReset ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onClose ( FromServerForm form ) {
-				/* dummy */
-			}
 		} );
 
 		fields = new FlexTable ();

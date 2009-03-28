@@ -25,24 +25,15 @@ public class DeliveryPanel extends GenericPanel {
 	public DeliveryPanel () {
 		super ();
 
-		add ( new Label ( "TODO" ) );
-		return;
-
-		/*
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
+				int index;
 				FromServerForm form;
-				Order order;
-				Order tmp_order;
 
-				order = ( Order ) object.getObject ( "baseorder" );
-
-				for ( int i = 1; i < getWidgetCount (); i++ ) {
-					form = ( FromServerForm ) getWidget ( i );
-					tmp_order = ( Order ) form.getObject ().getObject ( "baseorder" );
-
-					if ( order.getLocalID () == tmp_order.getLocalID () )
-						syncUserOrder ( form, ( OrderUser ) object, 0 );
+				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
+				if ( index != -1 ) {
+					form = ( FromServerForm ) getWidget ( index );
+					syncUserOrder ( form, ( OrderUser ) object, 0 );
 				}
 			}
 
@@ -74,20 +65,21 @@ public class DeliveryPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.OPENED )
+
+				/**
+					TODO	Ordinare per data chiusura dell'ordine
+				*/
+
+				if ( ord.getInt ( "status" ) == Order.CLOSED )
 					insert ( doOrderRow ( ord ), 1 );
 			}
 
 			public void onModify ( FromServer object ) {
-				int index;
+				Order ord;
 
-				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 ) {
-					if ( object.getInt ( "status" ) == Order.OPENED )
-						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
-					else
-						remove ( index );
-				}
+				ord = ( Order ) object;
+				if ( ord.getInt ( "status" ) == Order.CLOSED )
+					insert ( doOrderRow ( ord ), 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -98,79 +90,19 @@ public class DeliveryPanel extends GenericPanel {
 					remove ( index );
 			}
 		} );
-
-		*/
 	}
 
 	private Widget doOrderRow ( Order order ) {
 		final FromServerForm ver;
-		OrderUser uorder;
-		FromServerSelector users;
-		ProductsUserSelection products;
+		DeliverySummary summary;
 
-		uorder = new OrderUser ();
-		uorder.setObject ( "baseorder", order );
+		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 
-		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
+		ver.add ( Utils.getServer ().fileLink ( "Scarica file CSV", "", "order_csv.php?id=" + order.getLocalID () ) );
 
-		HorizontalPanel pan;
-
-		pan = new HorizontalPanel ();
-		pan.add ( new Label ( "Ordine eseguito a nome di " ) );
-
-		users = new FromServerSelector ( "User", true );
-		users.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				FromServerSelector selector;
-				selector = ( FromServerSelector ) sender;
-				retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
-			}
-		} );
-		pan.add ( ver.getPersonalizedWidget ( "baseuser", users ) );
-		ver.add ( pan );
-
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSave ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onReset ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onClose ( FromServerForm form ) {
-				FromServerSelector user;
-				ProductsUserSelection products;
-				OrderUser uorder;
-				OrderUser original_uorder;
-
-				/*
-					Una volta salvato il tutto, riazzero il form per
-					essere pronto ad un ordine a nome terzi
-				*/
-
-				/*
-				user = ( FromServerSelector ) form.retriveInternalWidget ( "baseuser" );
-				user.setValue ( null );
-
-				products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-				products.setElements ( null );
-				*/
-
-				uorder = new OrderUser ();
-				original_uorder = ( OrderUser ) form.getObject ();
-				uorder.setObject ( "baseorder", original_uorder.getObject ( "baseorder" ) );
-				form.setObject ( uorder );
-				form.refreshContents ( uorder );
-			}
-		} );
-
-		products = new ProductsUserSelection ( order.getArray ( "products" ) );
-		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
+		summary = new DeliverySummary ();
+		ver.setExtraWidget ( "list", summary );
+		ver.add ( summary );
 
 		return ver;
 	}
@@ -182,126 +114,38 @@ public class DeliveryPanel extends GenericPanel {
 			2 = ordine eliminato
 	*/
 	private void syncUserOrder ( FromServerForm ver, OrderUser uorder, int action ) {
-		int uorder_id;
-		float total;
-		ArrayList orders;
-		OrderUser iter;
-		ArrayList products;
-		ProductUser prod;
-		String total_text;
-		Label total_view;
+		DeliverySummary summary;
 
-		total = 0;
-		uorder_id = uorder.getLocalID ();
-		orders = ver.getAddictionalData ();
+		summary = ( DeliverySummary ) ver.retriveInternalWidget ( "list" );
 
-		for ( int i = 0; i < orders.size (); i++ ) {
-			iter = ( OrderUser ) orders.get ( i );
-
-			/*
-				Forse inefficiente, ma qui faccio insieme il controllo sull
-				esistenza dell'ordine utente e la somma dei prodotti. Se l'ordine
-				viene effettivamente trovato, tutto il resto del lavoro viene
-				perso
-			*/
-			if ( iter.getLocalID () == uorder_id ) {
-				if ( action == 0 )
-					return;
-				else if ( action == 1 ) {
-					orders.remove ( i );
-					iter = uorder;
-				}
-				else if ( action == 2 )
-					continue;
-			}
-
-			products = iter.getArray ( "products" );
-
-			for ( int a = 0; a < products.size (); a++ ) {
-				prod = ( ProductUser ) products.get ( a );
-				total += prod.getTotalPrice ();
-			}
-		}
-
-		if ( action == 0 || action == 1 )
-			orders.add ( uorder );
-
-		if ( total != 0 )
-			total_text = total + " €";
-		else
-			total_text = "";
-
-		total_view = ( Label ) ver.retriveInternalWidget ( "price_sum" );
-
-		if ( total_view == null ) {
-			IconsBar icons;
-
-			icons = ver.getIconsBar ();
-			total_view = icons.addText ( total_text );
-
-			/*
-				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale
-				label viene poi eventualmente aggiornata quando il sottopannello relativo
-				viene chiuso a seguito di qualche correzione
-			*/
-			ver.setExtraWidget ( "price_sum", total_view );
-		}
-		else
-			total_view.setText ( total_text );
-	}
-
-	private void retrieveCurrentOrderByUser ( FromServerForm form, User user ) {
-		int user_id;
-		ArrayList orders;
-		OrderUser iter;
-		User existing_user;
-
-		user_id = user.getLocalID ();
-		orders = form.getAddictionalData ();
-
-		Window.alert ( "selezionato utente " + user_id + ", lo cerco su " + orders.size () + " ordini" );
-
-		for ( int i = 0; i < orders.size (); i++ ) {
-			iter = ( OrderUser ) orders.get ( i );
-			existing_user = ( User ) iter.getObject ( "baseuser" );
-
-			if ( existing_user.getLocalID () == user_id ) {
-				alignOrderRow ( form, iter );
-				form.setObject ( iter );
+		switch ( action ) {
+			case 0:
+				summary.addOrder ( uorder );
 				break;
-			}
+			case 1:
+				summary.modOrder ( uorder );
+				break;
+			case 2:
+				summary.delOrder ( uorder );
+				break;
+			default:
+				break;
 		}
-	}
-
-	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
-		ArrayList products;
-		ProductsUserSelection table;
-
-		products = uorder.getArray ( "products" );
-		table = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
-		table.setElements ( products );
 	}
 
 	private int retrieveOrderForm ( Order parent ) {
 		FromServerForm form;
-		OrderUser tmp_order;
+		Order tmp_order;
 
 		for ( int i = 1; i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
-			tmp_order = ( OrderUser ) form.getObject ();
+			tmp_order = ( Order ) form.getObject ();
 
-			if ( parent.getLocalID () == tmp_order.getObject ( "baseorder" ).getLocalID () )
+			if ( parent.getLocalID () == tmp_order.getLocalID () )
 				return i;
 		}
 
 		return -1;
-	}
-
-	private void syncProductsInForm ( FromServerForm form, Order order ) {
-		ProductsUserSelection select;
-
-		select = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-		select.upgradeProductsList ( order.getArray ( "products" ) );
 	}
 
 	/****************************************************************** GenericPanel */
@@ -318,16 +162,9 @@ public class DeliveryPanel extends GenericPanel {
 		ServerRequest params;
 
 		params = new ServerRequest ( "Order" );
-		params.add ( "status", Order.OPENED );
+		params.add ( "status", Order.CLOSED );
 		Utils.getServer ().testObjectReceive ( params );
 
 		Utils.getServer ().testObjectReceive ( "OrderUser" );
-
-		/*
-			Questo e' per forzare la creazione della lista di utenti, necessaria
-			comunque se e solo se la devo creare (ovvero: se sono loggato come
-			responsabile o amministratore e posso fare ordini per conto terzi)
-		*/
-		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }

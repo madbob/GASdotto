@@ -124,36 +124,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		ver.add ( pan );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSave ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onReset ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
-			}
-
 			public void onClose ( FromServerForm form ) {
-				FromServerSelector user;
-				ProductsUserSelection products;
 				OrderUser uorder;
 				OrderUser original_uorder;
-
-				/*
-					Una volta salvato il tutto, riazzero il form per
-					essere pronto ad un ordine a nome terzi
-				*/
-
-				/*
-				user = ( FromServerSelector ) form.retriveInternalWidget ( "baseuser" );
-				user.setValue ( null );
-
-				products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-				products.setElements ( null );
-				*/
 
 				uorder = new OrderUser ();
 				original_uorder = ( OrderUser ) form.getObject ();

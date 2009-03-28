@@ -28,6 +28,11 @@ public class SuppliersEditPanel extends GenericPanel {
 		super ();
 
 		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
+			/**
+				TODO	Notificare nel summary se non sono stati caricati
+					prodotti per il fornitore
+			*/
+
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				FromServerForm ver;
 				VerticalPanel vertical;
@@ -127,6 +132,11 @@ public class SuppliersEditPanel extends GenericPanel {
 					found = true;
 					break;
 				}
+
+			/*
+				L'admin accede a tutti i fornitori, i referenti solo quelli cui
+				sono stati assegnati
+			*/
 
 			if ( found == false )
 				return null;

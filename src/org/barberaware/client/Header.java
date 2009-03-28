@@ -112,6 +112,10 @@ public class Header extends Composite {
 
 		doLogout ();
 
+		/**
+			TODO	Aggiungere indicazione su altri utenti connessi?
+		*/
+
 		item = doGreetings ();
 		main.add ( item );
 		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_LEFT );

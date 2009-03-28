@@ -122,18 +122,6 @@ public class OrdersPanel extends GenericPanel {
 			uorder.setObject ( "baseuser", current_user );
 
 			ver.setCallback ( new FromServerFormCallbacks () {
-				public void onSave ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onReset ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onDelete ( FromServerForm form ) {
-					/* dummy */
-				}
-
 				public void onClose ( FromServerForm form ) {
 					ProductsUserSelection products;
 					IconsBar icons;

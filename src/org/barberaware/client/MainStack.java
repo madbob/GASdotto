@@ -42,6 +42,10 @@ public class MainStack extends Composite {
 			main.add ( new OrdersPrivilegedPanel () );
 			main.add ( new DeliveryPanel () );
 			main.add ( new SystemPanel () );
+
+			/**
+				TODO	Aggiungere pannello per generazione notifiche
+			*/
 		}
 
 		else if ( privileges == User.USER_RESPONSABLE ) {

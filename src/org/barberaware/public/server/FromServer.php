@@ -352,7 +352,7 @@ abstract class FromServer {
 
 					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d",
 								$this->tablename, $name, $id );
-					$existing = query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+					$existing = query_and_check ( $query, "Impossibile recuperare lista per sincronizzare oggetto " . $this->classname );
 
 					while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
 						$found = false;
@@ -371,7 +371,7 @@ abstract class FromServer {
 						if ( $found == false ) {
 							$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d AND target = %d",
 										$this->tablename, $name, $id, $row [ 'target' ] );
-							query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+							query_and_check ( $query, "Impossibile eliminare oggetto per sincronizzare oggetto " . $this->classname );
 						}
 					}
 
@@ -381,7 +381,7 @@ abstract class FromServer {
 						if ( $single_data->id != -1 ) {
 							$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
 										$this->tablename, $name, $id, $single_data->id );
-							query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+							query_and_check ( $query, "Impossibile aggiungere elemento per sincronizzare oggetto " . $this->classname );
 						}
 					}
 				}

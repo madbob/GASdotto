@@ -17,9 +17,24 @@
 
 package org.barberaware.client;
 
-public interface FromServerFormCallbacks {
-	public void onSave ( FromServerForm form );
-	public void onReset ( FromServerForm form );
-	public void onDelete ( FromServerForm form );
-	public void onClose ( FromServerForm form );
+public abstract class FromServerFormCallbacks {
+	public String getName ( FromServerForm form ) {
+		return form.getObject ().getString ( "name" );
+	}
+
+	public void onSave ( FromServerForm form ) {
+		/* dummy */
+	}
+
+	public void onReset ( FromServerForm form ) {
+		/* dummy */
+	}
+
+	public void onDelete ( FromServerForm form ) {
+		/* dummy */
+	}
+
+	public void onClose ( FromServerForm form ) {
+		/* dummy */
+	}
 }

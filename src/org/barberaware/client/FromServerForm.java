@@ -56,6 +56,10 @@ public class FromServerForm extends Composite {
 		addictionalData = new ArrayList ();
 
 		callbacks = new FromServerFormCallbacks () {
+			public String getName ( FromServerForm form ) {
+				return form.getObject ().getString ( "name" );
+			}
+
 			public void onSave ( FromServerForm form ) {
 				/* dummy */
 			}
@@ -131,6 +135,7 @@ public class FromServerForm extends Composite {
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
 		callbacks = routine;
+		summary.setText ( callbacks.getName ( this ) );
 	}
 
 	public void addEventHandler ( DisclosureHandler handler ) {
@@ -168,7 +173,7 @@ public class FromServerForm extends Composite {
 		main.setCellWidth ( marker, "5%" );
 		main.setCellHorizontalAlignment ( marker, HasHorizontalAlignment.ALIGN_LEFT );
 
-		summary = new Label ( object.getString ( "name" ) );
+		summary = new Label ( callbacks.getName ( this ) );
 		main.add ( summary );
 		main.setCellHorizontalAlignment ( summary, HasHorizontalAlignment.ALIGN_LEFT );
 
@@ -369,7 +374,7 @@ public class FromServerForm extends Composite {
 
 		callbacks.onSave ( this );
 		object.save ( null );
-		summary.setText ( object.getString ( "name" ) );
+		summary.setText ( callbacks.getName ( this ) );
 		return true;
 	}
 

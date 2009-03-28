@@ -89,6 +89,10 @@ public class ServerHook {
 		}
 	}
 
+	public Widget fileLink ( String name, String group, String file ) {
+		return new HTML ( "<a href=\"" + getURL () + "/" + group + "/" + file + "\" class=\"file-link\">" + name + "</a>" );
+	}
+
 	/****************************************************************** monitors */
 
 	private void addObjectIntoMonitorCache ( ServerMonitor monitor, FromServer obj ) {

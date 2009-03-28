@@ -78,9 +78,9 @@ class Order extends FromServer {
 							$prod->tablename, $obj->supplier->id );
 		else
 			$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY id",
-						$this->tablename, $prod->tablename, $obj->id );
+						$this->tablename, "products", $obj->id );
 
-		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $prod->tablename );
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $prod->classname );
 
 		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
 			$product = new $prod->classname;
