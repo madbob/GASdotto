@@ -39,12 +39,6 @@ public class Header extends Composite {
 			public void onClick ( Widget sender ) {
 				ServerRequest params;
 
-				/**
-					TODO	Qui probabilmente si puo' direttamente
-						cancellare il cookie locale usando la
-						classe Cookie, senza interpellare il
-						server
-				*/
 				params = new ServerRequest ( "Logout" );
 
 				Utils.getServer ().serverGet ( params, new ServerResponse () {
@@ -111,10 +105,6 @@ public class Header extends Composite {
 		initWidget ( main );
 
 		doLogout ();
-
-		/**
-			TODO	Aggiungere indicazione su altri utenti connessi?
-		*/
 
 		item = doGreetings ();
 		main.add ( item );

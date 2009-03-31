@@ -71,5 +71,7 @@ public class Order extends FromServer {
 
 		setDate ( "startdate", new Date ( System.currentTimeMillis () ) );
 		setInt ( "status", OPENED );
+
+		alwaysReload ( true );
 	}
 }

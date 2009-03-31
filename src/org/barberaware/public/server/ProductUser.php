@@ -25,6 +25,7 @@ class ProductUser extends FromServer {
 
 		$this->addAttribute ( "product", "OBJECT::Product" );
 		$this->addAttribute ( "quantity", "FLOAT" );
+		$this->addAttribute ( "delivered", "FLOAT" );
 	}
 }
 

@@ -278,6 +278,7 @@ function install_main_db () {
 					id serial,
 					product int references product ( id ) on delete cascade,
 					quantity float,
+					delivered float,
 					primary key ( id )
 				)"
 	);

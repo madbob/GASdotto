@@ -60,6 +60,20 @@ public class Utils {
 		return name.substring ( name.lastIndexOf ( "." ) + 1 );
 	}
 
+	public static ArrayList dupliacateFromServerArray ( ArrayList array ) {
+		FromServer iter;
+		ArrayList ret;
+
+		ret = new ArrayList ();
+
+		for ( int i = 0; i < array.size (); i++ ) {
+			iter = ( FromServer ) array.get ( i );
+			ret.add ( iter.duplicate () );
+		}
+
+		return ret;
+	}
+
 	/****************************************************** date */
 
 	public static String[] months = new String[] {

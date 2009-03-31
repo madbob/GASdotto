@@ -37,6 +37,17 @@ public class ServerHook {
 			objects = new ArrayList ();
 			comparingObjects = new JSONArray ();
 		}
+
+		public void rebuildComparisons () {
+			FromServer obj;
+
+			comparingObjects = new JSONArray ();
+
+			for ( int i = 0; i < objects.size (); i++ ) {
+				obj = ( FromServer ) objects.get ( i );
+				comparingObjects.set ( i, new JSONNumber ( obj.getLocalID () ) );
+			}
+		}
 	}
 
 	private int		CurrentRequests		= 0;
@@ -112,7 +123,7 @@ public class ServerHook {
 			}
 		}
 
-		monitor.comparingObjects = Utils.JSONArrayRemove ( monitor.comparingObjects, i );
+		monitor.rebuildComparisons ();
 	}
 
 	private void executeMonitor ( final ServerMonitor monitor, ServerRequest params ) {

@@ -48,6 +48,10 @@ public class SuppliersEditPanel extends GenericPanel {
 				ver.setExtraWidget ( "products", products );
 				vertical.add ( products );
 
+				/**
+					TODO	Gestire files esterni da assegnare al fornitore
+				*/
+
 				return ver;
 			}
 

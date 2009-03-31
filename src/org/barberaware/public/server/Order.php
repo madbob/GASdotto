@@ -82,9 +82,9 @@ class Order extends FromServer {
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $prod->classname );
 
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+		while ( $row = $returned->fetch ( PDO::FETCH_NUM ) ) {
 			$product = new $prod->classname;
-			$product->readFromDB ( $row [ 'id' ] );
+			$product->readFromDB ( $row [ 0 ] );
 			array_push ( $obj->products, $product->exportable () );
 		}
 

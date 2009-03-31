@@ -28,7 +28,6 @@ public class Login extends Composite {
 
 	public Login () {
 		VerticalPanel main;
-		HTML text;
 		VerticalPanel container;
 		Widget login;
 		GAS gas;
@@ -42,9 +41,7 @@ public class Login extends Composite {
 		gas = Session.getGAS ();
 
 		if ( gas == null ) {
-			text = new HTML ( "<p>Non è stato selezionato alcun Gruppo di Acquisto Solidale.</p>" );
-			main.add ( text );
-
+			main.add ( new HTML ( "<p>Non è stato selezionato alcun Gruppo di Acquisto Solidale.</p>" ) );
 			main.add ( new HTML ( "<p><a href=\"http://gasdotto.barberaware.org\">Torna alla pagina principale</a></p>" ) );
 		}
 
@@ -52,6 +49,10 @@ public class Login extends Composite {
 			main.add ( Utils.getNotificationsArea () );
 
 			container = new VerticalPanel ();
+
+			/**
+				TODO	Aggiungere indicazione su altri utenti connessi?
+			*/
 
 			container.add ( doPresentationHeader ( gas ) );
 

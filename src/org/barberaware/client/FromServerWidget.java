@@ -245,6 +245,9 @@ public class FromServerWidget extends Composite {
 			FromServer stmp;
 
 			first = object.getArray ( name );
+			if ( first != null )
+				first = Utils.dupliacateFromServerArray ( object.getArray ( name ) );
+
 			second = ( ( FromServerArray ) wid ).getElements ();
 
 			if ( first == null && second == null )
@@ -265,7 +268,7 @@ public class FromServerWidget extends Composite {
 					ftmp = ( FromServer ) first.get ( i );
 					stmp = ( FromServer ) second.get ( i );
 
-					if ( ftmp.getLocalID () != stmp.getLocalID () ) {
+					if ( ftmp.compare ( ftmp, stmp ) != 0 ) {
 						ret = false;
 						break;
 					}

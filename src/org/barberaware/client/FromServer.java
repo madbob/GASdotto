@@ -103,6 +103,32 @@ public abstract class FromServer implements Comparator {
 			addr = value;
 		}
 
+		public void setValue ( FromServerAttribute cpy ) {
+			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE )
+				string = cpy.string;
+
+			else if ( type == FromServer.INTEGER )
+				integer = cpy.integer;
+
+			else if ( type == FromServer.FLOAT )
+				floating = cpy.floating;
+
+			else if ( type == FromServer.ARRAY )
+				array = Utils.dupliacateFromServerArray ( cpy.array );
+
+			else if ( type == FromServer.OBJECT )
+				object = cpy.object.duplicate ();
+
+			else if ( type == FromServer.DATE )
+				date = cpy.date;
+
+			else if ( type == FromServer.BOOLEAN )
+				bool = cpy.bool;
+
+			else if ( type == FromServer.ADDRESS )
+				addr = ( Address ) cpy.addr.clone ();
+		}
+
 		public String getString ( FromServer obj ) {
 			if ( fakeString != null )
 				return fakeString.retrive ( obj );
@@ -178,6 +204,16 @@ public abstract class FromServer implements Comparator {
 				if ( object == null )
 					object = FromServerFactory.create ( object_type.getName () );
 
+				/**
+					TODO	Ottimizzazione: qui si potrebbe usare solo l'ID
+						dell'oggetto anziche' il blocco completo, per
+						risparmiare sia il tempo di conversione in JSON
+						che di trasmissione del dato. Devo pero' essere
+						sicuro che l'oggetto stesso non sia variato nel
+						tempo: eventualmente si puo' agganciare un
+						qualche flag nelle funzioni setNNN()
+				*/
+
 				ret = object.toJSONObject ();
 				return ret;
 			}
@@ -210,8 +246,9 @@ public abstract class FromServer implements Comparator {
 	/**
 		TODO	Sostituire l'ArrayList con una HashMap
 	*/
-
 	private ArrayList	attributes;
+
+	private boolean		forceReloadFromServer;
 
 	/****************************************************************** init */
 
@@ -219,6 +256,7 @@ public abstract class FromServer implements Comparator {
 		localID = -1;
 		attributes = new ArrayList ();
 		type = Utils.classFinalName ( this.getClass ().getName () );
+		forceReloadFromServer = false;
 	}
 
 	public int getLocalID () {
@@ -235,6 +273,14 @@ public abstract class FromServer implements Comparator {
 
 	public String getType () {
 		return type;
+	}
+
+	public boolean alwaysReload () {
+		return forceReloadFromServer;
+	}
+
+	protected void alwaysReload ( boolean reload ) {
+		forceReloadFromServer = reload;
 	}
 
 	protected void addAttribute ( String name, int type ) {
@@ -264,6 +310,28 @@ public abstract class FromServer implements Comparator {
 
 		Window.alert ( "Cercato attributo " + name + " in oggetto tipo " + type );
 		return null;
+	}
+
+	/*
+		Questo crea una esatta copia dell'oggetto. Da usare con estrema cautela, in
+		quanto se i valori di una copia vengono modificati e l'oggetto viene spedito al
+		server quelli vengono prese per le informazioni buone e la cache e' invalida
+	*/
+	public FromServer duplicate () {
+		FromServer obj;
+		FromServerAttribute my_attr;
+		FromServerAttribute cpy_attr;
+
+		obj = FromServerFactory.create ( type );
+		obj.localID = localID;
+
+		for ( int i = 0; i < attributes.size (); i++ ) {
+			my_attr = ( FromServerAttribute ) attributes.get ( i );
+			cpy_attr = ( FromServerAttribute ) obj.attributes.get ( i );
+			cpy_attr.setValue ( my_attr );
+		}
+
+		return obj;
 	}
 
 	/*

@@ -117,13 +117,13 @@ public class ProductsEditPanel extends Composite {
 					fields = new FlexTable ();
 					hor.add ( fields );
 
-					fields.setWidget ( 0, 0, new Label ( "Prezzo unitario" ) );
+					fields.setWidget ( 0, 0, new Label ( "Prezzo unitario (€)" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "unit_price" ) );
 
-					fields.setWidget ( 1, 0, new Label ( "Prezzo trasporto" ) );
+					fields.setWidget ( 1, 0, new Label ( "Prezzo trasporto (€)" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "shipping_price" ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile" ) );
+					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile (€)" ) );
 					fields.setWidget ( 2, 1, ver.getWidget ( "mutable_price" ) );
 
 					/**
@@ -131,7 +131,7 @@ public class ProductsEditPanel extends Composite {
 							motivazioni per i sovrapprezzi
 					*/
 
-					fields.setWidget ( 3, 0, new Label ( "Sovrapprezzo" ) );
+					fields.setWidget ( 3, 0, new Label ( "Sovrapprezzo (€)" ) );
 					fields.setWidget ( 3, 1, ver.getWidget ( "surplus" ) );
 
 					fields.setWidget ( 4, 0, new Label ( "Dimensione stock" ) );

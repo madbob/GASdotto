@@ -47,14 +47,34 @@ public class FromServerResponse extends ServerResponse {
 			Utils.showNotification ( "Errore nel salvataggio sul database" );
 
 		else {
-			reference.setLocalID ( localID );
+			ServerHook server;
 
-			if ( type == ACTION_CREATE )
-				Utils.getServer ().triggerObjectCreation ( reference );
+			reference.setLocalID ( localID );
+			server = Utils.getServer ();
+
+			if ( type == ACTION_CREATE ) {
+				/*
+					Se l'oggetto ha la proprieta' "alwaysReload" si provvede
+					a forzare il ricaricamento dello stesso dal server
+					(chiedendo il reperimento di tutti gli oggetti dello
+					stesso tipo che gia' non stanno in cache, dunque anche
+					questo). Altrimenti si provvede localmente a metterlo in
+					cache e a triggerare le callbacks.
+					Questo per gestire correttamente quegli oggetti che in
+					fase di salvataggio vengono rimaneggiati pesantemente dal
+					server (ad esempio: gli Ordini, i cui prodotti sono
+					assegnati in funzione dei prodotti correntemente
+					ordinabili), e per caricarne una versione aggiornata
+				*/
+				if ( reference.alwaysReload () == true )
+					server.testObjectReceive ( reference.getType () );
+				else
+					server.triggerObjectCreation ( reference );
+			}
 			else if ( type == ACTION_MODIFY )
-				Utils.getServer ().triggerObjectModification ( reference );
+				server.triggerObjectModification ( reference );
 			else if ( type == ACTION_DELETE )
-				Utils.getServer ().triggerObjectDeletion ( reference );
+				server.triggerObjectDeletion ( reference );
 
 			if ( callback != null )
 				callback.onComplete ( response );

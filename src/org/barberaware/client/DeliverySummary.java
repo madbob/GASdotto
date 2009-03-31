@@ -28,6 +28,7 @@ class DeliverySummary extends Composite {
 	public DeliverySummary () {
 		main = new VerticalPanel ();
 		initWidget ( main );
+		main.setWidth ( "100%" );
 
 		numOrders = 0;
 		cleanUp ();
@@ -69,9 +70,9 @@ class DeliverySummary extends Composite {
 
 		index = retrieveOrder ( uorder );
 		if ( index != -1 ) {
-			main.remove ( index );
-			numOrders -= 1;
-			cleanUp ();
+			/**
+				TODO
+			*/
 		}
 	}
 

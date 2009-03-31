@@ -75,11 +75,32 @@ public class DeliveryPanel extends GenericPanel {
 			}
 
 			public void onModify ( FromServer object ) {
+				int status;
 				Order ord;
+				int index;
 
 				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.CLOSED )
-					insert ( doOrderRow ( ord ), 1 );
+				status = ord.getInt ( "status" );
+				index = retrieveOrderForm ( ord );
+
+				if ( index != -1 && status == Order.OPENED )
+					remove ( index );
+
+				else if ( index == -1 && status == Order.CLOSED ) {
+					FromServerForm form;
+					ArrayList uorders;
+					OrderUser uord;
+
+					form = ( FromServerForm ) doOrderRow ( ord );
+					insert ( form, 1 );
+					uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+
+					for ( int i = 0; i < uorders.size (); i++ ) {
+						uord = ( OrderUser ) uorders.get ( i );
+						if ( uord.getObject ( "baseorder" ).equals ( object ) )
+							syncUserOrder ( form, uord, 0 );
+					}
+				}
 			}
 
 			public void onDestroy ( FromServer object ) {
