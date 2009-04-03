@@ -19,11 +19,11 @@ GASdotto e' strutturato come programma client/server: il client e' implementato 
 destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
 
 Per compilare, installare ed usare il tutto sono necessari:
-Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	versione 1.5.2 o superiore
+Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	versione 1.5.3
 PHP			http://php.net/					versione 5.2.6 o superiore
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 Apache			http://apache.org/				testato su versione 2.2.11
-PostgreSQL		http://www.postgresql.org/			testato su versione 8.1.11
+PostgreSQL		http://www.postgresql.org/			testato su versione 8.3.7
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH

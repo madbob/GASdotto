@@ -298,7 +298,10 @@ abstract class FromServer {
 				break;
 
 			case "DATE":
-				$ret = "DATE('" . $attr->value . "')";
+				if ( $attr->value == "" )
+					$ret = null;
+				else
+					$ret = "DATE('" . $attr->value . "')";
 				break;
 
 			case "ARRAY":

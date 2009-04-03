@@ -25,6 +25,7 @@ public class MainStack extends Composite {
 
 	public MainStack () {
 		int privileges;
+		GenericPanel iter;
 
 		main = new DeckPanel ();
 		main.setStyleName ( "main-stack" );
@@ -32,16 +33,16 @@ public class MainStack extends Composite {
 
 		privileges = Session.getPrivileges ();
 
-		main.add ( new HomePanel () );
-		main.add ( new ProfilePanel () );
+		add ( new HomePanel () );
+		add ( new ProfilePanel () );
 
 		if ( privileges == User.USER_ADMIN ) {
-			main.add ( new UsersPanel () );
-			main.add ( new SuppliersEditPanel () );
-			main.add ( new OrdersEditPanel () );
-			main.add ( new OrdersPrivilegedPanel () );
-			main.add ( new DeliveryPanel () );
-			main.add ( new SystemPanel () );
+			add ( new UsersPanel () );
+			add ( new SuppliersEditPanel () );
+			add ( new OrdersEditPanel () );
+			add ( new OrdersPrivilegedPanel () );
+			add ( new DeliveryPanel () );
+			add ( new SystemPanel () );
 
 			/**
 				TODO	Aggiungere pannello per generazione notifiche
@@ -49,17 +50,22 @@ public class MainStack extends Composite {
 		}
 
 		else if ( privileges == User.USER_RESPONSABLE ) {
-			main.add ( new SuppliersEditPanel () );
-			main.add ( new OrdersEditPanel () );
-			main.add ( new OrdersPrivilegedPanel () );
-			main.add ( new DeliveryPanel () );
-			main.add ( new SystemPanel () );
+			add ( new SuppliersEditPanel () );
+			add ( new OrdersEditPanel () );
+			add ( new OrdersPrivilegedPanel () );
+			add ( new DeliveryPanel () );
+			add ( new SystemPanel () );
 		}
 
 		else {
-			main.add ( new SuppliersPanel () );
-			main.add ( new OrdersPanel () );
+			add ( new SuppliersPanel () );
+			add ( new OrdersPanel () );
 		}
+	}
+
+	private void add ( GenericPanel iter ) {
+		iter.setParent ( this );
+		main.add ( iter );
 	}
 
 	public ArrayList getPanels () {
@@ -81,5 +87,19 @@ public class MainStack extends Composite {
 		to_show = ( GenericPanel ) main.getWidget ( pos );
 		to_show.initView ();
 		main.showWidget ( pos );
+	}
+
+	public void goTo ( String address ) {
+		GenericPanel iter;
+
+		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
+			iter = ( GenericPanel ) main.getWidget ( i );
+
+			if ( iter.getSystemID () == address ) {
+				showPanelAtPos ( i );
+				iter.openBookmark ( address );
+				break;
+			}
+		}
 	}
 }

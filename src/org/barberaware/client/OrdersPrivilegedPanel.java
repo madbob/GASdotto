@@ -112,7 +112,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		pan = new HorizontalPanel ();
 		pan.add ( new Label ( "Ordine eseguito a nome di " ) );
 
-		users = new FromServerSelector ( "User", false );
+		users = new FromServerSelector ( "User", false, true );
 		users.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				FromServerSelector selector;
@@ -273,6 +273,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	public String getName () {
 		return "Ordini";
+	}
+
+	public String getSystemID () {
+		return "edit_orders";
 	}
 
 	public Image getIcon () {

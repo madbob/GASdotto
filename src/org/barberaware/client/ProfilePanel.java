@@ -85,6 +85,10 @@ public class ProfilePanel extends GenericPanel {
 		return "Profilo Utente";
 	}
 
+	public String getSystemID () {
+		return "profile";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_profile.png" );
 	}

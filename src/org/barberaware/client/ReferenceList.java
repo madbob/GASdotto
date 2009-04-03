@@ -39,6 +39,7 @@ public class ReferenceList extends FromServerArray {
 		dialog.setWidget ( doDialog () );
 
 		main = new TextBox ();
+		main.setStyleName ( "reference-selector" );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
 				if ( opened == false ) {

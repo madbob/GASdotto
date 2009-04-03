@@ -43,8 +43,18 @@ public class FromServerResponse extends ServerResponse {
 
 		localID = Integer.parseInt ( response.isString ().stringValue () );
 
-		if ( localID < 0 )
+		if ( localID < 0 ) {
+			/*
+				Apparentemente inutile risettare il localid se il salvataggio e'
+				fallito, ma questo permette quantomeno di attivare qualche
+				eventuale trigger che ci si aspetta sia eseguito alla ricezione
+				di una risposta.
+				Cfr. FromServer::savingOperation
+			*/
+			reference.setLocalID ( reference.getLocalID () );
+
 			Utils.showNotification ( "Errore nel salvataggio sul database" );
+		}
 
 		else {
 			ServerHook server;

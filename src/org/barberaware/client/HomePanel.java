@@ -132,6 +132,10 @@ public class HomePanel extends GenericPanel {
 		return "Home";
 	}
 
+	public String getSystemID () {
+		return "home";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_home.png" );
 	}

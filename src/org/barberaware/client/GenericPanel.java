@@ -20,6 +20,8 @@ package org.barberaware.client;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class GenericPanel extends VerticalPanel {
+	private MainStack		mainParent;
+
 	protected class GenericPanelHead extends Composite {
 		public GenericPanelHead ( GenericPanel panel ) {
 			HorizontalPanel head;
@@ -59,7 +61,24 @@ public abstract class GenericPanel extends VerticalPanel {
 		insert ( to_add, getWidgetCount () - 1 );
 	}
 
+	protected void goTo ( String address ) {
+		mainParent.goTo ( address );
+	}
+
+	public void setParent ( MainStack p ) {
+		mainParent = p;
+	}
+
+	public void openBookmark ( String address ) {
+		/*
+			By default questa funzione non viene usata, reimplementarla in caso di
+			bisogno. Attenzione che "address" contempla il path completo, ivi
+			compreso l'identificativo in getSystemID()
+		*/
+	}
+
 	public abstract String getName ();
+	public abstract String getSystemID ();
 	public abstract Image getIcon ();
 	public abstract void initView ();
 }

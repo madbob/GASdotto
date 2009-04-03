@@ -248,7 +248,23 @@ public abstract class FromServer implements Comparator {
 	*/
 	private ArrayList	attributes;
 
+	/*
+		Internamente questo attributo, settato in fase di costruzione di una delle classi
+		che implementano questa, serve a poco, ma permette di forzare il ricaricamento
+		dei dati dal server e di non fidarsi della cache. Cio' vale per i casi in cui il
+		server apporta delle trasformazioni sui dati salvati, e dunque l'oggetto che si
+		ha gia' in locale potrebbe non avere valori completamente validi
+	*/
 	private boolean		forceReloadFromServer;
+
+	/*
+		Flag speciale, settato a true quando si esegue il salvataggio e a false quando
+		viene settato l'ID dell'oggetto. Viene valutato per sapere se l'oggetto e' valido
+		(isValid()): se savingOperation == true viene dato per buono anche se con
+		ID == -1, in quanto e' in fase di trasferimento sul server e si assume dunque che
+		un ID gli venga assegnato nel giro di poco
+	*/
+	private boolean		savingOperation;
 
 	/****************************************************************** init */
 
@@ -257,6 +273,7 @@ public abstract class FromServer implements Comparator {
 		attributes = new ArrayList ();
 		type = Utils.classFinalName ( this.getClass ().getName () );
 		forceReloadFromServer = false;
+		savingOperation = false;
 	}
 
 	public int getLocalID () {
@@ -269,6 +286,7 @@ public abstract class FromServer implements Comparator {
 	*/
 	public void setLocalID ( int lid ) {
 		localID = lid;
+		savingOperation = false;
 	}
 
 	public String getType () {
@@ -424,7 +442,7 @@ public abstract class FromServer implements Comparator {
 	/****************************************************************** server interface */
 
 	public boolean isValid () {
-		return ( localID != -1 );
+		return ( localID != -1 || savingOperation == true );
 	}
 
 	public static FromServer instance ( JSONObject obj ) {
@@ -441,6 +459,7 @@ public abstract class FromServer implements Comparator {
 		FromServerResponse true_callback;
 
 		obj = this.toJSONObject ();
+		savingOperation = true;
 
 		type = ( ( localID == -1 ) ? FromServerResponse.ACTION_CREATE : FromServerResponse.ACTION_MODIFY );
 		true_callback = new FromServerResponse ( type, this, callback );

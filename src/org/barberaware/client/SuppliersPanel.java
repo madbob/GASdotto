@@ -226,6 +226,10 @@ public class SuppliersPanel extends GenericPanel {
 		return "Fornitori";
 	}
 
+	public String getSystemID () {
+		return "suppliers";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_suppliers.png" );
 	}

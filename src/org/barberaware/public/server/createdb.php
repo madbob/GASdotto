@@ -63,7 +63,7 @@ function install_main_db () {
 					mail varchar ( 100 ) default '',
 					mail2 varchar ( 100 ) default '',
 					address varchar ( 100 ) default '',
-					paying boolean default false,
+					paying date,
 					privileges int default 1,
 					primary key ( id )
 				)"

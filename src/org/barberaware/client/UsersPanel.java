@@ -40,12 +40,6 @@ public class UsersPanel extends GenericPanel {
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
 
-					if ( handle_payments && u.getBool ( "paying" ) == false ) {
-						IconsBar icons;
-						icons = ver.getIconsBar ();
-						icons.addImage ( "images/notifications/user_not_paying.png" );
-					}
-
 					hor = new HorizontalPanel ();
 					ver.add ( hor );
 
@@ -96,17 +90,11 @@ public class UsersPanel extends GenericPanel {
 						ricaricato
 					*/
 					if ( handle_payments == true ) {
-						/**
-							TODO	Gestire la segnalazione del pagamento della quota in modo
-								diverso. Pier suggeriva di marcare l'anno in cui e' stata pagata
-								l'ultima volta, ma mi sembra poco efficiente, bisognerebbe
-								trovare un compromesso
-						*/
 						fields.setWidget ( 2, 0, new Label ( "Quota pagata" ) );
 						fields.setWidget ( 2, 1, ver.getWidget ( "paying" ) );
 					}
 					else
-						user.setBool ( "paying", true );
+						user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
 
 					fields.setWidget ( 3, 0, new Label ( "Ruolo" ) );
 					privileges = new CyclicToggle ();
@@ -133,6 +121,10 @@ public class UsersPanel extends GenericPanel {
 
 	public String getName () {
 		return "Gestione Utenti";
+	}
+
+	public String getSystemID () {
+		return "users";
 	}
 
 	public Image getIcon () {

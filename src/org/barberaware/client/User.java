@@ -55,7 +55,7 @@ public class User extends FromServer {
 		addAttribute ( "mail", FromServer.STRING );
 		addAttribute ( "mail2", FromServer.STRING );
 		addAttribute ( "address", FromServer.ADDRESS );
-		addAttribute ( "paying", FromServer.BOOLEAN );
+		addAttribute ( "paying", FromServer.DATE );
 		addAttribute ( "privileges", FromServer.INTEGER );
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );

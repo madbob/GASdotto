@@ -65,11 +65,6 @@ public class DeliveryPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-
-				/**
-					TODO	Ordinare per data chiusura dell'ordine
-				*/
-
 				if ( ord.getInt ( "status" ) == Order.CLOSED )
 					insert ( doOrderRow ( ord ), 1 );
 			}
@@ -173,6 +168,10 @@ public class DeliveryPanel extends GenericPanel {
 
 	public String getName () {
 		return "Consegne";
+	}
+
+	public String getSystemID () {
+		return "delivery";
 	}
 
 	public Image getIcon () {

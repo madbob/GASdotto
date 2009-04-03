@@ -30,11 +30,12 @@ public class FromServerSelector extends ObjectWidget {
 	private ListBox					main;
 	private String					type;
 	private boolean					noVoidArticat;
+	private boolean					sortItems;
 	private int					scheduledSelectionID;
 	private FromServerValidateCallback		filterCallback;
 	private DelegatingChangeListenerCollection	changeListeners;
 
-	public FromServerSelector ( String t, boolean hide_void ) {
+	public FromServerSelector ( String t, boolean hide_void, boolean sort ) {
 		main = new ListBox ();
 		initWidget ( main );
 
@@ -42,14 +43,15 @@ public class FromServerSelector extends ObjectWidget {
 		filterCallback = null;
 		noVoidArticat = hide_void;
 		scheduledSelectionID = -1;
+		sortItems = sort;
 
 		if ( hide_void == false )
 			main.addItem ( "Nessuno", "0" );
 
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				int index;
 				int id;
+				String name;
 
 				if ( filterCallback != null ) {
 					if ( filterCallback.checkObject ( object ) == false )
@@ -66,7 +68,17 @@ public class FromServerSelector extends ObjectWidget {
 					ciclando e ri-ciclando su moli di elementi costantemente
 					crescenti ad ogni iterazione
 				*/
-				main.addItem ( object.getString ( "name" ), Integer.toString ( id ) );
+
+				name = object.getString ( "name" );
+
+				if ( sortItems == true ) {
+					int index;
+
+					index = findPositionForName ( name );
+					main.insertItem ( name, Integer.toString ( id ), index );
+				}
+				else
+					main.addItem ( name, Integer.toString ( id ) );
 
 				if ( scheduledSelectionID == id )
 					setValue ( object );
@@ -107,9 +119,45 @@ public class FromServerSelector extends ObjectWidget {
 		}
 	}
 
+	private int findPositionForName ( String search ) {
+		int low;
+		int high;
+		int mid;
+		int comp;
+		String name;
+
+		/*
+			Comune implementazione di BinarySearch
+		*/
+
+		low = 0;
+		high = main.getItemCount () - 1;
+
+		while ( low <= high ) {
+			mid = ( low + high ) / 2;
+			name = main.getItemText ( mid );
+			comp = name.compareTo ( search );
+
+			if ( comp < 0 )
+				low = mid + 1;
+			else if ( comp > 0 )
+				high = mid - 1;
+			else
+				return mid;
+		}
+
+		return low;
+	}
+
 	private int retrieveObjectIndex ( FromServer object ) {
 		int search_id;
 		int id;
+
+		/**
+			TODO	Qui si potrebbe sfruttare il parametro sortItems per procedere
+				con una ricerca ponderata dell'elemento nella lista, che sarebbe
+				ordinata per nome e dunque piu' rapidamente controllabile
+		*/
 
 		search_id = object.getLocalID ();
 

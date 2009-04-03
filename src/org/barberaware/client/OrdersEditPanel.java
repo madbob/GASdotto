@@ -193,6 +193,10 @@ public class OrdersEditPanel extends GenericPanel {
 		return "Gestione Ordini";
 	}
 
+	public String getSystemID () {
+		return "edit_orders";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_orders_edit.png" );
 	}

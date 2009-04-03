@@ -103,11 +103,11 @@ public class ProductsEditPanel extends Composite {
 					fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
 
-					select = new FromServerSelector ( "Category", true );
+					select = new FromServerSelector ( "Category", true, true );
 					fields.setWidget ( 1, 0, new Label ( "Categoria" ) );
 					fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "category", select ) );
 
-					select = new FromServerSelector ( "Measure", true );
+					select = new FromServerSelector ( "Measure", true, true );
 					fields.setWidget ( 2, 0, new Label ( "Unità di misura" ) );
 					fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "measure", select ) );
 
@@ -123,7 +123,7 @@ public class ProductsEditPanel extends Composite {
 					fields.setWidget ( 1, 0, new Label ( "Prezzo trasporto (€)" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "shipping_price" ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile (€)" ) );
+					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile" ) );
 					fields.setWidget ( 2, 1, ver.getWidget ( "mutable_price" ) );
 
 					/**
@@ -188,17 +188,7 @@ public class ProductsEditPanel extends Composite {
 
 		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
-				int size;
-				ArrayList products;
-				Product prod;
-
-				products = table.getElements ();
-				size = products.size ();
-
-				for ( int i = 0; i < size; i++ ) {
-					prod = ( Product ) products.get ( i );
-					prod.save ( null );
-				}
+				table.saveChanges ();
 			}
 		} );
 		buttons.add ( button, "Salva" );

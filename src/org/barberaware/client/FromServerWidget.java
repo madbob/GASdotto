@@ -93,8 +93,15 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.ADDRESS )
 			wid = new AddressSelector ();
 
-		else if ( type == FromServer.OBJECT )
-			wid = new FromServerSelector ( object.getClassName ( attribute ), false );
+		else if ( type == FromServer.OBJECT ) {
+			/*
+				Di default per la selezione di un oggetto si crea un
+				FromServerSelector ordinato per nome e che non permette selezione
+				vuota: per personalizzare i propri parametri occorre crearsi per
+				conto proprio il FromServerSelector ed aggiungerlo nel form a mano
+			*/
+			wid = new FromServerSelector ( object.getClassName ( attribute ), false, true );
+		}
 
 		/*
 			Il tipo FromServer.ARRAY non viene gestito direttamente, occorre

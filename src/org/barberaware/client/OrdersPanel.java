@@ -31,6 +31,9 @@ public class OrdersPanel extends GenericPanel {
 				Order order;
 				Order tmp_order;
 
+				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+					return;
+
 				order = ( Order ) object.getObject ( "baseorder" );
 
 				for ( int i = 1; i < getWidgetCount (); i++ ) {
@@ -58,6 +61,9 @@ public class OrdersPanel extends GenericPanel {
 				int index;
 				FromServerForm form;
 
+				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+					return;
+
 				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
 				if ( index != -1 ) {
 					form = ( FromServerForm ) getWidget ( index );
@@ -67,6 +73,9 @@ public class OrdersPanel extends GenericPanel {
 
 			public void onDestroy ( FromServer object ) {
 				int index;
+
+				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+					return;
 
 				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
 				if ( index != -1 )
@@ -108,83 +117,33 @@ public class OrdersPanel extends GenericPanel {
 	private Widget doOrderRow ( Order order ) {
 		final FromServerForm ver;
 		OrderUser uorder;
-		User current_user;
 		ProductsUserSelection products;
 
 		uorder = new OrderUser ();
 		uorder.setObject ( "baseorder", order );
-
-		current_user = Session.getUser ();
+		uorder.setObject ( "baseuser", Session.getUser () );
 
 		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
 
-		if ( current_user.getInt ( "privileges" ) == User.USER_COMMON ) {
-			uorder.setObject ( "baseuser", current_user );
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onClose ( FromServerForm form ) {
+				ProductsUserSelection products;
+				IconsBar icons;
+				Label label;
+				float total;
 
-			ver.setCallback ( new FromServerFormCallbacks () {
-				public void onClose ( FromServerForm form ) {
-					ProductsUserSelection products;
-					IconsBar icons;
-					Label label;
-					float total;
+				label = ( Label ) form.retriveInternalWidget ( "price_sum" );
 
-					label = ( Label ) form.retriveInternalWidget ( "price_sum" );
-
-					if ( label != null ) {
-						products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-						total = products.getTotalPrice ();
-						if ( total != 0 )
-							label.setText ( total + " €" );
-						else
-							label.setText ( "" );
-					}
-				}
-			} );
-		}
-		else {
-			HorizontalPanel pan;
-
-			pan = new HorizontalPanel ();
-			pan.add ( new Label ( "Ordine eseguito a nome di " ) );
-
-			/**
-				TODO	Quando viene selezionato un utente, caricare eventuali
-					dati dell'ordine gia' eseguito
-			*/
-
-			pan.add ( ver.getWidget ( "baseuser" ) );
-			ver.add ( pan );
-
-			ver.setCallback ( new FromServerFormCallbacks () {
-				public void onSave ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onReset ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onDelete ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onClose ( FromServerForm form ) {
-					FromServerSelector user;
-					ProductsUserSelection products;
-
-					/*
-						Una volta salvato il tutto, riazzero il form per
-						essere pronto ad un ordine a nome terzi
-					*/
-
-					user = ( FromServerSelector ) form.retriveInternalWidget ( "baseuser" );
-					user.setValue ( null );
-
+				if ( label != null ) {
 					products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-					products.setElements ( null );
+					total = products.getTotalPrice ();
+					if ( total != 0 )
+						label.setText ( total + " €" );
+					else
+						label.setText ( "" );
 				}
-			} );
-		}
+			}
+		} );
 
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
@@ -229,7 +188,7 @@ public class OrdersPanel extends GenericPanel {
 			total_view.setText ( total_text );
 	}
 
-	private int retrieveOrderForm ( Order parent ) {
+	private int retrieveOrderForm ( int order_id ) {
 		FromServerForm form;
 		OrderUser tmp_order;
 
@@ -237,11 +196,15 @@ public class OrdersPanel extends GenericPanel {
 			form = ( FromServerForm ) getWidget ( i );
 			tmp_order = ( OrderUser ) form.getObject ();
 
-			if ( parent.getLocalID () == tmp_order.getObject ( "baseorder" ).getLocalID () )
+			if ( order_id == tmp_order.getObject ( "baseorder" ).getLocalID () )
 				return i;
 		}
 
 		return -1;
+	}
+
+	private int retrieveOrderForm ( Order parent ) {
+		return retrieveOrderForm ( parent.getLocalID () );
 	}
 
 	private void syncProductsInForm ( FromServerForm form, Order order ) {
@@ -257,8 +220,22 @@ public class OrdersPanel extends GenericPanel {
 		return "Ordini";
 	}
 
+	public String getSystemID () {
+		return "orders";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_orders.png" );
+	}
+
+	/*
+		Formato concesso per address:
+		orders::id_ordine_da_mostrare
+	*/
+	public void openBookmark ( String address ) {
+		/**
+			TODO	Implementami!
+		*/
 	}
 
 	public void initView () {

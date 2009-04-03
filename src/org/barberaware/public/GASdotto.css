@@ -55,9 +55,9 @@
 
 .element-summary {
 	width:			100%;
-	font-size:		20px;
+	font-size:		18px;
 	font-family:		arial, sans-serif;
-	margin:			3px;
+	margin:			1px;
 	text-align:		left;
 	vertical-align:		middle;
 }
@@ -148,6 +148,7 @@
 .boolean-selector {
 	cursor:			pointer;
 	cursor:			hand;
+	font-size:		18px;
 }
 
 .date-selector {
@@ -157,6 +158,11 @@
 
 .address-selector {
 	background:		#FFFFFF url('images/address_selector.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+}
+
+.reference-selector {
+	background:		#FFFFFF url('images/reference_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 

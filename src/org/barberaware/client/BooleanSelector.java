@@ -22,7 +22,8 @@ import com.google.gwt.user.client.ui.*;
 
 public class BooleanSelector extends ToggleButton {
 	public BooleanSelector () {
-		super ( new Image ( "images/boolean_false.png" ), new Image ( "images/boolean_true.png" ) );
+		// super ( new Image ( "images/boolean_false.png" ), new Image ( "images/boolean_true.png" ) );
+		super ( "NO", "SI" );
 		setStyleName ( "boolean-selector" );
 	}
 }

@@ -96,6 +96,19 @@ public class FromServerTable extends FromServerArray {
 		}
 	}
 
+	public void saveChanges () {
+		int num;
+		FromServer obj;
+
+		syncRowsContents ();
+		num = rows.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			obj = ( FromServer ) rows.get ( i );
+			obj.save ( null );
+		}
+	}
+
 	public void revertChanges () {
 		int num;
 		int cols;
@@ -170,8 +183,8 @@ public class FromServerTable extends FromServerArray {
 		if ( i == -1 )
 			return;
 
-		main.removeRow ( i + 1 );
-		rows.remove ( i );
+		main.removeRow ( i );
+		rows.remove ( i - 1 );
 	}
 
 	public void refreshElement ( FromServer element ) {
@@ -215,7 +228,7 @@ public class FromServerTable extends FromServerArray {
 			obj = ( FromServer ) rows.get ( i );
 
 			if ( obj.getLocalID () == element_id )
-				return i;
+				return i + 1;
 		}
 
 		return -1;

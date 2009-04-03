@@ -81,6 +81,15 @@ public class FromServerForm extends Composite {
 		main.setAnimationEnabled ( true );
 		main.addEventHandler ( new DisclosureHandler () {
 			public void onClose ( DisclosureEvent event ) {
+				if ( object.isValid () == false ) {
+					if ( Window.confirm ( "Vuoi salvare il nuovo oggetto?" ) == true )
+						savingObject ();
+					else
+						main.setVisible ( false );
+
+					return;
+				}
+
 				if ( contentsChanged () ) {
 					if ( Window.confirm ( "Vuoi salvare le modifiche effettuate?" ) == true )
 						savingObject ();

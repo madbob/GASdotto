@@ -214,6 +214,10 @@ public class SuppliersEditPanel extends GenericPanel {
 		return "Gestione Fornitori";
 	}
 
+	public String getSystemID () {
+		return "edit_suppliers";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_suppliers.png" );
 	}

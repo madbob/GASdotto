@@ -51,10 +51,7 @@ public class Product extends FromServer {
 		if ( price != 0 )
 			tot += price;
 
-		/**
-			TODO	Gestire anche il surplus, che e' una percentuale
-		*/
-
+		tot = Utils.sumPercentage ( tot, getString ( "surplus" ) );
 		return tot;
 	}
 }

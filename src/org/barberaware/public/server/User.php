@@ -33,7 +33,7 @@ class User extends FromServer {
 		$this->addAttribute ( "mail", "STRING" );
 		$this->addAttribute ( "mail2", "STRING" );
 		$this->addAttribute ( "address", "ADDRESS" );
-		$this->addAttribute ( "paying", "BOOLEAN", "false" );
+		$this->addAttribute ( "paying", "DATE" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
 
 		$this->setSorting ( "surname" );

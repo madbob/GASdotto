@@ -139,6 +139,10 @@ public class SystemPanel extends GenericPanel {
 		return "Configurazioni";
 	}
 
+	public String getSystemID () {
+		return "system";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_system.png" );
 	}

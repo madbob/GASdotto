@@ -60,6 +60,8 @@ public class Utils {
 		return name.substring ( name.lastIndexOf ( "." ) + 1 );
 	}
 
+	/****************************************************** datatype */
+
 	public static ArrayList dupliacateFromServerArray ( ArrayList array ) {
 		FromServer iter;
 		ArrayList ret;
@@ -72,6 +74,13 @@ public class Utils {
 		}
 
 		return ret;
+	}
+
+	public static float sumPercentage ( float origin, String percentage ) {
+		/**
+			TODO	Finire questa funzione
+		*/
+		return origin;
 	}
 
 	/****************************************************** date */
