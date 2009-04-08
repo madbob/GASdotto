@@ -34,6 +34,10 @@ public abstract class FromServerFormCallbacks {
 		/* dummy */
 	}
 
+	public void onOpen ( FromServerForm form ) {
+		/* dummy */
+	}
+
 	public void onClose ( FromServerForm form ) {
 		/* dummy */
 	}

@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.*;
 	l'attributo "name" in forma di stringa
 */
 
-public class FromServerSelector extends ObjectWidget {
+public class FromServerSelector extends ObjectWidget implements SourcesChangeEvents {
 	private ListBox					main;
 	private String					type;
 	private boolean					noVoidArticat;
@@ -174,10 +174,17 @@ public class FromServerSelector extends ObjectWidget {
 		return main;
 	}
 
+	/****************************************************************** SourcesChangeEvents */
+
 	public void addChangeListener ( ChangeListener listener ) {
 		if ( changeListeners == null )
 			changeListeners = new DelegatingChangeListenerCollection ( this, main );
 		changeListeners.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeListeners != null )
+			changeListeners.remove ( listener );
 	}
 
 	/****************************************************************** ObjectWidget */

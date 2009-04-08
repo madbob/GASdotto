@@ -72,6 +72,10 @@ public class FromServerForm extends Composite {
 				/* dummy */
 			}
 
+			public void onOpen ( FromServerForm form ) {
+				/* dummy */
+			}
+
 			public void onClose ( FromServerForm form ) {
 				/* dummy */
 			}
@@ -131,7 +135,11 @@ public class FromServerForm extends Composite {
 
 	public void open ( boolean open ) {
 		main.setOpen ( open );
-		onOpenCb ();
+
+		if ( open == true )
+			onOpenCb ();
+		else
+			onCloseCb ();
 	}
 
 	public FromServer getObject () {
@@ -167,6 +175,10 @@ public class FromServerForm extends Composite {
 				}
 			} );
 		}
+	}
+
+	public boolean isOpen () {
+		return main.isOpen ();
 	}
 
 	private Panel doSummary ( FromServer object ) {
@@ -256,7 +268,7 @@ public class FromServerForm extends Composite {
 	}
 
 	private void onOpenCb () {
-		// DOM.scrollIntoView ( main.getElement () );
+		callbacks.onOpen ( this );
 	}
 
 	private void onCloseCb () {

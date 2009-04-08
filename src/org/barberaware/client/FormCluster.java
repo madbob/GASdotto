@@ -59,6 +59,30 @@ public abstract class FormCluster extends VerticalPanel {
 		buildCommon ( type, icon_path, true );
 	}
 
+	private void closeOtherForms ( FromServerForm target ) {
+		int tot;
+		FromServerForm iter;
+
+		tot = latestIterableIndex ();
+
+		for ( int i = 0; i < tot; i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+
+			if ( iter != target ) {
+				if ( iter.isOpen () ) {
+					/*
+						Tendenzialmente qui si potrebbe assumere che un
+						solo Form e' aperto in ogni momento, e se si
+						trova quello precedentemente "open" basta
+						chiuderlo ed uscire dal ciclo, ma per sicurezza
+						me li passo tutti
+					*/
+					iter.open ( false );
+				}
+			}
+		}
+	}
+
 	private Panel doAddButton ( String icon_path ) {
 		PushButton button;
 		HorizontalPanel pan;
@@ -70,6 +94,13 @@ public abstract class FormCluster extends VerticalPanel {
 			public void onClick ( Widget sender ) {
 				FromServerForm new_form;
 				new_form = doNewEditableRow ();
+
+				new_form.setCallback ( new FromServerFormCallbacks () {
+					public void onOpen ( FromServerForm form ) {
+						closeOtherForms ( form );
+					}
+				} );
+
 				new_form.open ( true );
 				insert ( new_form, latestIterableIndex () );
 			}
@@ -111,8 +142,16 @@ public abstract class FormCluster extends VerticalPanel {
 		iter = retrieveForm ( object );
 		if ( iter == null ) {
 			iter = doEditableRow ( object );
-			if ( iter != null )
+
+			if ( iter != null ) {
+				iter.setCallback ( new FromServerFormCallbacks () {
+					public void onOpen ( FromServerForm form ) {
+						closeOtherForms ( form );
+					}
+				} );
+
 				insert ( iter, 0 );
+			}
 		}
 	}
 

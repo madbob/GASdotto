@@ -39,6 +39,8 @@ public class SuppliersEditPanel extends GenericPanel {
 				ProductsEditPanel products;
 
 				ver = commonFormBuilder ( supp );
+				if ( ver == null )
+					return null;
 
 				vertical = new VerticalPanel ();
 				vertical.addStyleName ( "sub-elements-details" );
@@ -114,39 +116,16 @@ public class SuppliersEditPanel extends GenericPanel {
 
 	private FromServerForm commonFormBuilder ( FromServer supp ) {
 		final FromServerForm ver;
-		User myself;
 		HorizontalPanel hor;
 		FlexTable fields;
 		Supplier supplier;
 		ReferenceList references;
 
-		myself = Session.getUser ();
-		if ( myself.getInt ( "privileges" ) != User.USER_ADMIN ) {
-			int myself_id;
-			ArrayList refs;
-			boolean found;
-			int i;
-
-			myself_id = myself.getLocalID ();
-			refs = supp.getArray ( "references" );
-			found = false;
-
-			for ( i = 0; i < refs.size (); i++ )
-				if ( ( ( User ) refs.get ( i ) ).getLocalID () == myself_id ) {
-					found = true;
-					break;
-				}
-
-			/*
-				L'admin accede a tutti i fornitori, i referenti solo quelli cui
-				sono stati assegnati
-			*/
-
-			if ( found == false )
-				return null;
-		}
-
 		supplier = ( Supplier ) supp;
+
+		if ( supplier.iAmReference () == false )
+			return null;
+
 		ver = new FromServerForm ( supplier );
 
 		hor = new HorizontalPanel ();
@@ -227,5 +206,11 @@ public class SuppliersEditPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Measure" );
 		Utils.getServer ().testObjectReceive ( "Category" );
+
+		/*
+			Questo e' per forzare il popolamento della lista di referenti in
+			ReferenceList
+		*/
+		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }

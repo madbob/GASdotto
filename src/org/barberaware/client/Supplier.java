@@ -36,4 +36,31 @@ public class Supplier extends FromServer {
 
 		setString ( "name", "Nuovo Fornitore" );
 	}
+
+	public boolean iAmReference () {
+		User myself;
+		int privileges;
+		ArrayList references;
+		FromServer ref;
+
+		myself = Session.getUser ();
+		privileges = myself.getInt ( "privileges" );
+
+		if ( privileges == User.USER_ADMIN )
+			return true;
+
+		else if ( privileges == User.USER_RESPONSABLE ) {
+			references = getArray ( "references" );
+			if ( references == null )
+				return false;
+
+			for ( int i = 0; i < references.size (); i++ ) {
+				ref = ( FromServer ) references.get ( i );
+				if ( ref.equals ( myself ) )
+					return true;
+			}
+		}
+
+		return false;
+	}
 }

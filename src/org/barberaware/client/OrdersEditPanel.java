@@ -44,6 +44,9 @@ public class OrdersEditPanel extends GenericPanel {
 					order = ( Order ) ord;
 					supplier = ( Supplier ) order.getObject ( "supplier" );
 
+					if ( supplier.iAmReference () == false )
+						return null;
+
 					ver = new FromServerForm ( order );
 
 					hor = new HorizontalPanel ();
@@ -53,11 +56,6 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-					/**
-						TODO	Sostituire con combo box che contenga
-							solo i fornitori per cui l'utente e'
-							referente
-					*/
 					fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
@@ -114,9 +112,16 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-					suppliers_main = ver.getWidget ( "supplier" );
-					suppliers = ( FromServerSelector ) ver.retriveInternalWidget ( "supplier" );
-					fields.setWidget ( 0, 1, suppliers_main );
+
+					suppliers = new FromServerSelector ( "Supplier", true, true );
+					suppliers.addFilter ( new FromServerValidateCallback () {
+						public boolean checkObject ( FromServer object ) {
+							Supplier sup;
+							sup = ( Supplier ) object;
+							return sup.iAmReference ();
+						}
+					} );
+					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "supplier", suppliers ) );
 
 					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );

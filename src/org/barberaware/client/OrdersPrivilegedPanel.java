@@ -99,7 +99,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	private Widget doOrderRow ( Order order ) {
 		final FromServerForm ver;
 		OrderUser uorder;
-		FromServerSelector users;
+		UserSelector users;
 		ProductsUserSelection products;
 
 		uorder = new OrderUser ();
@@ -112,11 +112,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		pan = new HorizontalPanel ();
 		pan.add ( new Label ( "Ordine eseguito a nome di " ) );
 
-		users = new FromServerSelector ( "User", false, true );
+		users = new UserSelector ();
 		users.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
-				FromServerSelector selector;
-				selector = ( FromServerSelector ) sender;
+				UserSelector selector;
+				selector = ( UserSelector ) sender;
 				retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
 			}
 		} );

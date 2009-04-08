@@ -22,86 +22,50 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class UserSelector extends ObjectWidget {
-	private ListBox				main;
+	private DeckPanel				main;
+	private FromServerSelector			select;
+	private DelegatingChangeListenerCollection	changeListeners		= null;
 
 	public UserSelector () {
-		main = new ListBox ();
+		User user;
+		Label first;
+
+		main = new DeckPanel ();
 		initWidget ( main );
 
-		main.addItem ( "Seleziona Utente", "none" );
+		user = Session.getUser ();
 
-		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				main.addItem ( object.getString ( "name" ), Integer.toString ( object.getLocalID () ) );
-			}
-
-			public void onModify ( FromServer object ) {
-				int index;
-
-				index = retrieveUserIndex ( object );
-				if ( index != -1 )
-					main.setItemText ( index, object.getString ( "name" ) );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				int index;
-
-				index = retrieveUserIndex ( object );
-				if ( index != -1 )
-					main.removeItem ( index );
+		first = new Label ( user.getString ( "name" ) + " (clicca qui per modificare)" );
+		first.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				main.showWidget ( 1 );
 			}
 		} );
+		main.add ( first );
+
+		select = new FromServerSelector ( "User", false, true );
+		main.add ( select );
+
+		main.showWidget ( 0 );
 	}
 
-	private int retrieveUserIndex ( FromServer user ) {
-		int num;
-		String sel;
-
-		num = main.getItemCount ();
-		sel = Integer.toString ( user.getLocalID () );
-
-		for ( int i = 0; i < num; i++ ) {
-			if ( sel.equals ( main.getValue ( i ) ) )
-				return i;
-		}
-
-		return -1;
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeListeners == null )
+			changeListeners = new DelegatingChangeListenerCollection ( this, select );
+		changeListeners.add ( listener );
 	}
 
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer selected ) {
-		int num;
-		String sel;
-
-		if ( selected == null )
-			main.setItemSelected ( 0, true );
-
-		else {
-			num = main.getItemCount ();
-			sel = Integer.toString ( selected.getLocalID () );
-
-			for ( int i = 0; i < num; i++ ) {
-				if ( sel.equals ( main.getValue ( i ) ) ) {
-					main.setItemSelected ( i, true );
-					break;
-				}
-			}
-		}
+		main.showWidget ( 1 );
+		select.setValue ( selected );
 	}
 
 	public FromServer getValue () {
-		int selected;
-		int index;
-
-		if ( main.getItemCount () == 0 )
-			return null;
-
-		index = main.getSelectedIndex ();
-		if ( index == 0 )
-			return null;
-
-		selected = Integer.parseInt ( main.getValue ( index ) );
-		return Utils.getServer ().getObjectFromCache ( "User", selected );
+		if ( main.getVisibleWidget () == 0 )
+			return Session.getUser ();
+		else
+			return select.getValue ();
 	}
 }
