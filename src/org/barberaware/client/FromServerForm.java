@@ -89,7 +89,7 @@ public class FromServerForm extends Composite {
 					if ( Window.confirm ( "Vuoi salvare il nuovo oggetto?" ) == true )
 						savingObject ();
 					else
-						main.setVisible ( false );
+						invalidate ();
 
 					return;
 				}
@@ -222,14 +222,14 @@ public class FromServerForm extends Composite {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					if ( object.isValid () == false )
-						main.setVisible ( false );
+						invalidate ();
 
 					else {
 						if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
 							callbacks.onDelete ( myself );
 							object.destroy ( null );
 							main.setOpen ( false );
-							main.setVisible ( false );
+							invalidate ();
 						}
 					}
 				}
@@ -240,7 +240,7 @@ public class FromServerForm extends Composite {
 		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				if ( object.isValid () == false )
-					main.setVisible ( false );
+					invalidate ();
 
 				else {
 					resetObject ();
@@ -265,6 +265,11 @@ public class FromServerForm extends Composite {
 		}
 
 		return panel;
+	}
+
+	private void invalidate () {
+		object = null;
+		main.setVisible ( false );
 	}
 
 	private void onOpenCb () {

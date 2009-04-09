@@ -34,6 +34,14 @@ class Order extends FromServer {
 	}
 
 	public function get ( $request ) {
+		/*
+			Non e' particolarmente efficiente fare il check sullo stato degli ordini
+			ad ogni interrogazione, ma l'alternativa sarebbe piazzare uno script in
+			cron rendendo piu' problematico il deploy dell'applicazione
+		*/
+		$query = sprintf ( "UPDATE %s SET status = 1 WHERE enddate < NOW()", $this->tablename );
+		query_and_check ( $query, "Impossibile chiudere vecchi ordini" );
+
 		if ( isset ( $request->status ) ) {
 			$ret = array ();
 

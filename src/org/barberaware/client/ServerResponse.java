@@ -40,8 +40,14 @@ public abstract class ServerResponse implements RequestCallback {
 
 		str = response.getText ();
 
-		jsonObject = JSONParser.parse ( str );
-		ret = jsonObject.isString ();
+		try {
+			jsonObject = JSONParser.parse ( str );
+			ret = jsonObject.isString ();
+		}
+		catch ( com.google.gwt.json.client.JSONException e ) {
+			ret = new JSONString ( "risposta dal server non valida" );
+			jsonObject = null;
+		}
 
 		if ( ret != null && ret.stringValue ().startsWith ( "Errore: " ) ) {
 			Utils.showNotification ( str );

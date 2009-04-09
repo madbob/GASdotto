@@ -19,12 +19,15 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.*;
 
 public class UsersPanel extends GenericPanel {
 	private FormCluster		main;
 
 	public UsersPanel () {
 		super ();
+
+		FormClusterFilter filter;
 
 		main = new FormCluster ( "User", "images/new_user.png" ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
@@ -114,7 +117,32 @@ public class UsersPanel extends GenericPanel {
 				}
 		};
 
+		/*
+			Poiche' addTop() mette il widget specificato in cima alla pagina,
+			inserisco la lista di form e la barra di ricerca in ordine inverso in
+			modo che il secondo sia alla fine sopra al primo
+		*/
 		addTop ( main );
+
+		filter = new FormClusterFilter ( main, new FilterCallback () {
+			public boolean check ( FromServer obj, String text ) {
+				int len;
+				String start;
+
+				len = text.length ();
+
+				start = obj.getString ( "firstname" ).substring ( 0, len );
+				if ( start.compareToIgnoreCase ( text ) == 0 )
+					return true;
+
+				start = obj.getString ( "surname" ).substring ( 0, len );
+				if ( start.compareToIgnoreCase ( text ) == 0 )
+					return true;
+
+				return false;
+			}
+		} );
+		addTop ( filter );
 	}
 
 	/****************************************************************** GenericPanel */

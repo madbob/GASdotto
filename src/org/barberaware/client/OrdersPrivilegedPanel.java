@@ -70,8 +70,16 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.OPENED )
+
+				if ( ord.getInt ( "status" ) == Order.OPENED ) {
+					Supplier supplier;
+
+					supplier = ( Supplier )object.getObject ( "supplier" );
+					if ( supplier.iAmReference () == false )
+						return;
+
 					insert ( doOrderRow ( ord ), 1 );
+				}
 			}
 
 			public void onModify ( FromServer object ) {

@@ -260,8 +260,6 @@ public class ReferenceList extends FromServerArray {
 	public void setElements ( ArrayList elements ) {
 		selected.clear ();
 
-		Window.alert ( "e fino a qui..." );
-
 		if ( elements != null ) {
 			for ( int i = 0; i < elements.size (); i++ )
 				selected.add ( elements.get ( i ) );

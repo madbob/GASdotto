@@ -64,11 +64,11 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 		main.add ( useless );
 	}
 
-	public void setValue ( int state ) {
+	public void setVal ( int state ) {
 		main.showWidget ( state );
 	}
 
-	public int getValue () {
+	public int getVal () {
 		return main.getVisibleWidget ();
 	}
 }

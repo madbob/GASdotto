@@ -115,7 +115,7 @@ public class ProductUserSelector extends ObjectWidget {
 	}
 
 	private void undoChange () {
-		quantity.setValue ( 0 );
+		quantity.setVal ( 0 );
 		changeListeners.fireChange ( quantity );
 	}
 
@@ -135,7 +135,7 @@ public class ProductUserSelector extends ObjectWidget {
 					float check;
 
 					input = ( FloatBox ) sender;
-					quantity = input.getValue ();
+					quantity = input.getVal ();
 					check = currentValue.getObject ( "product" ).getInt ( "minimum_order" );
 
 					if ( ( quantity != 0 ) && ( quantity < check ) ) {
@@ -159,7 +159,7 @@ public class ProductUserSelector extends ObjectWidget {
 					float check;
 
 					input = ( FloatBox ) sender;
-					quantity = input.getValue ();
+					quantity = input.getVal ();
 					check = currentValue.getObject ( "product" ).getInt ( "multiple_order" );
 
 					if ( ( quantity != 0 ) && ( quantity % check != 0 ) ) {
@@ -184,11 +184,11 @@ public class ProductUserSelector extends ObjectWidget {
 	}
 
 	public void setQuantity ( float quant ) {
-		quantity.setValue ( quant );
+		quantity.setVal ( quant );
 	}
 
 	public float getQuantity () {
-		return quantity.getValue ();
+		return quantity.getVal ();
 	}
 
 	public float getTotalPrice () {
@@ -221,14 +221,14 @@ public class ProductUserSelector extends ObjectWidget {
 
 		currentValue = ( ProductUser ) element;
 
-		quantity.setValue ( element.getFloat ( "quantity" ) );
+		quantity.setVal ( element.getFloat ( "quantity" ) );
 
 		prod = ( Product ) element.getObject ( "product" );
 		setProduct ( prod );
 	}
 
 	public FromServer getValue () {
-		currentValue.setFloat ( "quantity", quantity.getValue () );
+		currentValue.setFloat ( "quantity", quantity.getVal () );
 		return currentValue;
 	}
 }

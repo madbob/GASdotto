@@ -56,11 +56,11 @@ public class FloatBox extends TextBox {
 		);
 	}
 
-	public void setValue ( float value ) {
+	public void setVal ( float value ) {
 		setText ( Float.toString ( value ) );
 	}
 
-	public float getValue () {
+	public float getVal () {
 		String str;
 
 		str = getText ();

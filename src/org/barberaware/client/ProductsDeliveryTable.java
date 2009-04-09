@@ -64,7 +64,7 @@ public class ProductsDeliveryTable extends FromServerArray {
 
 			del = new FloatBox ();
 			delivered = prod_user.getFloat ( "delivered" );
-			del.setValue ( delivered );
+			del.setVal ( delivered );
 			main.setWidget ( i, 3, del );
 
 			del.addFocusListener ( new FocusListener () {
@@ -94,7 +94,7 @@ public class ProductsDeliveryTable extends FromServerArray {
 		for ( int i = 0; i < currentValues.size (); i++ ) {
 			del = ( FloatBox ) main.getWidget ( i, 3 );
 			produser = ( ProductUser ) currentValues.get ( i );
-			produser.setFloat ( "delivered", del.getValue () );
+			produser.setFloat ( "delivered", del.getVal () );
 		}
 
 		return currentValues;

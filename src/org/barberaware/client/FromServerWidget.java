@@ -135,10 +135,10 @@ public class FromServerWidget extends Composite {
 			( ( TextArea ) wid ).setText ( object.getString ( name ) );
 
 		else if ( type == FromServer.INTEGER )
-			( ( IntNumericWidget ) wid ).setValue ( object.getInt ( name ) );
+			( ( IntNumericWidget ) wid ).setVal ( object.getInt ( name ) );
 
 		else if ( type == FromServer.FLOAT )
-			( ( FloatBox ) wid ).setValue ( object.getFloat ( name ) );
+			( ( FloatBox ) wid ).setVal ( object.getFloat ( name ) );
 
 		else if ( type == FromServer.PERCENTAGE )
 			( ( PercentageBox ) wid ).setValue ( object.getString ( name ) );
@@ -173,10 +173,10 @@ public class FromServerWidget extends Composite {
 			object.setString ( name, ( ( TextArea ) wid ).getText () );
 
 		else if ( type == FromServer.INTEGER )
-			object.setInt ( name, ( ( IntNumericWidget ) wid ).getValue () );
+			object.setInt ( name, ( ( IntNumericWidget ) wid ).getVal () );
 
 		else if ( type == FromServer.FLOAT )
-			object.setFloat ( name, ( ( FloatBox ) wid ).getValue () );
+			object.setFloat ( name, ( ( FloatBox ) wid ).getVal () );
 
 		else if ( type == FromServer.PERCENTAGE )
 			object.setString ( name, ( ( PercentageBox ) wid ).getValue () );
@@ -214,10 +214,10 @@ public class FromServerWidget extends Composite {
 			ret = object.getString ( name ).equals ( ( ( TextArea ) wid ).getText () );
 
 		else if ( type == FromServer.INTEGER )
-			ret = object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getValue ();
+			ret = object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getVal ();
 
 		else if ( type == FromServer.FLOAT )
-			ret = object.getFloat ( name ) == ( ( FloatBox ) wid ).getValue ();
+			ret = object.getFloat ( name ) == ( ( FloatBox ) wid ).getVal ();
 
 		else if ( type == FromServer.PERCENTAGE )
 			ret = object.getString ( name ).equals ( ( ( PercentageBox ) wid ).getValue () );

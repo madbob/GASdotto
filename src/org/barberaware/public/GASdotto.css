@@ -83,6 +83,7 @@
 	padding:		10px;
 	border-left:		5px solid #4EDFCE;
 	border-bottom:		5px solid #4EDFCE;
+	font-size:		15px;
 }
 
 .elements-table {
@@ -169,6 +170,12 @@
 .cyclic-toggle {
 	cursor:			pointer;
 	cursor:			hand;
+}
+
+.search-bar {
+	background:		#FFFFFF url('images/search_bar.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+	margin-bottom:		15px;
 }
 
 .products-selection .description {

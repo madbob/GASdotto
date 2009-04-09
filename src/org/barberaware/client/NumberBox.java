@@ -55,11 +55,11 @@ public class NumberBox extends TextBox implements IntNumericWidget {
 		);
 	}
 
-	public void setValue ( int value ) {
+	public void setVal ( int value ) {
 		setText ( Integer.toString ( value ) );
 	}
 
-	public int getValue () {
+	public int getVal () {
 		return Integer.parseInt ( getText () );
 	}
 }
