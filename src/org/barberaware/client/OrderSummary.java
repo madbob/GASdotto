@@ -62,6 +62,7 @@ public class OrderSummary extends Composite {
 		ProductUser user_product;
 		Label product_quantity_sum;
 		float total_price;
+		int stock;
 
 		my_id = currentOrder.getLocalID ();
 		products = currentOrder.getArray ( "products" );
@@ -104,6 +105,12 @@ public class OrderSummary extends Composite {
 			order_product = ( Product ) products.get ( i );
 			product_quantity_sum = ( Label ) main.getWidget ( i, 3 );
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
+
+			stock = order_product.getInt ( "stock_size" );
+			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] / stock != 0 ) )
+				main.setWidget ( i, 4, new Image ( "images/info-warning.png" ) );
+			else
+				main.removeCell ( i, 4 );
 		}
 
 		totalLabel.setValue ( total_price );

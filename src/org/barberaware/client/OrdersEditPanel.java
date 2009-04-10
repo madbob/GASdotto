@@ -105,6 +105,13 @@ public class OrdersEditPanel extends GenericPanel {
 
 					ver = new FromServerForm ( order );
 
+					ver.setCallback ( new FromServerFormCallbacks () {
+						public void onSave ( FromServerForm form ) {
+							Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'", SmoothingNotify.NOTIFY_INFO );
+							ver.setCallback ( null );
+						}
+					} );
+
 					hor = new HorizontalPanel ();
 					ver.add ( hor );
 

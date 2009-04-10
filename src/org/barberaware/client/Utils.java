@@ -45,7 +45,11 @@ public class Utils {
 	}
 
 	public static void showNotification ( String text ) {
-		notifies.show ( text );
+		notifies.show ( text, SmoothingNotify.NOTIFY_ERROR );
+	}
+
+	public static void showNotification ( String text, int type ) {
+		notifies.show ( text, type );
 	}
 
 	/****************************************************** server */

@@ -55,31 +55,7 @@ public class FromServerForm extends Composite {
 		*/
 		addictionalData = new ArrayList ();
 
-		callbacks = new FromServerFormCallbacks () {
-			public String getName ( FromServerForm form ) {
-				return form.getObject ().getString ( "name" );
-			}
-
-			public void onSave ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onReset ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onDelete ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onOpen ( FromServerForm form ) {
-				/* dummy */
-			}
-
-			public void onClose ( FromServerForm form ) {
-				/* dummy */
-			}
-		};
+		setCallback ( null );
 
 		main = new DisclosurePanel ( doSummary ( object ) );
 		main.setAnimationEnabled ( true );
@@ -151,8 +127,37 @@ public class FromServerForm extends Composite {
 	}
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
-		callbacks = routine;
-		summary.setText ( callbacks.getName ( this ) );
+		if ( routine == null ) {
+			callbacks = new FromServerFormCallbacks () {
+				public String getName ( FromServerForm form ) {
+					return form.getObject ().getString ( "name" );
+				}
+
+				public void onSave ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onReset ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onDelete ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onOpen ( FromServerForm form ) {
+					/* dummy */
+				}
+
+				public void onClose ( FromServerForm form ) {
+					/* dummy */
+				}
+			};
+		}
+		else {
+			callbacks = routine;
+			summary.setText ( callbacks.getName ( this ) );
+		}
 	}
 
 	public void addEventHandler ( DisclosureHandler handler ) {

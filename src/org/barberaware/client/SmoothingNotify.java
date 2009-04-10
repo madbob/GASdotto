@@ -23,12 +23,25 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.ui.*;
 
 public class SmoothingNotify extends Composite {
+	private class SingleNotification {
+		public String	text;
+		public int	type;
+
+		public SingleNotification ( String te, int ty ) {
+			text = te;
+			type = ty;
+		}
+	}
+
 	HorizontalPanel		main;
 	Label			notification;
 	int			staticTime;
 	int			fadeFrequency;
 	boolean			running;
 	CircularArray		requests;
+
+	public static int	NOTIFY_ERROR		= 0;
+	public static int	NOTIFY_INFO		= 1;
 
 	public SmoothingNotify () {
 		staticTime = 5000;
@@ -49,15 +62,21 @@ public class SmoothingNotify extends Composite {
 	}
 
 	private void popup () {
-		String text;
+		SingleNotification not;
 
-		text = ( String ) this.requests.remove ();
+		not = ( SingleNotification ) this.requests.remove ();
 
-		if ( text != null ) {
+		if ( not.text != null ) {
 			Timer timer;
 
 			main.setVisible ( true );
-			notification.setText ( text );
+			notification.setText ( not.text );
+
+			if ( not.type == NOTIFY_ERROR )
+				main.addStyleName ( "smoothing-notify-error" );
+			else if ( not.type == NOTIFY_INFO )
+				main.addStyleName ( "smoothing-notify-info" );
+
 			DOM.setStyleAttribute ( main.getElement (), "opacity", "1.0" );
 			DOM.setStyleAttribute ( main.getElement (), "filter", "alpha(opacity:1.0)" );
 
@@ -100,8 +119,8 @@ public class SmoothingNotify extends Composite {
 		}
 	}
 
-	public void show ( String text ) {
-		requests.add ( text );
+	public void show ( String text, int type ) {
+		requests.add ( new SingleNotification ( text, type ) );
 
 		if ( running == false )
 			popup ();

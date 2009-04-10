@@ -31,6 +31,7 @@ public class UserSelector extends ObjectWidget {
 		Label first;
 
 		main = new DeckPanel ();
+		main.setStyleName ( "user-selector" );
 		initWidget ( main );
 
 		user = Session.getUser ();
@@ -43,7 +44,7 @@ public class UserSelector extends ObjectWidget {
 		} );
 		main.add ( first );
 
-		select = new FromServerSelector ( "User", false, true );
+		select = new FromServerSelector ( "User", true, true );
 		main.add ( select );
 
 		main.showWidget ( 0 );
@@ -58,8 +59,12 @@ public class UserSelector extends ObjectWidget {
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer selected ) {
-		main.showWidget ( 1 );
-		select.setValue ( selected );
+		if ( selected != null ) {
+			main.showWidget ( 1 );
+			select.setValue ( selected );
+		}
+		else
+			main.showWidget ( 0 );
 	}
 
 	public FromServer getValue () {

@@ -97,6 +97,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			public void onDestroy ( FromServer object ) {
 				int index;
 
+				/**
+					TODO	Se l'ordine viene cancellato dal pannello di edit
+						non sembra essere cancellato da qui: controllare
+				*/
+
 				index = retrieveOrderForm ( ( Order ) object );
 				if ( index != -1 )
 					remove ( index );
