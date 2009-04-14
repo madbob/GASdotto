@@ -288,7 +288,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	}
 
 	public String getSystemID () {
-		return "edit_orders";
+		return "orders";
 	}
 
 	public Image getIcon () {

@@ -233,9 +233,19 @@ public class OrdersPanel extends GenericPanel {
 		orders::id_ordine_da_mostrare
 	*/
 	public void openBookmark ( String address ) {
-		/**
-			TODO	Implementami!
-		*/
+		int id;
+		int index;
+		String [] tokens;
+		FromServerForm form;
+
+		tokens = address.split ( "::" );
+		id = Integer.parseInt ( tokens [ 1 ] );
+
+		index = retrieveOrderForm ( id );
+		if ( index != -1 ) {
+			form = ( FromServerForm ) getWidget ( index );
+			form.open ( true );
+		}
 	}
 
 	public void initView () {

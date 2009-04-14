@@ -286,13 +286,13 @@ abstract class FromServer {
 		switch ( $type ) {
 			case "STRING":
 			case "ADDRESS":
+			case "PERCENTAGE":
 				$ret = "'" . ( addslashes ( $attr->value ) ) . "'";
 				break;
 
 			case "INTEGER":
 			case "FLOAT":
 			case "BOOLEAN":
-			case "PERCENTAGE":
 			case "OBJECT":
 				$ret = $attr->value;
 				break;

@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class MainStack extends Composite {
@@ -90,12 +91,15 @@ public class MainStack extends Composite {
 	}
 
 	public void goTo ( String address ) {
+		String [] tokens;
 		GenericPanel iter;
+
+		tokens = address.split ( "::" );
 
 		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
 			iter = ( GenericPanel ) main.getWidget ( i );
 
-			if ( iter.getSystemID () == address ) {
+			if ( iter.getSystemID () == tokens [ 0 ] ) {
 				showPanelAtPos ( i );
 				iter.openBookmark ( address );
 				break;

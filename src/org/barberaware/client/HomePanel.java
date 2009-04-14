@@ -18,11 +18,12 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class HomePanel extends GenericPanel {
 	private NotificationsBox	notifications;
-	private VerticalPanel		orders;
+	private FlexTable		orders;
 	private boolean			hasOrders;
 
 	/****************************************************************** init */
@@ -39,19 +40,32 @@ public class HomePanel extends GenericPanel {
 	private Panel doOrdersSummary () {
 		hasOrders = false;
 
-		orders = new VerticalPanel ();
-		orders.add ( new Label ( "Non ci sono ordini aperti in questo momento." ) );
+		orders = new FlexTable ();
+
+		orders.addTableListener ( new TableListener () {
+			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+				Hidden id;
+
+				if ( row == 0 )
+					return;
+
+				id = ( Hidden ) orders.getWidget ( row, 0 );
+				goTo ( "orders::" + id.getValue () );
+			}
+		} );
+
+		orders.setWidget ( 0, 0, new Label ( "Non ci sono ordini aperti in questo momento." ) );
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				if ( hasOrders == false ) {
-					orders.remove ( 0 );
-					orders.add ( new Label ( "Ordini aperti in questo momento: " ) );
+					orders.removeRow ( 0 );
+					orders.setWidget ( 0, 0, new Label ( "Ordini aperti in questo momento: " ) );
 					hasOrders = true;
 				}
 
 				if ( object.getInt ( "status" ) == Order.OPENED )
-					orders.add ( doOrderRow ( ( Order ) object, null ) );
+					doOrderRow ( ( Order ) object );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -61,9 +75,9 @@ public class HomePanel extends GenericPanel {
 
 				if ( index != -1 ) {
 					if ( object.getInt ( "status" ) == Order.OPENED )
-						doOrderRow ( ( Order ) object, ( HorizontalPanel ) orders.getWidget ( index ) );
+						modOrderRow ( ( Order ) object );
 					else
-						orders.remove ( index );
+						orders.removeRow ( index );
 				}
 			}
 
@@ -72,42 +86,36 @@ public class HomePanel extends GenericPanel {
 
 				index = retrieveOrderRow ( object );
 				if ( index != -1 )
-					orders.remove ( index );
+					orders.removeRow ( index );
 			}
 		} );
 
 		return orders;
 	}
 
-	private Widget doOrderRow ( Order order, HorizontalPanel hor ) {
+	private void doOrderRow ( Order order ) {
+		String name;
+
+		name = order.getString ( "name" );
+		orders.setWidget ( 1, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
+		orders.setWidget ( 1, 1, new Label ( name ) );
+	}
+
+	private void modOrderRow ( Order order ) {
+		int index;
 		String name;
 		Label label;
 
-		/**
-			TODO	Rendere le righe degli ordini cliccabili per raggiungere
-				direttamente il form di input
-		*/
-
-		name = order.getString ( "name" );
-
-		if ( hor == null ) {
-			hor = new HorizontalPanel ();
-			hor.add ( new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
-
-			label = new Label ( name );
-			hor.add ( label );
+		index = retrieveOrderRow ( order );
+		if ( index != -1 ) {
+			name = order.getString ( "name" );
+			label = ( Label ) orders.getWidget ( index, 1 );
+			label.setText ( "name" );
 		}
-		else {
-			label = ( Label ) hor.getWidget ( 1 );
-			label.setText ( name );
-		}
-
-		return hor;
 	}
 
 	private int retrieveOrderRow ( FromServer target ) {
 		String target_id_str;
-		HorizontalPanel row;
 		Hidden id;
 
 		target_id_str = Integer.toString ( target.getLocalID () );
@@ -115,9 +123,8 @@ public class HomePanel extends GenericPanel {
 		/*
 			Come al solito, qui si parte da 1 perche' in 0 c'e' l'intestazione
 		*/
-		for ( int i = 1; i < orders.getWidgetCount (); i++ ) {
-			row = ( HorizontalPanel ) orders.getWidget ( i );
-			id = ( Hidden ) row.getWidget ( 0 );
+		for ( int i = 1; i < orders.getRowCount (); i++ ) {
+			id = ( Hidden ) orders.getWidget ( i, 0 );
 
 			if ( target_id_str.equals ( id.getValue () ) )
 				return i;

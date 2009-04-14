@@ -210,7 +210,7 @@ function install_main_db () {
 					description varchar ( 500 ) default '',
 					shipping_price float default 0,
 					unit_price float default 0,
-					surplus float default 0,
+					surplus varchar ( 100 ) default '0',
 					measure int references measure ( id ),
 					minimum_order int default 0,
 					multiple_order int default 0,

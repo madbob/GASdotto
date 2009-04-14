@@ -49,7 +49,7 @@ public class PercentageBox extends TextBox {
 
 						for ( int i = 0; i < len; i++ )
 							if ( text.charAt ( i ) == '%' ) {
-								if ( i != len ) {
+								if ( i != len - 1 ) {
 									Utils.showNotification ( "Valore non valido" );
 									valid = false;
 								}

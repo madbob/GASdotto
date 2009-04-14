@@ -81,10 +81,22 @@ public class Utils {
 	}
 
 	public static float sumPercentage ( float origin, String percentage ) {
-		/**
-			TODO	Finire questa funzione
-		*/
-		return origin;
+		float perc;
+
+		if ( percentage == null || percentage.length () == 0 )
+			return origin;
+
+		if ( percentage.endsWith ( "%" ) ) {
+			int symbol;
+
+			symbol = percentage.indexOf ( "%" );
+			perc = Float.parseFloat ( percentage.substring ( 0, symbol ) );
+			return origin + ( ( origin * perc ) / 100 );
+		}
+		else {
+			perc = Float.parseFloat ( percentage );
+			return origin + perc;
+		}
 	}
 
 	/****************************************************** date */
