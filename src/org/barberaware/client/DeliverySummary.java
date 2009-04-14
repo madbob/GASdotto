@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-class DeliverySummary extends Composite {
+public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
 	private int			numOrders;
 

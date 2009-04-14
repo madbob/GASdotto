@@ -365,6 +365,9 @@ abstract class FromServer {
 							$singleid = $element->id;
 
 							if ( $singleid == $row [ 'target' ] ) {
+								$tmpobj = new $element->type ();
+								$tmpobj->save ( $element );
+
 								$element->id = -1;
 								$found = true;
 								break;

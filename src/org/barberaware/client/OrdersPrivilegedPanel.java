@@ -234,7 +234,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			existing_user = ( User ) iter.getObject ( "baseuser" );
 
 			if ( existing_user.getLocalID () == user_id ) {
-				Window.alert ( "ordine trovato" );
 				alignOrderRow ( form, iter );
 				form.setObject ( iter );
 				return;

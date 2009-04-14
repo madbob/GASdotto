@@ -110,6 +110,8 @@ class Product extends FromServer {
 		else
 			$align_existing_orders = true;
 
+		$id = parent::save ( $obj );
+
 		if ( $align_existing_orders == true ) {
 			$query = sprintf ( "SELECT id FROM orders WHERE supplier = %d AND enddate > DATE('%s')",
 						$obj->supplier->id, date ( "Y-m-d" ) );
@@ -118,20 +120,18 @@ class Product extends FromServer {
 			if ( $obj->available == "true" ) {
 				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
 					$query = sprintf ( "INSERT INTO orders_products ( parent, target ) VALUES ( %d, %d )",
-								$row [ "id" ], $obj->id );
+								$row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
 				}
 			}
 			else {
 				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
 					$query = sprintf ( "DELETE FROM orders_products WHERE parent = %d AND target = %d",
-								$row [ "id" ], $obj->id );
+								$row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile eliminare prodotto non piu' ordinabile" );
 				}
 			}
 		}
-
-		$id = parent::save ( $obj );
 
 		$query = sprintf ( "UPDATE %s SET archived = false WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );

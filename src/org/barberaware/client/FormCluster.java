@@ -21,8 +21,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class FormCluster extends VerticalPanel {
-	private boolean		automatic;
-	private boolean		addable;
+	private boolean				automatic;
+	private boolean				addable;
 
 	private void buildCommon ( String type, String icon_path, boolean auto ) {
 		automatic = auto;
@@ -136,7 +136,21 @@ public abstract class FormCluster extends VerticalPanel {
 		return getWidgetCount () - ( addable ? 1 : 0 );
 	}
 
+	private int getPosition ( FromServer object ) {
+		int i;
+		FromServerForm iter;
+
+		for ( i = 0; i < latestIterableIndex (); i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			if ( sorting ( object, iter.getObject () ) > 0 )
+				break;
+		}
+
+		return i;
+	}
+
 	public void addElement ( FromServer object ) {
+		int pos;
 		FromServerForm iter;
 
 		iter = retrieveForm ( object );
@@ -150,7 +164,8 @@ public abstract class FormCluster extends VerticalPanel {
 					}
 				} );
 
-				insert ( iter, 0 );
+				pos = getPosition ( object );
+				insert ( iter, pos );
 			}
 		}
 	}
@@ -169,6 +184,14 @@ public abstract class FormCluster extends VerticalPanel {
 		iter = retrieveForm ( object );
 		if ( iter != null )
 			iter.setVisible ( false );
+	}
+
+	/*
+		Questa funzione puo' essere sovrascritta per personalizzare l'ordinamento
+		all'interno della lista di forms
+	*/
+	protected int sorting ( FromServer first, FromServer second ) {
+		return 0;
 	}
 
 	protected abstract FromServerForm doNewEditableRow ();

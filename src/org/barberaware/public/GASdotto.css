@@ -77,7 +77,7 @@
 
 .element-summary {
 	width:			100%;
-	font-size:		18px;
+	font-size:		15px;
 	font-family:		arial, sans-serif;
 	margin:			1px;
 	text-align:		left;
@@ -105,7 +105,18 @@
 	padding:		10px;
 	border-left:		5px solid #4EDFCE;
 	border-bottom:		5px solid #4EDFCE;
-	font-size:		15px;
+}
+
+.element-details .gwt-Label {
+	font-size:		12px;
+}
+
+.element-details .gwt-TextBox {
+	font-size:		12px;
+}
+
+.element-details .gwt-TextArea {
+	font-size:		12px;
 }
 
 .elements-table {
@@ -201,6 +212,8 @@
 }
 
 .user-selector {
+	cursor:			pointer;
+	cursor:			hand;
 	border:			1px solid #000000;
 	margin:			2px;
 	padding:		2px;

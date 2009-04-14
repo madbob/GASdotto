@@ -63,7 +63,7 @@ public class FormClusterFilter extends Composite {
 
 		text = searchBar.getText ();
 
-		for ( int i = 0; i < reference.getWidgetCount (); i++ ) {
+		for ( int i = 0; i < reference.latestIterableIndex (); i++ ) {
 			iter = ( FromServerForm ) reference.getWidget ( i );
 
 			if ( callback.check ( iter.getObject (), text ) == false )
