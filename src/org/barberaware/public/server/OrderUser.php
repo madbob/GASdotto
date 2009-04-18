@@ -29,6 +29,31 @@ class OrderUser extends FromServer {
 
 		$this->enforceUserCheck ( "baseuser" );
 	}
+
+	public function get ( $request ) {
+		/*
+			Al momento questo viene usato solo per order_csv.php, dunque non viene
+			contemplato il parametro "has" come nelle altre ricerche
+		*/
+		if ( isset ( $request->order ) ) {
+			$ret = array ();
+
+			$query = sprintf ( "SELECT id FROM %s WHERE baseorder = %d ORDER BY id",
+						$this->tablename, $request->order );
+
+			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+
+			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+				$obj = new $this->classname;
+				$obj->readFromDB ( $row [ 'id' ] );
+				array_push ( $ret, $obj->exportable () );
+			}
+		}
+		else
+			$ret = parent::get ( $request );
+
+		return $ret;
+	}
 }
 
 ?>

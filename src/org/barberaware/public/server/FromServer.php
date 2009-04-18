@@ -232,6 +232,9 @@ abstract class FromServer {
 			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
 		}
 
+		if ( isset ( $request->id ) )
+			$query .= sprintf ( " AND id = %d ", $request->id );
+
 		if ( $this->user_check != null ) {
 			if ( current_permissions () == 0 )
 				$query .= sprintf ( " AND %s = %d ", $this->user_check, $current_user );
