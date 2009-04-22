@@ -28,11 +28,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		super ();
 
 		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
-			/**
-				TODO	Notificare nel summary se non sono stati caricati
-					prodotti per il fornitore
-			*/
-
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				FromServerForm ver;
 				VerticalPanel vertical;
@@ -86,8 +81,24 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				product = ( Product ) object;
 				panel = retrieveProductsPanel ( product );
-				if ( panel != null )
+
+				if ( panel != null ) {
+					/*
+						Se prima la lista era vuota ed ora non lo e'
+						piu', rimuovo l'icona messa "sulla fiducia" al
+						momento della creazione
+					*/
+					if ( panel.numProducts () == 0 ) {
+						IconsBar icons;
+						FromServerForm supplier_form;
+
+						supplier_form = main.retrieveForm ( product.getObject ( "supplier" ) );
+						icons = supplier_form.getIconsBar ();
+						icons.delImage ( "images/notifications/supplier_no_products.png" );
+					}
+
 					panel.addProduct ( product );
+				}
 			}
 
 			public void onModify ( FromServer object ) {
@@ -120,6 +131,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		FlexTable fields;
 		Supplier supplier;
 		ReferenceList references;
+		IconsBar icons;
 
 		supplier = ( Supplier ) supp;
 
@@ -170,6 +182,15 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		ver.add ( new Label ( "Modalità pagamento" ) );
 		ver.add ( ver.getWidget ( "paying_mode" ) );
+
+		/*
+			Sull fiducia assegno a tutti i fornitori l'icona per cui non ci sono
+			prodotti caricati per esso, utile all'utente per identificare la
+			situazione anomala. Quando poi arriveranno (nel trattamento degli oggetti
+			"Product") provvedo a rimuoverla
+		*/
+		icons = ver.getIconsBar ();
+		icons.addImage ( "images/notifications/supplier_no_products.png" );
 
 		return ver;
 	}

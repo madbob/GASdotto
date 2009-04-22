@@ -36,6 +36,10 @@ public class PasswordBox extends Composite implements StringWidget {
 		dialog.setText ( "Definisci nuova password" );
 		dialog.setWidget ( doDialog () );
 
+		/**
+			TODO	Aggiungere icona
+		*/
+
 		main = new PasswordTextBox ();
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {

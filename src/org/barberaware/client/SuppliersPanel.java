@@ -31,6 +31,18 @@ public class SuppliersPanel extends GenericPanel {
 			main = new FlexTable ();
 			initWidget ( main );
 
+			main.addTableListener ( new TableListener () {
+				public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+					Hidden id;
+	
+					if ( row == 0 )
+						return;
+
+					id = ( Hidden ) main.getWidget ( row, 0 );
+					goTo ( "orders::" + id.getValue () );
+				}
+			} );
+
 			mainForm = reference;
 
 			clean ();
@@ -68,10 +80,8 @@ public class SuppliersPanel extends GenericPanel {
 
 			num++;
 
-			/**
-				TODO	Rendere gli ordini cliccabili
-			*/
-			main.setWidget ( num, 0, new Label ( order.getString ( "name" ) ) );
+			main.setWidget ( num, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
+			main.setWidget ( num, 1, new Label ( order.getString ( "name" ) ) );
 		}
 
 		private void checkExistingOrders ( FromServer supplier ) {
@@ -179,6 +189,9 @@ public class SuppliersPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
+
+				if ( object.getInt ( "status" ) != Order.OPENED )
+					return;
 
 				form = main.retrieveForm ( object.getObject ( "supplier" ) );
 

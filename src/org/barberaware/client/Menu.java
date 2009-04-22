@@ -57,4 +57,8 @@ public class Menu extends Composite {
 			}
 		} );
 	}
+
+	/**
+		TODO	Evidenziare in qualche modo la sezione correntemente aperta
+	*/
 }

@@ -39,7 +39,7 @@ public class IconsBar extends Composite {
 
 		for ( int i = 0; i < num; i++ ) {
 			iter = ( Image ) main.getWidget ( i );
-			if ( iter.getUrl ().equals ( path ) )
+			if ( iter.getUrl ().endsWith ( path ) )
 				return;
 		}
 
@@ -55,7 +55,7 @@ public class IconsBar extends Composite {
 		for ( int i = 0; i < num; i++ ) {
 			iter = ( Image ) main.getWidget ( i );
 
-			if ( iter.getUrl ().equals ( path ) ) {
+			if ( iter.getUrl ().endsWith ( path ) ) {
 				main.remove ( i );
 				break;
 			}

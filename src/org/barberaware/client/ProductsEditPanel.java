@@ -78,6 +78,10 @@ public class ProductsEditPanel extends Composite {
 		table.removeElement ( product );
 	}
 
+	public int numProducts () {
+		return list.latestIterableIndex ();
+	}
+
 	/****************************************************************** lista */
 
 	private Widget doListView () {
