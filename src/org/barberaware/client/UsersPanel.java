@@ -85,6 +85,7 @@ public class UsersPanel extends GenericPanel {
 
 					fields.setWidget ( 1, 0, new Label ( "Numero Tessera" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "card_number" ) );
+					ver.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
 
 					/*
 						Se il settaggio sul pagamento delle quote viene modificato

@@ -56,14 +56,5 @@ public class MainApp extends Composite {
 		*/
 
 		stack.showPanelAtPos ( 0 );
-
-		/*
-		Utils.getServer ().testObjectReceive ( "User" );
-		Utils.getServer ().testObjectReceive ( "Supplier" );
-		Utils.getServer ().testObjectReceive ( "Measure" );
-		Utils.getServer ().testObjectReceive ( "Category" );
-		Utils.getServer ().testObjectReceive ( "Product" );
-		Utils.getServer ().testObjectReceive ( "Order" );
-		*/
 	}
 }

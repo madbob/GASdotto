@@ -20,6 +20,12 @@ package org.barberaware.client;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+/**
+	TODO	Permettere di specificare la generazione di permalink che puntino ai singoli
+		elementi nella lista, per permettere l'accesso diretto ai contenuti per mezzo di
+		link esterno
+*/
+
 public abstract class FormCluster extends VerticalPanel {
 	private boolean				automatic;
 	private boolean				addable;

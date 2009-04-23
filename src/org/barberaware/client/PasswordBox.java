@@ -41,6 +41,7 @@ public class PasswordBox extends Composite implements StringWidget {
 		*/
 
 		main = new PasswordTextBox ();
+		main.setStyleName ( "password-selector" );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
 				if ( opened == false ) {

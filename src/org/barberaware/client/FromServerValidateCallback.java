@@ -105,4 +105,46 @@ public abstract class FromServerValidateCallback {
 				}
 			};
 	}
+
+	public static FromServerValidateCallback defaultUniqueStringValidationCallback () {
+		return
+			new FromServerValidateCallback () {
+				public boolean check ( FromServer object, String attribute, Widget widget ) {
+					String text;
+					boolean ret;
+					FromServer iter;
+					ArrayList list;
+
+					text = ( ( StringWidget ) widget ).getValue ();
+
+					/*
+						Se la stringa e' vuota, viene considerata valida
+					*/
+					if ( text.equals ( "" ) )
+						return true;
+
+					/*
+						Attenzione: il valore viene confrontato solo con
+						quelli gia' presenti in cache
+					*/
+
+					list = Utils.getServer ().getObjectsFromCache ( object.getType () );
+					ret = true;
+
+					for ( int i = 0; i < list.size (); i++ ) {
+						iter = ( FromServer ) list.get ( i );
+
+						if ( ( iter.equals ( object ) == false ) &&
+								( iter.getString ( attribute ).equals ( text ) ) ) {
+
+							Utils.showNotification ( "Valore non univoco" );
+							ret = false;
+							break;
+						}
+					}
+
+					return ret;
+				}
+			};
+	}
 }

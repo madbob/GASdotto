@@ -1,7 +1,7 @@
 .smoothing-notify {
 	opacity:		1.0;
 	z-index:		100;
-	position:		absolute;
+	position:		fixed;
 	top:			10px;
 	left:			10%;
 	width:			80%;
@@ -12,7 +12,7 @@
 .smoothing-notify-error {
 	opacity:		1.0;
 	z-index:		100;
-	position:		absolute;
+	position:		fixed;
 	top:			10px;
 	left:			10%;
 	width:			80%;
@@ -23,7 +23,7 @@
 .smoothing-notify-info {
 	opacity:		1.0;
 	z-index:		100;
-	position:		absolute;
+	position:		fixed;
 	top:			10px;
 	left:			10%;
 	width:			80%;
@@ -197,6 +197,11 @@
 
 .reference-selector {
 	background:		#FFFFFF url('images/reference_selector.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+}
+
+.password-selector {
+	background:		#FFFFFF url('images/password_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
