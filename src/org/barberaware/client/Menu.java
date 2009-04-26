@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.*;
 public class Menu extends Composite {
 	private FlexTable	main;
 	private MainStack	parent;
+	private int		selectedPos;
 
 	private void populateList () {
 		int panels_num;
@@ -40,6 +41,8 @@ public class Menu extends Composite {
 			main.setWidget ( i, 1, new Label ( tmp.getName () ) );
 			format.setStyleName ( i, "main-menu-item" );
 		}
+
+		highlightPos ( 0 );
 	}
 
 	public Menu ( MainStack stack ) {
@@ -58,7 +61,12 @@ public class Menu extends Composite {
 		} );
 	}
 
-	/**
-		TODO	Evidenziare in qualche modo la sezione correntemente aperta
-	*/
+	public void highlightPos ( int pos ) {
+		HTMLTable.RowFormatter format;
+
+		format = main.getRowFormatter ();
+		format.removeStyleName ( selectedPos, "main-menu-item-selected" );
+		format.addStyleName ( pos, "main-menu-item-selected" );
+		selectedPos = pos;
+	}
 }

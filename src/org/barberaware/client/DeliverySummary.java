@@ -46,10 +46,6 @@ public class DeliverySummary extends Composite {
 		if ( index != -1 )
 			return;
 
-		/**
-			TODO	Ordinare per nome utente
-		*/
-
 		row = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
 
 		products = new ProductsDeliveryTable ();
@@ -61,7 +57,7 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
-		main.add ( row );
+		main.insert ( row, getSortedIndex ( ( User ) uorder.getObject ( "baseuser" ) ) );
 		numOrders += 1;
 	}
 
@@ -100,6 +96,27 @@ public class DeliverySummary extends Composite {
 		}
 
 		return -1;
+	}
+
+	private int getSortedIndex ( User to_place ) {
+		int i;
+		FromServerForm row;
+		User u_iter;
+		String name_iter;
+		String name_to_place;
+
+		name_to_place = to_place.getString ( "name" );
+
+		for ( i = 0; i < main.getWidgetCount (); i++ ) {
+			row = ( FromServerForm ) main.getWidget ( i );
+			u_iter = ( User ) row.getObject ().getObject ( "baseuser" );
+			name_iter = u_iter.getString ( "name" );
+
+			if ( name_iter.compareTo ( name_to_place ) > 0 )
+				return i;
+		}
+
+		return i;
 	}
 
 	private void cleanUp () {

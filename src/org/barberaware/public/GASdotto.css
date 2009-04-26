@@ -55,6 +55,10 @@
 	cursor:			hand;
 }
 
+.main-menu-item-selected {
+	background-color:	#00FF00;
+}
+
 .main-stack {
 	width:			95%;
 	margin:			20px;

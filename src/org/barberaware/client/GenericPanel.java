@@ -77,6 +77,16 @@ public abstract class GenericPanel extends VerticalPanel {
 		*/
 	}
 
+	public String getCurrentInternalReference () {
+		/*
+			By default questa funzione non viene usata, reimplementarla in caso di
+			bisogno. Dovrebbe tornare un identificativo interno in grado di essere
+			elaborato da openBookmark()
+		*/
+
+		return "";
+	}
+
 	public abstract String getName ();
 	public abstract String getSystemID ();
 	public abstract Image getIcon ();

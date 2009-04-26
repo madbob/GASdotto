@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 public class MainStack extends Composite {
 	private DeckPanel		main;
+	private Menu			mainMenu;
 
 	public MainStack () {
 		int privileges;
@@ -59,6 +60,12 @@ public class MainStack extends Composite {
 			add ( new SuppliersPanel () );
 			add ( new OrdersPanel () );
 		}
+
+		mainMenu = null;
+	}
+
+	public void wireMenu ( Menu menu ) {
+		mainMenu = menu;
 	}
 
 	private void add ( GenericPanel iter ) {
@@ -85,6 +92,7 @@ public class MainStack extends Composite {
 		to_show = ( GenericPanel ) main.getWidget ( pos );
 		to_show.initView ();
 		main.showWidget ( pos );
+		mainMenu.highlightPos ( pos );
 	}
 
 	public void goTo ( String address ) {
@@ -102,5 +110,16 @@ public class MainStack extends Composite {
 				break;
 			}
 		}
+	}
+
+	public String getCurrentBookmark () {
+		GenericPanel current;
+
+		current = ( GenericPanel ) main.getWidget ( main.getVisibleWidget () );
+
+		return Utils.getServer ().getDomain () +
+			"GASdotto.php?internal=" +
+			current.getSystemID () + "::" +
+			current.getCurrentInternalReference ();
 	}
 }

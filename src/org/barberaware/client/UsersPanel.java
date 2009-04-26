@@ -156,6 +156,10 @@ public class UsersPanel extends GenericPanel {
 		return "users";
 	}
 
+	public String getCurrentInternalReference () {
+		return Integer.toString ( main.getCurrentlyOpened () );
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_users.png" );
 	}

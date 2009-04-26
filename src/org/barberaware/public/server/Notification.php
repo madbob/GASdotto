@@ -25,9 +25,39 @@ class Notification extends FromServer {
 
 		parent::addAttribute ( "type", "INTEGER" );
 		parent::addAttribute ( "description", "STRING" );
+		parent::addAttribute ( "startdate", "DATE" );
+		parent::addAttribute ( "enddate", "DATE" );
+		parent::addAttribute ( "recipent", "Object::User" );
 	}
 
 	public function get ( $request ) {
+		global $current_user;
+
+		$ret = array ();
+
+		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+			$ids = join ( ',', $request->has );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $this->tablename, $ids );
+		}
+		else {
+			/*
+				Per far quagliare la concatenazione di altri frammenti di query
+				forzo l'esistenza di uno statement WHERE cui accodare gli altri
+				in AND
+			*/
+			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
+		}
+
+		$query .= sprintf ( " AND recipent = %d OR recipent = %d ORDER BY startdate DESC", $current_user, 1000 );
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+
+		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+			$obj = new $this->classname;
+			$obj->readFromDB ( $row [ 'id' ] );
+			array_push ( $ret, $obj->exportable () );
+		}
+
+		return $ret;
 	}
 }
 

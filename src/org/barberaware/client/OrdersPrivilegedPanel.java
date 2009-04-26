@@ -74,7 +74,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( ord.getInt ( "status" ) == Order.OPENED ) {
 					Supplier supplier;
 
-					supplier = ( Supplier )object.getObject ( "supplier" );
+					supplier = ( Supplier ) object.getObject ( "supplier" );
 					if ( supplier.iAmReference () == false )
 						return;
 
@@ -293,6 +293,23 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	public Image getIcon () {
 		return new Image ( "images/path_orders.png" );
+	}
+
+	public String getCurrentInternalReference () {
+		int index;
+		FromServerForm iter;
+
+		index = -1;
+
+		for ( int i = 1; i < getWidgetCount (); i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			if ( iter.isOpen () == true ) {
+				index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();
+				break;
+			}
+		}
+
+		return Integer.toString ( index );
 	}
 
 	public void initView () {

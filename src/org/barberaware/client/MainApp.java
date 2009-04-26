@@ -44,10 +44,12 @@ public class MainApp extends Composite {
 
 		stack = new MainStack ();
 		menu = new Menu ( stack );
+		stack.wireMenu ( menu );
 		hor.add ( menu );
 		hor.setCellWidth ( menu, "15%" );
 		hor.add ( stack );
 		hor.setCellWidth ( stack, "85%" );
+		header.wireMainStack ( stack );
 
 		main.add ( new Footer () );
 

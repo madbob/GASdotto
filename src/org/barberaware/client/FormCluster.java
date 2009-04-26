@@ -21,9 +21,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 /**
-	TODO	Permettere di specificare la generazione di permalink che puntino ai singoli
-		elementi nella lista, per permettere l'accesso diretto ai contenuti per mezzo di
-		link esterno
+	TODO	Spezzare questa classe in due parti, quella che si occupa della formattazione dei
+		FromServerForm e quella che gestisce direttamente l'hook sul server
 */
 
 public abstract class FormCluster extends VerticalPanel {
@@ -41,7 +40,10 @@ public abstract class FormCluster extends VerticalPanel {
 			}
 
 			public void onModify ( FromServer object ) {
-				refreshElement ( object );
+				FromServerForm iter;
+
+				iter = refreshElement ( object );
+				customModify ( iter );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -176,12 +178,14 @@ public abstract class FormCluster extends VerticalPanel {
 		}
 	}
 
-	public void refreshElement ( FromServer object ) {
+	public FromServerForm refreshElement ( FromServer object ) {
 		FromServerForm iter;
 
 		iter = retrieveForm ( object );
 		if ( iter != null )
 			iter.refreshContents ( object );
+
+		return iter;
 	}
 
 	public void deleteElement ( FromServer object ) {
@@ -192,12 +196,32 @@ public abstract class FormCluster extends VerticalPanel {
 			iter.setVisible ( false );
 	}
 
+	public int getCurrentlyOpened () {
+		FromServerForm iter;
+
+		for ( int i = 0; i < getWidgetCount (); i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			if ( iter.isOpen () == true )
+				return iter.getObject ().getLocalID ();
+		}
+
+		return -1;
+	}
+
 	/*
 		Questa funzione puo' essere sovrascritta per personalizzare l'ordinamento
 		all'interno della lista di forms
 	*/
 	protected int sorting ( FromServer first, FromServer second ) {
 		return 0;
+	}
+
+	/*
+		Questa funzione puo' essere sovrascritta per personalizzare il comportamento in
+		caso di modifica di uno degli elementi del form
+	*/
+	protected void customModify ( FromServerForm form ) {
+		/* dummy */
 	}
 
 	protected abstract FromServerForm doNewEditableRow ();

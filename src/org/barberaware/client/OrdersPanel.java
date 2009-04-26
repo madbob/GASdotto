@@ -83,6 +83,13 @@ public class OrdersPanel extends GenericPanel {
 			}
 		} );
 
+		/*
+			A futura memoria: qui non puo' essere applicato un FormCluster perche' ad
+			ogni Order devo creare un FromServerForm che ha per oggetto un OrderUser
+			di cui l'Order e' il riferimento, dunque la logica differisce troppo da
+			quella originaria per essere applicata
+		*/
+
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Order ord;
@@ -222,6 +229,23 @@ public class OrdersPanel extends GenericPanel {
 
 	public String getSystemID () {
 		return "orders";
+	}
+
+	public String getCurrentInternalReference () {
+		int index;
+		FromServerForm iter;
+
+		index = -1;
+
+		for ( int i = 1; i < getWidgetCount (); i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			if ( iter.isOpen () == true ) {
+				index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();
+				break;
+			}
+		}
+
+		return Integer.toString ( index );
 	}
 
 	public Image getIcon () {

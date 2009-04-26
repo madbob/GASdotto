@@ -29,8 +29,24 @@ public class Notification extends FromServer {
 
 	public Notification () {
 		super ();
+
+		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
+			public String retrive ( FromServer obj ) {
+				User recipent;
+
+				recipent = ( User ) obj.getObject ( "recipent" );
+				if ( recipent == null )
+					return "Nuova Notifica";
+				else
+					return "A: " + recipent.getString ( "name" );
+			}
+		} );
+
 		addAttribute ( "type", FromServer.INTEGER );
 		addAttribute ( "description", FromServer.LONGSTRING );
+		addAttribute ( "startdate", FromServer.DATE );
+		addAttribute ( "enddate", FromServer.DATE );
+		addAttribute ( "recipent", FromServer.OBJECT, User.class );
 	}
 
 	public Image getIcon () {

@@ -218,6 +218,10 @@ public class SuppliersEditPanel extends GenericPanel {
 		return "edit_suppliers";
 	}
 
+	public String getCurrentInternalReference () {
+		return Integer.toString ( main.getCurrentlyOpened () );
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_suppliers.png" );
 	}

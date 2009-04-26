@@ -26,11 +26,20 @@ public class FromServerTable extends FromServerArray {
 		public String		head;
 		public String		attr;
 		public boolean		edit;
+		public Widget		customWid;
 
 		public FromServerTableColumn ( String header, String attribute, boolean editable ) {
 			head = header;
 			attr = attribute;
 			edit = editable;
+			customWid = null;
+		}
+
+		public FromServerTableColumn ( String header, String attribute, Widget custom ) {
+			head = header;
+			attr = attribute;
+			customWid = custom;
+			edit = true;
 		}
 	}
 
@@ -49,6 +58,10 @@ public class FromServerTable extends FromServerArray {
 
 	public void addColumn ( String header, String attribute, boolean editable ) {
 		columns.add ( new FromServerTableColumn ( header, attribute, editable ) );
+	}
+
+	public void addColumn ( String header, String attribute, Widget custom ) {
+		columns.add ( new FromServerTableColumn ( header, attribute, custom ) );
 	}
 
 	public void clean () {
@@ -152,7 +165,9 @@ public class FromServerTable extends FromServerArray {
 		for ( int i = 0; i < cols; i++ ) {
 			c = ( FromServerTableColumn ) columns.get ( i );
 
-			if ( c.edit == true )
+			if ( c.customWid != null )
+				wid = new FromServerWidget ( element, c.attr, c.customWid );
+			else if ( c.edit == true )
 				wid = new FromServerWidget ( element, c.attr );
 			else
 				wid = new Label ( element.getString ( c.attr ) );

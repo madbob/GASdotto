@@ -102,6 +102,17 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		} );
 	}
 
+	public void addAllSelector () {
+		/**
+			TODO	Mina vagante! Quando viene selezionato l'elemento che funge da
+				wildcard per "tutti" viene in realta' usato l'ID 1000, che viene
+				a priori impiegato per tale significato. Ovviamente questo
+				sistema fallisce nel momento in cui 1000 e' l'ID di un elemento
+				valido
+		*/
+		main.addItem ( "Tutti", "1000" );
+	}
+
 	public void addFilter ( FromServerValidateCallback filter ) {
 		int id;
 		FromServer tmp;

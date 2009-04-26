@@ -209,6 +209,10 @@ public class OrdersEditPanel extends GenericPanel {
 		return "edit_orders";
 	}
 
+	public String getCurrentInternalReference () {
+		return Integer.toString ( main.getCurrentlyOpened () );
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_orders_edit.png" );
 	}

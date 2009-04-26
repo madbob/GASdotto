@@ -66,7 +66,7 @@ public class SmoothingNotify extends Composite {
 
 		not = ( SingleNotification ) this.requests.remove ();
 
-		if ( not.text != null ) {
+		if ( not != null && not.text != null ) {
 			Timer timer;
 
 			main.setVisible ( true );

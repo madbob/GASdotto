@@ -109,6 +109,9 @@ function install_main_db () {
 					id serial,
 					type int default 0,
 					description varchar ( 500 ) default '',
+					startdate date,
+					enddate date,
+					recipent int references users ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);

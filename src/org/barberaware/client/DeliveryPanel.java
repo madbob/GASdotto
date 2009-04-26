@@ -174,6 +174,23 @@ public class DeliveryPanel extends GenericPanel {
 		return "delivery";
 	}
 
+	public String getCurrentInternalReference () {
+		int index;
+		FromServerForm iter;
+
+		index = -1;
+
+		for ( int i = 0; i < getWidgetCount (); i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			if ( iter.isOpen () == true ) {
+				index = iter.getObject ().getLocalID ();
+				break;
+			}
+		}
+
+		return Integer.toString ( index );
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_delivery.png" );
 	}

@@ -143,6 +143,10 @@ public class HomePanel extends GenericPanel {
 		return "home";
 	}
 
+	public String getCurrentInternalReference () {
+		return "";
+	}
+
 	public Image getIcon () {
 		return new Image ( "images/path_home.png" );
 	}

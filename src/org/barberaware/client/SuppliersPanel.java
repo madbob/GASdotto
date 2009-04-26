@@ -22,19 +22,19 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SuppliersPanel extends GenericPanel {
-	private class OpenedOrdersList extends Composite {
+	private abstract class OrdersList extends Composite {
 		private FlexTable	main;
 		private FromServerForm	mainForm;
 		private int		num;
 
-		public OpenedOrdersList ( FromServer supplier, FromServerForm reference ) {
+		protected void buildMe ( FromServer supplier, FromServerForm reference ) {
 			main = new FlexTable ();
 			initWidget ( main );
 
 			main.addTableListener ( new TableListener () {
 				public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
 					Hidden id;
-	
+
 					if ( row == 0 )
 						return;
 
@@ -52,7 +52,7 @@ public class SuppliersPanel extends GenericPanel {
 				viene eseguito prima che vengano creati i form dei fornitori e
 				gli ordini non vengono dunque assegnati correttamente. Pertanto
 				qui rieseguo il controllo su tutti gli ordini in cache e popolo
-				il OpenedOrdersList
+				il OrdersList
 			*/
 			checkExistingOrders ( supplier );
 		}
@@ -60,11 +60,11 @@ public class SuppliersPanel extends GenericPanel {
 		private void clean () {
 			IconsBar icons;
 
-			main.setWidget ( 0, 0, new Label ( "Non ci sono ordini aperti per questo fornitore" ) );
+			main.setWidget ( 0, 0, new Label ( getEmptyNotification () ) );
 			num = 0;
 
 			icons = mainForm.getIconsBar ();
-			icons.delImage ( "images/notifications/supplier_having_orders.png" );
+			icons.delImage ( getMainIcon () );
 		}
 
 		public void addOrder ( Order order ) {
@@ -72,31 +72,16 @@ public class SuppliersPanel extends GenericPanel {
 				IconsBar icons;
 
 				main.removeRow ( 0 );
-				main.setWidget ( 0, 0, new Label ( "Ordini aperti:" ) );
+				main.setWidget ( 0, 0, new Label ( getListHead () ) );
 
 				icons = mainForm.getIconsBar ();
-				icons.addImage ( "images/notifications/supplier_having_orders.png" );
+				icons.addImage ( getMainIcon () );
 			}
 
 			num++;
 
 			main.setWidget ( num, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
 			main.setWidget ( num, 1, new Label ( order.getString ( "name" ) ) );
-		}
-
-		private void checkExistingOrders ( FromServer supplier ) {
-			ArrayList list;
-			FromServer ord;
-			int supp_id;
-
-			list = Utils.getServer ().getObjectsFromCache ( "Order" );
-			supp_id = supplier.getLocalID ();
-
-			for ( int i = 0; i < list.size (); i++ ) {
-				ord = ( FromServer ) list.get ( i );
-				if ( ord.getObject ( "supplier" ).getLocalID () == supp_id )
-					addOrder ( ( Order ) ord );
-			}
 		}
 
 		private int retrieveOrder ( Order order ) {
@@ -126,6 +111,8 @@ public class SuppliersPanel extends GenericPanel {
 				label = ( Label ) main.getWidget ( index, 0 );
 				label.setText ( order.getString ( "name" ) );
 			}
+			else
+				addOrder ( order );
 		}
 
 		public void delOrder ( Order order ) {
@@ -139,6 +126,83 @@ public class SuppliersPanel extends GenericPanel {
 
 				if ( num == 0 )
 					clean ();
+			}
+		}
+
+		protected abstract String getEmptyNotification ();
+		protected abstract String getListHead ();
+		protected abstract String getMainIcon ();
+		protected abstract void checkExistingOrders ( FromServer supplier );
+	}
+
+	private class OpenedOrdersList extends OrdersList {
+		public OpenedOrdersList ( FromServer supplier, FromServerForm reference ) {
+			buildMe ( supplier, reference );
+		}
+
+		protected String getEmptyNotification () {
+			return "Non ci sono ordini aperti per questo fornitore";
+		}
+
+		protected String getListHead () {
+			return "Ordini aperti:";
+		}
+
+		protected String getMainIcon () {
+			return "images/notifications/supplier_having_orders.png";
+		}
+
+		protected void checkExistingOrders ( FromServer supplier ) {
+			ArrayList list;
+			FromServer ord;
+			int supp_id;
+
+			list = Utils.getServer ().getObjectsFromCache ( "Order" );
+			supp_id = supplier.getLocalID ();
+
+			for ( int i = 0; i < list.size (); i++ ) {
+				ord = ( FromServer ) list.get ( i );
+
+				if ( ord.getInt ( "status" ) == Order.OPENED &&
+						ord.getObject ( "supplier" ).getLocalID () == supp_id )
+					addOrder ( ( Order ) ord );
+			}
+		}
+	}
+
+	private class PastOrdersList extends OrdersList {
+		public PastOrdersList ( FromServer supplier, FromServerForm reference ) {
+			buildMe ( supplier, reference );
+		}
+
+		protected String getEmptyNotification () {
+			return "Non sono mai stati eseguiti ordini per questo fornitore";
+		}
+
+		protected String getListHead () {
+			return "Ordini passati:";
+		}
+
+		protected String getMainIcon () {
+			return "images/notifications/supplier_having_past_orders.png";
+		}
+
+		protected void checkExistingOrders ( FromServer supplier ) {
+			ArrayList list;
+			FromServer ord;
+			FromServer base_ord;
+			int supp_id;
+
+			list = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+			supp_id = supplier.getLocalID ();
+
+			for ( int i = 0; i < list.size (); i++ ) {
+				ord = ( FromServer ) list.get ( i );
+				base_ord = ord.getObject ( "baseorder" );
+
+				if ( base_ord.getInt ( "status" ) == Order.CLOSED &&
+						base_ord.getObject ( "supplier" ).getLocalID () == supp_id )
+					addOrder ( ( Order ) ord );
 			}
 		}
 	}
@@ -155,6 +219,7 @@ public class SuppliersPanel extends GenericPanel {
 				FlexTable fields;
 				Supplier supplier;
 				OpenedOrdersList orders;
+				PastOrdersList past_orders;
 
 				supplier = ( Supplier ) supp;
 				ver = new FromServerForm ( supplier, FromServerForm.NOT_EDITABLE );
@@ -162,9 +227,12 @@ public class SuppliersPanel extends GenericPanel {
 				ver.add ( new Label ( supplier.getString ( "description" ) ) );
 
 				orders = new OpenedOrdersList ( supp, ver );
-
 				ver.setExtraWidget ( "orders", orders );
 				ver.add ( orders );
+
+				past_orders = new PastOrdersList ( supp, ver );
+				ver.setExtraWidget ( "past_orders", past_orders );
+				ver.add ( past_orders );
 
 				return ver;
 			}
@@ -227,10 +295,46 @@ public class SuppliersPanel extends GenericPanel {
 			}
 		} );
 
-		/**
-			TODO	Aggiungere informazione su stato ordini aperti in passato e nel
-				presente dall'utente corrente
-		*/
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				FromServerForm form;
+
+				if ( object.getInt ( "status" ) != Order.CLOSED )
+					return;
+
+				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					PastOrdersList list;
+					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+					list.addOrder ( ( Order ) object.getObject ( "baseorder" ) );
+				}
+			}
+
+			public void onModify ( FromServer object ) {
+				FromServerForm form;
+
+				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					PastOrdersList list;
+					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+					list.modOrder ( ( Order ) object.getObject ( "baseorder" ) );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				FromServerForm form;
+
+				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					PastOrdersList list;
+					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+					list.delOrder ( ( Order ) object.getObject ( "baseorder" ) );
+				}
+			}
+		} );
 	}
 
 	/****************************************************************** GenericPanel */
@@ -241,6 +345,10 @@ public class SuppliersPanel extends GenericPanel {
 
 	public String getSystemID () {
 		return "suppliers";
+	}
+
+	public String getCurrentInternalReference () {
+		return Integer.toString ( main.getCurrentlyOpened () );
 	}
 
 	public Image getIcon () {
