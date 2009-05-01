@@ -47,6 +47,7 @@ public class AddressSelector extends Composite {
 					opened = true;
 					syncToDialog ();
 					dialog.center ();
+					street.setFocus ( true );
 					dialog.show ();
 				}
 			}

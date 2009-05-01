@@ -47,6 +47,7 @@ public class PasswordBox extends Composite implements StringWidget {
 					passwordCheck.setText ( "" );
 
 					dialog.center ();
+					password.setFocus ( true );
 					dialog.show ();
 				}
 			}

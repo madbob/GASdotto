@@ -254,7 +254,25 @@ public class ReferenceList extends FromServerArray {
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
-		/* dummy */
+		boolean found;
+		User iter;
+
+		if ( element != null ) {
+			found = false;
+
+			for ( int i = 0; i < selected.size (); i++ ) {
+				iter = ( User ) selected.get ( i );
+				if ( iter.equals ( element ) == true ) {
+					found = true;
+					break;
+				}
+			}
+
+			if ( found == false )
+				selected.add ( element );
+
+			retriveMainString ();
+		}
 	}
 
 	public void setElements ( ArrayList elements ) {

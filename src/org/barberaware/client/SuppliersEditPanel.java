@@ -135,7 +135,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		supplier = ( Supplier ) supp;
 
-		if ( supplier.iAmReference () == false )
+		if ( supp.isValid () == true && supplier.iAmReference () == false )
 			return null;
 
 		ver = new FromServerForm ( supplier );
@@ -154,6 +154,10 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
 		references = new ReferenceList ();
+
+		if ( supp.isValid () == false )
+			references.addElement ( Session.getUser () );
+
 		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
 
 		fields = new FlexTable ();

@@ -199,7 +199,7 @@ public abstract class FormCluster extends VerticalPanel {
 	public int getCurrentlyOpened () {
 		FromServerForm iter;
 
-		for ( int i = 0; i < getWidgetCount (); i++ ) {
+		for ( int i = 0; i < latestIterableIndex (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			if ( iter.isOpen () == true )
 				return iter.getObject ().getLocalID ();
