@@ -30,46 +30,24 @@ public class SuppliersEditPanel extends GenericPanel {
 		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				FromServerForm ver;
-				VerticalPanel vertical;
-				ProductsEditPanel products;
-
 				ver = commonFormBuilder ( supp );
-				if ( ver == null )
-					return null;
-
-				vertical = new VerticalPanel ();
-				vertical.addStyleName ( "sub-elements-details" );
-				ver.add ( vertical );
-				vertical.add ( new Label ( "Prodotti" ) );
-				products = new ProductsEditPanel ( ( Supplier ) supp );
-				ver.setExtraWidget ( "products", products );
-				vertical.add ( products );
-
-				/**
-					TODO	Gestire files esterni da assegnare al fornitore
-				*/
-
 				return ver;
 			}
 
 			protected FromServerForm doNewEditableRow () {
-				FromServerForm ver;
-				Label notify;
-
-				ver = commonFormBuilder ( new Supplier () );
-
-				/**
-					TODO	Un giorno si potra' provvedere ad un sistema piu'
-						furbo per gestire i prodotti da salvare per
-						fornitori ancora non salvati
-				*/
-				notify = new Label ( "Dopo aver confermato il salvataggio del fornitore, sarà qui possibile definirne i prodotti" );
-				notify.addStyleName ( "sub-elements-details" );
-				ver.add ( notify );
-
-				return ver;
+				return doEditableRow ( new Supplier () );
 			}
 
+			protected void customNew ( FromServer object, boolean true_new ) {
+				if ( true_new == false ) {
+					FromServerForm form;
+					ProductsEditPanel products;
+
+					form = main.retrieveForm ( object );
+					products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
+					products.enable ( true );
+				}
+			}
 		};
 
 		addTop ( main );
@@ -83,19 +61,19 @@ public class SuppliersEditPanel extends GenericPanel {
 				panel = retrieveProductsPanel ( product );
 
 				if ( panel != null ) {
+					IconsBar icons;
+					FromServerForm supplier_form;
+
 					/*
 						Se prima la lista era vuota ed ora non lo e'
 						piu', rimuovo l'icona messa "sulla fiducia" al
 						momento della creazione
 					*/
-					if ( panel.numProducts () == 0 ) {
-						IconsBar icons;
-						FromServerForm supplier_form;
+					supplier_form = main.retrieveForm ( product.getObject ( "supplier" ) );
+					icons = supplier_form.getIconsBar ();
 
-						supplier_form = main.retrieveForm ( product.getObject ( "supplier" ) );
-						icons = supplier_form.getIconsBar ();
+					if ( icons.hasImage ( "images/notifications/supplier_no_products.png" ) )
 						icons.delImage ( "images/notifications/supplier_no_products.png" );
-					}
 
 					panel.addProduct ( product );
 				}
@@ -128,10 +106,12 @@ public class SuppliersEditPanel extends GenericPanel {
 	private FromServerForm commonFormBuilder ( FromServer supp ) {
 		final FromServerForm ver;
 		HorizontalPanel hor;
+		VerticalPanel vertical;
 		FlexTable fields;
 		Supplier supplier;
 		ReferenceList references;
 		IconsBar icons;
+		ProductsEditPanel products;
 
 		supplier = ( Supplier ) supp;
 
@@ -154,11 +134,10 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
 		references = new ReferenceList ();
+		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
 
 		if ( supp.isValid () == false )
 			references.addElement ( Session.getUser () );
-
-		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
 
 		fields = new FlexTable ();
 		hor.add ( fields );
@@ -188,13 +167,25 @@ public class SuppliersEditPanel extends GenericPanel {
 		ver.add ( ver.getWidget ( "paying_mode" ) );
 
 		/*
-			Sull fiducia assegno a tutti i fornitori l'icona per cui non ci sono
+			Sulla fiducia assegno a tutti i fornitori l'icona per cui non ci sono
 			prodotti caricati per esso, utile all'utente per identificare la
 			situazione anomala. Quando poi arriveranno (nel trattamento degli oggetti
 			"Product") provvedo a rimuoverla
 		*/
 		icons = ver.getIconsBar ();
 		icons.addImage ( "images/notifications/supplier_no_products.png" );
+
+		vertical = new VerticalPanel ();
+		vertical.addStyleName ( "sub-elements-details" );
+		ver.add ( vertical );
+		vertical.add ( new Label ( "Prodotti" ) );
+		products = new ProductsEditPanel ( supplier, supp.isValid () );
+		ver.setExtraWidget ( "products", products );
+		vertical.add ( products );
+
+		/**
+			TODO	Gestire files esterni da assegnare al fornitore
+		*/
 
 		return ver;
 	}

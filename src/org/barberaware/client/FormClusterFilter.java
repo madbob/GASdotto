@@ -68,6 +68,8 @@ public class FormClusterFilter extends Composite {
 
 			if ( callback.check ( iter.getObject (), text ) == false )
 				iter.setVisible ( false );
+			else
+				iter.setVisible ( true );
 		}
 	}
 }

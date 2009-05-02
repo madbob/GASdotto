@@ -95,9 +95,13 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 			public void onDestroy ( FromServer object ) {
 				int index;
 
+				Window.alert ( "destroy in selector" );
+
 				index = retrieveObjectIndex ( object );
 				if ( index != -1 )
 					main.removeItem ( index );
+
+				Window.alert ( "done" );
 			}
 		} );
 	}
@@ -163,6 +167,7 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 	private int retrieveObjectIndex ( FromServer object ) {
 		int search_id;
 		int id;
+		int num_items;
 
 		/**
 			TODO	Qui si potrebbe sfruttare il parametro sortItems per procedere
@@ -171,8 +176,9 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		*/
 
 		search_id = object.getLocalID ();
+		num_items = main.getItemCount ();
 
-		for ( int i = 0; i < main.getItemCount (); ) {
+		for ( int i = 0; i < num_items; i++ ) {
 			id = Integer.parseInt ( main.getValue ( i ) );
 			if ( search_id == id )
 				return i;

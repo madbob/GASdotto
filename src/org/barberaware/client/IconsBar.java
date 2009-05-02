@@ -31,7 +31,7 @@ public class IconsBar extends Composite {
 		initWidget ( main );
 	}
 
-	public void addImage ( String path ) {
+	private int retrieveImage ( String path ) {
 		int num;
 		Image iter;
 
@@ -40,26 +40,33 @@ public class IconsBar extends Composite {
 		for ( int i = 0; i < num; i++ ) {
 			iter = ( Image ) main.getWidget ( i );
 			if ( iter.getUrl ().endsWith ( path ) )
-				return;
+				return i;
 		}
 
-		main.add ( new Image ( path ) );
+		return -1;
+	}
+
+	public void addImage ( String path ) {
+		int index;
+
+		index = retrieveImage ( path );
+		if ( index == -1 )
+			main.add ( new Image ( path ) );
 	}
 
 	public void delImage ( String path ) {
-		int num;
-		Image iter;
+		int index;
 
-		num = main.getWidgetCount ();
+		index = retrieveImage ( path );
+		if ( index != -1 )
+			main.remove ( index );
+	}
 
-		for ( int i = 0; i < num; i++ ) {
-			iter = ( Image ) main.getWidget ( i );
+	public boolean hasImage ( String path ) {
+		int index;
 
-			if ( iter.getUrl ().endsWith ( path ) ) {
-				main.remove ( i );
-				break;
-			}
-		}
+		index = retrieveImage ( path );
+		return ( index != -1 );
 	}
 
 	public Label addText ( String text ) {

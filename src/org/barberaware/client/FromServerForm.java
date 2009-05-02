@@ -400,7 +400,7 @@ public class FromServerForm extends Composite {
 	}
 
 	private boolean savingObject () {
-  		if ( rebuildObject () == false )
+		if ( rebuildObject () == false )
 			return false;
 
 		callbacks.onSave ( this );

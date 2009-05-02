@@ -142,10 +142,12 @@ public class Header extends Composite {
 	public Widget doGreetings () {
 		String text;
 		User user;
+		GAS gas;
 		Label label;
 
 		user = Session.getUser ();
-		text = "Ciao, " + user.getString ( "firstname" ) + " " + user.getString ( "surname" );
+		gas = Session.getGAS ();
+		text = user.getString ( "firstname" ) + " " + user.getString ( "surname" ) + " @ " + gas.getString ( "name" );
 		label = new Label ( text );
 		return label;
 	}

@@ -26,12 +26,12 @@ public class ProductsEditPanel extends Composite {
 
 	private FormCluster		list;
 	private FromServerTable		table;
+	private ToggleButton		switchable;
 
 	private Supplier		supplier;
 
-	public ProductsEditPanel ( Supplier supp ) {
+	public ProductsEditPanel ( Supplier supp, boolean enabled ) {
 		VerticalPanel container;
-		ToggleButton switchable;
 
 		supplier = supp;
 
@@ -44,7 +44,6 @@ public class ProductsEditPanel extends Composite {
 
 		main.add ( doListView () );
 		main.add ( doTableView () );
-		main.showWidget ( 0 );
 
 		switchable = new ToggleButton ( "Visualizza Tabella", "Visualizza Lista" );
 		switchable.addClickListener ( new ClickListener () {
@@ -61,6 +60,25 @@ public class ProductsEditPanel extends Composite {
 		switchable.setStyleName ( "text-button" );
 		container.add ( switchable );
 		container.setCellHorizontalAlignment ( switchable, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		if ( enabled == false ) {
+			main.add ( new Label ( "Dopo aver confermato il salvataggio del fornitore, sarà qui possibile definirne i prodotti" ) );
+			main.showWidget ( 2 );
+			switchable.setVisible ( false );
+		}
+		else
+			main.showWidget ( 0 );
+	}
+
+	public void enable ( boolean enabled ) {
+		if ( enabled == false ) {
+			main.showWidget ( 2 );
+			switchable.setVisible ( false );
+		}
+		else {
+			main.showWidget ( 0 );
+			switchable.setVisible ( true );
+		}
 	}
 
 	public void addProduct ( Product product ) {

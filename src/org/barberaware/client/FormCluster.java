@@ -35,8 +35,15 @@ public abstract class FormCluster extends VerticalPanel {
 
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				if ( automatic == true )
-					addElement ( object );
+				if ( automatic == true ) {
+					int add;
+
+					add = addElement ( object );
+					if ( add == 2 )
+						return;
+
+					customNew ( object, add == 1 );
+				}
 			}
 
 			public void onModify ( FromServer object ) {
@@ -123,6 +130,7 @@ public abstract class FormCluster extends VerticalPanel {
 		int id;
 		int tot;
 		FromServerForm iter;
+		FromServer cmp;
 
 		iter = null;
 		id = obj.getLocalID ();
@@ -130,7 +138,9 @@ public abstract class FormCluster extends VerticalPanel {
 
 		for ( i = 0; i < tot; i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
-			if ( iter.getObject ().getLocalID () == id )
+			cmp = iter.getObject ();
+
+			if ( cmp != null && cmp.getLocalID () == id )
 				break;
 		}
 
@@ -157,11 +167,30 @@ public abstract class FormCluster extends VerticalPanel {
 		return i;
 	}
 
-	public void addElement ( FromServer object ) {
+	/*
+		Questa funzione ritorna:
+
+		0 - se il form per l'oggetto da aggiungere esiste gia' (solitamente nel caso in
+			cui e' stato salvato un elemento elaborato appunto all'interno della
+			lista, il cui form e' stato costruito con doNewEditableRow() )
+		1 - se il nuovo form per il nuovo elemento e' stato aggiunto
+		2 - se non e' possibile creare il nuovo form per il nuovo elemento, cioe' se
+			doEditableRow() torna null
+	*/
+	public int addElement ( FromServer object ) {
+		int ret;
 		int pos;
 		FromServerForm iter;
 
+		/*
+			E' possibile che questa funzione venga chiamata su un elemento che gia'
+			e' nella lista, ad esempio quando viene eseguita la callback onReceive
+			(triggerata anche da oggetti creati per mezzo di un form gia' messo qui).
+			Occorre dunque fare un controllino...
+		*/
+
 		iter = retrieveForm ( object );
+
 		if ( iter == null ) {
 			iter = doEditableRow ( object );
 
@@ -174,8 +203,16 @@ public abstract class FormCluster extends VerticalPanel {
 
 				pos = getPosition ( object );
 				insert ( iter, pos );
+
+				ret = 1;
 			}
+			else
+				ret = 2;
 		}
+		else
+			ret = 0;
+
+		return ret;
 	}
 
 	public FromServerForm refreshElement ( FromServer object ) {
@@ -189,11 +226,20 @@ public abstract class FormCluster extends VerticalPanel {
 	}
 
 	public void deleteElement ( FromServer object ) {
+		int i;
+		int tot;
 		FromServerForm iter;
 
-		iter = retrieveForm ( object );
-		if ( iter != null )
-			iter.setVisible ( false );
+		tot = latestIterableIndex ();
+
+		for ( i = 0; i < tot; i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+
+			if ( iter.equals ( object ) == true ) {
+				remove ( i );
+				break;
+			}
+		}
 	}
 
 	public int getCurrentlyOpened () {
@@ -218,9 +264,20 @@ public abstract class FormCluster extends VerticalPanel {
 
 	/*
 		Questa funzione puo' essere sovrascritta per personalizzare il comportamento in
-		caso di modifica di uno degli elementi del form
+		caso di modifica di uno degli elementi della lista
 	*/
 	protected void customModify ( FromServerForm form ) {
+		/* dummy */
+	}
+
+	/*
+		Questa funzione puo' essere sovrascritta per personalizzare il comportamento sul
+		salvataggio di uno degli elementi della lista. Il parametro true_new e' true
+		quando si tratta di un nuovo oggetto proveniente dal server, false se e' stato
+		salvato un oggetto editato appunto all'interno del FormCluster e di cui magari si
+		vuole cambiare il contenuto del form costruito con doNewEditableRow()
+	*/
+	protected void customNew ( FromServer object, boolean true_new ) {
 		/* dummy */
 	}
 
