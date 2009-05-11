@@ -49,11 +49,11 @@ public class FromServerForm extends Composite {
 
 		widgets = new ArrayList ();
 
-		/**
-			TODO	L'array di dati addizionali e' usato solo raramente, forse non
-				val la pena di allocarlo sempre...
+		/*
+			Poiche' l'array dei dati addizionali viene usato solo in specifici casi,
+			viene allocato solo quando esplicitamente richiesto la prima volta
 		*/
-		addictionalData = new ArrayList ();
+		addictionalData = null;
 
 		setCallback ( null );
 
@@ -372,10 +372,14 @@ public class FromServerForm extends Composite {
 	}
 
 	public void addAddictionalData ( Object data ) {
+		if ( addictionalData == null )
+			addictionalData = new ArrayList ();
 		addictionalData.add ( data );
 	}
 
 	public ArrayList getAddictionalData () {
+		if ( addictionalData == null )
+			addictionalData = new ArrayList ();
 		return addictionalData;
 	}
 

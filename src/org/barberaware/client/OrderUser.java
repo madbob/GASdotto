@@ -32,6 +32,8 @@ public class OrderUser extends FromServer {
 		addAttribute ( "baseuser", FromServer.OBJECT, User.class );
 		addAttribute ( "baseorder", FromServer.OBJECT, Order.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
+
+		alwaysReload ( true );
 	}
 
 	/*

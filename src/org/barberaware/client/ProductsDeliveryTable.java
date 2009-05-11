@@ -73,9 +73,42 @@ public class ProductsDeliveryTable extends FromServerArray {
 				}
 
 				public void onLostFocus ( Widget sender ) {
-					/**
-						TODO	Controllo quantita' ed aggiornamento prezzo
-					*/
+					float input;
+					Label total;
+					FloatBox box;
+					FloatBox iter;
+					ProductUser prod_user;
+					Product prod;
+
+					box = ( FloatBox ) sender;
+					input = box.getVal ();
+
+					for ( int a = 0; a < main.getRowCount (); a++ ) {
+						iter = ( FloatBox ) main.getWidget ( a, 3 );
+
+						if ( iter == box ) {
+							prod_user = ( ProductUser ) currentValues.get ( a );
+							prod = ( Product ) prod_user.getObject ( "product" );
+
+							/*
+								Viene segnalato l'errore sull'input solo
+								se il prodotto in questione non prevede
+								una quantita' variabile alla consegna
+							*/
+							if ( input < 0 ||
+									( prod.getBool ( "mutable_price" ) == false &&
+									input > prod_user.getFloat ( "quantity" ) ) ) {
+
+								Utils.showNotification ( "Il valore immesso non è valido" );
+								box.setVal ( 0 );
+								return;
+							}
+
+							total = ( Label ) main.getWidget ( a, 4 );
+							total.setText ( ( input * prod.getTotalPrice () ) + " €" );
+							break;
+						}
+					}
 				}
 			} );
 

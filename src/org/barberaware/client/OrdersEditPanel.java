@@ -129,6 +129,7 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					} );
 					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "supplier", suppliers ) );
+					ver.setValidation ( "supplier", FromServerValidateCallback.defaultObjectValidationCallback () );
 
 					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );

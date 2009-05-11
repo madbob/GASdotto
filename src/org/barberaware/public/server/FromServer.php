@@ -207,6 +207,19 @@ abstract class FromServer {
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
 
+			/**
+				TODO	Potrebbe essere una idea quella di saltare i valori vuoti
+					(ad esempio le stringhe), in modo da evitare di
+					trasferirli al client che gia' e' inizializzato di
+					default con essi, ma occorre verificare che eliminando
+					dei campi a questo livello il tutto continua a fungere
+					correttamente.
+					Alternativamente si potrebbe introdurre una funzione
+					"compress" che elimina la roba inutile prima di spedirla
+					dall'altra parte: dispendioso dal punto di vista
+					computazionale, ma si risparmia in traffico dati
+			*/
+
 			if ( isset ( $row [ $attr->name ] ) )
 				$attr->value = $attr->traslate_field ( $this, $row [ $attr->name ] );
 			else
@@ -467,17 +480,41 @@ abstract class FromServer {
 		return $ret;
 	}
 
+	private function destroy_related () {
+		$attr = $this->getAttribute ( "id" );
+		$id = $attr->value;
+
+		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+			$attr = $this->attributes [ $i ];
+			list ( $type, $objtype ) = explode ( "::", $attr->type );
+
+			if ( $type == "ARRAY" ) {
+				$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d",
+						$this->tablename, $attr->name, $id );
+				query_and_check ( $query, "Impossibile eliminare oggetti correlati a " . $this->classname );
+			}
+		}
+	}
+
+	private function destroy_myself () {
+		$attr = $this->getAttribute ( "id" );
+		$id = $attr->value;
+
+		$this->destroy_related ();
+
+		$query = sprintf ( "DELETE FROM %s WHERE id = %d",
+					$this->tablename, $id );
+		query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
+	}
+
 	public function destroy ( $obj ) {
 		$this->from_object_to_internal ( $obj );
 
 		$attr = $this->getAttribute ( "id" );
 		$id = $attr->value;
 
-		if ( $id != -1 ) {
-			$query = sprintf ( "DELETE FROM %s WHERE id = %d",
-						$this->tablename, $id );
-			query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
-		}
+		if ( $id != -1 )
+			$this->destroy_myself ();
 
 		return $id;
 	}

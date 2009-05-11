@@ -99,6 +99,16 @@ public class Utils {
 		}
 	}
 
+	public static String showPercentage ( String percentage ) {
+		if ( percentage == null || percentage.length () == 0 )
+			return "";
+
+		if ( percentage.endsWith ( "%" ) )
+			return percentage;
+		else
+			return percentage + " €";
+	}
+
 	/****************************************************** date */
 
 	public static String[] months = new String[] {

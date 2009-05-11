@@ -95,13 +95,9 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 			public void onDestroy ( FromServer object ) {
 				int index;
 
-				Window.alert ( "destroy in selector" );
-
 				index = retrieveObjectIndex ( object );
 				if ( index != -1 )
 					main.removeItem ( index );
-
-				Window.alert ( "done" );
 			}
 		} );
 	}

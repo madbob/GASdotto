@@ -58,14 +58,15 @@ public class HomePanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				if ( hasOrders == false ) {
-					orders.removeRow ( 0 );
-					orders.setWidget ( 0, 0, new Label ( "Ordini aperti in questo momento: " ) );
-					hasOrders = true;
-				}
+				if ( object.getInt ( "status" ) == Order.OPENED ) {
+					if ( hasOrders == false ) {
+						orders.removeRow ( 0 );
+						orders.setWidget ( 0, 0, new Label ( "Ordini aperti in questo momento: " ) );
+						hasOrders = true;
+					}
 
-				if ( object.getInt ( "status" ) == Order.OPENED )
 					doOrderRow ( ( Order ) object );
+				}
 			}
 
 			public void onModify ( FromServer object ) {

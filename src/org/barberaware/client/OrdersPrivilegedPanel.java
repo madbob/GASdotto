@@ -25,6 +25,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	public OrdersPrivilegedPanel () {
 		super ();
 
+		/**
+
+			WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
+
+			Ho aggiunto l'alwaysreload a OrderUser, ma ha comportamenti completamente incomprensibili!
+			Verificare ordine chiamate verso server (save, get) e valori ricevuti
+
+		*/
+
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
@@ -37,7 +46,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					form = ( FromServerForm ) getWidget ( i );
 					tmp_order = ( Order ) form.getObject ().getObject ( "baseorder" );
 
-					if ( order.getLocalID () == tmp_order.getLocalID () )
+					if ( order.equals ( tmp_order ) )
 						syncUserOrder ( form, ( OrderUser ) object, 0 );
 				}
 			}
@@ -178,12 +187,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			/*
 				Forse inefficiente, ma qui faccio insieme il controllo sull
 				esistenza dell'ordine utente e la somma dei prodotti. Se l'ordine
-				viene effettivamente trovato, tutto il resto del lavoro viene
-				perso
+				viene effettivamente trovato, ritorna e tutto il resto del lavoro
+				viene perso
 			*/
 			if ( iter.getLocalID () == uorder_id ) {
 				if ( action == 0 )
 					return;
+
 				else if ( action == 1 ) {
 					orders.remove ( i );
 					continue;

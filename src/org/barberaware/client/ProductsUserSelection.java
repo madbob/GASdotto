@@ -120,6 +120,7 @@ public class ProductsUserSelection extends FromServerArray {
 
 	private void addProductRow ( int index, Product product ) {
 		String info_str;
+		String plus_str;
 		float plus;
 		boolean raw;
 		FlexTable.FlexCellFormatter formatter;
@@ -160,9 +161,9 @@ public class ProductsUserSelection extends FromServerArray {
 		if ( plus != 0 )
 			info_str += " + " + plus + " € trasporto";
 
-		plus = product.getFloat ( "surplus" );
-		if ( plus != 0 )
-			info_str += " + " + plus + " € surplus";
+		plus_str = product.getString ( "surplus" );
+		if ( plus_str != null && plus_str != "" && plus_str != "0" )
+			info_str += " + " + Utils.showPercentage ( plus_str ) + " surplus";
 
 		main.setWidget ( index, 2, new Label ( info_str ) );
 

@@ -147,4 +147,22 @@ public abstract class FromServerValidateCallback {
 				}
 			};
 	}
+
+	public static FromServerValidateCallback defaultObjectValidationCallback () {
+		return
+			new FromServerValidateCallback () {
+				public boolean check ( FromServer object, String attribute, Widget widget ) {
+					ObjectWidget selector;
+
+					selector = ( ObjectWidget ) widget;
+
+					if ( selector.getValue () == null ) {
+						Utils.showNotification ( "Nessun valore selezionato" );
+						return false;
+					}
+					else
+						return true;
+				}
+			};
+	}
 }
