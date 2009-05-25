@@ -108,6 +108,7 @@ public abstract class FormCluster extends VerticalPanel {
 		button = new PushButton ( new Image ( icon_path ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				FromServerForm new_form;
+
 				new_form = doNewEditableRow ();
 
 				new_form.setCallback ( new FromServerFormCallbacks () {
@@ -156,11 +157,14 @@ public abstract class FormCluster extends VerticalPanel {
 
 	private int getPosition ( FromServer object ) {
 		int i;
+		FromServer object_2;
 		FromServerForm iter;
 
 		for ( i = 0; i < latestIterableIndex (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
-			if ( sorting ( object, iter.getObject () ) > 0 )
+			object_2 = iter.getObject ();
+
+			if ( object_2 != null && sorting ( object, object_2 ) > 0 )
 				break;
 		}
 
@@ -243,12 +247,19 @@ public abstract class FormCluster extends VerticalPanel {
 	}
 
 	public int getCurrentlyOpened () {
+		FromServer obj;
 		FromServerForm iter;
 
 		for ( int i = 0; i < latestIterableIndex (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
-			if ( iter.isOpen () == true )
-				return iter.getObject ().getLocalID ();
+			if ( iter.isOpen () == true ) {
+				obj = iter.getObject ();
+
+				if ( obj != null )
+					return obj.getLocalID ();
+				else
+					break;
+			}
 		}
 
 		return -1;

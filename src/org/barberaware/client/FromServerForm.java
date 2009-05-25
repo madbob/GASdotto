@@ -61,6 +61,9 @@ public class FromServerForm extends Composite {
 		main.setAnimationEnabled ( true );
 		main.addEventHandler ( new DisclosureHandler () {
 			public void onClose ( DisclosureEvent event ) {
+				if ( object == null )
+					return;
+
 				if ( object.isValid () == false ) {
 					if ( Window.confirm ( "Vuoi salvare il nuovo oggetto?" ) == true )
 						savingObject ();
@@ -128,31 +131,7 @@ public class FromServerForm extends Composite {
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
 		if ( routine == null ) {
-			callbacks = new FromServerFormCallbacks () {
-				public String getName ( FromServerForm form ) {
-					return form.getObject ().getString ( "name" );
-				}
-
-				public void onSave ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onReset ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onDelete ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onOpen ( FromServerForm form ) {
-					/* dummy */
-				}
-
-				public void onClose ( FromServerForm form ) {
-					/* dummy */
-				}
-			};
+			callbacks = new FromServerFormCallbacks ();
 		}
 		else {
 			callbacks = routine;
@@ -431,6 +410,9 @@ public class FromServerForm extends Composite {
 	private void resetObject () {
 		int num;
 		FromServerWidget tmp;
+
+		if ( object == null )
+			return;
 
 		num = widgets.size ();
 

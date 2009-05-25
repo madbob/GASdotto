@@ -17,7 +17,7 @@
 
 package org.barberaware.client;
 
-public abstract class FromServerFormCallbacks {
+public class FromServerFormCallbacks {
 	public String getName ( FromServerForm form ) {
 		return form.getObject ().getString ( "name" );
 	}

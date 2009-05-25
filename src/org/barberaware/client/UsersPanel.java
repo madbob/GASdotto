@@ -60,6 +60,13 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
 
+					/**
+						TODO	Controllare non solo unicita' ma anche
+							effettivo riempimento del campo "login"
+					*/
+
+					ver.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
+
 					fields.setWidget ( 1, 0, new Label ( "Nome" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "firstname" ) );
 
@@ -118,11 +125,25 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 4, 0, new Label ( "Password" ) );
 					fields.setWidget ( 4, 1, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
+					/**
+						TODO	Aggiungere controllo su password settata
+							per utenti nuovi
+					*/
+
 					return ver;
 				}
 
 				protected FromServerForm doNewEditableRow () {
 					return doEditableRow ( new User () );
+				}
+
+				protected int sorting ( FromServer first, FromServer second ) {
+					if ( first == null )
+						return 1;
+					else if ( second == null )
+						return -1;
+
+					return -1 * ( first.getString ( "name" ).compareTo ( second.getString ( "name" ) ) );
 				}
 		};
 

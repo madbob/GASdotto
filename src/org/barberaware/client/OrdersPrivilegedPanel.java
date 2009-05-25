@@ -25,15 +25,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	public OrdersPrivilegedPanel () {
 		super ();
 
-		/**
-
-			WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS WORK IN PROGRESS
-
-			Ho aggiunto l'alwaysreload a OrderUser, ma ha comportamenti completamente incomprensibili!
-			Verificare ordine chiamate verso server (save, get) e valori ricevuti
-
-		*/
-
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
@@ -88,6 +79,14 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						return;
 
 					insert ( doOrderRow ( ord ), 1 );
+				}
+				else {
+					/*
+						Questo per gestire il ben raro caso in cui un
+						ordine viene ri-aperto
+					*/
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						onReceive ( object );
 				}
 			}
 
@@ -147,14 +146,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onClose ( FromServerForm form ) {
-				OrderUser uorder;
-				OrderUser original_uorder;
-
-				uorder = new OrderUser ();
-				original_uorder = ( OrderUser ) form.getObject ();
-				uorder.setObject ( "baseorder", original_uorder.getObject ( "baseorder" ) );
-				form.setObject ( uorder );
-				form.refreshContents ( uorder );
+				cleanForm ( form, true );
 			}
 		} );
 
@@ -196,6 +188,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 				else if ( action == 1 ) {
 					orders.remove ( i );
+					i--;
 					continue;
 				}
 				else if ( action == 2 )
@@ -250,7 +243,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 		}
 
-		cleanForm ( form );
+		cleanForm ( form, false );
 	}
 
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
@@ -260,13 +253,28 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		products = uorder.getArray ( "products" );
 		table = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
 		table.setElements ( products );
+
+		ver.setObject ( uorder );
 	}
 
-	private void cleanForm ( FromServerForm form ) {
-		ProductsUserSelection table;
+	private void cleanForm ( FromServerForm form, boolean complete ) {
+		OrderUser uorder;
+		OrderUser original_uorder;
 
-		table = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-		table.setElements ( null );
+		uorder = new OrderUser ();
+		original_uorder = ( OrderUser ) form.getObject ();
+		uorder.setObject ( "baseorder", original_uorder.getObject ( "baseorder" ) );
+		form.setObject ( uorder );
+
+		if ( complete == true ) {
+			form.refreshContents ( uorder );
+		}
+		else {
+			ProductsUserSelection table;
+
+			table = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
+			table.setElements ( null );
+		}
 	}
 
 	private int retrieveOrderForm ( Order parent ) {

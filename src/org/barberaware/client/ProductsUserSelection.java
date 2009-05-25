@@ -229,24 +229,6 @@ public class ProductsUserSelection extends FromServerArray {
 					giri ed ottimizzare
 			*/
 
-			/*
-			for ( int a = 0; a < num_elements; a++ ) {
-				prod = ( ProductUser ) elements.get ( a );
-				prod_internal = ( Product ) prod.getObject ( "product" );
-				id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
-				rows = main.getRowCount () - 2;
-
-				for ( int i = 0; i < rows; i += 2 ) {
-					selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
-
-					if ( selector.getValue ().getObject ( "product" ).equals ( prod_internal ) ) {
-						selector.setValue ( prod );
-						break;
-					}
-				}
-			}
-			*/
-
 			rows = main.getRowCount () - 2;
 
 			for ( int i = 0; i < rows; i += 2 ) {
@@ -294,7 +276,7 @@ public class ProductsUserSelection extends FromServerArray {
 			prod = ( ProductUser ) selector.getValue ();
 
 			if ( prod.getFloat ( "quantity" ) > 0 )
-				list.add ( prod );
+				list.add ( prod.duplicate () );
 		}
 
 		return list;
