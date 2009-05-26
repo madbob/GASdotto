@@ -34,7 +34,7 @@ class Product extends FromServer {
 		$this->addAttribute ( "minimum_order", "INTEGER" );
 		$this->addAttribute ( "multiple_order", "INTEGER" );
 		$this->addAttribute ( "stock_size", "INTEGER" );
-		$this->addAttribute ( "mutable_price", "INTEGER" );
+		$this->addAttribute ( "mutable_price", "BOOLEAN" );
 		$this->addAttribute ( "available", "BOOLEAN" );
 	}
 

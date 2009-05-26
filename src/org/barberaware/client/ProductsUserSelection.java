@@ -60,6 +60,7 @@ public class ProductsUserSelection extends FromServerArray {
 		index++;
 
 		totalLabel = new PriceViewer ();
+		totalLabel.setStyleName ( "bigger-text" );
 		main.setWidget ( index, 0, new Label ( "Totale" ) );
 		main.setWidget ( index, 1, totalLabel );
 	}

@@ -183,6 +183,7 @@ public class OrdersPanel extends GenericPanel {
 		if ( total_view == null ) {
 			icons = ver.getIconsBar ();
 			total_view = icons.addText ( total_text );
+			total_view.setStyleName ( "bigger-text" );
 
 			/*
 				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale

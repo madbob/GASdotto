@@ -233,6 +233,10 @@
 	padding-bottom:		20px;
 }
 
+.bigger-text {
+	font-size:		30px;
+}
+
 .gwt-DisclosurePanel {
 	width:			100%;
 }
