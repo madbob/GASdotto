@@ -138,6 +138,26 @@ class Product extends FromServer {
 
 		return $id;
 	}
+
+	public function getTotalPrice () {
+	    $tot = 0;
+
+	    $tot = $this->getAttribute ( "unit_price" )->value;
+
+	    $s = $this->getAttribute ( "shipping_price" )->value;
+	    if ( $s != "" )
+		$tot += $s;
+
+	    $s = $this->getAttribute ( "surplus" )->value;
+	    if ( $s != "" && $s != 0 ) {
+		if ( $s [ strlen ( $s ) - 1 ] == '%' )
+		    $tot += ( $tot * rtrim ( $s, "%" ) ) / 100;
+		else
+		    $tot += $s;
+	    }
+
+	    return $tot;
+	}
 }
 
 ?>

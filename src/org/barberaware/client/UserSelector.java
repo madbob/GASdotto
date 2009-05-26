@@ -40,6 +40,7 @@ public class UserSelector extends ObjectWidget {
 		first.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
 				main.showWidget ( 1 );
+				fire ();
 			}
 		} );
 		main.add ( first );
@@ -48,6 +49,10 @@ public class UserSelector extends ObjectWidget {
 		main.add ( select );
 
 		main.showWidget ( 0 );
+	}
+
+	private void fire () {
+	    changeListeners.fireChange ( this );
 	}
 
 	public void addChangeListener ( ChangeListener listener ) {

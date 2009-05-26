@@ -28,17 +28,23 @@ if ( check_session () == false )
 
 $order = new Order ();
 $order->readFromDB ( $id );
-$order = $order->exportable ();
 
-$products = $order->products;
+$products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
-$output = ",";
+$products_names = "";
+$products_prices = "";
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
-	$output .= sprintf ( "%s,", $prod->name );
+	$products_names .= sprintf ( ",\"%s\"", $prod->getAttribute ( "name" )->value );
+	$products_prices .= sprintf ( ",%.02f €", $prod->getTotalPrice () );
 }
-$output .= "\n";
+
+$output = $products_names . "\n" . $products_prices . "\n";
+
+$products_sums = array ();
+for ( $i = 0; $i < count ( $product ); $i++ )
+    $products_sums [] = 0;
 
 $request = new stdClass ();
 $request->order = $id;
@@ -48,8 +54,9 @@ $contents = $order_user_proxy->get ( $request );
 for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$order_user = $contents [ $i ];
 
-	$output .= sprintf ( "%s %s,", $order_user->baseuser->firstname, $order_user->baseuser->surname );
+	$output .= sprintf ( "\"%s %s\",", $order_user->baseuser->firstname, $order_user->baseuser->surname );
 
+	$user_total = 0;
 	$user_products = $order_user->products;
 	usort ( $user_products, "sort_product_user_by_name" );
 
@@ -57,21 +64,28 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
-		if ( $prod->id == $prod_user->product->id ) {
+		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
 			$output .= sprintf ( "%d,", $prod_user->quantity );
+			$sum = $prod_user->quantity * $prod->getTotalPrice ();
+			$products_sums [ $a ] += $sum;
+			$user_total += $sum;
 			$e++;
 		}
 		else
 			$output .= sprintf ( "," );
 	}
 
-	$output .= "\n";
+	$output .= sprintf ( "%s €\n", $user_total );
 }
 
+for ( $i = 0; $i < count ( $products_sums ); $i++ )
+    $output .= sprintf ( ",%s €\n", $products_sums [ $i ] );
+
+header("Content-Type: plain/text");
 echo $output;
 
 function sort_product_by_name ( $first, $second ) {
-	return strcmp ( $first->name, $second->name );
+	return strcmp ( $first->getAttribute ( "name" ), $second->getAttribute ( "name" ) );
 }
 
 function sort_product_user_by_name ( $first, $second ) {
