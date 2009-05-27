@@ -27,16 +27,31 @@ public class OrderSummary extends Composite {
 	private PriceViewer		totalLabel;
 
 	public OrderSummary ( Order order ) {
-		currentOrder = order;
+		HTMLTable.RowFormatter formatter;
 
-		/**
-			TODO	Aggiungere intestazioni colonne
-		*/
+		currentOrder = order;
 
 		main = new FlexTable ();
 		main.setCellPadding ( 5 );
 		main.setCellSpacing ( 5 );
 		initWidget ( main );
+
+		/**
+			TODO	Nella colonna 0 della tabella ci stanno gli elementi nascosti con
+				gli ID dei prodotti, ma comunque mi resta la casellina nella
+				prima riga vuota; sarebbe carino inventarsi qualcosa per non
+				visualizzarla, anche se probabilmente c'e' da rivedere la
+				formattazione della tabella intera
+		*/
+
+		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );
+		main.setWidget ( 0, 2, new Label ( "Prezzo Unitario" ) );
+		main.setWidget ( 0, 3, new Label ( "Quantità Ordinata" ) );
+		main.setWidget ( 0, 4, new Label ( "Prezzo Totale" ) );
+		main.setWidget ( 0, 5, new Label ( "Notifiche" ) );
+
+		formatter = main.getRowFormatter ();
+		formatter.addStyleName ( 0, "table-header" );
 
 		totalLabel = null;
 
@@ -47,8 +62,8 @@ public class OrderSummary extends Composite {
 	public void reFill ( Order order ) {
 		currentOrder = order;
 
-		for ( int i = 0; i < main.getRowCount (); i++ )
-			main.removeRow ( i );
+		for ( int i = 1; i < main.getRowCount (); i++ )
+			main.removeRow ( 1 );
 
 		fillList ();
 		syncOrders ();
@@ -58,6 +73,7 @@ public class OrderSummary extends Composite {
 		int my_id;
 		ArrayList products;
 		float [] quantities;
+		float [] prices;
 		ArrayList cached_orders;
 		OrderUser user_ord;
 		ArrayList user_products;
@@ -72,8 +88,11 @@ public class OrderSummary extends Composite {
 		products = currentOrder.getArray ( "products" );
 
 		quantities = new float [ products.size () ];
-		for ( int i = 0; i < products.size (); i++ )
+		prices = new float [ products.size () ];
+		for ( int i = 0; i < products.size (); i++ ) {
 			quantities [ i ] = 0;
+			prices [ i ] = 0;
+		}
 
 		/*
 			Probabilmente l'algoritmo di ricostruzione della lista di quantita' puo'
@@ -98,6 +117,7 @@ public class OrderSummary extends Composite {
 
 						if ( user_product_ref == order_product.getLocalID () ) {
 							quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
+							prices [ e ] = prices [ e ] + user_product.getTotalPrice ();
 							break;
 						}
 					}
@@ -105,19 +125,18 @@ public class OrderSummary extends Composite {
 			}
 		}
 
-		/**
-			TODO	Aggiungere nella tabella anche totale prezzo per ogni prodotto e
-				numero utenti ordinanti
-		*/
-
-		for ( int i = 0; i < products.size (); i++ ) {
+		for ( int i = 0, e = 1; i < products.size (); i++, e++ ) {
 			order_product = ( Product ) products.get ( i );
-			product_quantity_sum = ( Label ) main.getWidget ( i, 3 );
+
+			product_quantity_sum = ( Label ) main.getWidget ( e, 3 );
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
 
+			product_quantity_sum = ( Label ) main.getWidget ( e, 4 );
+			product_quantity_sum.setText ( prices [ i ] + " €" );
+
 			stock = order_product.getInt ( "stock_size" );
-			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] / stock != 0 ) )
-				main.setWidget ( i, 4, new Image ( "images/info-warning.png" ) );
+			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] % stock != 0 ) )
+				main.setWidget ( i, 5, new Image ( "images/info-warning.png" ) );
 		}
 
 		totalLabel.setValue ( total_price );
@@ -135,31 +154,34 @@ public class OrderSummary extends Composite {
 
 	private void fillList () {
 		int i;
+		int e;
 		ArrayList products;
 		Product prod;
 		String measure;
 
 		products = currentOrder.getArray ( "products" );
 
-		for ( i = 0; i < products.size (); i++ ) {
+		for ( i = 0, e = 1; i < products.size (); i++, e++ ) {
 			prod = ( Product ) products.get ( i );
 			measure = measureSymbol ( prod );
 
-			main.setWidget ( i, 0, new Hidden ( Integer.toString ( prod.getLocalID () ) ) );
-			main.setWidget ( i, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( i, 2, new Label ( prod.getTotalPrice () + " € / " + measure ) );
-			main.setWidget ( i, 3, new Label ( "0 " + measure ) );
+			main.setWidget ( e, 0, new Hidden ( Integer.toString ( prod.getLocalID () ) ) );
+			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
+			main.setWidget ( e, 2, new Label ( prod.getTotalPrice () + " € / " + measure ) );
+			main.setWidget ( e, 3, new Label ( "0 " + measure ) );
+			main.setWidget ( e, 4, new Label ( "0 €" ) );
 		}
 
-		main.setWidget ( i, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( i, 0, 4 );
-		i++;
+		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
+		main.getFlexCellFormatter ().setColSpan ( e, 0, 6 );
+
+		e++;
 
 		if ( totalLabel == null )
 			totalLabel = new PriceViewer ();
 		else
 			totalLabel.setValue ( 0 );
 
-		main.setWidget ( i, 2, totalLabel );
+		main.setWidget ( e, 4, totalLabel );
 	}
 }

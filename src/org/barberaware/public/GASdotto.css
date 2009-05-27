@@ -127,7 +127,7 @@
 	margin:			5px;
 }
 
-.elements-table .header {
+.table-header {
 	background-color:	#4EDFCE;
 	text-align:		center;
 }
@@ -141,7 +141,7 @@
 .sub-elements-details {
 	width:			90%;
 	margin:			5px;
-	margin-left:		50px;
+	margin-left:		20px;
 	padding:		5px;
 	border:			5px solid #000000;
 }

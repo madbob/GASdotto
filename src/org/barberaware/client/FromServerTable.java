@@ -82,7 +82,7 @@ public class FromServerTable extends FromServerArray {
 			main.setWidget ( 0, i, new Label ( c.head ) );
 		}
 
-		main.getRowFormatter ().addStyleName ( 0, "header" );
+		main.getRowFormatter ().addStyleName ( 0, "table-header" );
 	}
 
 	private void syncRowsContents () {
