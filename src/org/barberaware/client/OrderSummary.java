@@ -29,6 +29,10 @@ public class OrderSummary extends Composite {
 	public OrderSummary ( Order order ) {
 		currentOrder = order;
 
+		/**
+			TODO	Aggiungere intestazioni colonne
+		*/
+
 		main = new FlexTable ();
 		main.setCellPadding ( 5 );
 		main.setCellSpacing ( 5 );
@@ -100,6 +104,11 @@ public class OrderSummary extends Composite {
 				}
 			}
 		}
+
+		/**
+			TODO	Aggiungere nella tabella anche totale prezzo per ogni prodotto e
+				numero utenti ordinanti
+		*/
 
 		for ( int i = 0; i < products.size (); i++ ) {
 			order_product = ( Product ) products.get ( i );

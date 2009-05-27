@@ -73,13 +73,7 @@ public class FromServerForm extends Composite {
 					return;
 				}
 
-				if ( contentsChanged () ) {
-					if ( Window.confirm ( "Vuoi salvare le modifiche effettuate?" ) == true )
-						savingObject ();
-					else
-						resetObject ();
-				}
-
+				checkSaving ();
 				onCloseCb ();
 			}
 
@@ -223,9 +217,9 @@ public class FromServerForm extends Composite {
 
 		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
-				if ( object.isValid () == false )
+				if ( object.isValid () == false ) {
 					invalidate ();
-
+				}
 				else {
 					resetObject ();
 					callbacks.onReset ( myself );
@@ -245,6 +239,7 @@ public class FromServerForm extends Composite {
 					main.setOpen ( false );
 				}
 			} );
+
 			panel.add ( button, "Salva" );
 		}
 
@@ -360,6 +355,15 @@ public class FromServerForm extends Composite {
 		if ( addictionalData == null )
 			addictionalData = new ArrayList ();
 		return addictionalData;
+	}
+
+	public void checkSaving () {
+		if ( contentsChanged () ) {
+			if ( Window.confirm ( "Vuoi salvare le modifiche effettuate?" ) == true )
+				savingObject ();
+			else
+				resetObject ();
+		}
 	}
 
 	private boolean contentsChanged () {

@@ -24,15 +24,12 @@ import com.google.gwt.user.client.ui.*;
 public class ProductUserSelector extends ObjectWidget {
 	private FloatBox				quantity;
 	private Label					measure;
-	private Label					info;
 	private ProductUser				currentValue;
 	private DelegatingChangeListenerCollection	changeListeners;
 
 	public ProductUserSelector ( Product prod ) {
 		FocusPanel focusable;
-		FlexTable container;
 		HorizontalPanel main;
-		HTMLTable.RowFormatter formatter;
 
 		currentValue = new ProductUser ();
 		currentValue.setObject ( "product", prod );
@@ -40,135 +37,21 @@ public class ProductUserSelector extends ObjectWidget {
 		focusable = new FocusPanel ();
 		initWidget ( focusable );
 
-		focusable.addMouseListener ( new MouseListener () {
-			public void onMouseEnter ( Widget sender ) {
-				showCells ( true );
-			}
-
-			public void onMouseLeave ( Widget sender ) {
-				showCells ( false );
-			}
-
-			public void onMouseMove ( Widget sender, int x, int y ) {
-				/* dummy */
-			}
-
-			public void onMouseDown ( Widget sender, int x, int y ) {
-				/* dummy */
-			}
-
-			public void onMouseUp ( Widget sender, int x, int y ) {
-				/* dummy */
-			}
-		} );
-
-		container = new FlexTable ();
-		container.setStyleName ( "buttons-bar" );
-		focusable.add ( container );
-
 		main = new HorizontalPanel ();
-		container.setWidget ( 0, 0, main );
+		focusable.add ( main );
 
 		quantity = new FloatBox ();
-		hookChecks ( quantity, prod );
 		main.add ( quantity );
 
 		measure = new Label ();
 		main.add ( measure );
 
-		info = doDetails ( prod );
-		container.setWidget ( 1, 0, info );
-		info.setVisible ( false );
-
-		formatter = container.getRowFormatter ();
-		formatter.addStyleName ( 0, "icons" );
-		formatter.addStyleName ( 1, "help" );
-
 		setProduct ( prod );
-	}
-
-	private Label doDetails ( Product prod ) {
-		Label details;
-		FromServer measure;
-		String symbol;
-		String info;
-		int quantity;
-
-		info = "";
-
-		measure = prod.getObject ( "measure" );
-		if ( measure != null )
-			symbol = measure.getString ( "symbol" );
-		else
-			symbol = "";
-
-		quantity = prod.getInt ( "minimum_order" );
-		if ( quantity != 0 )
-			info += " Ordine minimo di " + quantity + symbol + " ";
-
-		quantity = prod.getInt ( "multiple_order" );
-		if ( quantity != 0 )
-			info += " Ordinabili multipli di " + quantity + symbol + " ";
-
-		details = new Label ( info );
-		return details;
 	}
 
 	private void undoChange () {
 		quantity.setVal ( 0 );
 		changeListeners.fireChange ( quantity );
-	}
-
-	private void hookChecks ( FloatBox quantity, Product prod ) {
-		int check;
-
-		check = prod.getInt ( "minimum_order" );
-		if ( check != 0 ) {
-			quantity.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					/* dummy */
-				}
-
-				public void onLostFocus ( Widget sender ) {
-					FloatBox input;
-					float quantity;
-					float check;
-
-					input = ( FloatBox ) sender;
-					quantity = input.getVal ();
-					check = currentValue.getObject ( "product" ).getInt ( "minimum_order" );
-
-					if ( ( quantity != 0 ) && ( quantity < check ) ) {
-						Utils.showNotification ( "La quantità deve essere non minore di " + check );
-						undoChange ();
-					}
-				}
-			} );
-		}
-
-		check = prod.getInt ( "multiple_order" );
-		if ( check != 0 ) {
-			quantity.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					/* dummy */
-				}
-
-				public void onLostFocus ( Widget sender ) {
-					FloatBox input;
-					float quantity;
-					float check;
-
-					input = ( FloatBox ) sender;
-					quantity = input.getVal ();
-					check = currentValue.getObject ( "product" ).getInt ( "multiple_order" );
-
-					if ( ( quantity != 0 ) && ( quantity % check != 0 ) ) {
-						Utils.showNotification ( "La quantità deve essere multipla di " + check );
-						undoChange ();
-					}
-				}
-			} );
-		}
 	}
 
 	private void setProduct ( Product prod ) {
@@ -177,10 +60,6 @@ public class ProductUserSelector extends ObjectWidget {
 		m = ( Measure ) prod.getObject ( "measure" );
 		if ( m != null )
 			measure.setText ( m.getString ( "symbol" ) );
-	}
-
-	private void showCells ( boolean show ) {
-		info.setVisible ( show );
 	}
 
 	public void setQuantity ( float quant ) {

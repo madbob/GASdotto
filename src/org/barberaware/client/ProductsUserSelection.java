@@ -242,8 +242,17 @@ public class ProductsUserSelection extends FromServerArray {
 					prod_internal = ( Product ) prod.getObject ( "product" );
 					id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
 
+					/**
+						TODO	Sia qui che in getElements() duplico oggetti a tutto andare,
+							per evitare sovrapposizioni; tutto dipende dal fatto che in
+							OrderPrivilegedPanel uso sempre lo stesso form, inizializzato
+							e reinizializzato un po' a casaccio, ci sarebbe da
+							perfezionare quella parte ed evitare qui tante copie (di cui
+							alla fine la stragrande maggioranza sono perse nel nulla)
+					*/
+
 					if ( sel_prod.equals ( prod_internal ) ) {
-						selector.setValue ( prod );
+						selector.setValue ( prod.duplicate () );
 						found = true;
 						break;
 					}
@@ -276,8 +285,15 @@ public class ProductsUserSelection extends FromServerArray {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 			prod = ( ProductUser ) selector.getValue ();
 
-			if ( prod.getFloat ( "quantity" ) > 0 )
+			if ( prod.getFloat ( "quantity" ) > 0 ) {
+				/*
+					Onde evitare di impazzire troppo in OrderPrivilegedPanel,
+					in cui lo stesso OrderUser viene riusato e sovrascritto,
+					qui duplico gli elementi validi per evitare
+					sovrapposizioni
+				*/
 				list.add ( prod.duplicate () );
+			}
 		}
 
 		return list;

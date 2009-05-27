@@ -373,6 +373,18 @@ abstract class FromServer {
 								$this->tablename, $name, $id );
 					$existing = query_and_check ( $query, "Impossibile recuperare lista per sincronizzare oggetto " . $this->classname );
 
+					/*
+						Procedimento:
+						- raccolgo tutti gli elementi gia' salvati nel DB
+						- li confronto con quelli nell'array in ingresso
+							- se sono nell'array e anche nel DB, gli assegno -100
+							- se sono nel DB ma non nell'array, li elimino
+						- ripasso l'array
+							- se hanno ID = -1 li salvo nel DB come nuovi oggetti, ed assegno loro il nuovo ID
+							- se hanno ID = -100 li salto (perche' ci sono gia', l'ho controllato prima)
+							- se ID != -100, salvo
+					*/
+
 					while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
 						$found = false;
 
@@ -384,7 +396,7 @@ abstract class FromServer {
 								$tmpobj = new $element->type ();
 								$tmpobj->save ( $element );
 
-								$element->id = -1;
+								$element->id = -100;
 								$found = true;
 								break;
 							}
@@ -400,7 +412,12 @@ abstract class FromServer {
 					for ( $a = 0; $a < count ( $arr ); $a++ ) {
 						$single_data = $arr [ $a ];
 
-						if ( $single_data->id != -1 ) {
+						if ( $single_data->id != -100 ) {
+							if ( $single_data->id == -1 ) {
+								$tmpobj = new $single_data->type ();
+								$single_data->id = $tmpobj->save ( $single_data );
+							}
+
 							$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
 										$this->tablename, $name, $id, $single_data->id );
 							query_and_check ( $query, "Impossibile aggiungere elemento per sincronizzare oggetto " . $this->classname );

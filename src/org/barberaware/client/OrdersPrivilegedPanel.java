@@ -136,6 +136,16 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		users = new UserSelector ();
 		users.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
+				/**
+					TODO	Accertarsi che non siano stati modificati i
+						valori nel frattempo, selezionando un utente
+						diverso.
+						Per far le cose per bene si potrebbe aggiungere
+						una funzione compareValue() in FromServerArray e
+						ObjectWidget, ma implica correggere un po' tante
+						cose in giro...
+				*/
+
 				UserSelector selector;
 				selector = ( UserSelector ) sender;
 				retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
@@ -183,24 +193,34 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				viene perso
 			*/
 			if ( iter.getLocalID () == uorder_id ) {
-				if ( action == 0 )
+				if ( action == 0 ) {
 					return;
-
+				}
 				else if ( action == 1 ) {
 					orders.remove ( i );
+
+					/*
+						Se se ne rimuove uno il totale degli elementi
+						nell'array scende di uno, dunque devo allineare
+						l'indice
+					*/
 					i--;
+
 					continue;
 				}
-				else if ( action == 2 )
+				else if ( action == 2 ) {
 					continue;
+				}
 			}
 
 			total += iter.getTotalPrice ();
+			// Window.alert ( "aggiungo " + iter.getTotalPrice () + ", totale " + total );
 		}
 
 		if ( action == 0 || action == 1 ) {
 			orders.add ( uorder );
 			total += uorder.getTotalPrice ();
+			// Window.alert ( "fuori, sommo " + uorder.getTotalPrice () + ", totale " + total );
 		}
 
 		total_view = ( PriceViewer ) ver.retriveInternalWidget ( "price_sum" );
