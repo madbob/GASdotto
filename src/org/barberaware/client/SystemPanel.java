@@ -116,7 +116,6 @@ public class SystemPanel extends GenericPanel {
 
 	private FromServerForm doMeasureForm ( FromServer measure ) {
 		FromServerForm ver;
-		HorizontalPanel hor;
 		FlexTable fields;
 
 		ver = new FromServerForm ( measure );
@@ -127,8 +126,8 @@ public class SystemPanel extends GenericPanel {
 		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
 
-		fields.setWidget ( 1, 0, new Label ( "Simbolo" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "symbol" ) );
+		fields.setWidget ( 1, 2, new Label ( "Simbolo" ) );
+		fields.setWidget ( 1, 3, ver.getWidget ( "symbol" ) );
 
 		return ver;
 	}

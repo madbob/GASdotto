@@ -39,9 +39,8 @@ public class UsersPanel extends GenericPanel {
 
 		main = new FormCluster ( "User", "images/new_user.png" ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
+					final FromServerForm ver;
 					boolean handle_payments;
-					FromServerForm ver;
-					HorizontalPanel hor;
 					FlexTable fields;
 					User user;
 					CyclicToggle privileges;
@@ -51,21 +50,14 @@ public class UsersPanel extends GenericPanel {
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
 
-					hor = new HorizontalPanel ();
-					ver.add ( hor );
-
 					fields = new FlexTable ();
-					hor.add ( fields );
+					ver.add ( fields );
+
+					/* prima colonna */
 
 					fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
-
-					/**
-						TODO	Controllare non solo unicita' ma anche
-							effettivo riempimento del campo "login"
-					*/
-
-					ver.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
+					ver.setValidation ( "login", checkLoginNameCallback () );
 
 					fields.setWidget ( 1, 0, new Label ( "Nome" ) );
 					fields.setWidget ( 1, 1, ver.getWidget ( "firstname" ) );
@@ -92,14 +84,13 @@ public class UsersPanel extends GenericPanel {
 					fields.setWidget ( 7, 0, new Label ( "Indirizzo" ) );
 					fields.setWidget ( 7, 1, ver.getWidget ( "address" ) );
 
-					fields = new FlexTable ();
-					hor.add ( fields );
+					/* seconda colonna */
 
-					fields.setWidget ( 0, 0, new Label ( "Iscritto da" ) );
-					fields.setWidget ( 0, 1, ver.getWidget ( "join_date" ) );
+					fields.setWidget ( 0, 2, new Label ( "Iscritto da" ) );
+					fields.setWidget ( 0, 3, ver.getWidget ( "join_date" ) );
 
-					fields.setWidget ( 1, 0, new Label ( "Numero Tessera" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "card_number" ) );
+					fields.setWidget ( 1, 2, new Label ( "Numero Tessera" ) );
+					fields.setWidget ( 1, 3, ver.getWidget ( "card_number" ) );
 					ver.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
 
 					/*
@@ -109,26 +100,50 @@ public class UsersPanel extends GenericPanel {
 						ricaricato
 					*/
 					if ( handle_payments == true ) {
-						fields.setWidget ( 2, 0, new Label ( "Quota pagata" ) );
-						fields.setWidget ( 2, 1, ver.getWidget ( "paying" ) );
+						fields.setWidget ( 2, 2, new Label ( "Quota pagata" ) );
+						fields.setWidget ( 2, 3, ver.getWidget ( "paying" ) );
 					}
 					else
 						user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
 
-					fields.setWidget ( 3, 0, new Label ( "Ruolo" ) );
+					fields.setWidget ( 3, 2, new Label ( "Ruolo" ) );
 					privileges = new CyclicToggle ();
 					privileges.addState ( "images/user_role_standard.png" );
 					privileges.addState ( "images/user_role_reference.png" );
 					privileges.addState ( "images/user_role_admin.png" );
-					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "privileges", privileges ) );
+					fields.setWidget ( 3, 3, ver.getPersonalizedWidget ( "privileges", privileges ) );
 
-					fields.setWidget ( 4, 0, new Label ( "Password" ) );
-					fields.setWidget ( 4, 1, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
+					fields.setWidget ( 4, 2, new Label ( "Password" ) );
+					fields.setWidget ( 4, 3, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
-					/**
-						TODO	Aggiungere controllo su password settata
-							per utenti nuovi
+					/*
+						Se si sta definendo un nuovo utente si controlla
+						che la password sia effettivamente settata
 					*/
+					if ( u.isValid () == false ) {
+						ver.setValidation ( "password", new FromServerValidateCallback () {
+							public boolean check ( FromServer object, String attribute, Widget widget ) {
+								String text;
+
+								text = ( ( StringWidget ) widget ).getValue ();
+								if ( text.equals ( "" ) ) {
+									Utils.showNotification ( "La password non è stata definita" );
+									return false;
+								}
+
+								/*
+									Se il controllo e' andato a buon fine,
+									elimino questa callback di validazione.
+									L'oggetto viene salvato, ed il form
+									resettato, ed il campo password torna ad
+									essere vuoto pur essendo stata la password
+									settata
+								*/
+								ver.setValidation ( "password", null );
+								return true;
+							}
+						} );
+					}
 
 					return ver;
 				}
@@ -173,6 +188,46 @@ public class UsersPanel extends GenericPanel {
 			}
 		} );
 		addTop ( filter );
+	}
+
+	private FromServerValidateCallback checkLoginNameCallback () {
+		return 
+			new FromServerValidateCallback () {
+				public boolean check ( FromServer object, String attribute, Widget widget ) {
+					String text;
+					boolean ret;
+					FromServer iter;
+					ArrayList list;
+
+					text = ( ( StringWidget ) widget ).getValue ();
+					if ( text.equals ( "" ) ) {
+						Utils.showNotification ( "Il nome account non è stato definito" );
+						return false;
+					}
+
+					/*
+						Attenzione: il valore viene confrontato solo con
+						quelli gia' presenti in cache
+					*/
+
+					list = Utils.getServer ().getObjectsFromCache ( "User" );
+					ret = true;
+
+					for ( int i = 0; i < list.size (); i++ ) {
+						iter = ( FromServer ) list.get ( i );
+
+						if ( ( iter.equals ( object ) == false ) &&
+								( iter.getString ( "login" ).equals ( text ) ) ) {
+
+							Utils.showNotification ( "Nome account non univoco" );
+							ret = false;
+							break;
+						}
+					}
+
+					return ret;
+				}
+			};
 	}
 
 	/****************************************************************** GenericPanel */

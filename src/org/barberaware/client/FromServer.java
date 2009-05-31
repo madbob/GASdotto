@@ -170,10 +170,10 @@ public abstract class FromServer implements Comparator {
 
 		public JSONValue getJSON () {
 			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
-				if ( string != null )
+				if ( string != null && string != "" )
 					return new JSONString ( string );
 				else
-					return new JSONString ( "" );
+					return null;
 			}
 
 			else if ( type == FromServer.INTEGER )
@@ -510,6 +510,7 @@ public abstract class FromServer implements Comparator {
 		int attrs_num;
 		FromServerAttribute attr;
 		JSONObject obj;
+		JSONValue value;
 
 		obj = new JSONObject ();
 		obj.put ( "id", new JSONString ( Integer.toString ( localID ) ) );
@@ -519,7 +520,10 @@ public abstract class FromServer implements Comparator {
 
 		for ( int i = 0; i < attrs_num; i++ ) {
 			attr = ( FromServerAttribute ) attributes.get ( i );
-			obj.put ( attr.name, attr.getJSON () );
+
+			value = attr.getJSON ();
+			if ( value != null )
+				obj.put ( attr.name, value );
 		}
 
 		return obj;
@@ -552,60 +556,75 @@ public abstract class FromServer implements Comparator {
 
 			value = obj.get ( attr.name );
 
-			if ( value == null )
-				continue;
-
-			if ( attr.type == FromServer.STRING ||
-					attr.type == FromServer.LONGSTRING ||
-					attr.type == FromServer.PERCENTAGE )
-				attr.setString ( value.isString ().stringValue () );
-
-			else if ( attr.type == FromServer.INTEGER ) {
-				String str;
-
-				str = value.isString ().stringValue ();
-				if ( str.length () != 0 )
-					attr.setInt ( Integer.parseInt ( str ) );
-				else
+			if ( value == null ) {
+				if ( attr.type == FromServer.INTEGER )
 					attr.setInt ( 0 );
+
+				else if ( attr.type == FromServer.FLOAT )
+					attr.setFloat ( 0 );
+
+				else if ( attr.type == FromServer.ARRAY )
+					attr.setArray ( new ArrayList () );
+
+				else if ( attr.type == FromServer.OBJECT )
+					attr.setObject ( FromServerFactory.create ( attr.object_type.getName () ) );
+
+				else if ( attr.type == FromServer.ADDRESS )
+					attr.setAddress ( new Address () );
 			}
+			else {
+				if ( attr.type == FromServer.STRING ||
+						attr.type == FromServer.LONGSTRING ||
+						attr.type == FromServer.PERCENTAGE )
+					attr.setString ( value.isString ().stringValue () );
 
-			else if ( attr.type == FromServer.FLOAT )
-				attr.setFloat ( Float.parseFloat ( value.isString ().stringValue () ) );
+				else if ( attr.type == FromServer.INTEGER ) {
+					String str;
 
-			else if ( attr.type == FromServer.ARRAY ) {
-				ArrayList arr;
-				JSONArray array;
-
-				arr = new ArrayList ();
-				array = value.isArray ();
-
-				for ( int a = 0; a < array.size (); a++ ) {
-					tmp = FromServerFactory.create ( attr.object_type.getName () );
-					tmp.fromJSONObject ( array.get ( a ).isObject () );
-					arr.add ( tmp );
+					str = value.isString ().stringValue ();
+					if ( str.length () != 0 )
+						attr.setInt ( Integer.parseInt ( str ) );
+					else
+						attr.setInt ( 0 );
 				}
 
-				attr.setArray ( arr );
-			}
+				else if ( attr.type == FromServer.FLOAT )
+					attr.setFloat ( Float.parseFloat ( value.isString ().stringValue () ) );
 
-			else if ( attr.type == FromServer.OBJECT ) {
-				tmp = FromServerFactory.create ( attr.object_type.getName () );
-				tmp.fromJSONObject ( value.isObject () );
-				attr.setObject ( tmp );
-			}
+				else if ( attr.type == FromServer.ARRAY ) {
+					ArrayList arr;
+					JSONArray array;
 
-			else if ( attr.type == FromServer.DATE )
-				attr.setDate ( Utils.decodeDate ( value.isString ().stringValue () ) );
+					arr = new ArrayList ();
+					array = value.isArray ();
 
-			else if ( attr.type == FromServer.BOOLEAN )
-				attr.setBool ( Boolean.valueOf ( value.isString ().stringValue () ) );
+					for ( int a = 0; a < array.size (); a++ ) {
+						tmp = FromServerFactory.create ( attr.object_type.getName () );
+						tmp.fromJSONObject ( array.get ( a ).isObject () );
+						arr.add ( tmp );
+					}
 
-			else if ( attr.type == FromServer.ADDRESS ) {
-				Address addr;
-				addr = new Address ();
-				addr.fromJSON ( value.isObject () );
-				attr.setAddress ( addr );
+					attr.setArray ( arr );
+				}
+
+				else if ( attr.type == FromServer.OBJECT ) {
+					tmp = FromServerFactory.create ( attr.object_type.getName () );
+					tmp.fromJSONObject ( value.isObject () );
+					attr.setObject ( tmp );
+				}
+
+				else if ( attr.type == FromServer.DATE )
+					attr.setDate ( Utils.decodeDate ( value.isString ().stringValue () ) );
+
+				else if ( attr.type == FromServer.BOOLEAN )
+					attr.setBool ( Boolean.valueOf ( value.isString ().stringValue () ) );
+
+				else if ( attr.type == FromServer.ADDRESS ) {
+					Address addr;
+					addr = new Address ();
+					addr.fromJSON ( value.isObject () );
+					attr.setAddress ( addr );
+				}
 			}
 		}
 	}

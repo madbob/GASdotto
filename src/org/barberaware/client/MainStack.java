@@ -97,14 +97,27 @@ public class MainStack extends Composite {
 
 	public void goTo ( String address ) {
 		String [] tokens;
+		String panel;
 		GenericPanel iter;
 
 		tokens = address.split ( "::" );
+		panel = tokens [ 0 ];
+
+		/*
+			Qui una sorta di conversione di nomi viene compiuta: poiche' alcuni
+			pannelli sono raggiungibili solo con certi tipi di utenti, qui l'URL
+			viene "normalizzato" permettendo di accedere al pannello piu' simile a
+			quello richiesto
+		*/
+
+		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_COMMON )
+			if ( tokens [ 0 ] == "edit_orders" )
+				panel = "orders";
 
 		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
 			iter = ( GenericPanel ) main.getWidget ( i );
 
-			if ( iter.getSystemID () == tokens [ 0 ] ) {
+			if ( iter.getSystemID () == panel ) {
 				showPanelAtPos ( i );
 				iter.openBookmark ( address );
 				break;

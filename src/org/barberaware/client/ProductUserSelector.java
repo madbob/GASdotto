@@ -41,6 +41,37 @@ public class ProductUserSelector extends ObjectWidget {
 		focusable.add ( main );
 
 		quantity = new FloatBox ();
+		quantity.addFocusListener ( new FocusListener () {
+			public void onFocus ( Widget sender ) {
+				/* dummy */
+			}
+
+			public void onLostFocus ( Widget sender ) {
+				float val;
+				float input;
+				Product prod;
+
+				input = quantity.getVal ();
+				if ( input == 0 )
+					return;
+
+				prod = ( Product ) currentValue.getObject ( "Product" );
+
+				val = prod.getFloat ( "minimum_order" );
+				if ( val != 0 && input < val ) {
+					Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
+					quantity.setVal ( 0 );
+					return;
+				}
+
+				val = prod.getFloat ( "multiple_order" );
+				if ( ( val != 0 ) && ( input % val ) != 0 ) {
+					Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
+					quantity.setVal ( 0 );
+					return;
+				}
+			}
+		} );
 		main.add ( quantity );
 
 		measure = new Label ();

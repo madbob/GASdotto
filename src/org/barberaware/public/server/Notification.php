@@ -23,11 +23,11 @@ class Notification extends FromServer {
 	public function __construct () {
 		parent::__construct ( "Notification" );
 
-		parent::addAttribute ( "type", "INTEGER" );
+		parent::addAttribute ( "alert_type", "INTEGER" );
 		parent::addAttribute ( "description", "STRING" );
 		parent::addAttribute ( "startdate", "DATE" );
 		parent::addAttribute ( "enddate", "DATE" );
-		parent::addAttribute ( "recipent", "Object::User" );
+		parent::addAttribute ( "recipent", "INTEGER" );
 	}
 
 	public function get ( $request ) {
@@ -48,7 +48,11 @@ class Notification extends FromServer {
 			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
 		}
 
-		$query .= sprintf ( " AND recipent = %d OR recipent = %d ORDER BY startdate DESC", $current_user, 1000 );
+		/*
+			Il valore -1 per il campo recipent indica che la notifica e' destinata a
+			tutti gli utenti
+		*/
+		$query .= sprintf ( " AND recipent = %d OR recipent = %d ORDER BY startdate DESC", $current_user, -1 );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 
 		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {

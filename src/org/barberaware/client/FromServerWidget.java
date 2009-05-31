@@ -31,7 +31,7 @@ public class FromServerWidget extends Composite {
 		name = attribute;
 		type = attribute_type;
 		wid = widget;
-		validation = defaultValidationCallback ();
+		validation = null;
 	}
 
 	/*
@@ -116,14 +116,6 @@ public class FromServerWidget extends Composite {
 		buildCommon ( attribute, -1, widget );
 	}
 
-	private FromServerValidateCallback defaultValidationCallback () {
-		return new FromServerValidateCallback () {
-			public boolean check ( FromServer object, String attribute, Widget widget ) {
-				return true;
-			}
-		};
-	}
-
 	public void set ( FromServer object ) {
 		if ( type == -1 )
 			return;
@@ -163,7 +155,7 @@ public class FromServerWidget extends Composite {
 		if ( type == -1 )
 			return true;
 
-		if ( validation.check ( object, name, wid ) == false )
+		if ( ( validation != null ) && ( validation.check ( object, name, wid ) == false ) )
 			return false;
 
 		else if ( type == FromServer.STRING )

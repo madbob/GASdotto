@@ -105,13 +105,13 @@ public class SuppliersEditPanel extends GenericPanel {
 
 	private FromServerForm commonFormBuilder ( FromServer supp ) {
 		final FromServerForm ver;
-		HorizontalPanel hor;
 		VerticalPanel vertical;
 		FlexTable fields;
 		Supplier supplier;
 		ReferenceList references;
 		IconsBar icons;
 		ProductsEditPanel products;
+		SupplierFilesEditPanel files;
 
 		supplier = ( Supplier ) supp;
 
@@ -120,11 +120,10 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		ver = new FromServerForm ( supplier );
 
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
-
 		fields = new FlexTable ();
-		hor.add ( fields );
+		ver.add ( fields );
+
+		/* prima colonna */
 
 		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
@@ -139,23 +138,24 @@ public class SuppliersEditPanel extends GenericPanel {
 		if ( supp.isValid () == false )
 			references.addElement ( Session.getUser () );
 
-		fields = new FlexTable ();
-		hor.add ( fields );
+		/* seconda colonna */
 
-		fields.setWidget ( 0, 0, new Label ( "Nome Contatto" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "contact" ) );
+		fields.setWidget ( 0, 2, new Label ( "Nome Contatto" ) );
+		fields.setWidget ( 0, 3, ver.getWidget ( "contact" ) );
 
-		fields.setWidget ( 1, 0, new Label ( "Telefono" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "phone" ) );
+		fields.setWidget ( 1, 2, new Label ( "Telefono" ) );
+		fields.setWidget ( 1, 3, ver.getWidget ( "phone" ) );
 		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-		fields.setWidget ( 2, 0, new Label ( "Fax" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "fax" ) );
+		fields.setWidget ( 2, 2, new Label ( "Fax" ) );
+		fields.setWidget ( 2, 3, ver.getWidget ( "fax" ) );
 		ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-		fields.setWidget ( 3, 0, new Label ( "Mail" ) );
-		fields.setWidget ( 3, 1, ver.getWidget ( "mail" ) );
+		fields.setWidget ( 3, 2, new Label ( "Mail" ) );
+		fields.setWidget ( 3, 3, ver.getWidget ( "mail" ) );
 		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+
+		/* dettagli */
 
 		ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
 		ver.add ( ver.getWidget ( "description" ) );
@@ -183,8 +183,14 @@ public class SuppliersEditPanel extends GenericPanel {
 		ver.setExtraWidget ( "products", products );
 		vertical.add ( products );
 
-		/**
-			TODO	Gestire files esterni da assegnare al fornitore
+		/*
+		vertical = new VerticalPanel ();
+		vertical.addStyleName ( "sub-elements-details" );
+		ver.add ( vertical );
+		vertical.add ( new Label ( "Files" ) );
+		files = new SupplierFilesEditPanel ( supplier );
+		ver.setExtraWidget ( "files", files );
+		vertical.add ( files );
 		*/
 
 		return ver;

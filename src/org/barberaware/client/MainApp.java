@@ -17,6 +17,7 @@
 
 package org.barberaware.client;
 
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class MainApp extends Composite {
@@ -53,10 +54,20 @@ public class MainApp extends Composite {
 
 		main.add ( new Footer () );
 
-		/**
-			TODO	Leggere dalla Session se devo aprire fin dall'inizio una specifica pagina
-		*/
-
 		stack.showPanelAtPos ( 0 );
+		openLink ();
+	}
+
+	private void openLink () {
+		String link;
+
+		/*
+			Il cookie qui consultato viene settato in GASdotto.php, sul server
+		*/
+		link = Cookies.getCookie ( "initial_url" );
+		if ( link != null ) {
+			stack.goTo ( link );
+			Cookies.removeCookie ( "initial_url" );
+		}
 	}
 }

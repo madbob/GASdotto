@@ -96,13 +96,31 @@ class FromServerAttribute {
 		return null;
 	}
 
-	public function export_field ( $parent ) {
+	public function export_field ( $parent, $avoid_defaults ) {
 		list ( $type, $objtype ) = explode ( "::", $this->type );
 
 		switch ( $type ) {
 			case "STRING":
+				if ( $avoid_defaults == true && $this->value == "" )
+					return null;
+				else
+					return $this->value . "";
+				break;
+
 			case "INTEGER":
+				if ( $avoid_defaults == true && $this->value == "0" )
+					return null;
+				else
+					return $this->value . "";
+				break;
+
 			case "FLOAT":
+				if ( $avoid_defaults == true && $this->value == "0" )
+					return null;
+				else
+					return $this->value . "";
+				break;
+
 			case "DATE":
 			case "PERCENTAGE":
 				return $this->value . "";
@@ -121,8 +139,11 @@ class FromServerAttribute {
 				break;
 
 			case "ARRAY":
-				$ret = array ();
 				$elements_num = count ( $this->value );
+				if ( $avoid_defaults == true && $elements_num == 0 )
+					return null;
+
+				$ret = array ();
 
 				for ( $i = 0; $i < $elements_num; $i++ ) {
 					$obj = $this->value [ $i ];
@@ -543,8 +564,12 @@ abstract class FromServer {
 
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
+
 			$name = $attr->name;
-			$obj->$name = $attr->export_field ( $this );
+			$value = $attr->export_field ( $this, true );
+
+			if ( $value != null )
+				$obj->$name = $value;
 		}
 
 		return $obj;

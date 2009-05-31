@@ -106,17 +106,15 @@ public class ProductsEditPanel extends Composite {
 		list = new FormCluster ( "Product", "images/new_product.png", false ) {
 				protected FromServerForm doEditableRow ( FromServer product ) {
 					FromServerForm ver;
-					HorizontalPanel hor;
 					FlexTable fields;
 					FromServerSelector select;
 
 					ver = new FromServerForm ( product );
 
-					hor = new HorizontalPanel ();
-					ver.add ( hor );
-
 					fields = new FlexTable ();
-					hor.add ( fields );
+					ver.add ( fields );
+
+					/* prima colonna */
 
 					fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 					fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
@@ -132,34 +130,33 @@ public class ProductsEditPanel extends Composite {
 					fields.setWidget ( 3, 0, new Label ( "Ordinabile" ) );
 					fields.setWidget ( 3, 1, ver.getWidget ( "available" ) );
 
-					fields = new FlexTable ();
-					hor.add ( fields );
+					/* seconda colonna */
 
-					fields.setWidget ( 0, 0, new Label ( "Prezzo unitario (€)" ) );
-					fields.setWidget ( 0, 1, ver.getWidget ( "unit_price" ) );
+					fields.setWidget ( 0, 2, new Label ( "Prezzo unitario (€)" ) );
+					fields.setWidget ( 0, 3, ver.getWidget ( "unit_price" ) );
 
-					fields.setWidget ( 1, 0, new Label ( "Prezzo trasporto (€)" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "shipping_price" ) );
+					fields.setWidget ( 1, 2, new Label ( "Prezzo trasporto (€)" ) );
+					fields.setWidget ( 1, 3, ver.getWidget ( "shipping_price" ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Prezzo variabile" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "mutable_price" ) );
+					fields.setWidget ( 2, 2, new Label ( "Prezzo variabile" ) );
+					fields.setWidget ( 2, 3, ver.getWidget ( "mutable_price" ) );
 
 					/**
 						TODO	Gestire in qualche modo strutturato le
 							motivazioni per i sovrapprezzi
 					*/
 
-					fields.setWidget ( 3, 0, new Label ( "Sovrapprezzo (€)" ) );
-					fields.setWidget ( 3, 1, ver.getWidget ( "surplus" ) );
+					fields.setWidget ( 3, 2, new Label ( "Sovrapprezzo (€)" ) );
+					fields.setWidget ( 3, 3, ver.getWidget ( "surplus" ) );
 
-					fields.setWidget ( 4, 0, new Label ( "Dimensione stock" ) );
-					fields.setWidget ( 4, 1, ver.getWidget ( "stock_size" ) );
+					fields.setWidget ( 4, 2, new Label ( "Dimensione stock" ) );
+					fields.setWidget ( 4, 3, ver.getWidget ( "stock_size" ) );
 
-					fields.setWidget ( 5, 0, new Label ( "Minimo per l'utente" ) );
-					fields.setWidget ( 5, 1, ver.getWidget ( "minimum_order" ) );
+					fields.setWidget ( 5, 2, new Label ( "Minimo per l'utente" ) );
+					fields.setWidget ( 5, 3, ver.getWidget ( "minimum_order" ) );
 
-					fields.setWidget ( 6, 0, new Label ( "Multiplo per l'utente" ) );
-					fields.setWidget ( 6, 1, ver.getWidget ( "multiple_order" ) );
+					fields.setWidget ( 6, 2, new Label ( "Multiplo per l'utente" ) );
+					fields.setWidget ( 6, 3, ver.getWidget ( "multiple_order" ) );
 
 					ver.add ( new Label ( "Descrizione" ) );
 					ver.add ( ver.getWidget ( "description" ) );

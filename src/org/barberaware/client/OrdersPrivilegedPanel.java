@@ -214,13 +214,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			total += iter.getTotalPrice ();
-			// Window.alert ( "aggiungo " + iter.getTotalPrice () + ", totale " + total );
 		}
 
 		if ( action == 0 || action == 1 ) {
 			orders.add ( uorder );
 			total += uorder.getTotalPrice ();
-			// Window.alert ( "fuori, sommo " + uorder.getTotalPrice () + ", totale " + total );
 		}
 
 		total_view = ( PriceViewer ) ver.retriveInternalWidget ( "price_sum" );

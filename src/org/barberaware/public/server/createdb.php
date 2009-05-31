@@ -105,13 +105,33 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
+	/*
+		"recipent" pur essendo un riferimento ad un utente nella tabella "users" viene definito
+		come semplice "int" per ammettere anche il valore -1, che significa "tutti gli utenti"
+	*/
+
 	$query = sprintf ( "CREATE TABLE notification (
 					id serial,
-					type int default 0,
+					alert_type int default 0,
 					description varchar ( 500 ) default '',
 					startdate date,
 					enddate date,
-					recipent int references users ( id ) on delete cascade,
+					recipent int,
+					primary key ( id )
+				)"
+	);
+	query_and_check ( $query, "Impossibile creare tabella notification" );
+
+	/*
+		=======================================================================================
+	*/
+
+	$query = sprintf ( "CREATE TABLE customfile (
+					id serial,
+					name varchar ( 100 ) default '',
+					server_path varchar ( 100 ) default '',
+					by_user int references users ( id ) on delete cascade,
+					upload_date date,
 					primary key ( id )
 				)"
 	);
@@ -150,6 +170,20 @@ function install_main_db () {
 	);
 
 	query_and_check ( $query, "Impossibile creare tabella supplier_references" );
+
+	/*
+		=======================================================================================
+	*/
+
+	$query = sprintf ( "CREATE TABLE supplier_files (
+					id serial,
+					parent int references supplier ( id ) on delete cascade,
+					target int references customfile ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella supplier_files" );
 
 	/*
 		=======================================================================================

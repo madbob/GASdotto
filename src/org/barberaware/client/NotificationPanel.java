@@ -43,7 +43,7 @@ public class NotificationPanel extends GenericPanel {
 					ver.add ( fields );
 
 					fields.setWidget ( 0, 0, new Label ( "Destinatario" ) );
-					users = new FromServerSelector ( "User", true, true );
+					users = new FromServerIDSelector ( "User", true, true );
 					users.addAllSelector ();
 					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "recipent", users ) );
 
@@ -57,7 +57,7 @@ public class NotificationPanel extends GenericPanel {
 					type_sel.addItem ( "Informazione" );
 					type_sel.addItem ( "Avvertimento" );
 					fields.setWidget ( 3, 0, new Label ( "Tipo" ) );
-					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "type", type_sel ) );
+					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "alert_type", type_sel ) );
 
 					ver.add ( new Label ( "Testo" ) );
 					ver.add ( ver.getWidget ( "description" ) );

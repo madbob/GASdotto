@@ -136,7 +136,7 @@ public class OrderSummary extends Composite {
 
 			stock = order_product.getInt ( "stock_size" );
 			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] % stock != 0 ) )
-				main.setWidget ( i, 5, new Image ( "images/info-warning.png" ) );
+				main.setWidget ( i, 5, new Image ( "images/notify-warning.png" ) );
 		}
 
 		totalLabel.setValue ( total_price );

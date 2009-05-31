@@ -18,32 +18,76 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
 public class NotificationsBox extends Composite {
-	private VerticalPanel		main;
+	private FlexTable		main;
 
 	public NotificationsBox () {
-		main = new VerticalPanel ();
+		main = new FlexTable ();
 		main.setStyleName ( "notifications-box" );
+		main.setVisible ( false );
 		initWidget ( main );
 
 		Utils.getServer ().onObjectEvent ( "Notification", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
+				int index;
 				Notification tmp;
+
 				tmp = ( Notification ) object;
-				main.add ( tmp.show () );
+
+				if ( retrieveExisting ( tmp ) == -1 ) {
+					index = main.getRowCount ();
+					setNotification ( tmp, index );
+					main.setVisible ( true );
+				}
 			}
 
 			public void onModify ( FromServer object ) {
-				/* dummy */
+				int index;
+
+				index = retrieveExisting ( ( Notification ) object );
+				if ( index != -1 )
+					setNotification ( ( Notification ) object, index );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				/* dummy */
+				int index;
+
+				index = retrieveExisting ( ( Notification ) object );
+				if ( index != -1 ) {
+					main.removeRow ( index );
+
+					if ( main.getRowCount () == 0 )
+						main.setVisible ( false );
+				}
 			}
 		} );
+	}
+
+	private void setNotification ( Notification notify, int index ) {
+		main.setWidget ( index, 0, new Hidden ( "id", Integer.toString ( notify.getLocalID () ) ) );
+		main.setWidget ( index, 1, notify.getIcon () );
+		main.setWidget ( index, 2, new Label ( notify.getString ( "description" ) ) );
+	}
+
+	private int retrieveExisting ( Notification notify ) {
+		int tot;
+		String iter_id;
+		String search_id;
+
+		tot = main.getRowCount ();
+		search_id = Integer.toString ( notify.getLocalID () );
+		
+		for ( int i = 0; i < tot; i++ ) {
+			iter_id = ( ( Hidden ) main.getWidget ( i, 0 ) ).getValue ();
+			if ( iter_id.equals ( search_id ) )
+				return i;
+		}
+
+		return -1;
 	}
 
 	public void syncList () {

@@ -27,23 +27,21 @@ public class ProfilePanel extends GenericPanel {
 
 		User user;
 		FromServerForm ver;
-		HorizontalPanel hor;
 		FlexTable fields;
 
 		user = Session.getUser ();
 		ver = new FromServerForm ( user, FromServerForm.EDITABLE_UNDELETABLE );
 		ver.alwaysOpened ( true );
 
-		hor = new HorizontalPanel ();
-		ver.add ( hor );
-
 		fields = new FlexTable ();
-		hor.add ( fields );
+		ver.add ( fields );
 
 		/*
 			Per non creare troppa confusione ho mantenuto laddove possibile lo stesso
 			layout del pannello di configurazioni globale degli utenti
 		*/
+
+		/* prima colonna */
 
 		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 		fields.setWidget ( 0, 1, ver.getWidget ( "firstname" ) );
@@ -70,11 +68,10 @@ public class ProfilePanel extends GenericPanel {
 		fields.setWidget ( 6, 0, new Label ( "Indirizzo" ) );
 		fields.setWidget ( 6, 1, ver.getWidget ( "address" ) );
 
-		fields = new FlexTable ();
-		hor.add ( fields );
+		/* seconda colonna */
 
-		fields.setWidget ( 0, 0, new Label ( "Password" ) );
-		fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
+		fields.setWidget ( 0, 2, new Label ( "Password" ) );
+		fields.setWidget ( 0, 3, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
 		addTop ( ver );
 	}

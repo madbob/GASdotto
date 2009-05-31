@@ -34,7 +34,6 @@ public class OrdersEditPanel extends GenericPanel {
 		main = new FormCluster ( "Order", "images/new_order.png" ) {
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					final FromServerForm ver;
-					HorizontalPanel hor;
 					FlexTable fields;
 					Order order;
 					Supplier supplier;
@@ -49,11 +48,10 @@ public class OrdersEditPanel extends GenericPanel {
 
 					ver = new FromServerForm ( order );
 
-					hor = new HorizontalPanel ();
-					ver.add ( hor );
-
 					fields = new FlexTable ();
-					hor.add ( fields );
+					ver.add ( fields );
+
+					/* prima colonna */
 
 					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
 					fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
@@ -67,21 +65,22 @@ public class OrdersEditPanel extends GenericPanel {
 					fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
 					fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
 
-					fields = new FlexTable ();
-					hor.add ( fields );
+					/* seconda colonna */
 
-					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
+					fields.setWidget ( 1, 2, new Label ( "Stato" ) );
 					status = new CyclicToggle ();
 					status.addState ( "images/order_status_opened.png" );
 					status.addState ( "images/order_status_closed.png" );
 					status.addState ( "images/order_status_suspended.png" );
-					fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "status", status ) );
+					fields.setWidget ( 1, 3, ver.getPersonalizedWidget ( "status", status ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
+					fields.setWidget ( 2, 2, new Label ( "Anticipo" ) );
+					fields.setWidget ( 2, 3, ver.getWidget ( "anticipated" ) );
 
-					fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
-					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+					fields.setWidget ( 3, 2, new Label ( "Si ripete" ) );
+					fields.setWidget ( 3, 3, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+
+					/* riassunto ordine */
 
 					complete_list = new OrderSummary ( order );
 					ver.setExtraWidget ( "summary", complete_list );
@@ -94,7 +93,6 @@ public class OrdersEditPanel extends GenericPanel {
 				protected FromServerForm doNewEditableRow () {
 					Order order;
 					final FromServerForm ver;
-					HorizontalPanel hor;
 					FlexTable fields;
 					Widget suppliers_main;
 					Date now;
@@ -112,11 +110,10 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					} );
 
-					hor = new HorizontalPanel ();
-					ver.add ( hor );
-
 					fields = new FlexTable ();
-					hor.add ( fields );
+					ver.add ( fields );
+
+					/* prima colonna */
 
 					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
 
@@ -140,17 +137,16 @@ public class OrdersEditPanel extends GenericPanel {
 					fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
 					fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
 
-					fields = new FlexTable ();
-					hor.add ( fields );
+					/* seconda colonna */
 
-					fields.setWidget ( 1, 0, new Label ( "Stato" ) );
-					fields.setWidget ( 1, 1, new Label ( "Nuovo" ) );
+					fields.setWidget ( 1, 2, new Label ( "Stato" ) );
+					fields.setWidget ( 1, 3, new Label ( "Nuovo" ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Anticipo" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "anticipated" ) );
+					fields.setWidget ( 2, 2, new Label ( "Anticipo" ) );
+					fields.setWidget ( 2, 3, ver.getWidget ( "anticipated" ) );
 
-					fields.setWidget ( 3, 0, new Label ( "Si ripete" ) );
-					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+					fields.setWidget ( 3, 2, new Label ( "Si ripete" ) );
+					fields.setWidget ( 3, 3, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
 					now = new Date ( System.currentTimeMillis () );
 					date = ( DateSelector ) ver.retriveInternalWidget ( "startdate" );

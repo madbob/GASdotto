@@ -54,6 +54,12 @@ public class Login extends Composite {
 				TODO	Aggiungere indicazione su altri utenti connessi?
 			*/
 
+			/**
+				TODO	Offrire possibilita' di rendere pubblici nella pagina di
+					login gli ordini aperti, per permettere a tutti di
+					constatare l'attivita' del gruppo anche senza accedere
+			*/
+
 			container.add ( doPresentationHeader ( gas ) );
 
 			login = doCredentials ();

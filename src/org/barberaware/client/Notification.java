@@ -32,27 +32,36 @@ public class Notification extends FromServer {
 
 		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
 			public String retrive ( FromServer obj ) {
-				User recipent;
+				int recipent;
 
-				recipent = ( User ) obj.getObject ( "recipent" );
-				if ( recipent == null )
-					return "Nuova Notifica";
-				else
-					return "A: " + recipent.getString ( "name" );
+				recipent = obj.getInt ( "recipent" );
+
+				if ( recipent == -1 ) {
+					return "A Tutti gli Utente";
+				}
+				else {
+					User user;
+
+					user = ( User ) Utils.getServer ().getObjectFromCache ( "User", recipent );
+					if ( user != null )
+						return "A: " + user.getString ( "name" );
+					else
+						return "A: Utente Sconosciuto";
+				}
 			}
 		} );
 
-		addAttribute ( "type", FromServer.INTEGER );
+		addAttribute ( "alert_type", FromServer.INTEGER );
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "startdate", FromServer.DATE );
 		addAttribute ( "enddate", FromServer.DATE );
-		addAttribute ( "recipent", FromServer.OBJECT, User.class );
+		addAttribute ( "recipent", FromServer.INTEGER );
 	}
 
 	public Image getIcon () {
 		int type;
 
-		type = getInt ( "type" );
+		type = getInt ( "alert_type" );
 
 		switch ( type ) {
 			case 1:
@@ -60,18 +69,8 @@ public class Notification extends FromServer {
 			case 2:
 				return new Image ( "images/notify-warning.png" );
 			case 3:
-				return new Image ( "images/notify-error.png" );
 			default:
-				return null;
+				return new Image ( "images/notify-error.png" );
 		}
-	}
-
-	public Widget show () {
-		HorizontalPanel main;
-
-		main = new HorizontalPanel ();
-		main.add ( getIcon () );
-		main.add ( new Label ( getString ( "description" ) ) );
-		return main;
 	}
 }
