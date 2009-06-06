@@ -101,11 +101,13 @@ public class OrdersPanel extends GenericPanel {
 
 			public void onModify ( FromServer object ) {
 				int index;
+				Order ord;
 
-				index = retrieveOrderForm ( ( Order ) object );
+				ord = ( Order ) object;
+				index = retrieveOrderForm ( ord );
 				if ( index != -1 ) {
-					if ( object.getInt ( "status" ) == Order.OPENED )
-						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
+					if ( ord.getInt ( "status" ) == Order.OPENED )
+						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ord );
 					else
 						remove ( index );
 				}
@@ -183,7 +185,6 @@ public class OrdersPanel extends GenericPanel {
 		if ( total_view == null ) {
 			icons = ver.getIconsBar ();
 			total_view = icons.addText ( total_text );
-			total_view.setStyleName ( "bigger-text" );
 
 			/*
 				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale

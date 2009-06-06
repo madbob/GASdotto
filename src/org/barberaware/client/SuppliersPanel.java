@@ -190,7 +190,7 @@ public class SuppliersPanel extends GenericPanel {
 		protected void checkExistingOrders ( FromServer supplier ) {
 			ArrayList list;
 			FromServer ord;
-			FromServer base_ord;
+			Order base_ord;
 			int supp_id;
 
 			list = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
@@ -198,11 +198,11 @@ public class SuppliersPanel extends GenericPanel {
 
 			for ( int i = 0; i < list.size (); i++ ) {
 				ord = ( FromServer ) list.get ( i );
-				base_ord = ord.getObject ( "baseorder" );
+				base_ord = ( Order ) ord.getObject ( "baseorder" );
 
 				if ( base_ord.getInt ( "status" ) == Order.CLOSED &&
 						base_ord.getObject ( "supplier" ).getLocalID () == supp_id )
-					addOrder ( ( Order ) ord );
+					addOrder ( base_ord );
 			}
 		}
 	}
@@ -298,8 +298,10 @@ public class SuppliersPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
+				Order ord;
 
-				if ( object.getInt ( "status" ) != Order.CLOSED )
+				ord = ( Order ) object.getObject ( "baseorder" );
+				if ( ord.getInt ( "status" ) != Order.CLOSED )
 					return;
 
 				form = main.retrieveForm ( object.getObject ( "supplier" ) );
@@ -307,7 +309,7 @@ public class SuppliersPanel extends GenericPanel {
 				if ( form != null ) {
 					PastOrdersList list;
 					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.addOrder ( ( Order ) object.getObject ( "baseorder" ) );
+					list.addOrder ( ord );
 				}
 			}
 
