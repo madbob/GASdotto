@@ -108,10 +108,11 @@ public class SuppliersEditPanel extends GenericPanel {
 		VerticalPanel vertical;
 		FlexTable fields;
 		Supplier supplier;
+		TabPanel tabs;
 		ReferenceList references;
 		IconsBar icons;
 		ProductsEditPanel products;
-		SupplierFilesEditPanel files;
+		FilesGroup files;
 
 		supplier = ( Supplier ) supp;
 
@@ -119,9 +120,15 @@ public class SuppliersEditPanel extends GenericPanel {
 			return null;
 
 		ver = new FromServerForm ( supplier );
+		tabs = new TabPanel ();
+		tabs.setAnimationEnabled ( true );
+		ver.add ( tabs );
+
+		vertical = new VerticalPanel ();
+		tabs.add ( vertical, "Dettagli" );
 
 		fields = new FlexTable ();
-		ver.add ( fields );
+		vertical.add ( fields );
 
 		/* prima colonna */
 
@@ -157,14 +164,23 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		/* dettagli */
 
-		ver.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
-		ver.add ( ver.getWidget ( "description" ) );
+		vertical.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
+		vertical.add ( ver.getWidget ( "description" ) );
 
-		ver.add ( new Label ( "Modalità avanzamento ordini" ) );
-		ver.add ( ver.getWidget ( "order_mode" ) );
+		vertical.add ( new Label ( "Modalità avanzamento ordini" ) );
+		vertical.add ( ver.getWidget ( "order_mode" ) );
 
-		ver.add ( new Label ( "Modalità pagamento" ) );
-		ver.add ( ver.getWidget ( "paying_mode" ) );
+		vertical.add ( new Label ( "Modalità pagamento" ) );
+		vertical.add ( ver.getWidget ( "paying_mode" ) );
+
+		products = new ProductsEditPanel ( supplier, supp.isValid () );
+		ver.setExtraWidget ( "products", products );
+		tabs.add ( products, "Prodotti" );
+
+		files = new FilesGroup ();
+		tabs.add ( ver.getPersonalizedWidget ( "files", files ), "Files" );
+
+		tabs.selectTab ( 0 );
 
 		/*
 			Sulla fiducia assegno a tutti i fornitori l'icona per cui non ci sono
@@ -174,24 +190,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		*/
 		icons = ver.getIconsBar ();
 		icons.addImage ( "images/notifications/supplier_no_products.png" );
-
-		vertical = new VerticalPanel ();
-		vertical.addStyleName ( "sub-elements-details" );
-		ver.add ( vertical );
-		vertical.add ( new Label ( "Prodotti" ) );
-		products = new ProductsEditPanel ( supplier, supp.isValid () );
-		ver.setExtraWidget ( "products", products );
-		vertical.add ( products );
-
-		/*
-		vertical = new VerticalPanel ();
-		vertical.addStyleName ( "sub-elements-details" );
-		ver.add ( vertical );
-		vertical.add ( new Label ( "Files" ) );
-		files = new SupplierFilesEditPanel ( supplier );
-		ver.setExtraWidget ( "files", files );
-		vertical.add ( files );
-		*/
 
 		return ver;
 	}

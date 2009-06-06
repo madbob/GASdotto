@@ -2,7 +2,7 @@
 
 GASdotto 0.1
 Roberto -MadBob- Guido
-Marzo 2009
+Giugno 2009
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -38,6 +38,9 @@ precedente
 - eseguire ./GASdotto-compile
 - esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione al
 server web
+- accertarsi che la cartella www/org.barberaware.GASdotto/uploads abbia permessi di scrittura per
+il server web, in modo che non si riscontrino problemi in caso di caricamento di nuovi contenuti
+allegati
 
 -----------------------------------------------------------------------------------------[Sviluppo]
 

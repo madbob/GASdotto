@@ -301,6 +301,33 @@
 	text-align:		left;
 }
 
+.gwt-TabBar .gwt-TabBarFirst {
+	width:			5px;
+}
+
+.gwt-TabBar .gwt-TabBarItem {
+	cursor:			pointer;
+	cursor:			hand;
+	background-color:	#01A4DF;
+	margin-left:		6px;
+	margin-right:		6px;
+	padding:		6px;
+}
+
+.gwt-TabBar .gwt-TabBarItem-selected {
+	background-color:	#0080BB;
+}
+
+.gwt-TabPanel {
+	width:			90%;
+}
+
+.gwt-TabPanelBottom {
+	width:			90%;
+	border:			3px solid #000000;
+	padding:		6px;
+}
+
 .CalendarWidget {
 	border:			1px solid #ACA899;
 	background-color:	#FFFFFF;

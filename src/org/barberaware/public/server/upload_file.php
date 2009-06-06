@@ -1,3 +1,5 @@
+<?
+
 /*  GASdotto 0.1
  *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
@@ -15,21 +17,11 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.barberaware.client;
+require_once ( "utils.php" );
 
-import java.util.*;
+$target_path = "/uploads/";
+$target_path = $target_path . basename ( $_FILES [ 'uploadedfile' ] [ 'name' ] ); 
+move_uploaded_file ( $_FILES [ 'uploadedfile' ] [ 'tmp_name' ], "../" . $target_path );
+echo $target_path;
 
-public class CustomFile extends FromServer {
-	public CustomFile () {
-		super ();
-
-		addAttribute ( "name", FromServer.STRING );
-		addAttribute ( "server_path", FromServer.STRING );
-		addAttribute ( "by_user", FromServer.OBJECT, User.class );
-		addAttribute ( "upload_date", FromServer.DATE );
-
-		setString ( "name", "Nuovo Documento" );
-		setObject ( "by_user", Session.getUser () );
-		setDate ( "upload_date", new Date ( System.currentTimeMillis () ) );
-	}
-}
+?>

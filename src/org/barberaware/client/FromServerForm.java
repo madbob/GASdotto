@@ -289,6 +289,10 @@ public class FromServerForm extends Composite {
 		return tmp;
 	}
 
+	/*
+		Questo e' per assegnare un widget non di default ad un campo specifico
+		dell'oggetto
+	*/
 	public Widget getPersonalizedWidget ( String attribute, Widget widget ) {
 		FromServerWidget tmp;
 

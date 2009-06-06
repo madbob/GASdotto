@@ -29,6 +29,8 @@ public class FromServerFactory {
 			return new Measure ();
 		else if ( name.equals ( "Notification" ) )
 			return new Notification ();
+		else if ( name.equals ( "CustomFile" ) )
+			return new CustomFile ();
 		else if ( name.equals ( "Order" ) )
 			return new Order ();
 		else if ( name.equals ( "OrderUser" ) )

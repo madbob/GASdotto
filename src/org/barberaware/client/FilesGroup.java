@@ -21,34 +21,67 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class SupplierFilesEditPanel extends FromServerArray {
-	private FormCluster		main;
-	private Supplier		supplier;
+public class FilesGroup extends FromServerArray {
+	private FormGroup		main;
 
-	public SupplierFilesEditPanel ( Supplier reference ) {
-		main = new FormCluster ( "CustomFile", "images/new_file.png" ) {
+	public FilesGroup () {
+		main = new FormGroup ( "images/new_file.png" ) {
 			protected FromServerForm doEditableRow ( FromServer n ) {
-				return new FromServerForm ( n );
+				CustomFile file;
+				FlexTable fields;
+				FromServerForm form;
+				FileUploadDialog uploader;
+
+				form = new FromServerForm ( n );
+				file = ( CustomFile ) n;
+
+				fields = new FlexTable ();
+				form.add ( fields );
+
+				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+				fields.setWidget ( 0, 1, form.getWidget ( "name" ) );
+
+				fields.setWidget ( 1, 0, new Label ( "File" ) );
+				uploader = new FileUploadDialog ();
+				fields.setWidget ( 1, 1, form.getPersonalizedWidget ( "server_path", uploader ) );
+
+				return form;
 			}
 
 			protected FromServerForm doNewEditableRow () {
 				return doEditableRow ( new CustomFile () );
 			}
 		};
+
+		initWidget ( main );
 	}
 
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
+		if ( element == null )
+			return;
+		main.addElement ( element );
 	}
 
 	public void setElements ( ArrayList elements ) {
+		int tot;
+
+		if ( elements == null )
+			return;
+
+		tot = elements.size ();
+		for ( int i = 0; i < tot; i++ )
+			main.addElement ( ( FromServer ) elements.get ( i ) );
 	}
 
 	public void removeElement ( FromServer element ) {
+		if ( element == null )
+			return;
+		main.deleteElement ( element );
 	}
 
 	public ArrayList getElements () {
-		return new ArrayList ();
+		return main.collectContents ();
 	}
 }
