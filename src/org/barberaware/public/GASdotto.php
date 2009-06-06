@@ -17,8 +17,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once ( "utils.php" );
-
 $link = $_GET [ 'internal' ];
 
 if ( isset ( $link ) ) {

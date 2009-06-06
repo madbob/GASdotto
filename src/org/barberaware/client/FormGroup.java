@@ -90,15 +90,13 @@ public abstract class FormGroup extends Composite {
 		return pan;
 	}
 
-	public FromServerForm retrieveForm ( FromServer obj ) {
+	public FromServerForm retrieveFormById ( int id ) {
 		int i;
-		int id;
 		int tot;
 		FromServerForm iter;
 		FromServer cmp;
 
 		iter = null;
-		id = obj.getLocalID ();
 		tot = latestIterableIndex ();
 
 		for ( i = 0; i < tot; i++ ) {
@@ -115,6 +113,14 @@ public abstract class FormGroup extends Composite {
 		return iter;
 	}
 
+	public FromServerForm retrieveForm ( FromServer obj ) {
+		return retrieveFormById ( obj.getLocalID () );
+	}
+
+	/*
+		Attenzione: questo e' per ottenere il form ad una specifica posizione, per avere
+		il form che descrive un oggetto con un dato ID usare retrieveFormById()
+	*/
 	public FromServerForm retrieveForm ( int index ) {
 		return ( FromServerForm ) main.getWidget ( index );
 	}

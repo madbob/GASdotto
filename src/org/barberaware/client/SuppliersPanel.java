@@ -368,6 +368,23 @@ public class SuppliersPanel extends GenericPanel {
 		return new Image ( "images/path_suppliers.png" );
 	}
 
+	/*
+		Formato concesso per address:
+		suppliers::id_fornitore_da_mostrare
+	*/
+	public void openBookmark ( String address ) {
+		int id;
+		String [] tokens;
+		FromServerForm form;
+
+		tokens = address.split ( "::" );
+		id = Integer.parseInt ( tokens [ 1 ] );
+
+		form = main.retrieveFormById ( id );
+		if ( form != null )
+			form.open ( true );
+	}
+
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 		Utils.getServer ().testObjectReceive ( "Order" );

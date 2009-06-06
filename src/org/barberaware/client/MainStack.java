@@ -110,9 +110,10 @@ public class MainStack extends Composite {
 			quello richiesto
 		*/
 
-		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_COMMON )
+		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_COMMON ) {
 			if ( tokens [ 0 ] == "edit_orders" )
 				panel = "orders";
+		}
 
 		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
 			iter = ( GenericPanel ) main.getWidget ( i );

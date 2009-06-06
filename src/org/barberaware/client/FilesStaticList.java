@@ -33,6 +33,10 @@ public class FilesStaticList extends FromServerArray {
 	}
 
 	private Widget doCell ( CustomFile file ) {
+		/*
+			I files vengono aperti in una finestra separata per evitare di perdere lo
+			stato interno dell'applicazione AJAX
+		*/
 		return new HTML ( "<a target=\"_blank\" href=\"" + ( Utils.getServer ().getDomain () + file.getString ( "server_path" ) ) + "\">" + file.getString ( "name" ) + "</a>" );
 	}
 

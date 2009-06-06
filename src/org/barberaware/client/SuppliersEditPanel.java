@@ -214,7 +214,7 @@ public class SuppliersEditPanel extends GenericPanel {
 	}
 
 	public String getSystemID () {
-		return "edit_suppliers";
+		return "suppliers";
 	}
 
 	public String getCurrentInternalReference () {
@@ -223,6 +223,23 @@ public class SuppliersEditPanel extends GenericPanel {
 
 	public Image getIcon () {
 		return new Image ( "images/path_suppliers.png" );
+	}
+
+	/*
+		Formato concesso per address:
+		suppliers::id_fornitore_da_mostrare
+	*/
+	public void openBookmark ( String address ) {
+		int id;
+		String [] tokens;
+		FromServerForm form;
+
+		tokens = address.split ( "::" );
+		id = Integer.parseInt ( tokens [ 1 ] );
+
+		form = main.retrieveFormById ( id );
+		if ( form != null )
+			form.open ( true );
 	}
 
 	public void initView () {
