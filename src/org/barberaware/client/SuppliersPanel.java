@@ -214,25 +214,36 @@ public class SuppliersPanel extends GenericPanel {
 
 		main = new FormCluster ( "Supplier", null ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
+				String desc;
 				FromServerForm ver;
 				HorizontalPanel hor;
 				FlexTable fields;
 				Supplier supplier;
 				OpenedOrdersList orders;
 				PastOrdersList past_orders;
+				FilesStaticList files;
 
 				supplier = ( Supplier ) supp;
 				ver = new FromServerForm ( supplier, FromServerForm.NOT_EDITABLE );
 
-				ver.add ( new Label ( supplier.getString ( "description" ) ) );
+				desc = supplier.getString ( "description" );
+				if ( desc == "" )
+					desc = "Nessuna descrizione disponibile per questo fornitore";
+				ver.add ( new Label ( desc ) );
 
 				orders = new OpenedOrdersList ( supp, ver );
 				ver.setExtraWidget ( "orders", orders );
+				ver.add ( new HTML ( "<hr />" ) );
 				ver.add ( orders );
 
 				past_orders = new PastOrdersList ( supp, ver );
 				ver.setExtraWidget ( "past_orders", past_orders );
+				ver.add ( new HTML ( "<hr />" ) );
 				ver.add ( past_orders );
+
+				files = new FilesStaticList ();
+				ver.add ( new HTML ( "<hr />" ) );
+				ver.add ( ver.getPersonalizedWidget ( "files", files ) );
 
 				return ver;
 			}
