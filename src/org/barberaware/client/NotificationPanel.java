@@ -39,6 +39,11 @@ public class NotificationPanel extends GenericPanel {
 					notify = ( Notification ) n;
 					ver = new FromServerForm ( notify );
 
+					/**
+						TODO	Aggiungere icona per le notifiche
+							correntemente attive
+					*/
+
 					fields = new FlexTable ();
 					ver.add ( fields );
 
@@ -93,6 +98,11 @@ public class NotificationPanel extends GenericPanel {
 
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "User" );
+
+		/**
+			TODO	Qui dovrebbe caricare tutte le notifiche attualmente esistenti
+				nel sistema
+		*/
 		Utils.getServer ().testObjectReceive ( "Notification" );
 	}
 }

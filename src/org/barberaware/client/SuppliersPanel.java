@@ -27,21 +27,23 @@ public class SuppliersPanel extends GenericPanel {
 		private FromServerForm	mainForm;
 		private int		num;
 
-		protected void buildMe ( FromServer supplier, FromServerForm reference ) {
+		protected void buildMe ( FromServer supplier, FromServerForm reference, boolean link_to_order ) {
 			main = new FlexTable ();
 			initWidget ( main );
 
-			main.addTableListener ( new TableListener () {
-				public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
-					Hidden id;
+			if ( link_to_order ) {
+				main.addTableListener ( new TableListener () {
+					public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+						Hidden id;
 
-					if ( row == 0 )
-						return;
+						if ( row == 0 )
+							return;
 
-					id = ( Hidden ) main.getWidget ( row, 0 );
-					goTo ( "orders::" + id.getValue () );
-				}
-			} );
+						id = ( Hidden ) main.getWidget ( row, 0 );
+						goTo ( "orders::" + id.getValue () );
+					}
+				} );
+			}
 
 			mainForm = reference;
 
@@ -72,8 +74,6 @@ public class SuppliersPanel extends GenericPanel {
 				IconsBar icons;
 
 				main.removeRow ( 0 );
-				main.setWidget ( 0, 0, new Label ( getListHead () ) );
-
 				icons = mainForm.getIconsBar ();
 				icons.addImage ( getMainIcon () );
 			}
@@ -92,7 +92,7 @@ public class SuppliersPanel extends GenericPanel {
 			rows = main.getRowCount ();
 			name = order.getString ( "name" );
 
-			for ( int i = 1; i < rows; i++ ) {
+			for ( int i = 0; i < rows; i++ ) {
 				text = ( Label ) main.getWidget ( i, 0 );
 				if ( text.equals ( name ) )
 					return i;
@@ -130,22 +130,17 @@ public class SuppliersPanel extends GenericPanel {
 		}
 
 		protected abstract String getEmptyNotification ();
-		protected abstract String getListHead ();
 		protected abstract String getMainIcon ();
 		protected abstract void checkExistingOrders ( FromServer supplier );
 	}
 
 	private class OpenedOrdersList extends OrdersList {
 		public OpenedOrdersList ( FromServer supplier, FromServerForm reference ) {
-			buildMe ( supplier, reference );
+			buildMe ( supplier, reference, true );
 		}
 
 		protected String getEmptyNotification () {
 			return "Non ci sono ordini aperti per questo fornitore";
-		}
-
-		protected String getListHead () {
-			return "Ordini aperti:";
 		}
 
 		protected String getMainIcon () {
@@ -172,15 +167,11 @@ public class SuppliersPanel extends GenericPanel {
 
 	private class PastOrdersList extends OrdersList {
 		public PastOrdersList ( FromServer supplier, FromServerForm reference ) {
-			buildMe ( supplier, reference );
+			buildMe ( supplier, reference, false );
 		}
 
 		protected String getEmptyNotification () {
 			return "Non sono mai stati eseguiti ordini per questo fornitore";
-		}
-
-		protected String getListHead () {
-			return "Ordini passati:";
 		}
 
 		protected String getMainIcon () {
@@ -215,9 +206,8 @@ public class SuppliersPanel extends GenericPanel {
 		main = new FormCluster ( "Supplier", null ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				String desc;
+				CustomCaptionPanel frame;
 				FromServerForm ver;
-				HorizontalPanel hor;
-				FlexTable fields;
 				Supplier supplier;
 				OpenedOrdersList orders;
 				PastOrdersList past_orders;
@@ -229,21 +219,26 @@ public class SuppliersPanel extends GenericPanel {
 				desc = supplier.getString ( "description" );
 				if ( desc == "" )
 					desc = "Nessuna descrizione disponibile per questo fornitore";
-				ver.add ( new Label ( desc ) );
+				frame = new CustomCaptionPanel ( "Descrizione" );
+				ver.add ( frame );
+				frame.add ( new Label ( desc ) );
 
 				orders = new OpenedOrdersList ( supp, ver );
 				ver.setExtraWidget ( "orders", orders );
-				ver.add ( new HTML ( "<hr />" ) );
-				ver.add ( orders );
+				frame = new CustomCaptionPanel ( "Ordini aperti" );
+				ver.add ( frame );
+				frame.add ( orders );
 
 				past_orders = new PastOrdersList ( supp, ver );
 				ver.setExtraWidget ( "past_orders", past_orders );
-				ver.add ( new HTML ( "<hr />" ) );
-				ver.add ( past_orders );
+				frame = new CustomCaptionPanel ( "Ordini passati" );
+				ver.add ( frame );
+				frame.add ( past_orders );
 
 				files = new FilesStaticList ();
-				ver.add ( new HTML ( "<hr />" ) );
-				ver.add ( ver.getPersonalizedWidget ( "files", files ) );
+				frame = new CustomCaptionPanel ( "Files" );
+				ver.add ( frame );
+				frame.add ( ver.getPersonalizedWidget ( "files", files ) );
 
 				return ver;
 			}
@@ -312,10 +307,7 @@ public class SuppliersPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object.getObject ( "baseorder" );
-				if ( ord.getInt ( "status" ) != Order.CLOSED )
-					return;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
 
 				if ( form != null ) {
 					PastOrdersList list;
@@ -326,25 +318,29 @@ public class SuppliersPanel extends GenericPanel {
 
 			public void onModify ( FromServer object ) {
 				FromServerForm form;
+				Order ord;
 
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+				ord = ( Order ) object.getObject ( "baseorder" );
+				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
 
 				if ( form != null ) {
 					PastOrdersList list;
 					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.modOrder ( ( Order ) object.getObject ( "baseorder" ) );
+					list.modOrder ( ord );
 				}
 			}
 
 			public void onDestroy ( FromServer object ) {
 				FromServerForm form;
+				Order ord;
 
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+				ord = ( Order ) object.getObject ( "baseorder" );
+				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
 
 				if ( form != null ) {
 					PastOrdersList list;
 					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.delOrder ( ( Order ) object.getObject ( "baseorder" ) );
+					list.delOrder ( ord );
 				}
 			}
 		} );
@@ -388,5 +384,6 @@ public class SuppliersPanel extends GenericPanel {
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 		Utils.getServer ().testObjectReceive ( "Order" );
+		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }

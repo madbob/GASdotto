@@ -30,6 +30,7 @@ public class FilesStaticList extends FromServerArray {
 		initWidget ( main );
 
 		currentFiles = null;
+		clear ();
 	}
 
 	private Widget doCell ( CustomFile file ) {
@@ -38,6 +39,11 @@ public class FilesStaticList extends FromServerArray {
 			stato interno dell'applicazione AJAX
 		*/
 		return new HTML ( "<a target=\"_blank\" href=\"" + ( Utils.getServer ().getDomain () + file.getString ( "server_path" ) ) + "\">" + file.getString ( "name" ) + "</a>" );
+	}
+
+	private void clear () {
+		main.clear ();
+		main.add ( new Label ( "Non ci sono files" ) );
 	}
 
 	/****************************************************************** FromServerArray */
@@ -52,6 +58,8 @@ public class FilesStaticList extends FromServerArray {
 	public void setElements ( ArrayList elements ) {
 		int tot;
 		Widget cell;
+
+		clear ();
 
 		if ( elements == null )
 			return;

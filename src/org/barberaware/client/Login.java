@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -51,10 +51,6 @@ public class Login extends Composite {
 			container = new VerticalPanel ();
 
 			/**
-				TODO	Aggiungere indicazione su altri utenti connessi?
-			*/
-
-			/**
 				TODO	Offrire possibilita' di rendere pubblici nella pagina di
 					login gli ordini aperti, per permettere a tutti di
 					constatare l'attivita' del gruppo anche senza accedere
@@ -65,6 +61,8 @@ public class Login extends Composite {
 			login = doCredentials ();
 			container.add ( login );
 			container.setCellHorizontalAlignment ( login, HasHorizontalAlignment.ALIGN_CENTER );
+
+			container.add ( doPresentationFooter ( gas ) );
 
 			main.add ( container );
 		}
@@ -93,6 +91,20 @@ public class Login extends Composite {
 		return container;
 	}
 
+	private Widget doPresentationFooter ( GAS gas ) {
+		String mail;
+		VerticalPanel container;
+
+		container = new VerticalPanel ();
+		container.add ( new HTML ( "<hr>" ) );
+
+		mail = gas.getString ( "mail" );
+		if ( mail.equals ( "" ) == false )
+			container.add ( new Label ( "Per contattatare il gruppo, invia una mail a " + mail ) );
+
+		return container;
+	}
+
 	private void executeLogin () {
 		String user;
 		String pwd;
@@ -101,6 +113,7 @@ public class Login extends Composite {
 		user = username.getText ();
 		if ( user.equals ( "" ) ) {
 			Utils.showNotification ( "Non hai immesso alcun username" );
+			username.setFocus ( true );
 			return;
 		}
 
@@ -124,6 +137,7 @@ public class Login extends Composite {
 					Utils.showNotification ( "Autenticazione fallita. Riprova" );
 					username.setText ( "" );
 					password.setText ( "" );
+					username.setFocus ( true );
 				}
 
 				utente = null;
@@ -156,6 +170,10 @@ public class Login extends Composite {
 				executeLogin ();
 			}
 		} );
+
+		/**
+			TODO	Aggiungere opzione "Hai perso la password?"
+		*/
 
 		form.setWidget ( 2, 1, button );
 		form.getCellFormatter ().setHorizontalAlignment ( 3, 1, HasHorizontalAlignment.ALIGN_RIGHT );

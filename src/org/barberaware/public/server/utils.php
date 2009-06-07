@@ -170,7 +170,7 @@ function perform_authentication ( $userid ) {
 					$old_now, $userid );
 	query_and_check ( $query, "Impossibile sincronizzare sessioni" );
 
-	$session_id = substr ( md5 ( "pippo" ), 0, 20 );
+	$session_id = substr ( md5 ( time () ), 0, 20 );
 	$now = date ( "Y-m-d", time () );
 
 	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )

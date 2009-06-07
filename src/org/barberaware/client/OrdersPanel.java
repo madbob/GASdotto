@@ -22,6 +22,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class OrdersPanel extends GenericPanel {
+	private Label		emptyLabel		= null;
+
 	public OrdersPanel () {
 		super ();
 
@@ -30,6 +32,9 @@ public class OrdersPanel extends GenericPanel {
 				FromServerForm order_form;
 				Order order;
 				Order tmp_order;
+
+				if ( emptyLabel != null )
+					return;
 
 				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
 					return;
@@ -92,10 +97,15 @@ public class OrdersPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
+				int index;
 				Order ord;
 
 				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.OPENED )
+				if ( ord.getInt ( "status" ) != Order.OPENED )
+					return;
+
+				index = retrieveOrderForm ( ord );
+				if ( index == -1 )
 					insert ( doOrderRow ( ord ), 1 );
 			}
 
@@ -121,12 +131,20 @@ public class OrdersPanel extends GenericPanel {
 					remove ( index );
 			}
 		} );
+
+		emptyLabel = new Label ( "Non ci sono ordini aperti in questo momento" );
+		addTop ( emptyLabel );
 	}
 
 	private Widget doOrderRow ( Order order ) {
 		final FromServerForm ver;
 		OrderUser uorder;
 		ProductsUserSelection products;
+
+		if ( emptyLabel != null ) {
+			remove ( emptyLabel );
+			emptyLabel = null;
+		}
 
 		uorder = new OrderUser ();
 		uorder.setObject ( "baseorder", order );
@@ -201,12 +219,14 @@ public class OrdersPanel extends GenericPanel {
 		FromServerForm form;
 		OrderUser tmp_order;
 
-		for ( int i = 1; i < getWidgetCount (); i++ ) {
-			form = ( FromServerForm ) getWidget ( i );
-			tmp_order = ( OrderUser ) form.getObject ();
+		if ( emptyLabel == null ) {
+			for ( int i = 1; i < getWidgetCount (); i++ ) {
+				form = ( FromServerForm ) getWidget ( i );
+				tmp_order = ( OrderUser ) form.getObject ();
 
-			if ( order_id == tmp_order.getObject ( "baseorder" ).getLocalID () )
-				return i;
+				if ( order_id == tmp_order.getObject ( "baseorder" ).getLocalID () )
+					return i;
+			}
 		}
 
 		return -1;
