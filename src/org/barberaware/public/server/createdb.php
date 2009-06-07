@@ -105,6 +105,20 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
+	$query = sprintf ( "CREATE TABLE automatic_sessions (
+					id serial,
+					session_id varchar ( 100 ),
+					init date,
+					username int references users ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+	query_and_check ( $query, "Impossibile creare tabella automatic_sessions" );
+
+	/*
+		=======================================================================================
+	*/
+
 	/*
 		"recipent" pur essendo un riferimento ad un utente nella tabella "users" viene definito
 		come semplice "int" per ammettere anche il valore -1, che significa "tutti gli utenti"

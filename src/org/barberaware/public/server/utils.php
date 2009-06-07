@@ -41,6 +41,17 @@ function error_exit ( $string ) {
 	exit;
 }
 
+function strbegins ( $str, $start ) {
+	return ( strncmp ( $str, $start, strlen ( $start ) ) == 0 );
+}
+
+function class_name ( $name ) {
+	$fragments = explode ( ".", $name );
+	return $fragments [ count ( $fragments ) - 1 ];
+}
+
+/****************************************************************** db management */
+
 function query_and_check ( $query, $error ) {
 	global $db;
 
@@ -61,10 +72,6 @@ function escape_string ( $string ) {
 	return $string;
 }
 
-function strbegins ( $str, $start ) {
-	return ( strncmp ( $str, $start, strlen ( $start ) ) == 0 );
-}
-
 function last_id ( $class ) {
 	global $db;
 	global $dbdriver;
@@ -75,10 +82,26 @@ function last_id ( $class ) {
 		return $db->lastInsertId ();
 }
 
-function class_name ( $name ) {
-	$fragments = explode ( ".", $name );
-	return $fragments [ count ( $fragments ) - 1 ];
+function connect_to_the_database () {
+	global $dbdriver;
+	global $dbhost;
+	global $dbuser;
+	global $dbpassword;
+	global $instance_identifier;
+	global $db;
+
+	try {
+		$dbname = 'gasdotto_' . $instance_identifier;
+		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname, $dbuser, $dbpassword );
+		return true;
+	}
+	catch ( PDOException $e ) {
+		echo $e->getMessage ();
+		return false;
+	}
 }
+
+/****************************************************************** authentication */
 
 function parse_session_data () {
 	global $session_key;
@@ -106,25 +129,6 @@ function parse_session_data () {
 	return $session_id;
 }
 
-function connect_to_the_database () {
-	global $dbdriver;
-	global $dbhost;
-	global $dbuser;
-	global $dbpassword;
-	global $instance_identifier;
-	global $db;
-
-	try {
-		$dbname = 'gasdotto_' . $instance_identifier;
-		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname, $dbuser, $dbpassword );
-		return true;
-	}
-	catch ( PDOException $e ) {
-		echo $e->getMessage ();
-		return false;
-	}
-}
-
 function check_session () {
 	global $current_user;
 	global $db;
@@ -150,6 +154,79 @@ function check_session () {
 	*/
 	$current_user = $row [ 0 ];
 	return true;
+}
+
+function perform_authentication ( $userid ) {
+	global $session_key;
+
+	/*
+		tutte le sessioni piu' vecchie di una settimana sono eliminate
+	*/
+
+	$old_now = date ( "Y-m-d", ( time () - ( 60 * 60 * 24 * 7 ) ) );
+	$query = sprintf ( "DELETE FROM current_sessions
+				WHERE init < '%s' OR
+				username = %d",
+					$old_now, $userid );
+	query_and_check ( $query, "Impossibile sincronizzare sessioni" );
+
+	$session_id = substr ( md5 ( "pippo" ), 0, 20 );
+	$now = date ( "Y-m-d", time () );
+
+	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )
+				VALUES ( '%s', DATE('%s'), %d )",
+					$session_id, $now, $userid );
+	query_and_check ( $query, "Impossibile salvare sessione" );
+
+	$session_serial = $session_id . '-' . $_SERVER [ 'REMOTE_ADDR' ];
+	$session_hash = md5 ( $session_serial . $session_key );
+	$session_cookie = base64_encode ( $session_serial ) . '-*-' . $session_hash;
+
+	if ( setcookie ( 'gasdotto', $session_cookie, 0, '/', '', 0 ) == false )
+		error_exit ( "Impossibile settare il cookie" );
+}
+
+/*
+	Le "sessioni automatiche" permettono sostanzialmente di accedere all'applicazione senza
+	un login esplicito, ma per mezzo di un hash. L'utilizzo primario di questo strumento e'
+	nelle notifiche via mail: per ogni utente viene generato un diverso hash, che viene
+	impresso nell'URL riportato nella mail ad esso destinata, ed accedendo a tale URL
+	l'autenticazione si svolge implicitamente
+*/
+
+function create_automatic_session ( $userid ) {
+	/*
+		tutte le sessioni piu' vecchie di una settimana sono eliminate
+	*/
+
+	$old_now = date ( "Y-m-d", ( time () - ( 60 * 60 * 24 * 7 ) ) );
+	$query = sprintf ( "DELETE FROM automatic_sessions
+				WHERE init < '%s'",
+					$old_now );
+	query_and_check ( $query, "Impossibile sincronizzare sessioni" );
+
+	$session_id = substr ( md5 ( rand () ), 0, 10 );
+	$now = date ( "Y-m-d", time () );
+
+	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )
+				VALUES ( '%s', DATE('%s'), %d )",
+					$session_id, $now, $userid );
+	query_and_check ( $query, "Impossibile salvare sessione" );
+
+	return $session_id;
+}
+
+function retrieve_automatic_session ( $hash ) {
+	$query = sprintf ( "SELECT username FROM automatic_sessions WHERE session_id = '%s'", $hash );
+	$result = query_and_check ( $query, "Impossibile recuperare sessione automatica" );
+
+	if ( $result->rowCount () == 0 )
+		return -1;
+
+	else {
+		$row = $result->fetch ( PDO::FETCH_NUM );
+		return $row [ 0 ];
+	}
 }
 
 function current_permissions () {

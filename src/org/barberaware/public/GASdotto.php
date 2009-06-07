@@ -17,14 +17,25 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-$link = $_GET [ 'internal' ];
+require_once ( "server/utils.php" );
 
+$link = $_GET [ 'internal' ];
 if ( isset ( $link ) ) {
 	/*
 		Il cookie per l'URL di ingresso scade dopo 10 minuti, e comunque viene rimosso
 		dal client una volta letto
 	*/
 	setcookie ( "initial_url", $link, time () + ( 60 * 10 ) );
+}
+
+$auth = $_GET [ 'auth' ];
+if ( ( isset ( $auth ) ) && ( check_session () == false ) ) {
+	$user = retrieve_automatic_session ( $auth );
+
+	if ( $user )
+		error_exit ( "Impossibile autenticare la sessione, procedere con il login" );
+	else
+		perform_authentication ( $user );
 }
 
 $host = $_SERVER [ 'HTTP_HOST' ];

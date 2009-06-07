@@ -48,33 +48,7 @@ if ( check_session () == false ) {
 
 						if ( md5 ( $pwd ) == $row [ 'password' ] ) {
 							$userid = $row [ 'username' ];
-
-							/*
-								tutte le sessioni piu' vecchie di una settimana sono eliminate
-							*/
-
-							$old_now = date ( "Y-m-d", ( time () - ( 60 * 60 * 24 * 7 ) ) );
-							$query = sprintf ( "DELETE FROM current_sessions
-										WHERE init < '%s' OR
-										username = %d",
-											$old_now, $userid );
-							query_and_check ( $query, "Impossibile sincronizzare sessioni" );
-
-							$session_id = substr ( md5 ( time () ), 0, 20 );
-							$now = date ( "Y-m-d", time () );
-
-							$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )
-										VALUES ( '%s', DATE('%s'), %d )",
-											$session_id, $now, $userid );
-							query_and_check ( $query, "Impossibile salvare sessione" );
-
-							$session_serial = $session_id . '-' . $_SERVER [ 'REMOTE_ADDR' ];
-							$session_hash = md5 ( $session_serial . $session_key );
-							$session_cookie = base64_encode ( $session_serial ) . '-*-' . $session_hash;
-
-							if ( setcookie ( 'gasdotto', $session_cookie, 0, '/', '', 0 ) == false )
-								error_exit ( "Impossibile settare il cookie" );
-
+							perform_authentication ( $userid );
 							$ret->readFromDB ( $userid );
 						}
 					}
