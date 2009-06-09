@@ -55,7 +55,7 @@ public class ProductUserSelector extends ObjectWidget {
 				if ( input == 0 )
 					return;
 
-				prod = ( Product ) currentValue.getObject ( "Product" );
+				prod = ( Product ) currentValue.getObject ( "product" );
 
 				val = prod.getFloat ( "minimum_order" );
 				if ( val != 0 && input < val ) {

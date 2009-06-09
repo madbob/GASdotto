@@ -100,8 +100,9 @@ class Order extends FromServer {
 	}
 
 	/**
-		Re-implementare destroy(), da applicare solo sugli Orders che non sono mai stati
-		applicati e distruggendo i Products rimasti archiviati apposta per esso
+		TODO	Re-implementare destroy(), da applicare solo sugli Orders che non sono
+			mai stati applicati e distruggendo i Products rimasti archiviati apposta
+			per esso
 	*/
 }
 

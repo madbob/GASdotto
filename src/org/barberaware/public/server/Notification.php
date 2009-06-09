@@ -36,9 +36,8 @@ class Notification extends FromServer {
 		/*
 			Elimino le notifiche oramai scadute
 		*/
-		$now = date ( "Y-m-d", time () );
-		$query = sprintf ( "DELETE FROM %s WHERE enddate < '%s'",
-					$this->tablename, $now );
+		$query = sprintf ( "DELETE FROM %s WHERE enddate < DATE('%s')",
+					$this->tablename, date ( "Y-m-d" ) );
 		query_and_check ( $query, "Impossibile eliminare vecchie notifiche" );
 
 		$ret = array ();

@@ -80,6 +80,19 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 					insert ( doOrderRow ( ord ), 1 );
 				}
+			}
+
+			public void onModify ( FromServer object ) {
+				int index;
+
+				index = retrieveOrderForm ( ( Order ) object );
+
+				if ( index != -1 ) {
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
+					else
+						remove ( index );
+				}
 				else {
 					/*
 						Questo per gestire il ben raro caso in cui un
@@ -87,18 +100,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					*/
 					if ( object.getInt ( "status" ) == Order.OPENED )
 						onReceive ( object );
-				}
-			}
-
-			public void onModify ( FromServer object ) {
-				int index;
-
-				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 ) {
-					if ( object.getInt ( "status" ) == Order.OPENED )
-						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
-					else
-						remove ( index );
 				}
 			}
 

@@ -133,8 +133,10 @@ class Product extends FromServer {
 			}
 		}
 
+		/*
 		$query = sprintf ( "UPDATE %s SET archived = false WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
+		*/
 
 		return $id;
 	}
