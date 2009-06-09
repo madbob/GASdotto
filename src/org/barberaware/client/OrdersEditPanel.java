@@ -34,7 +34,9 @@ public class OrdersEditPanel extends GenericPanel {
 		main = new FormCluster ( "Order", "images/new_order.png" ) {
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					final FromServerForm ver;
-					FlexTable fields;
+					HorizontalPanel hor;
+					CustomCaptionPanel frame;
+					CaptionPanel sframe;
 					Order order;
 					Supplier supplier;
 					CyclicToggle status;
@@ -48,44 +50,40 @@ public class OrdersEditPanel extends GenericPanel {
 
 					ver = new FromServerForm ( order );
 
-					fields = new FlexTable ();
-					ver.add ( fields );
+					hor = new HorizontalPanel ();
+					hor.setWidth ( "100%" );
+					ver.add ( hor );
 
 					/* prima colonna */
 
-					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-					fields.setWidget ( 0, 1, new Label ( supplier.getString ( "name" ) ) );
+					frame = new CustomCaptionPanel ( "Attributi" );
+					hor.add ( frame );
 
-					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
+					frame.addPair ( "Fornitore", new Label ( supplier.getString ( "name" ) ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Data chiusura" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
-
-					fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
-					fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
-
-					/* seconda colonna */
-
-					fields.setWidget ( 1, 2, new Label ( "Stato" ) );
 					status = new CyclicToggle ();
 					status.addState ( "images/order_status_opened.png" );
 					status.addState ( "images/order_status_closed.png" );
 					status.addState ( "images/order_status_suspended.png" );
-					fields.setWidget ( 1, 3, ver.getPersonalizedWidget ( "status", status ) );
+					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", status ) );
 
-					fields.setWidget ( 2, 2, new Label ( "Anticipo" ) );
-					fields.setWidget ( 2, 3, ver.getWidget ( "anticipated" ) );
+					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
 
-					fields.setWidget ( 3, 2, new Label ( "Si ripete" ) );
-					fields.setWidget ( 3, 3, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+					frame = new CustomCaptionPanel ( "Date" );
+					hor.add ( frame );
+
+					frame.addPair ( "Data apertura", ver.getWidget ( "startdate" ) );
+					frame.addPair ( "Data chiusura", ver.getWidget ( "enddate" ) );
+					frame.addPair ( "Data consegna", ver.getWidget ( "shippingdate" ) );
+					frame.addPair ( "Si ripete", ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
 					/* riassunto ordine */
 
+					sframe = new CaptionPanel ( "Stato Ordini" );
 					complete_list = new OrderSummary ( order );
 					ver.setExtraWidget ( "summary", complete_list );
-					ver.add ( complete_list );
-					complete_list.addStyleName ( "sub-elements-details" );
+					sframe.add ( complete_list );
+					ver.add ( sframe );
 
 					return ver;
 				}
@@ -93,7 +91,8 @@ public class OrdersEditPanel extends GenericPanel {
 				protected FromServerForm doNewEditableRow () {
 					Order order;
 					final FromServerForm ver;
-					FlexTable fields;
+					HorizontalPanel hor;
+					CustomCaptionPanel frame;
 					Widget suppliers_main;
 					Date now;
 					FromServerSelector suppliers;
@@ -110,12 +109,14 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					} );
 
-					fields = new FlexTable ();
-					ver.add ( fields );
+					hor = new HorizontalPanel ();
+					hor.setWidth ( "100%" );
+					ver.add ( hor );
 
 					/* prima colonna */
 
-					fields.setWidget ( 0, 0, new Label ( "Fornitore" ) );
+					frame = new CustomCaptionPanel ( "Attributi" );
+					hor.add ( frame );
 
 					suppliers = new FromServerSelector ( "Supplier", true, true );
 					suppliers.addFilter ( new FromServerValidateCallback () {
@@ -125,28 +126,21 @@ public class OrdersEditPanel extends GenericPanel {
 							return sup.iAmReference ();
 						}
 					} );
-					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "supplier", suppliers ) );
+					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", suppliers ) );
 					ver.setValidation ( "supplier", FromServerValidateCallback.defaultObjectValidationCallback () );
 
-					fields.setWidget ( 1, 0, new Label ( "Data apertura" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
-
-					fields.setWidget ( 2, 0, new Label ( "Data chiusura" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
-
-					fields.setWidget ( 3, 0, new Label ( "Data consegna" ) );
-					fields.setWidget ( 3, 1, ver.getWidget ( "shippingdate" ) );
+					frame.addPair ( "Stato", new Label ( "Nuovo" ) );
+					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
 
 					/* seconda colonna */
 
-					fields.setWidget ( 1, 2, new Label ( "Stato" ) );
-					fields.setWidget ( 1, 3, new Label ( "Nuovo" ) );
+					frame = new CustomCaptionPanel ( "Date" );
+					hor.add ( frame );
 
-					fields.setWidget ( 2, 2, new Label ( "Anticipo" ) );
-					fields.setWidget ( 2, 3, ver.getWidget ( "anticipated" ) );
-
-					fields.setWidget ( 3, 2, new Label ( "Si ripete" ) );
-					fields.setWidget ( 3, 3, ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+					frame.addPair ( "Data apertura", ver.getWidget ( "startdate" ) );
+					frame.addPair ( "Data chiusura", ver.getWidget ( "enddate" ) );
+					frame.addPair ( "Data consegna", ver.getWidget ( "shippingdate" ) );
+					frame.addPair ( "Si ripete", ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
 					now = new Date ( System.currentTimeMillis () );
 					date = ( DateSelector ) ver.retriveInternalWidget ( "startdate" );

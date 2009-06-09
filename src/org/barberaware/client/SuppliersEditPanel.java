@@ -103,13 +103,68 @@ public class SuppliersEditPanel extends GenericPanel {
 		} );
 	}
 
+	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
+		VerticalPanel vertical;
+		HorizontalPanel hor;
+		ReferenceList references;
+		CustomCaptionPanel frame;
+		CaptionPanel sframe;
+
+		vertical = new VerticalPanel ();
+
+		hor = new HorizontalPanel ();
+		hor.setWidth ( "100%" );
+		vertical.add ( hor );
+
+		frame = new CustomCaptionPanel ( "Attributi" );
+		hor.add ( frame );
+
+		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
+		frame.addPair ( "Nome Contatto", ver.getWidget ( "contact" ) );
+
+		references = new ReferenceList ();
+		/*
+			Di default, l'utente che crea il fornitore ne e' anche referente
+		*/
+		if ( supp.isValid () == false )
+			references.addElement ( Session.getUser () );
+		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
+
+		frame = new CustomCaptionPanel ( "Contatti" );
+		hor.add ( frame );
+
+		frame.addPair ( "Indirizzo", ver.getWidget ( "address" ) );
+
+		frame.addPair ( "Telefono", ver.getWidget ( "phone" ) );
+		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+		frame.addPair ( "Fax", ver.getWidget ( "fax" ) );
+		ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
+		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+
+		/* dettagli */
+
+		sframe = new CaptionPanel ( "Descrizione (pubblicamente leggibile)" );
+		sframe.add ( ver.getWidget ( "description" ) );
+		vertical.add ( sframe );
+
+		sframe = new CaptionPanel ( "Modalità avanzamento ordini" );
+		sframe.add ( ver.getWidget ( "order_mode" ) );
+		vertical.add ( sframe );
+
+		sframe = new CaptionPanel ( "Modalità pagamento" );
+		sframe.add ( ver.getWidget ( "paying_mode" ) );
+		vertical.add ( sframe );
+
+		return vertical;
+	}
+
 	private FromServerForm commonFormBuilder ( FromServer supp ) {
 		final FromServerForm ver;
-		VerticalPanel vertical;
-		FlexTable fields;
 		Supplier supplier;
 		TabPanel tabs;
-		ReferenceList references;
 		IconsBar icons;
 		ProductsEditPanel products;
 		FilesGroup files;
@@ -120,58 +175,13 @@ public class SuppliersEditPanel extends GenericPanel {
 			return null;
 
 		ver = new FromServerForm ( supplier );
+
 		tabs = new TabPanel ();
+		tabs.setWidth ( "100%" );
 		tabs.setAnimationEnabled ( true );
 		ver.add ( tabs );
 
-		vertical = new VerticalPanel ();
-		tabs.add ( vertical, "Dettagli" );
-
-		fields = new FlexTable ();
-		vertical.add ( fields );
-
-		/* prima colonna */
-
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
-
-		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Referenti" ) );
-		references = new ReferenceList ();
-		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "references", references ) );
-
-		if ( supp.isValid () == false )
-			references.addElement ( Session.getUser () );
-
-		/* seconda colonna */
-
-		fields.setWidget ( 0, 2, new Label ( "Nome Contatto" ) );
-		fields.setWidget ( 0, 3, ver.getWidget ( "contact" ) );
-
-		fields.setWidget ( 1, 2, new Label ( "Telefono" ) );
-		fields.setWidget ( 1, 3, ver.getWidget ( "phone" ) );
-		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-		fields.setWidget ( 2, 2, new Label ( "Fax" ) );
-		fields.setWidget ( 2, 3, ver.getWidget ( "fax" ) );
-		ver.setValidation ( "fax", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-		fields.setWidget ( 3, 2, new Label ( "Mail" ) );
-		fields.setWidget ( 3, 3, ver.getWidget ( "mail" ) );
-		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
-
-		/* dettagli */
-
-		vertical.add ( new Label ( "Descrizione (pubblicamente leggibile)" ) );
-		vertical.add ( ver.getWidget ( "description" ) );
-
-		vertical.add ( new Label ( "Modalità avanzamento ordini" ) );
-		vertical.add ( ver.getWidget ( "order_mode" ) );
-
-		vertical.add ( new Label ( "Modalità pagamento" ) );
-		vertical.add ( ver.getWidget ( "paying_mode" ) );
+		tabs.add ( attributesBuilder ( ver, supplier ), "Dettagli" );
 
 		products = new ProductsEditPanel ( supplier, supp.isValid () );
 		ver.setExtraWidget ( "products", products );

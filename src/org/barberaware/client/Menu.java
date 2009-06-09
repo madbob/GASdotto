@@ -31,6 +31,7 @@ public class Menu extends Composite {
 		GenericPanel tmp;
 		HTMLTable.RowFormatter format;
 
+		main.setCellSpacing ( 0 );
 		panels = parent.getPanels ();
 		panels_num = panels.size ();
 		format = main.getRowFormatter ();

@@ -40,8 +40,9 @@ public class UsersPanel extends GenericPanel {
 		main = new FormCluster ( "User", "images/new_user.png" ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
 					final FromServerForm ver;
+					HorizontalPanel hor;
+					CustomCaptionPanel frame;
 					boolean handle_payments;
-					FlexTable fields;
 					User user;
 					CyclicToggle privileges;
 
@@ -50,47 +51,43 @@ public class UsersPanel extends GenericPanel {
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
 
-					fields = new FlexTable ();
-					ver.add ( fields );
+					hor = new HorizontalPanel ();
+					hor.setWidth ( "100%" );
+					ver.add ( hor );
 
 					/* prima colonna */
 
-					fields.setWidget ( 0, 0, new Label ( "Login Accesso" ) );
-					fields.setWidget ( 0, 1, ver.getWidget ( "login" ) );
+					frame = new CustomCaptionPanel ( "Anagrafica" );
+					hor.add ( frame );
+
+					frame.addPair ( "Login Accesso", ver.getWidget ( "login" ) );
 					ver.setValidation ( "login", checkLoginNameCallback () );
 
-					fields.setWidget ( 1, 0, new Label ( "Nome" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "firstname" ) );
+					frame.addPair ( "Nome", ver.getWidget ( "firstname" ) );
+					frame.addPair ( "Cognome", ver.getWidget ( "surname" ) );
 
-					fields.setWidget ( 2, 0, new Label ( "Cognome" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "surname" ) );
-
-					fields.setWidget ( 3, 0, new Label ( "Telefono" ) );
-					fields.setWidget ( 3, 1, ver.getWidget ( "phone" ) );
+					frame.addPair ( "Telefono", ver.getWidget ( "phone" ) );
 					ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-					fields.setWidget ( 4, 0, new Label ( "Cellulare" ) );
-					fields.setWidget ( 4, 1, ver.getWidget ( "mobile" ) );
+					frame.addPair ( "Cellulare", ver.getWidget ( "mobile" ) );
 					ver.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-					fields.setWidget ( 5, 0, new Label ( "Mail" ) );
-					fields.setWidget ( 5, 1, ver.getWidget ( "mail" ) );
+					frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
 					ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
-					fields.setWidget ( 6, 0, new Label ( "Mail 2" ) );
-					fields.setWidget ( 6, 1, ver.getWidget ( "mail2" ) );
+					frame.addPair ( "Mail 2", ver.getWidget ( "mail2" ) );
 					ver.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
 
-					fields.setWidget ( 7, 0, new Label ( "Indirizzo" ) );
-					fields.setWidget ( 7, 1, ver.getWidget ( "address" ) );
+					frame.addPair ( "Indirizzo", ver.getWidget ( "address" ) );
 
 					/* seconda colonna */
 
-					fields.setWidget ( 0, 2, new Label ( "Iscritto da" ) );
-					fields.setWidget ( 0, 3, ver.getWidget ( "join_date" ) );
+					frame = new CustomCaptionPanel ( "Nel GAS" );
+					hor.add ( frame );
 
-					fields.setWidget ( 1, 2, new Label ( "Numero Tessera" ) );
-					fields.setWidget ( 1, 3, ver.getWidget ( "card_number" ) );
+					frame.addPair ( "Iscritto da", ver.getWidget ( "join_date" ) );
+
+					frame.addPair ( "Numero Tessera", ver.getWidget ( "card_number" ) );
 					ver.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
 
 					/*
@@ -99,22 +96,18 @@ public class UsersPanel extends GenericPanel {
 						correggere questo pannello ma semplicemente attendere che sia
 						ricaricato
 					*/
-					if ( handle_payments == true ) {
-						fields.setWidget ( 2, 2, new Label ( "Quota pagata" ) );
-						fields.setWidget ( 2, 3, ver.getWidget ( "paying" ) );
-					}
+					if ( handle_payments == true )
+						frame.addPair ( "Quota pagata", ver.getWidget ( "paying" ) );
 					else
 						user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
 
-					fields.setWidget ( 3, 2, new Label ( "Ruolo" ) );
 					privileges = new CyclicToggle ();
 					privileges.addState ( "images/user_role_standard.png" );
 					privileges.addState ( "images/user_role_reference.png" );
 					privileges.addState ( "images/user_role_admin.png" );
-					fields.setWidget ( 3, 3, ver.getPersonalizedWidget ( "privileges", privileges ) );
+					frame.addPair ( "Ruolo", ver.getPersonalizedWidget ( "privileges", privileges ) );
 
-					fields.setWidget ( 4, 2, new Label ( "Password" ) );
-					fields.setWidget ( 4, 3, ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
+					frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
 					/*
 						Se si sta definendo un nuovo utente si controlla

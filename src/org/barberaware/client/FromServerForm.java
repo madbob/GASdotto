@@ -161,16 +161,9 @@ public class FromServerForm extends Composite {
 
 	private Panel doSummary ( FromServer object ) {
 		HorizontalPanel main;
-		Image marker;
 
 		main = new HorizontalPanel ();
 		main.setStyleName ( "element-summary" );
-
-		marker = new Image ( "images/details-closed.png" );
-		marker.setStyleName ( "element-marker" );
-		main.add ( marker );
-		main.setCellWidth ( marker, "5%" );
-		main.setCellHorizontalAlignment ( marker, HasHorizontalAlignment.ALIGN_LEFT );
 
 		summary = new Label ( callbacks.getName ( this ) );
 		main.add ( summary );

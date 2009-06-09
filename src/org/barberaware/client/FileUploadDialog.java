@@ -92,10 +92,11 @@ public class FileUploadDialog extends Composite implements StringWidget {
 
 		form.addFormHandler ( new FormHandler () {
 			public void onSubmit ( FormSubmitEvent event ) {
-				/* dummy */
+				Utils.getServer ().loadingAlert ( true );
 			}
 
 			public void onSubmitComplete ( FormSubmitCompleteEvent event ) {
+				Utils.getServer ().loadingAlert ( false );
 				main.setText ( event.getResults () );
 				set = true;
 				dialog.hide ();

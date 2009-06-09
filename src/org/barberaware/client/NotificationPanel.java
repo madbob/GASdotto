@@ -30,8 +30,8 @@ public class NotificationPanel extends GenericPanel {
 		main = new FormCluster ( "Notification", "images/new_notification.png" ) {
 				protected FromServerForm doEditableRow ( FromServer n ) {
 					FromServerForm ver;
-					FlexTable fields;
-					VerticalPanel vert;
+					CustomCaptionPanel frame;
+					CaptionPanel sframe;
 					Notification notify;
 					EnumSelector type_sel;
 					FromServerSelector users;
@@ -44,28 +44,24 @@ public class NotificationPanel extends GenericPanel {
 							correntemente attive
 					*/
 
-					fields = new FlexTable ();
-					ver.add ( fields );
+					frame = new CustomCaptionPanel ( "Attributi" );
+					ver.add ( frame );
 
-					fields.setWidget ( 0, 0, new Label ( "Destinatario" ) );
 					users = new FromServerIDSelector ( "User", true, true );
 					users.addAllSelector ();
-					fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "recipent", users ) );
+					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", users ) );
 
-					fields.setWidget ( 1, 0, new Label ( "Data Inizio" ) );
-					fields.setWidget ( 1, 1, ver.getWidget ( "startdate" ) );
-
-					fields.setWidget ( 2, 0, new Label ( "Date Fine" ) );
-					fields.setWidget ( 2, 1, ver.getWidget ( "enddate" ) );
+					frame.addPair ( "Data Inizio", ver.getWidget ( "startdate" ) );
+					frame.addPair ( "Date Fine", ver.getWidget ( "enddate" ) );
 
 					type_sel = new EnumSelector ();
 					type_sel.addItem ( "Informazione" );
 					type_sel.addItem ( "Avvertimento" );
-					fields.setWidget ( 3, 0, new Label ( "Tipo" ) );
-					fields.setWidget ( 3, 1, ver.getPersonalizedWidget ( "alert_type", type_sel ) );
+					frame.addPair ( "Tipo", ver.getPersonalizedWidget ( "alert_type", type_sel ) );
 
-					ver.add ( new Label ( "Testo" ) );
-					ver.add ( ver.getWidget ( "description" ) );
+					sframe = new CaptionPanel ( "Testo" );
+					sframe.add ( ver.getWidget ( "description" ) );
+					ver.add ( sframe );
 
 					return ver;
 				}
@@ -97,12 +93,12 @@ public class NotificationPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		ServerRequest params;
+
 		Utils.getServer ().testObjectReceive ( "User" );
 
-		/**
-			TODO	Qui dovrebbe caricare tutte le notifiche attualmente esistenti
-				nel sistema
-		*/
-		Utils.getServer ().testObjectReceive ( "Notification" );
+		params = new ServerRequest ( "Notification" );
+		params.add ( "all", 1 );
+		Utils.getServer ().testObjectReceive ( params );
 	}
 }

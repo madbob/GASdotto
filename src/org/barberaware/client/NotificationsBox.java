@@ -23,13 +23,17 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
 public class NotificationsBox extends Composite {
+	private CaptionPanel		ubermain;
 	private FlexTable		main;
 
 	public NotificationsBox () {
+		ubermain = new CaptionPanel ( "Hai nuove notifiche..." );
+		ubermain.setStyleName ( "notifications-box" );
+		ubermain.setVisible ( false );
+		initWidget ( ubermain );
+
 		main = new FlexTable ();
-		main.setStyleName ( "notifications-box" );
-		main.setVisible ( false );
-		initWidget ( main );
+		ubermain.add ( main );
 
 		Utils.getServer ().onObjectEvent ( "Notification", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -41,7 +45,7 @@ public class NotificationsBox extends Composite {
 				if ( retrieveExisting ( tmp ) == -1 ) {
 					index = main.getRowCount ();
 					setNotification ( tmp, index );
-					main.setVisible ( true );
+					ubermain.setVisible ( true );
 				}
 			}
 
@@ -61,7 +65,7 @@ public class NotificationsBox extends Composite {
 					main.removeRow ( index );
 
 					if ( main.getRowCount () == 0 )
-						main.setVisible ( false );
+						ubermain.setVisible ( false );
 				}
 			}
 		} );

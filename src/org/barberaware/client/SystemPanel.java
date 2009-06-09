@@ -28,12 +28,13 @@ public class SystemPanel extends GenericPanel {
 	public SystemPanel () {
 		super ();
 
-		add ( new Label ( "Configurazione GAS" ) );
-		add ( doGlobalConfForm () );
+		CaptionPanel sframe;
 
-		add ( new HTML ( "<hr>" ) );
+		sframe = new CaptionPanel ( "Configurazione GAS" );
+		sframe.add ( doGlobalConfForm () );
+		add ( sframe );
 
-		add ( new Label ( "Categorie" ) );
+		sframe = new CaptionPanel ( "Categorie" );
 		categories = new FormCluster ( "Category", "images/new_category.png" ) {
 			protected FromServerForm doEditableRow ( FromServer cat ) {
 				return doCategoryForm ( cat );
@@ -43,11 +44,10 @@ public class SystemPanel extends GenericPanel {
 				return doEditableRow ( new Category () );
 			}
 		};
-		add ( categories );
+		sframe.add ( categories );
+		add ( sframe );
 
-		add ( new HTML ( "<hr>" ) );
-
-		add ( new Label ( "Unità di misura" ) );
+		sframe = new CaptionPanel ( "Unità di misura" );
 		measures = new FormCluster ( "Measure", "images/new_measure.png" ) {
 			protected FromServerForm doEditableRow ( FromServer measure ) {
 				return doMeasureForm ( measure );
@@ -57,12 +57,14 @@ public class SystemPanel extends GenericPanel {
 				return doEditableRow ( new Measure () );
 			}
 		};
-		add ( measures );
+		sframe.add ( measures );
+		add ( sframe );
 	}
 
 	private FromServerForm doGlobalConfForm () {
 		FromServerForm ver;
-		FlexTable fields;
+		CustomCaptionPanel frame;
+		CaptionPanel sframe;
 
 		ver = new FromServerForm ( Session.getGAS () );
 
@@ -78,20 +80,16 @@ public class SystemPanel extends GenericPanel {
 			}
 		} );
 
-		fields = new FlexTable ();
-		ver.add ( fields );
+		frame = new CustomCaptionPanel ( "Attributi" );
+		ver.add ( frame );
 
-		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
+		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
+		frame.addPair ( "Gestione Pagamenti", ver.getWidget ( "payments" ) );
 
-		fields.setWidget ( 1, 0, new Label ( "Mail" ) );
-		fields.setWidget ( 1, 1, ver.getWidget ( "mail" ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Gestione Pagamenti" ) );
-		fields.setWidget ( 2, 1, ver.getWidget ( "payments" ) );
-
-		ver.add ( new Label ( "Descrizione" ) );
-		ver.add ( ver.getWidget ( "description" ) );
+		sframe = new CaptionPanel ( "Descrizione" );
+		sframe.add ( ver.getWidget ( "description" ) );
+		ver.add ( sframe );
 
 		return ver;
 	}

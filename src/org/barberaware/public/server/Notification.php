@@ -33,6 +33,14 @@ class Notification extends FromServer {
 	public function get ( $request ) {
 		global $current_user;
 
+		/*
+			Elimino le notifiche oramai scadute
+		*/
+		$now = date ( "Y-m-d", time () );
+		$query = sprintf ( "DELETE FROM %s WHERE enddate < '%s'",
+					$this->tablename, $now );
+		query_and_check ( $query, "Impossibile eliminare vecchie notifiche" );
+
 		$ret = array ();
 
 		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
@@ -48,11 +56,15 @@ class Notification extends FromServer {
 			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
 		}
 
-		/*
-			Il valore -1 per il campo recipent indica che la notifica e' destinata a
-			tutti gli utenti
-		*/
-		$query .= sprintf ( " AND recipent = %d OR recipent = %d ORDER BY startdate DESC", $current_user, -1 );
+		if ( !isset ( $request->all ) ) {
+			/*
+				Il valore -1 per il campo recipent indica che la notifica e' destinata a
+				tutti gli utenti
+			*/
+			$query .= sprintf ( " AND recipent = %d OR recipent = %d", $current_user, -1 );
+		}
+
+		$query .= sprintf ( " ORDER BY startdate DESC" );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 
 		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {

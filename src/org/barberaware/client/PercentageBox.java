@@ -79,6 +79,8 @@ public class PercentageBox extends TextBox {
 				}
 			}
 		);
+
+		setVisibleLength ( 6 );
 	}
 
 	public void setValue ( String value ) {

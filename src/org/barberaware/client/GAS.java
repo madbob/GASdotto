@@ -28,5 +28,7 @@ public class GAS extends FromServer {
 		addAttribute ( "image", FromServer.STRING );
 		addAttribute ( "payments", FromServer.BOOLEAN );
 		addAttribute ( "description", FromServer.LONGSTRING );
+
+		setString ( "name", "Senza Nome" );
 	}
 }

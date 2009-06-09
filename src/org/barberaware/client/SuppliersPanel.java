@@ -206,7 +206,7 @@ public class SuppliersPanel extends GenericPanel {
 		main = new FormCluster ( "Supplier", null ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				String desc;
-				CustomCaptionPanel frame;
+				CaptionPanel frame;
 				FromServerForm ver;
 				Supplier supplier;
 				OpenedOrdersList orders;
@@ -219,24 +219,24 @@ public class SuppliersPanel extends GenericPanel {
 				desc = supplier.getString ( "description" );
 				if ( desc == "" )
 					desc = "Nessuna descrizione disponibile per questo fornitore";
-				frame = new CustomCaptionPanel ( "Descrizione" );
+				frame = new CaptionPanel ( "Descrizione" );
 				ver.add ( frame );
 				frame.add ( new Label ( desc ) );
 
 				orders = new OpenedOrdersList ( supp, ver );
 				ver.setExtraWidget ( "orders", orders );
-				frame = new CustomCaptionPanel ( "Ordini aperti" );
+				frame = new CaptionPanel ( "Ordini aperti" );
 				ver.add ( frame );
 				frame.add ( orders );
 
 				past_orders = new PastOrdersList ( supp, ver );
 				ver.setExtraWidget ( "past_orders", past_orders );
-				frame = new CustomCaptionPanel ( "Ordini passati" );
+				frame = new CaptionPanel ( "Ordini passati" );
 				ver.add ( frame );
 				frame.add ( past_orders );
 
 				files = new FilesStaticList ();
-				frame = new CustomCaptionPanel ( "Files" );
+				frame = new CaptionPanel ( "Files" );
 				ver.add ( frame );
 				frame.add ( ver.getPersonalizedWidget ( "files", files ) );
 

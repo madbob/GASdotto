@@ -54,6 +54,8 @@ public class FloatBox extends TextBox {
 				}
 			}
 		);
+
+		setVisibleLength ( 6 );
 	}
 
 	public void setVal ( float value ) {

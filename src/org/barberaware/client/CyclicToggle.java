@@ -27,6 +27,7 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 		FocusPanel focus;
 
 		main = new DeckPanel ();
+
 		main.setStyleName ( "cyclic-toggle" );
 		focus = new FocusPanel ( main );
 		initWidget ( focus );

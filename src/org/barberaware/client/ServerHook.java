@@ -321,7 +321,7 @@ public class ServerHook {
 		loadingDialog.setWidget ( new Image ( "images/loading.gif" ) );
 	}
 
-	private void loadingAlert ( boolean activate ) {
+	public void loadingAlert ( boolean activate ) {
 		if ( loadingDialog == null )
 			createLoadingNotification ();
 
