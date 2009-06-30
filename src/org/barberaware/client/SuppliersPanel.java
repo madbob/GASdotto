@@ -211,7 +211,6 @@ public class SuppliersPanel extends GenericPanel {
 				Supplier supplier;
 				OpenedOrdersList orders;
 				PastOrdersList past_orders;
-				FilesStaticList files;
 
 				supplier = ( Supplier ) supp;
 				ver = new FromServerForm ( supplier, FromServerForm.NOT_EDITABLE );
@@ -235,10 +234,14 @@ public class SuppliersPanel extends GenericPanel {
 				ver.add ( frame );
 				frame.add ( past_orders );
 
-				files = new FilesStaticList ();
-				frame = new CaptionPanel ( "Files" );
-				ver.add ( frame );
-				frame.add ( ver.getPersonalizedWidget ( "files", files ) );
+				if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
+					FilesStaticList files;
+
+					files = new FilesStaticList ();
+					frame = new CaptionPanel ( "Files" );
+					ver.add ( frame );
+					frame.add ( ver.getPersonalizedWidget ( "files", files ) );
+				}
 
 				return ver;
 			}

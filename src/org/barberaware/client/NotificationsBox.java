@@ -42,10 +42,12 @@ public class NotificationsBox extends Composite {
 
 				tmp = ( Notification ) object;
 
-				if ( retrieveExisting ( tmp ) == -1 ) {
-					index = main.getRowCount ();
-					setNotification ( tmp, index );
-					ubermain.setVisible ( true );
+				if ( isForMe ( tmp ) ) {
+					if ( retrieveExisting ( tmp ) == -1 ) {
+						index = main.getRowCount ();
+						setNotification ( tmp, index );
+						ubermain.setVisible ( true );
+					}
 				}
 			}
 
@@ -69,6 +71,13 @@ public class NotificationsBox extends Composite {
 				}
 			}
 		} );
+	}
+
+	private boolean isForMe ( Notification notify ) {
+		int dest;
+
+		dest = notify.getInt ( "recipent" );
+		return ( dest == Session.getUser ().getLocalID () || dest == -1 );
 	}
 
 	private void setNotification ( Notification notify, int index ) {

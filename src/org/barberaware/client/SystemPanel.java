@@ -87,6 +87,13 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
 		frame.addPair ( "Gestione Pagamenti", ver.getWidget ( "payments" ) );
 
+		/*
+			Solo se il sistema permette l'invio di mail viene abilitata l'apposita
+			opzione
+		*/
+		if ( Session.getSystemConf ().getBool ( "has_mail" ) == true )
+			frame.addPair ( "Abilita Notifiche Mail", ver.getWidget ( "use_mail" ) );
+
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );
 		ver.add ( sframe );

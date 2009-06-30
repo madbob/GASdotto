@@ -36,6 +36,8 @@ class Product extends FromServer {
 		$this->addAttribute ( "stock_size", "INTEGER" );
 		$this->addAttribute ( "mutable_price", "BOOLEAN" );
 		$this->addAttribute ( "available", "BOOLEAN" );
+		$this->addAttribute ( "archived", "BOOLEAN" );
+		$this->addAttribute ( "previous_description", "INTEGER" );
 	}
 
 	public function get ( $request ) {
@@ -102,8 +104,22 @@ class Product extends FromServer {
 
 				if ( $returned->rowCount () != 0 ) {
 					$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );
-					$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
-					$obj->id = -1;
+					query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
+
+					/*
+						Se il Product e' gia' contemplato in un Order, ne valuto la
+						duplicazione. Se gia' esiste un duplicato cronologicamente successivo
+						lascio perdere, altrimenti forzo l'ID a -1 per ingannare
+						FromServer::save() e appunto setto l'ID corrente come antecedente,
+						per evitare di ripetere nuovamente l'operazione
+					*/
+
+					$query = sprintf ( "SELECT id FROM %s WHERE previous_description = %d", $this->tablename, $obj->id );
+					$returned = query_and_check ( $query, "Impossibile verificare catena prodotti in " . $this->classname );
+					if ( $returned->rowCount () == 0 ) {
+						$obj->previous_description = $obj->id;
+						$obj->id = -1;
+					}
 				}
 			}
 		}

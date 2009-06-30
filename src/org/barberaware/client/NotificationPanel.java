@@ -39,11 +39,6 @@ public class NotificationPanel extends GenericPanel {
 					notify = ( Notification ) n;
 					ver = new FromServerForm ( notify );
 
-					/**
-						TODO	Aggiungere icona per le notifiche
-							correntemente attive
-					*/
-
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );
 

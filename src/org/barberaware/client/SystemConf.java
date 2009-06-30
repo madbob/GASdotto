@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,16 +20,10 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
-public class GAS extends FromServer {
-	public GAS () {
+public class SystemConf extends FromServer {
+	public SystemConf () {
 		super ();
-		addAttribute ( "name", FromServer.STRING );
-		addAttribute ( "mail", FromServer.STRING );
-		addAttribute ( "image", FromServer.STRING );
-		addAttribute ( "payments", FromServer.BOOLEAN );
-		addAttribute ( "description", FromServer.LONGSTRING );
-		addAttribute ( "use_mail", FromServer.BOOLEAN );
-
-		setString ( "name", "Senza Nome" );
+		addAttribute ( "has_file", FromServer.BOOLEAN );
+		addAttribute ( "has_mail", FromServer.BOOLEAN );
 	}
 }

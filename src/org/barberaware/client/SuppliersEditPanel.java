@@ -167,7 +167,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		TabPanel tabs;
 		IconsBar icons;
 		ProductsEditPanel products;
-		FilesGroup files;
 
 		supplier = ( Supplier ) supp;
 
@@ -187,8 +186,15 @@ public class SuppliersEditPanel extends GenericPanel {
 		ver.setExtraWidget ( "products", products );
 		tabs.add ( products, "Prodotti" );
 
-		files = new FilesGroup ();
-		tabs.add ( ver.getPersonalizedWidget ( "files", files ), "Files" );
+		/*
+			La tab dei files viene attivata solo se effettivamente e' concesso il
+			caricamento dei files sul server
+		*/
+		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
+			FilesGroup files;
+			files = new FilesGroup ();
+			tabs.add ( ver.getPersonalizedWidget ( "files", files ), "Files" );
+		}
 
 		tabs.selectTab ( 0 );
 

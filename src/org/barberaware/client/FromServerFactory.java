@@ -27,10 +27,6 @@ public class FromServerFactory {
 			return new GAS ();
 		else if ( name.equals ( "Measure" ) )
 			return new Measure ();
-		else if ( name.equals ( "Notification" ) )
-			return new Notification ();
-		else if ( name.equals ( "CustomFile" ) )
-			return new CustomFile ();
 		else if ( name.equals ( "Order" ) )
 			return new Order ();
 		else if ( name.equals ( "OrderUser" ) )
@@ -43,6 +39,12 @@ public class FromServerFactory {
 			return new Supplier ();
 		else if ( name.equals ( "User" ) )
 			return new User ();
+		else if ( name.equals ( "CustomFile" ) )
+			return new CustomFile ();
+		else if ( name.equals ( "Notification" ) )
+			return new Notification ();
+		else if ( name.equals ( "SystemConf" ) )
+			return new SystemConf ();
 		else
 			return null;
 	}

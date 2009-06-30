@@ -27,19 +27,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				FromServerForm form;
-				Order order;
-				Order tmp_order;
-
-				order = ( Order ) object.getObject ( "baseorder" );
-
-				for ( int i = 1; i < getWidgetCount (); i++ ) {
-					form = ( FromServerForm ) getWidget ( i );
-					tmp_order = ( Order ) form.getObject ().getObject ( "baseorder" );
-
-					if ( order.equals ( tmp_order ) )
-						syncUserOrder ( form, ( OrderUser ) object, 0 );
-				}
+				verifyOrderUserForInclusion ( ( OrderUser ) object );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -98,8 +86,24 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						Questo per gestire il ben raro caso in cui un
 						ordine viene ri-aperto
 					*/
-					if ( object.getInt ( "status" ) == Order.OPENED )
+					if ( object.getInt ( "status" ) == Order.OPENED ) {
+						ArrayList uorders;
+						OrderUser uorder;
+
 						onReceive ( object );
+
+						/*
+							Quando un Order viene riaperto mi tocca forzare un nuovo
+							controllo sugli OrderUser gia' prelevati dal server. Per
+							fortuna e' un evento che capita raramente...
+						*/
+
+						uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+						for ( int i = 0; i < uorders.size (); i++ ) {
+							uorder = ( OrderUser ) uorders.get ( i );
+							verifyOrderUserForInclusion ( uorder );
+						}
+					}
 				}
 			}
 
@@ -116,6 +120,22 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					remove ( index );
 			}
 		} );
+	}
+
+	private void verifyOrderUserForInclusion ( OrderUser order_user ) {
+		FromServerForm form;
+		Order order;
+		Order tmp_order;
+
+		order = ( Order ) order_user.getObject ( "baseorder" );
+
+		for ( int i = 1; i < getWidgetCount (); i++ ) {
+			form = ( FromServerForm ) getWidget ( i );
+			tmp_order = ( Order ) form.getObject ().getObject ( "baseorder" );
+
+			if ( order.equals ( tmp_order ) )
+				syncUserOrder ( form, order_user, 0 );
+		}
 	}
 
 	private Widget doOrderRow ( Order order ) {

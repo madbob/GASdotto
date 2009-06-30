@@ -42,6 +42,7 @@ function install_main_db () {
 					image varchar ( 100 ) default '',
 					payments boolean default false,
 					description varchar ( 500 ) default '',
+					use_mail boolean default false,
 					primary key ( id )
 				)"
 	);
@@ -269,6 +270,7 @@ function install_main_db () {
 					mutable_price boolean default false,
 					available boolean default true,
 					archived boolean default false,
+					previous_description int default -1,
 					primary key ( id )
 				)"
 	);

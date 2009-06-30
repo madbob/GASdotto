@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,8 +22,9 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class Session {
-	private static GAS	currentGAS	= null;
-	private static User	currentUser	= null;
+	private static GAS		currentGAS	= null;
+	private static User		currentUser	= null;
+	private static SystemConf	currentSystem	= null;
 
 	public static void initSession ( final ServerResponse on_finish ) {
 		ServerRequest params;
@@ -41,6 +42,9 @@ public class Session {
 
 				currentGAS = new GAS ();
 				currentGAS.fromJSONObject ( obj.get ( "gas" ).isObject () );
+
+				currentSystem = new SystemConf ();
+				currentSystem.fromJSONObject ( obj.get ( "system" ).isObject () );
 
 				on_finish.onComplete ( null );
 			}
@@ -61,5 +65,9 @@ public class Session {
 
 	public static GAS getGAS () {
 		return currentGAS;
+	}
+
+	public static SystemConf getSystemConf () {
+		return currentSystem;
 	}
 }

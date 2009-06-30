@@ -28,5 +28,6 @@ class GAS extends FromServer {
 		$this->addAttribute ( "image", "STRING" );
 		$this->addAttribute ( "payments", "BOOLEAN" );
 		$this->addAttribute ( "description", "STRING" );
+		$this->addAttribute ( "use_mail", "BOOLEAN" );
 	}
 }

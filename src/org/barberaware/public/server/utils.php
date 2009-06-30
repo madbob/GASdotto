@@ -22,6 +22,7 @@ require_once ( "JSON.php" );
 
 require_once ( "FromServer.php" );
 require_once ( "Session.php" );
+require_once ( "SystemConf.php" );
 require_once ( "CustomFile.php" );
 require_once ( "GAS.php" );
 require_once ( "User.php" );

@@ -35,6 +35,9 @@ class Session {
 		$gas->readFromDB ( 1 );
 		$this->gas = $gas->exportable ();
 
+		$conf = new SystemConf ();
+		$this->system = $conf->exportable ();
+
 		return $this;
 	}
 }

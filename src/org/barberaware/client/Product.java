@@ -36,6 +36,8 @@ public class Product extends FromServer {
 		addAttribute ( "stock_size", FromServer.INTEGER );
 		addAttribute ( "mutable_price", FromServer.BOOLEAN );
 		addAttribute ( "available", FromServer.BOOLEAN );
+		addAttribute ( "archived", FromServer.BOOLEAN );
+		addAttribute ( "previous_description", FromServer.INTEGER );
 
 		setString ( "name", "Nuovo Prodotto" );
 		setBool ( "available", true );
