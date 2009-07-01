@@ -152,26 +152,6 @@ public class OrdersPanel extends GenericPanel {
 
 		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
 
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onClose ( FromServerForm form ) {
-				ProductsUserSelection products;
-				IconsBar icons;
-				Label label;
-				float total;
-
-				label = ( Label ) form.retriveInternalWidget ( "price_sum" );
-
-				if ( label != null ) {
-					products = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-					total = products.getTotalPrice ();
-					if ( total != 0 )
-						label.setText ( total + " €" );
-					else
-						label.setText ( "" );
-				}
-			}
-		} );
-
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
@@ -181,38 +161,10 @@ public class OrdersPanel extends GenericPanel {
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
 		ArrayList products;
 		ProductsUserSelection table;
-		IconsBar icons;
-		float total;
-		String total_text;
-		Label total_view;
 
 		products = uorder.getArray ( "products" );
-
 		table = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
 		table.setElements ( products );
-
-		total = table.getTotalPrice ();
-
-		if ( total != 0 )
-			total_text = total + " €";
-		else
-			total_text = "";
-
-		total_view = ( Label ) ver.retriveInternalWidget ( "price_sum" );
-
-		if ( total_view == null ) {
-			icons = ver.getIconsBar ();
-			total_view = icons.addText ( total_text );
-
-			/*
-				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale
-				label viene poi eventualmente aggiornata quando il sottopannello relativo
-				viene chiuso a seguito di qualche correzione
-			*/
-			ver.setExtraWidget ( "price_sum", total_view );
-		}
-		else
-			total_view.setText ( total_text );
 	}
 
 	private int retrieveOrderForm ( int order_id ) {

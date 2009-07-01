@@ -195,12 +195,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	*/
 	private void syncUserOrder ( FromServerForm ver, OrderUser uorder, int action ) {
 		int uorder_id;
-		float total;
 		ArrayList orders;
 		OrderUser iter;
-		PriceViewer total_view;
 
-		total = 0;
 		uorder_id = uorder.getLocalID ();
 		orders = ver.getAddictionalData ();
 
@@ -208,10 +205,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			iter = ( OrderUser ) orders.get ( i );
 
 			/*
-				Forse inefficiente, ma qui faccio insieme il controllo sull
-				esistenza dell'ordine utente e la somma dei prodotti. Se l'ordine
-				viene effettivamente trovato, ritorna e tutto il resto del lavoro
-				viene perso
+				Forse inefficiente, ma qui faccio insieme il controllo
+				sull'esistenza dell'ordine utente e la somma dei prodotti. Se
+				l'ordine viene effettivamente trovato, ritorna e tutto il resto
+				del lavoro viene perso
 			*/
 			if ( iter.getLocalID () == uorder_id ) {
 				if ( action == 0 ) {
@@ -233,33 +230,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					continue;
 				}
 			}
-
-			total += iter.getTotalPrice ();
 		}
 
-		if ( action == 0 || action == 1 ) {
+		if ( action == 0 || action == 1 )
 			orders.add ( uorder );
-			total += uorder.getTotalPrice ();
-		}
-
-		total_view = ( PriceViewer ) ver.retriveInternalWidget ( "price_sum" );
-
-		if ( total_view == null ) {
-			IconsBar icons;
-
-			icons = ver.getIconsBar ();
-			total_view = new PriceViewer ();
-			icons.addWidget ( total_view );
-
-			/*
-				Qui creo e posiziono la label che appare nel riassunto dell'ordine; tale
-				label viene poi eventualmente aggiornata quando il sottopannello relativo
-				viene chiuso a seguito di qualche correzione
-			*/
-			ver.setExtraWidget ( "price_sum", total_view );
-		}
-
-		total_view.setValue ( total );
 	}
 
 	private void retrieveCurrentOrderByUser ( FromServerForm form, User user ) {

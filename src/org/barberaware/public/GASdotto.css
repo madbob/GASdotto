@@ -50,7 +50,7 @@
 .main-menu {
 	width:			100%;
 	padding:		10px;
-	font-size:		10px;
+	font-size:		15px;
 	background-color:	#01A4DF;
 	text-align:		left;
 	vertical-align:		top;
@@ -186,6 +186,11 @@
 	font-size:		10px;
 	text-align:		center;
 	vertical-align:		middle;
+}
+
+.clickable {
+	cursor:			pointer;
+	cursor:			hand;
 }
 
 .boolean-selector {

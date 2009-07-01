@@ -97,11 +97,16 @@ public class HomePanel extends GenericPanel {
 	private void doOrderRow ( Order order ) {
 		int row;
 		String name;
+		Label text;
 
 		row = orders.getRowCount ();
 		name = order.getString ( "name" );
+
 		orders.setWidget ( row, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
-		orders.setWidget ( row, 1, new Label ( name ) );
+
+		text = new Label ( name );
+		text.setStyleName ( "clickable" );
+		orders.setWidget ( row, 1, text );
 	}
 
 	private void modOrderRow ( Order order ) {

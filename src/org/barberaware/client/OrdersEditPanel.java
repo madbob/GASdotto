@@ -126,6 +126,11 @@ public class OrdersEditPanel extends GenericPanel {
 							return sup.iAmReference ();
 						}
 					} );
+
+					/**
+						TODO	Avvertire se il fornitore selezionato non ha prodotti caricati
+					*/
+
 					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", suppliers ) );
 					ver.setValidation ( "supplier", FromServerValidateCallback.defaultObjectValidationCallback () );
 

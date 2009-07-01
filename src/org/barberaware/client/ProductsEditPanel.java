@@ -57,7 +57,7 @@ public class ProductsEditPanel extends Composite {
 					main.showWidget ( 0 );
 			}
 		} );
-		switchable.setStyleName ( "text-button" );
+		switchable.setStyleName ( "clickable" );
 		container.add ( switchable );
 		container.setCellHorizontalAlignment ( switchable, HasHorizontalAlignment.ALIGN_RIGHT );
 
