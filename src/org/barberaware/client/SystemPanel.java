@@ -85,7 +85,7 @@ public class SystemPanel extends GenericPanel {
 
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
-		frame.addPair ( "Gestione Pagamenti", ver.getWidget ( "payments" ) );
+		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
 
 		/*
 			Solo se il sistema permette l'invio di mail viene abilitata l'apposita

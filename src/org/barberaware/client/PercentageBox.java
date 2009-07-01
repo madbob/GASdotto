@@ -71,7 +71,7 @@ public class PercentageBox extends TextBox {
 							( keyCode != KeyboardListener.KEY_UP ) &&
 							( keyCode != KeyboardListener.KEY_RIGHT ) &&
 							( keyCode != KeyboardListener.KEY_DOWN ) &&
-							( keyCode != ',' ) &&
+							( keyCode != '.' ) &&
 							( keyCode != '%' ) ) {
 
 						cancelKey ();
