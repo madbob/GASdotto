@@ -177,8 +177,10 @@ public class OrderSummary extends Composite {
 
 		e++;
 
-		if ( totalLabel == null )
+		if ( totalLabel == null ) {
 			totalLabel = new PriceViewer ();
+			totalLabel.setStyleName ( "bigger-text" );
+		}
 		else
 			totalLabel.setValue ( 0 );
 

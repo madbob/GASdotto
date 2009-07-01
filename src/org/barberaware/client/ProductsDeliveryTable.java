@@ -28,11 +28,108 @@ public class ProductsDeliveryTable extends FromServerArray {
 	private ArrayList		currentValues;
 
 	public ProductsDeliveryTable () {
+		HTMLTable.RowFormatter formatter;
+
 		main = new FlexTable ();
-		main.setStyleName ( "products-selection" );
-		initWidget ( main );
-		main.setWidth ( "100%" );
+		main.setCellPadding ( 5 );
 		main.setCellSpacing ( 5 );
+		initWidget ( main );
+
+		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );
+		main.setWidget ( 0, 2, new Label ( "Quantità Ordinata" ) );
+		main.setWidget ( 0, 3, new Label ( "Quantità Consegnata" ) );
+		main.setWidget ( 0, 4, new Label ( "Prezzo Totale" ) );
+
+		formatter = main.getRowFormatter ();
+		formatter.addStyleName ( 0, "table-header" );
+	}
+
+	private void newInputToCheck ( FloatBox box ) {
+		int num_rows;
+		float input;
+		float row_sum;
+		float total_sum;
+		FloatBox iter;
+		ProductUser prod_user;
+		Product prod;
+
+		total_sum = 0;
+		num_rows = currentValues.size ();
+
+		for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
+			iter = ( FloatBox ) main.getWidget ( i, 3 );
+			input = iter.getVal ();
+
+			prod_user = ( ProductUser ) currentValues.get ( a );
+			prod = ( Product ) prod_user.getObject ( "product" );
+			row_sum = input * prod.getTotalPrice ();
+
+			if ( iter == box ) {
+				if ( input < 0 ) {
+					Utils.showNotification ( "Il valore immesso non è valido" );
+					box.setVal ( 0 );
+				}
+				else {
+					Label total_label;
+
+					/*
+						Se la quantita' immessa e' diversa da quella ordinata si limita a
+						mostrare una notifica, ma non blocca l'operazione in quanto puo'
+						succedere che avanzi qualche prodotto (ordinato per arrotondamento) e
+						si distribuisca arbitrariamente
+					*/
+					if ( input > prod_user.getFloat ( "quantity" ) )
+						Utils.showNotification ( "Hai immesso una quantità diversa da quella ordinata",
+									SmoothingNotify.NOTIFY_INFO );
+
+					total_label = ( Label ) main.getWidget ( i, 4 );
+					total_label.setText ( row_sum + " €" );
+				}
+			}
+
+			total_sum = row_sum + total_sum;
+		}
+
+		totalLabel.setValue ( total_sum );
+	}
+
+	private Button createAutoCompleteButton () {
+		Button ret;
+
+		ret = new Button ( "Consegna Tutto" );
+		ret.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				int num_rows;
+				float input;
+				float row_sum;
+				float total_sum;
+				Label total_label;
+				FloatBox iter;
+				ProductUser prod_user;
+				Product prod;
+
+				total_sum = 0;
+				num_rows = currentValues.size ();
+
+				for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
+					iter = ( FloatBox ) main.getWidget ( i, 3 );
+					prod_user = ( ProductUser ) currentValues.get ( a );
+
+					prod = ( Product ) prod_user.getObject ( "product" );
+					input = prod_user.getFloat ( "quantity" );
+					row_sum = input * prod.getTotalPrice ();
+					total_label = ( Label ) main.getWidget ( i, 4 );
+
+					total_label.setText ( row_sum + " €" );
+					iter.setVal ( input );
+					total_sum = row_sum + total_sum;
+				}
+
+				totalLabel.setValue ( total_sum );
+			}
+		} );
+
+		return ret;
 	}
 
 	/****************************************************************** FromServerArray */
@@ -42,30 +139,35 @@ public class ProductsDeliveryTable extends FromServerArray {
 	}
 
 	public void setElements ( ArrayList elements ) {
+		int i;
+		int e;
 		ProductUser prod_user;
 		Product prod;
 		Measure measure;
 		FloatBox del;
 		float delivered;
+		float price_product;
+		float price_total;
 
 		currentValues = elements;
+		price_total = 0;
 
-		for ( int i = 0; i < main.getRowCount (); i++ )
-			main.removeRow ( 0 );
+		for ( i = 1; i < main.getRowCount (); i++ )
+			main.removeRow ( 1 );
 
-		for ( int i = 0; i < elements.size (); i++ ) {
+		for ( e = 1, i = 0; i < elements.size (); e++, i++ ) {
 			prod_user = ( ProductUser ) elements.get ( i );
 			prod = ( Product ) prod_user.getObject ( "product" );
 			measure = ( Measure ) prod.getObject ( "measure" );
 
-			main.setWidget ( i, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
-			main.setWidget ( i, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( i, 2, new Label ( prod_user.getFloat ( "quantity" ) + " " + measure.getString ( "symbol" ) ) );
+			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
+			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
+			main.setWidget ( e, 2, new Label ( prod_user.getFloat ( "quantity" ) + " " + measure.getString ( "symbol" ) ) );
 
 			del = new FloatBox ();
 			delivered = prod_user.getFloat ( "delivered" );
 			del.setVal ( delivered );
-			main.setWidget ( i, 3, del );
+			main.setWidget ( e, 3, del );
 
 			del.addFocusListener ( new FocusListener () {
 				public void onFocus ( Widget sender ) {
@@ -73,47 +175,29 @@ public class ProductsDeliveryTable extends FromServerArray {
 				}
 
 				public void onLostFocus ( Widget sender ) {
-					float input;
-					Label total;
-					FloatBox box;
-					FloatBox iter;
-					ProductUser prod_user;
-					Product prod;
-
-					box = ( FloatBox ) sender;
-					input = box.getVal ();
-
-					for ( int a = 0; a < main.getRowCount (); a++ ) {
-						iter = ( FloatBox ) main.getWidget ( a, 3 );
-
-						if ( iter == box ) {
-							prod_user = ( ProductUser ) currentValues.get ( a );
-							prod = ( Product ) prod_user.getObject ( "product" );
-
-							/*
-								Viene segnalato l'errore sull'input solo
-								se il prodotto in questione non prevede
-								una quantita' variabile alla consegna
-							*/
-							if ( input < 0 ||
-									( prod.getBool ( "mutable_price" ) == false &&
-									input > prod_user.getFloat ( "quantity" ) ) ) {
-
-								Utils.showNotification ( "Il valore immesso non è valido" );
-								box.setVal ( 0 );
-								return;
-							}
-
-							total = ( Label ) main.getWidget ( a, 4 );
-							total.setText ( ( input * prod.getTotalPrice () ) + " €" );
-							break;
-						}
-					}
+					newInputToCheck ( ( FloatBox ) sender );
 				}
 			} );
 
-			main.setWidget ( i, 4, new Label ( ( delivered * prod.getTotalPrice () ) + " €" ) );
+			price_product = delivered * prod.getTotalPrice ();
+			main.setWidget ( e, 4, new Label ( price_product + " €" ) );
+			price_total = price_total + price_product;
 		}
+
+		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
+		main.getFlexCellFormatter ().setColSpan ( e, 0, 5 );
+
+		e++;
+
+		main.setWidget ( e, 3, createAutoCompleteButton () );
+
+		if ( totalLabel == null ) {
+			totalLabel = new PriceViewer ();
+			totalLabel.setStyleName ( "bigger-text" );
+		}
+
+		totalLabel.setValue ( price_total );
+		main.setWidget ( e, 4, totalLabel );
 	}
 
 	public void removeElement ( FromServer element ) {
@@ -125,7 +209,7 @@ public class ProductsDeliveryTable extends FromServerArray {
 		ProductUser produser;
 
 		for ( int i = 0; i < currentValues.size (); i++ ) {
-			del = ( FloatBox ) main.getWidget ( i, 3 );
+			del = ( FloatBox ) main.getWidget ( i + 1, 3 );
 			produser = ( ProductUser ) currentValues.get ( i );
 			produser.setFloat ( "delivered", del.getVal () );
 		}

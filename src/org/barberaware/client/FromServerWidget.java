@@ -70,7 +70,7 @@ public class FromServerWidget extends Composite {
 			TextArea ta;
 
 			ta = new TextArea ();
-			ta.setVisibleLines ( 3 );
+			ta.setVisibleLines ( 2 );
 			ta.setCharacterWidth ( 70 );
 			wid = ta;
 		}

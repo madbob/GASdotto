@@ -21,12 +21,20 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class PriceViewer extends Label {
+	private float		total;
+
 	public PriceViewer () {
+		total = 0;
 		setText ( "0 €" );
 	}
 
 	public void setValue ( float price ) {
 		price = ( ( float ) ( ( int ) ( price * 100 ) ) ) / 100;
 		setText ( price  + " €" );
+		total = price;
+	}
+
+	public void sumValue ( float price ) {
+		setValue ( total + price );
 	}
 }
