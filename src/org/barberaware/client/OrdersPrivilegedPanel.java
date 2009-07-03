@@ -140,6 +140,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	private Widget doOrderRow ( Order order ) {
 		final FromServerForm ver;
+		HorizontalPanel pan;
 		OrderUser uorder;
 		UserSelector users;
 		ProductsUserSelection products;
@@ -148,8 +149,18 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", order );
 
 		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onClose ( FromServerForm form ) {
+				cleanForm ( form, true );
+			}
 
-		HorizontalPanel pan;
+			public void onOpen ( FromServerForm form ) {
+				UserSelector selector;
+
+				selector = ( UserSelector ) form.retriveInternalWidget ( "baseuser" );
+				retrieveCurrentOrderByUser ( form, ( User ) selector.getValue () );
+			}
+		} );
 
 		pan = new HorizontalPanel ();
 		pan.add ( new Label ( "Ordine eseguito a nome di " ) );
@@ -174,12 +185,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		} );
 		pan.add ( ver.getPersonalizedWidget ( "baseuser", users ) );
 		ver.add ( pan );
-
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onClose ( FromServerForm form ) {
-				cleanForm ( form, true );
-			}
-		} );
 
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
@@ -351,12 +356,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( params );
 
 		Utils.getServer ().testObjectReceive ( "OrderUser" );
-
-		/*
-			Questo e' per forzare la creazione della lista di utenti, necessaria
-			comunque se e solo se la devo creare (ovvero: se sono loggato come
-			responsabile o amministratore e posso fare ordini per conto terzi)
-		*/
 		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }
