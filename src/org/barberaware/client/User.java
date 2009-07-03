@@ -60,4 +60,20 @@ public class User extends FromServer {
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
 	}
+
+	public void checkUserPaying ( FromServerForm form ) {
+		Date last_pay;
+		IconsBar bar;
+
+		bar = form.getIconsBar ();
+		last_pay = this.getDate ( "paying" );
+
+		/**
+			TODO	Aggiungere controllo su differenza data corrente e data pagamento quota
+		*/
+		if ( last_pay == null )
+			bar.addImage ( "images/notifications/user_not_paying.png" );
+		else
+			bar.delImage ( "images/notifications/user_not_paying.png" );
+	}
 }

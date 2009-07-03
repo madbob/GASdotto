@@ -54,7 +54,56 @@ public class HomePanel extends GenericPanel {
 			}
 		} );
 
-		orders.setWidget ( 0, 0, new Label ( "Non ci sono ordini aperti in questo momento." ) );
+		checkNoOrders ();
+
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
+					int index;
+
+					index = retrieveOrderRow ( ( Order ) object.getObject ( "baseorder" ) );
+					if ( index != -1 ) {
+						Label total;
+						OrderUser uorder;
+
+						uorder = ( OrderUser ) object;
+						total = new Label ( " (hai già ordinato " + Float.toString ( uorder.getTotalPrice () ) + " €)" );
+						total.setStyleName ( "smaller-text" );
+						orders.setWidget ( index, 3, total );
+					}
+				}
+			}
+
+			public void onModify ( FromServer object ) {
+				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
+					int index;
+
+					index = retrieveOrderRow ( ( Order ) object.getObject ( "baseorder" ) );
+					if ( index == -1 ) {
+						OrderUser uorder;
+						Label total;
+
+						uorder = ( OrderUser ) object;
+						total = ( Label ) orders.getWidget ( index, 3 );
+
+						if ( total != null )
+							total.setText ( Float.toString ( uorder.getTotalPrice () ) );
+						else
+							onReceive ( object );
+					}
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
+					int index;
+
+					index = retrieveOrderRow ( ( Order ) object.getObject ( "baseorder" ) );
+					if ( index == -1 )
+						orders.setWidget ( index, 3, new Label ( "" ) );
+				}
+			}
+		} );
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -86,27 +135,44 @@ public class HomePanel extends GenericPanel {
 				int index;
 
 				index = retrieveOrderRow ( object );
-				if ( index != -1 )
+				if ( index != -1 ) {
 					orders.removeRow ( index );
+					checkNoOrders ();
+				}
 			}
 		} );
 
 		return orders;
 	}
 
+	private void checkNoOrders () {
+		/*
+			Se c'e' una sola riga, e' l'header della lista degli ordini aperti e/o la
+			notifica dell'assenza di ordini
+		*/
+		if ( orders.getRowCount () <= 1 ) {
+			hasOrders = false;
+			orders.setWidget ( 0, 0, new Label ( "Non ci sono ordini aperti in questo momento." ) );
+		}
+	}
+
 	private void doOrderRow ( Order order ) {
 		int row;
+		int index;
 		String name;
 		Label text;
 
-		row = orders.getRowCount ();
-		name = order.getString ( "name" );
+		index = retrieveOrderRow ( order );
+		if ( index == -1 ) {
+			row = orders.getRowCount ();
+			name = order.getString ( "name" );
 
-		orders.setWidget ( row, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
+			orders.setWidget ( row, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
 
-		text = new Label ( name );
-		text.setStyleName ( "clickable" );
-		orders.setWidget ( row, 1, text );
+			text = new Label ( name );
+			text.setStyleName ( "clickable" );
+			orders.setWidget ( row, 1, text );
+		}
 	}
 
 	private void modOrderRow ( Order order ) {
@@ -162,5 +228,6 @@ public class HomePanel extends GenericPanel {
 	public void initView () {
 		notifications.syncList ();
 		Utils.getServer ().testObjectReceive ( "Order" );
+		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }

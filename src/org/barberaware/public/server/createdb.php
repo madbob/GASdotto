@@ -120,22 +120,29 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	/*
-		"recipent" pur essendo un riferimento ad un utente nella tabella "users" viene definito
-		come semplice "int" per ammettere anche il valore -1, che significa "tutti gli utenti"
-	*/
-
 	$query = sprintf ( "CREATE TABLE notification (
 					id serial,
 					alert_type int default 0,
 					description varchar ( 500 ) default '',
 					startdate date,
 					enddate date,
-					recipent int,
 					primary key ( id )
 				)"
 	);
 	query_and_check ( $query, "Impossibile creare tabella notification" );
+
+	/*
+		=======================================================================================
+	*/
+
+	$query = sprintf ( "CREATE TABLE notification_recipent (
+					id serial,
+					parent int references notification ( id ) on delete cascade,
+					target int references users ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+	query_and_check ( $query, "Impossibile creare tabella notification_recipent" );
 
 	/*
 		=======================================================================================

@@ -27,7 +27,7 @@ class Notification extends FromServer {
 		parent::addAttribute ( "description", "STRING" );
 		parent::addAttribute ( "startdate", "DATE" );
 		parent::addAttribute ( "enddate", "DATE" );
-		parent::addAttribute ( "recipent", "INTEGER" );
+		parent::addAttribute ( "recipent", "ARRAY::User" );
 	}
 
 	public function get ( $request ) {
@@ -42,28 +42,16 @@ class Notification extends FromServer {
 
 		$ret = array ();
 
+		$u = new User ();
+		$references = $this->tablename . "_recipent";
+		$query = sprintf ( "SELECT %s.id FROM %s, %s WHERE ", $this->tablename, $this->tablename, $references );
+
 		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $this->tablename, $ids );
-		}
-		else {
-			/*
-				Per far quagliare la concatenazione di altri frammenti di query
-				forzo l'esistenza di uno statement WHERE cui accodare gli altri
-				in AND
-			*/
-			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
+			$query .= sprintf ( " %s.id NOT IN ( %s ) AND ", $this->tablename, $ids );
 		}
 
-		if ( !isset ( $request->all ) ) {
-			/*
-				Il valore -1 per il campo recipent indica che la notifica e' destinata a
-				tutti gli utenti
-			*/
-			$query .= sprintf ( " AND recipent = %d OR recipent = %d", $current_user, -1 );
-		}
-
-		$query .= sprintf ( " ORDER BY startdate DESC" );
+		$query .= sprintf ( " %s.target = %d AND %s.id = %s.parent ORDER BY startdate DESC", $references, $current_user, $this->tablename, $references );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 
 		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {

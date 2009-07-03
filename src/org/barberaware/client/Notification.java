@@ -32,22 +32,52 @@ public class Notification extends FromServer {
 
 		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
 			public String retrive ( FromServer obj ) {
-				int recipent;
+				int len;
+				ArrayList recipents;
+				String ret;
 
-				recipent = obj.getInt ( "recipent" );
+				recipents = obj.getArray ( "recipent" );
+				if ( recipents == null )
+					return "Nuova Notifica";
 
-				if ( recipent == -1 ) {
-					return "A Tutti gli Utente";
+				len = recipents.size ();
+				
+				if ( len == 0 ) {
+					ret = "A: Tutti";
 				}
 				else {
-					User user;
+					int i;
+					int str_len;
+					boolean closed;
+					User iter;
+					String name;
 
-					user = ( User ) Utils.getServer ().getObjectFromCache ( "User", recipent );
-					if ( user != null )
-						return "A: " + user.getString ( "name" );
-					else
-						return "A: Utente Sconosciuto";
+					ret = "A: ";
+					str_len = 2;
+					len = len - 1;
+					closed = false;
+
+					for ( i = 0; i < len; i++ ) {
+						iter = ( User ) recipents.get ( i );
+						name = iter.getString ( "name" );
+						ret += name + ", ";
+
+						str_len = str_len + name.length ();
+						if ( str_len >= 40 ) {
+							ret += "e altri";
+							closed = true;
+							break;
+						}
+					}
+
+					if ( closed == false ) {
+						iter = ( User ) recipents.get ( i );
+						name = iter.getString ( "name" );
+						ret += name;
+					}
 				}
+
+				return ret;
 			}
 		} );
 
@@ -55,7 +85,7 @@ public class Notification extends FromServer {
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "startdate", FromServer.DATE );
 		addAttribute ( "enddate", FromServer.DATE );
-		addAttribute ( "recipent", FromServer.INTEGER );
+		addAttribute ( "recipent", FromServer.ARRAY, User.class );
 	}
 
 	public Image getIcon () {

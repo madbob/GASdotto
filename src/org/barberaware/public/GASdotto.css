@@ -209,11 +209,6 @@
         padding-left:		18px;
 }
 
-.reference-selector {
-	background:		#FFFFFF url('images/reference_selector.png') no-repeat scroll 0pt 50%;
-        padding-left:		18px;
-}
-
 .password-selector {
 	background:		#FFFFFF url('images/password_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
@@ -227,6 +222,11 @@
 .cyclic-toggle {
 	cursor:			pointer;
 	cursor:			hand;
+}
+
+.multi-selector {
+	padding:		1px;
+	border:			1px solid #000000;
 }
 
 .search-bar {
@@ -250,6 +250,10 @@
 
 .bigger-text {
 	font-size:		30px;
+}
+
+.smaller-text {
+	font-size:		9px;
 }
 
 .file-link {
@@ -334,10 +338,6 @@ br {
 	font-weight:		bold;
 	cursor:			default;
 	padding:		5px 10px;
-	text-align:		center;
-}
-
-.gwt-DialogBox td {
 	text-align:		center;
 }
 

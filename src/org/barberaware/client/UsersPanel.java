@@ -96,8 +96,10 @@ public class UsersPanel extends GenericPanel {
 						correggere questo pannello ma semplicemente attendere che sia
 						ricaricato
 					*/
-					if ( handle_payments == true )
+					if ( handle_payments == true ) {
 						frame.addPair ( "Quota pagata", ver.getWidget ( "paying" ) );
+						user.checkUserPaying ( ver );
+					}
 					else
 						user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
 
@@ -143,6 +145,14 @@ public class UsersPanel extends GenericPanel {
 
 				protected FromServerForm doNewEditableRow () {
 					return doEditableRow ( new User () );
+				}
+
+				protected void customModify ( FromServerForm form ) {
+					if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+						User user;
+						user = ( User ) form.getObject ();
+						user.checkUserPaying ( form );
+					}
 				}
 
 				protected int sorting ( FromServer first, FromServer second ) {

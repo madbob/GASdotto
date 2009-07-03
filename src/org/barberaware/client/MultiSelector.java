@@ -21,27 +21,39 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class ReferenceList extends FromServerArray {
-	private TextBox			main;
+public class MultiSelector extends FromServerArray {
+	private VerticalPanel		main;
+
+	private FilterCallback		filterCallback;
 
 	private DialogBox		dialog;
 	private FlexTable		items;
 
+	private String			objectType;
+	private boolean			manageAll;
 	private ArrayList		selected;
 	private boolean			opened;
 
-	public ReferenceList () {
+	public MultiSelector ( String type, boolean selectall, FilterCallback filter ) {
+		Button mod_button;
+
 		opened = false;
+		objectType = type;
+		manageAll = selectall;
 		selected = new ArrayList ();
+		filterCallback = filter;
 
 		dialog = new DialogBox ( false );
-		dialog.setText ( "Seleziona Referenti" );
+		dialog.setText ( "Seleziona" );
 		dialog.setWidget ( doDialog () );
 
-		main = new TextBox ();
-		main.setStyleName ( "reference-selector" );
-		main.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
+		main = new VerticalPanel ();
+		main.setStyleName ( "multi-selector" );
+		initWidget ( main );
+
+		mod_button = new Button ( "Modifica Lista" );
+		mod_button.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
 				if ( opened == false ) {
 					opened = true;
 					syncToDialog ();
@@ -49,29 +61,33 @@ public class ReferenceList extends FromServerArray {
 					dialog.show ();
 				}
 			}
-
-			public void onLostFocus ( Widget sender ) {
-				/* dummy */
-			}
 		} );
+		main.add ( mod_button );
 
-		initWidget ( main );
 		clean ();
 
-		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
+		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				if ( object.getInt ( "privileges" ) >= User.USER_RESPONSABLE ) {
-					doSelectableRow ( ( User ) object );
-				}
+				if ( filterCallback != null )
+					if ( filterCallback.check ( object, null ) == false )
+						return;
+
+				doSelectableRow ( object );
 			}
 
 			public void onModify ( FromServer object ) {
 				int a;
+				boolean do_it;
 				Label name;
 
-				a = retrieveUserIndex ( object );
+				a = retrieveObjIndex ( object );
 
-				if ( object.getInt ( "privileges" ) >= User.USER_RESPONSABLE ) {
+				if ( filterCallback != null )
+					do_it = filterCallback.check ( object, null );
+				else
+					do_it = true;
+
+				if ( do_it == true ) {
 					if ( a != -1 ) {
 						name = ( Label ) items.getWidget ( a, 2 );
 						name.setText ( object.getString ( "name" ) );
@@ -87,7 +103,7 @@ public class ReferenceList extends FromServerArray {
 			public void onDestroy ( FromServer object ) {
 				int a;
 
-				a = retrieveUserIndex ( object );
+				a = retrieveObjIndex ( object );
 				if ( a != -1 )
 					items.removeRow ( a );
 			}
@@ -101,10 +117,11 @@ public class ReferenceList extends FromServerArray {
 
 		pan = new VerticalPanel ();
 
+		if ( manageAll == true )
+			pan.add ( doSelectDeselectAll () );
+
 		items = new FlexTable ();
 		pan.add ( items );
-
-		pan.add ( new HTML ( "<p>Per eleggere altri utenti al ruolo di responsabile modifica i loro privilegi dal pannello \"Gestione Utenti\"</p>" ) );
 
 		buttons = new HorizontalPanel ();
 		pan.add ( buttons );
@@ -129,16 +146,56 @@ public class ReferenceList extends FromServerArray {
 		return pan;
 	}
 
-	public void clean () {
-		main.setText ( "" );
+	private HorizontalPanel doSelectDeselectAll () {
+		Button toggle;
+		HorizontalPanel buttons;
+
+		buttons = new HorizontalPanel ();
+
+		toggle = new Button ( "Seleziona Tutti" );
+		toggle.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				CheckBox iter;
+
+				for ( int i = 0; i < items.getRowCount (); i++ ) {
+					iter = ( CheckBox ) items.getWidget ( i, 1 );
+					iter.setChecked ( true );
+				}
+			}
+		} );
+		buttons.add ( toggle );
+
+		toggle = new Button ( "Deseleziona Tutti" );
+		toggle.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				CheckBox iter;
+
+				for ( int i = 0; i < items.getRowCount (); i++ ) {
+					iter = ( CheckBox ) items.getWidget ( i, 1 );
+					iter.setChecked ( false );
+				}
+			}
+		} );
+		buttons.add ( toggle );
+
+		return buttons;
 	}
 
-	private void doSelectableRow ( User user ) {
+	public void clean () {
+		int num;
+
+		num = main.getWidgetCount () - 1;
+		for ( int i = 0; i < num; i++ )
+			main.remove ( 1 );
+	}
+
+	private void doSelectableRow ( FromServer obj ) {
 		int index;
 		String str_id;
 		Hidden iter;
+		CheckBox check;
 
-		str_id = Integer.toString ( user.getLocalID () );
+		str_id = Integer.toString ( obj.getLocalID () );
 		index = items.getRowCount ();
 
 		for ( int i = 0; i < index; i++ ) {
@@ -151,31 +208,21 @@ public class ReferenceList extends FromServerArray {
 
 		items.setWidget ( index, 0, new Hidden ( str_id ) );
 		items.setWidget ( index, 1, new CheckBox () );
-		items.setWidget ( index, 2, new Label ( user.getString ( "name" ) ) );
+		items.setWidget ( index, 2, new Label ( obj.getString ( "name" ) ) );
 	}
 
-	private void retriveMainString () {
+	private void rebuildMainList () {
 		int i;
 		int num;
-		String mainstring;
-		User user;
+		FromServer iter;
 
+		clean ();
 		num = selected.size ();
-		mainstring = "";
 
-		if ( num != 0 ) {
-			num--;
-
-			for ( i = 0; i < num; i++ ) {
-				user = ( User ) selected.get ( i );
-				mainstring += user.getString ( "name" ) + ", ";
-			}
-
-			user = ( User ) selected.get ( i );
-			mainstring += user.getString ( "name" );
+		for ( i = 0; i < num; i++ ) {
+			iter = ( FromServer ) selected.get ( i );
+			main.add ( new Label ( iter.getString ( "name" ) ) );
 		}
-
-		main.setText ( mainstring );
 	}
 
 	private void syncToDialog () {
@@ -184,11 +231,9 @@ public class ReferenceList extends FromServerArray {
 		int avail_num;
 		String tmp_id;
 		CheckBox check;
-		User tmp;
+		FromServer tmp;
 
 		sel_num = selected.size ();
-		if ( sel_num == 0 )
-			return;
 
 		avail_num = items.getRowCount ();
 		for ( int i = 0; i < avail_num; i++ ) {
@@ -196,23 +241,28 @@ public class ReferenceList extends FromServerArray {
 			check.setChecked ( false );
 		}
 
-		for ( int i = 0; i < sel_num; i++ ) {
-			tmp = ( User ) selected.get ( i );
-
-			a = retrieveUserIndex ( tmp );
-			if ( a != -1 ) {
-				check = ( CheckBox ) items.getWidget ( a, 1 );
+		if ( sel_num == 0 ) {
+			for ( int i = 0; i < sel_num; i++ ) {
+				check = ( CheckBox ) items.getWidget ( i, 1 );
 				check.setChecked ( true );
+			}
+		}
+		else {
+			for ( int i = 0; i < sel_num; i++ ) {
+				tmp = ( FromServer ) selected.get ( i );
+
+				a = retrieveObjIndex ( tmp );
+				if ( a != -1 ) {
+					check = ( CheckBox ) items.getWidget ( a, 1 );
+					check.setChecked ( true );
+				}
 			}
 		}
 	}
 
 	private void syncFromDialog () {
 		int avail_num;
-		int selected_id;
 		CheckBox check;
-		Hidden hid;
-		FromServer user;
 		String final_output;
 
 		selected.clear ();
@@ -223,27 +273,30 @@ public class ReferenceList extends FromServerArray {
 			check = ( CheckBox ) items.getWidget ( i, 1 );
 
 			if ( check.isChecked () ) {
+				int selected_id;
+				Hidden hid;
+				FromServer obj;
+
 				hid = ( Hidden ) items.getWidget ( i, 0 );
 				selected_id = Integer.parseInt ( hid.getName () );
-				user = Utils.getServer ().getObjectFromCache ( "User", selected_id );
-				selected.add ( user );
+				obj = Utils.getServer ().getObjectFromCache ( objectType, selected_id );
+				selected.add ( obj );
 			}
 		}
 
-		retriveMainString ();
+		rebuildMainList ();
 	}
 
-	private int retrieveUserIndex ( FromServer user ) {
+	private int retrieveObjIndex ( FromServer obj ) {
 		int avail_num;
 		String id;
 		Hidden hid;
 
-		id = Integer.toString ( user.getLocalID () );
+		id = Integer.toString ( obj.getLocalID () );
 		avail_num = items.getRowCount ();
 
 		for ( int i = 0; i < avail_num; i++ ) {
 			hid = ( Hidden ) items.getWidget ( i, 0 );
-
 			if ( id.equals ( hid.getName () ) )
 				return i;
 		}
@@ -255,13 +308,13 @@ public class ReferenceList extends FromServerArray {
 
 	public void addElement ( FromServer element ) {
 		boolean found;
-		User iter;
+		FromServer iter;
 
 		if ( element != null ) {
 			found = false;
 
 			for ( int i = 0; i < selected.size (); i++ ) {
-				iter = ( User ) selected.get ( i );
+				iter = ( FromServer ) selected.get ( i );
 				if ( iter.equals ( element ) == true ) {
 					found = true;
 					break;
@@ -271,7 +324,7 @@ public class ReferenceList extends FromServerArray {
 			if ( found == false )
 				selected.add ( element );
 
-			retriveMainString ();
+			rebuildMainList ();
 		}
 	}
 
@@ -283,7 +336,7 @@ public class ReferenceList extends FromServerArray {
 				selected.add ( elements.get ( i ) );
 		}
 
-		retriveMainString ();
+		rebuildMainList ();
 	}
 
 	public void removeElement ( FromServer element ) {
@@ -291,6 +344,15 @@ public class ReferenceList extends FromServerArray {
 	}
 
 	public ArrayList getElements () {
-		return selected;
+		int num;
+		ArrayList ret;
+
+		ret = new ArrayList ();
+		num = selected.size ();
+
+		for ( int i = 0; i < num; i++ )
+			ret.add ( selected.get ( i ) );
+
+		return ret;
 	}
 }

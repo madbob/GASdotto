@@ -161,7 +161,14 @@ public class Header extends Composite {
 		initWidget ( main );
 
 		doLogout ();
-		doPermalink ();
+
+		/*
+			Per motivi di semplicita' dell'interfaccia il tasto per il permalink
+			viene visualizzato solo per referenti ed amministratori, che in fondo
+			sono gli unici che se ne fanno qualcosa
+		*/
+		if ( Session.getUser ().getInt ( "privileges" ) >= User.USER_RESPONSABLE )
+			doPermalink ();
 
 		item = doGreetings ();
 		main.add ( item );

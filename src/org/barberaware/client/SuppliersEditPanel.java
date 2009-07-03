@@ -106,7 +106,7 @@ public class SuppliersEditPanel extends GenericPanel {
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
 		VerticalPanel vertical;
 		HorizontalPanel hor;
-		ReferenceList references;
+		MultiSelector references;
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
 
@@ -122,7 +122,12 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Nome Contatto", ver.getWidget ( "contact" ) );
 
-		references = new ReferenceList ();
+		references = new MultiSelector ( "User", false, new FilterCallback () {
+			public boolean check ( FromServer obj, String text ) {
+				return ( obj.getInt ( "privileges" ) >= User.USER_RESPONSABLE );
+			}
+		} );
+
 		/*
 			Di default, l'utente che crea il fornitore ne e' anche referente
 		*/
@@ -265,8 +270,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( "Category" );
 
 		/*
-			Questo e' per forzare il popolamento della lista di referenti in
-			ReferenceList
+			Questo e' per forzare il popolamento della lista di referenti
 		*/
 		Utils.getServer ().testObjectReceive ( "User" );
 	}

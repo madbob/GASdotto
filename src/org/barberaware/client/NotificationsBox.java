@@ -74,10 +74,20 @@ public class NotificationsBox extends Composite {
 	}
 
 	private boolean isForMe ( Notification notify ) {
-		int dest;
+		ArrayList dests;
+		User myself;
+		User iter;
 
-		dest = notify.getInt ( "recipent" );
-		return ( dest == Session.getUser ().getLocalID () || dest == -1 );
+		dests = notify.getArray ( "recipent" );
+		myself = Session.getUser ();
+
+		for ( int i = 0; i < dests.size (); i++ ) {
+			iter = ( User ) dests.get ( i );
+			if ( myself.equals ( iter ) )
+				return true;
+		}
+
+		return false;
 	}
 
 	private void setNotification ( Notification notify, int index ) {

@@ -25,6 +25,11 @@ public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
 	private int			numOrders;
 
+	/**
+		TODO	Sarebbe forse opportuno registrare una callback sulle modifiche degli utenti, in modo da
+			correggere all'occorrenza i nomi e le segnalazioni di mancato pagamento quote
+	*/
+
 	public DeliverySummary () {
 		main = new VerticalPanel ();
 		initWidget ( main );
@@ -37,6 +42,7 @@ public class DeliverySummary extends Composite {
 	public void addOrder ( OrderUser uorder ) {
 		int index;
 		FromServerForm row;
+		User user;
 		ProductsDeliveryTable products;
 
 		if ( numOrders == 0 )
@@ -57,7 +63,12 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
-		main.insert ( row, getSortedIndex ( ( User ) uorder.getObject ( "baseuser" ) ) );
+		user = ( User ) uorder.getObject ( "baseuser" );
+
+		if ( Session.getGAS ().getBool ( "payments" ) == true )
+			user.checkUserPaying ( row );
+
+		main.insert ( row, getSortedIndex ( user ) );
 		numOrders += 1;
 	}
 

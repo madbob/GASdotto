@@ -34,7 +34,7 @@ public class NotificationPanel extends GenericPanel {
 					CaptionPanel sframe;
 					Notification notify;
 					EnumSelector type_sel;
-					FromServerSelector users;
+					MultiSelector users;
 
 					notify = ( Notification ) n;
 					ver = new FromServerForm ( notify );
@@ -42,8 +42,7 @@ public class NotificationPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );
 
-					users = new FromServerIDSelector ( "User", true, true );
-					users.addAllSelector ();
+					users = new MultiSelector ( "User", true, null );
 					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", users ) );
 
 					frame.addPair ( "Data Inizio", ver.getWidget ( "startdate" ) );
