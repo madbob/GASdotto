@@ -25,12 +25,11 @@ public class PriceViewer extends Label {
 
 	public PriceViewer () {
 		total = 0;
-		setText ( "0 €" );
+		setText ( "0.00 €" );
 	}
 
 	public void setValue ( float price ) {
-		price = ( ( float ) ( ( int ) ( price * 100 ) ) ) / 100;
-		setText ( price  + " €" );
+		setText ( Utils.priceToString ( price ) + " €" );
 		total = price;
 	}
 

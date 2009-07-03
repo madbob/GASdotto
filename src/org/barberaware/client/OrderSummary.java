@@ -132,7 +132,7 @@ public class OrderSummary extends Composite {
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
 
 			product_quantity_sum = ( Label ) main.getWidget ( e, 4 );
-			product_quantity_sum.setText ( prices [ i ] + " €" );
+			product_quantity_sum.setText ( Utils.priceToString ( prices [ i ] ) + " €" );
 
 			stock = order_product.getInt ( "stock_size" );
 			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] % stock != 0 ) )
@@ -167,9 +167,9 @@ public class OrderSummary extends Composite {
 
 			main.setWidget ( e, 0, new Hidden ( Integer.toString ( prod.getLocalID () ) ) );
 			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( e, 2, new Label ( prod.getTotalPrice () + " € / " + measure ) );
+			main.setWidget ( e, 2, new Label ( Utils.priceToString ( prod.getTotalPrice () ) + " € / " + measure ) );
 			main.setWidget ( e, 3, new Label ( "0 " + measure ) );
-			main.setWidget ( e, 4, new Label ( "0 €" ) );
+			main.setWidget ( e, 4, new Label ( "0.00 €" ) );
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );

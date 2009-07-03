@@ -67,7 +67,7 @@ public class HomePanel extends GenericPanel {
 						OrderUser uorder;
 
 						uorder = ( OrderUser ) object;
-						total = new Label ( " (hai già ordinato " + Float.toString ( uorder.getTotalPrice () ) + " €)" );
+						total = new Label ( " (hai già ordinato " + Utils.priceToString ( uorder.getTotalPrice () ) + " €)" );
 						total.setStyleName ( "smaller-text" );
 						orders.setWidget ( index, 3, total );
 					}
@@ -87,7 +87,7 @@ public class HomePanel extends GenericPanel {
 						total = ( Label ) orders.getWidget ( index, 3 );
 
 						if ( total != null )
-							total.setText ( Float.toString ( uorder.getTotalPrice () ) );
+							total.setText ( Utils.priceToString ( uorder.getTotalPrice () ) );
 						else
 							onReceive ( object );
 					}

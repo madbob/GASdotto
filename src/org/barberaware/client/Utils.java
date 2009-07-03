@@ -58,6 +58,30 @@ public class Utils {
 		return server;
 	}
 
+	/****************************************************** numeri */
+
+	/*
+		Questa funzione e' sostanzialmente un pessimo hack per avere i prezzi sempre con
+		due cifre decimali, anche quando sono 00. Forse c'e' un modo migliore, ma non
+		potendo contare su funzioni particolarmente sofisticate (non incluse nel set
+		offerto da GWT) mi tocca ricorrere alla costruzione a mano della stringa
+	*/
+	public static String priceToString ( float price ) {
+		int sep;
+		String ret;
+
+		ret = Float.toString ( ( float ) ( ( int ) ( ( price + 0.005 ) * 100 ) ) / 100 );
+		sep = ret.indexOf ( "." );
+
+		if ( sep == -1 )
+			ret = ret + ".00";
+		else
+			if ( ret.substring ( sep ).length () != 3 )
+				ret = ret + "0";
+
+		return ret;
+	}
+
 	/****************************************************** classi */
 
 	public static String classFinalName ( String name ) {
