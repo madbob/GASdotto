@@ -85,7 +85,7 @@ header("Content-Type: plain/text");
 echo $output;
 
 function sort_product_by_name ( $first, $second ) {
-	return strcmp ( $first->getAttribute ( "name" ), $second->getAttribute ( "name" ) );
+	return strcmp ( $first->getAttribute ( "name" )->value, $second->getAttribute ( "name" )->value );
 }
 
 function sort_product_user_by_name ( $first, $second ) {

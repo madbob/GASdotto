@@ -88,7 +88,6 @@
 .element-summary {
 	background:		#FFFFFF url('images/details-closed.png') no-repeat scroll 0pt 50%;
         padding-left:		30px;
-	width:			50%;
 	font-size:		15px;
 	font-family:		arial, sans-serif;
 	margin:			1px;
@@ -194,37 +193,44 @@
 }
 
 .boolean-selector {
+	margin:			1px;
 	cursor:			pointer;
 	cursor:			hand;
 	font-size:		18px;
 }
 
 .date-selector {
+	margin:			1px;
 	background:		#FFFFFF url('images/date_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .address-selector {
+	margin:			1px;
 	background:		#FFFFFF url('images/address_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .password-selector {
+	margin:			1px;
 	background:		#FFFFFF url('images/password_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .cycle-selector {
+	margin:			1px;
 	background:		#FFFFFF url('images/cycle_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .cyclic-toggle {
+	margin:			1px;
 	cursor:			pointer;
 	cursor:			hand;
 }
 
 .multi-selector {
+	margin:			1px;
 	padding:		1px;
 	border:			1px solid #000000;
 }

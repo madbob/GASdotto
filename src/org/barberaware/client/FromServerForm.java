@@ -167,11 +167,9 @@ public class FromServerForm extends Composite {
 
 		summary = new Label ( callbacks.getName ( this ) );
 		main.add ( summary );
-		main.setCellHorizontalAlignment ( summary, HasHorizontalAlignment.ALIGN_LEFT );
 
 		icons = doIconsBar ();
 		main.add ( icons );
-		main.setCellHorizontalAlignment ( icons, HasHorizontalAlignment.ALIGN_RIGHT );
 
 		return main;
 	}

@@ -21,45 +21,22 @@ import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class CustomCaptionPanel extends CaptionPanel {
-	private class CustomComplexPanel extends VerticalPanel {
-		public CustomComplexPanel () {
-			super ();
-		}
-
-		public void adoptExt ( Widget w ) {
-			w.removeFromParent ();
-			getChildren ().add ( w );
-			adopt ( w );
-		}
-	}
-
-	private CustomComplexPanel	content;
+	private FlexTable	content;
 
 	public CustomCaptionPanel ( String title ) {
 		super ( title );
 
-		content = new CustomComplexPanel ();
+		content = new FlexTable ();
 		setContentWidget ( content );
 
 		setStyleName ( "custom-caption-panel" );
 	}
 
 	public void addPair ( String name, Widget element ) {
-		LabelElement lab;
-		Element myself;
+		int row;
 
-		/*
-			Ideale per essere usato con il CSS descritto qui:
-			http://www.bitrepository.com/how-to-create-a-tableless-form.html
-		*/
-
-		lab = Document.get ().createLabelElement ();
-		lab.setInnerText ( name );
-
-		myself = content.getElement ();
-		myself.appendChild ( lab );
-		myself.appendChild ( element.getElement () );
-		myself.appendChild ( Document.get ().createBRElement () );
-		content.adoptExt ( element );
+		row = content.getRowCount ();
+		content.setWidget ( row, 0, new Label ( name ) );
+		content.setWidget ( row, 1, element );
 	}
 }

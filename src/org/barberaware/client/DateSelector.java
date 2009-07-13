@@ -46,6 +46,7 @@ public class DateSelector extends Composite {
 
 		main = new TextBox ();
 		main.setStyleName ( "date-selector" );
+		main.setVisibleLength ( 17 );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
 				if ( opened == false ) {

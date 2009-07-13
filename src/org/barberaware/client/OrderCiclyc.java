@@ -49,6 +49,7 @@ public class OrderCiclyc extends Composite implements StringWidget {
 
 		main = new TextBox ();
 		main.setStyleName ( "cycle-selector" );
+		main.setVisibleLength ( 17 );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
 				if ( opened == false ) {
