@@ -22,6 +22,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class ProductUserSelector extends ObjectWidget {
+	private HorizontalPanel				main;
 	private FloatBox				quantity;
 	private Label					measure;
 	private SuggestionBox				constraintsDialog;
@@ -29,8 +30,6 @@ public class ProductUserSelector extends ObjectWidget {
 	private DelegatingChangeListenerCollection	changeListeners;
 
 	public ProductUserSelector ( Product prod ) {
-		HorizontalPanel main;
-
 		currentValue = new ProductUser ();
 		currentValue.setObject ( "product", prod );
 
@@ -81,8 +80,6 @@ public class ProductUserSelector extends ObjectWidget {
 		main.add ( measure );
 
 		setProduct ( prod );
-
-		main.add ( constraintsDialog );
 	}
 
 	private void disposeConstraints ( Product prod, Widget quantity ) {
@@ -92,6 +89,9 @@ public class ProductUserSelector extends ObjectWidget {
 
 		min = prod.getFloat ( "minimum_order" );
 		mult = prod.getFloat ( "multiple_order" );
+
+		if ( constraintsDialog != null )
+			main.remove ( constraintsDialog );
 
 		if ( min != 0 || mult != 0 ) {
 			constraintsDialog = new SuggestionBox ();
@@ -108,6 +108,7 @@ public class ProductUserSelector extends ObjectWidget {
 			}
 
 			constraintsDialog.setHTML ( text );
+			main.add ( constraintsDialog );
 		}
 	}
 
