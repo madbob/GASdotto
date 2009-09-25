@@ -24,11 +24,6 @@ import com.google.gwt.user.client.ui.*;
 
 public class GASdotto implements EntryPoint {
 	public void onModuleLoad () {
-		/**
-			TODO	Provvedere ad un qualche meccanismo di fallback qualora il cookie
-				non fosse coerente con la sessione salvata sul server
-		*/
-
 		Utils.initEnvironment ();
 
 		Session.initSession ( new ServerResponse () {
@@ -41,11 +36,6 @@ public class GASdotto implements EntryPoint {
 					main = new Login ();
 
 				RootPanel.get ().add ( main );
-			}
-
-			public void onError () {
-				Cookies.removeCookie ( "gasdotto" );
-				Window.Location.reload ();
 			}
 		} );
 	}

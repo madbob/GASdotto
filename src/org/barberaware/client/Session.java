@@ -48,6 +48,9 @@ public class Session {
 
 				on_finish.onComplete ( null );
 			}
+			public void onError () {
+				Window.Location.reload ();
+			}
 		} );
 	}
 

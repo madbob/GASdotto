@@ -145,8 +145,17 @@ function check_session () {
 
 	$query = sprintf ( "SELECT username FROM current_sessions WHERE session_id = '%s'", $current_session_id );
 	$result = query_and_check ( $query, "Impossibile identificare sessione aperta" );
-	if ( $result->rowCount () == 0 )
+	if ( $result->rowCount () == 0 ) {
+		/*
+			Se sono qui e' probabilmente perche' il cookie sulla macchina dell'utente
+			non e' coerente con quanto salvato nel DB, dunque cancello suddetto
+			cookie ed emetto un errore. Sul client, la classe Session lo intercetta e
+			ricarica la pagina rieseguendo tutta la procedura stavolta senza cookie e
+			dunque fermandosi alla schermata di login
+		*/
+		setcookie ( 'gasdotto', "", 0, '/', '', 0 );
 		error_exit ( "Impossibile accedere alla sessione" );
+	}
 
 	$row = $result->fetch ( PDO::FETCH_NUM );
 	/*
