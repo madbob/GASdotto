@@ -125,6 +125,11 @@ public class ProductsEditPanel extends Composite {
 
 					frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 
+					/**
+						TODO	Raffinatezza: laddove possibile, al cambio della categoria
+							selezionare automaticamente l'unita' di misura piu' adeguata
+							(lasciando comunque la possibilita' di modificarla)
+					*/
 					select = new FromServerSelector ( "Category", true, true );
 					frame.addPair ( "Categoria", ver.getPersonalizedWidget ( "category", select ) );
 
@@ -166,17 +171,6 @@ public class ProductsEditPanel extends Composite {
 					return ver;
 				}
 
-				/**
-					TODO	Problema: quando chiudo un Order sul server archivia i Product in
-						esso contemplati e ne crea nuove copie, pronte all'uso in altri
-						Order. Ma cosi' facendo questi nuovi elementi vengono caricati qui, e
-						nella lista tutti sono duplicati: ci son le copie vecchie e ci son le
-						copie nuove. Una possibile soluzione potrebbe essere usare la
-						callback customModify() di FormCluster per intercettare i Product il
-						cui stato e' cambiato (ed hanno l'attributo "archived" = TRUE) per
-						rimuovere i form obsoleti
-				*/
-
 				protected FromServerForm doNewEditableRow () {
 					Product product;
 
@@ -198,6 +192,14 @@ public class ProductsEditPanel extends Composite {
 						return first.compare ( first, second );
 					else
 						return comp_cat;
+				}
+
+				protected void customModify ( FromServerForm form ) {
+					FromServer obj;
+
+					obj = form.getObject ();
+					if ( obj.getBool ( "archived" ) == true )
+						deleteElement ( obj );
 				}
 		};
 

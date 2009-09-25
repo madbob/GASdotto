@@ -29,15 +29,7 @@ public class UsersPanel extends GenericPanel {
 
 		FormClusterFilter filter;
 
-		/**
-			TODO	La costruzione di tutti i form per tutti gli utenti rallenta
-				indicibilmente l'applicazione la prima volta che essi vengono
-				richiamati: provvedere una qualche policy percui l'operazione di
-				realizzazione del form avvenga solo quando espressamente
-				richiesto, magari all'ingresso del pannello stesso
-		*/
-
-		main = new FormCluster ( "User", "images/new_user.png" ) {
+		main = new FormCluster ( "User", "images/new_user.png", true, true ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
 					final FromServerForm ver;
 					HorizontalPanel hor;
@@ -252,6 +244,7 @@ public class UsersPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		main.unlock ();
 		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }

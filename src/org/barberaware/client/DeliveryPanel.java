@@ -22,8 +22,13 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class DeliveryPanel extends GenericPanel {
+	private boolean		hasOrders;
+
 	public DeliveryPanel () {
 		super ();
+
+		hasOrders = false;
+		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -66,7 +71,7 @@ public class DeliveryPanel extends GenericPanel {
 
 				ord = ( Order ) object;
 				if ( ord.getInt ( "status" ) == Order.CLOSED )
-					insert ( doOrderRow ( ord ), 1 );
+					addTop ( doOrderRow ( ord ) );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -87,7 +92,7 @@ public class DeliveryPanel extends GenericPanel {
 					OrderUser uord;
 
 					form = ( FromServerForm ) doOrderRow ( ord );
-					insert ( form, 1 );
+					addTop ( form );
 					uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 
 					for ( int i = 0; i < uorders.size (); i++ ) {
@@ -111,6 +116,11 @@ public class DeliveryPanel extends GenericPanel {
 	private Widget doOrderRow ( Order order ) {
 		final FromServerForm ver;
 		DeliverySummary summary;
+
+		if ( hasOrders == false ) {
+			hasOrders = true;
+			remove ( 1 );
+		}
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 
@@ -153,7 +163,7 @@ public class DeliveryPanel extends GenericPanel {
 		FromServerForm form;
 		Order tmp_order;
 
-		for ( int i = 1; i < getWidgetCount (); i++ ) {
+		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
 			tmp_order = ( Order ) form.getObject ();
 
@@ -180,7 +190,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		index = -1;
 
-		for ( int i = 0; i < getWidgetCount (); i++ ) {
+		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			if ( iter.isOpen () == true ) {
 				index = iter.getObject ().getLocalID ();

@@ -127,9 +127,36 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					} );
 
-					/**
-						TODO	Avvertire se il fornitore selezionato non ha prodotti caricati
-					*/
+					suppliers.addChangeListener ( new ChangeListener () {
+						public void onChange ( Widget sender ) {
+							int num_products;
+							boolean found;
+							ArrayList products;
+							FromServerSelector supps;
+							Supplier selected;
+							Product prod;
+
+							found = false;
+
+							supps = ( FromServerSelector ) sender;
+							selected = ( Supplier ) supps.getValue ();
+
+							products = Utils.getServer ().getObjectsFromCache ( "Product" );
+							num_products = products.size ();
+
+							for ( int i = 0; i < num_products; i++ ) {
+								prod = ( Product ) products.get ( i );
+
+								if ( prod.getObject ( "supplier" ).equals ( selected ) ) {
+									found = true;
+									break;
+								}
+							}
+
+							if ( found == false )
+								Utils.showNotification ( "Non ci sono prodotti caricati per il fornitore selezionato" );
+						}
+					} );
 
 					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", suppliers ) );
 					ver.setValidation ( "supplier", FromServerValidateCallback.defaultObjectValidationCallback () );
@@ -215,6 +242,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
+		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}

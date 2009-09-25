@@ -99,6 +99,7 @@ public class Header extends Composite {
 		main = new FocusPanel ();
 
 		container = new HorizontalPanel ();
+		container.setStyleName ( "main-menu-item" );
 		container.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 		container.add ( new Label ( "Permalink" ) );
 		container.add ( new Image ( "images/permalink.png" ) );
@@ -123,6 +124,7 @@ public class Header extends Composite {
 		main = new FocusPanel ();
 
 		container = new HorizontalPanel ();
+		container.setStyleName ( "main-menu-item" );
 		container.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 		container.add ( new Label ( "Logout" ) );
 		container.add ( new Image ( "images/logout.png" ) );

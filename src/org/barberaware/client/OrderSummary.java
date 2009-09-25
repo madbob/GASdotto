@@ -25,6 +25,7 @@ public class OrderSummary extends Composite {
 	private Order			currentOrder;
 	private FlexTable		main;
 	private PriceViewer		totalLabel;
+	private ArrayList		ordersUsers;
 
 	public OrderSummary ( Order order ) {
 		HTMLTable.RowFormatter formatter;
@@ -55,6 +56,11 @@ public class OrderSummary extends Composite {
 
 		totalLabel = null;
 
+		/*
+			Questo viene creato e riempito in syncOrders()
+		*/
+		ordersUsers = null;
+
 		fillList ();
 		syncOrders ();
 	}
@@ -82,7 +88,7 @@ public class OrderSummary extends Composite {
 		ProductUser user_product;
 		Label product_quantity_sum;
 		float total_price;
-		int stock;
+		float stock;
 
 		my_id = currentOrder.getLocalID ();
 		products = currentOrder.getArray ( "products" );
@@ -93,6 +99,9 @@ public class OrderSummary extends Composite {
 			quantities [ i ] = 0;
 			prices [ i ] = 0;
 		}
+
+		if ( ordersUsers == null )
+			ordersUsers = new ArrayList ();
 
 		/*
 			Probabilmente l'algoritmo di ricostruzione della lista di quantita' puo'
@@ -122,6 +131,8 @@ public class OrderSummary extends Composite {
 						}
 					}
 				}
+
+				ordersUsers.add ( user_ord );
 			}
 		}
 
@@ -134,12 +145,25 @@ public class OrderSummary extends Composite {
 			product_quantity_sum = ( Label ) main.getWidget ( e, 4 );
 			product_quantity_sum.setText ( Utils.priceToString ( prices [ i ] ) + " €" );
 
-			stock = order_product.getInt ( "stock_size" );
+			stock = order_product.getFloat ( "stock_size" );
 			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] % stock != 0 ) )
-				main.setWidget ( i, 5, new Image ( "images/notify-warning.png" ) );
+				addManualAdjustIcon ( i, order_product );
 		}
 
 		totalLabel.setValue ( total_price );
+	}
+
+	private void addManualAdjustIcon ( int row, Product prod ) {
+		RefineProductDialog cell;
+
+		cell = new RefineProductDialog ( ordersUsers, prod );
+		cell.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				syncOrders ();
+			}
+		} );
+
+		main.setWidget ( row, 5, cell );
 	}
 
 	private String measureSymbol ( Product prod ) {

@@ -24,32 +24,35 @@ import com.google.gwt.user.client.ui.*;
 public class ProductUserSelector extends ObjectWidget {
 	private FloatBox				quantity;
 	private Label					measure;
+	private SuggestionBox				constraintsDialog;
 	private ProductUser				currentValue;
 	private DelegatingChangeListenerCollection	changeListeners;
 
 	public ProductUserSelector ( Product prod ) {
-		FocusPanel focusable;
 		HorizontalPanel main;
 
 		currentValue = new ProductUser ();
 		currentValue.setObject ( "product", prod );
 
-		focusable = new FocusPanel ();
-		initWidget ( focusable );
+		constraintsDialog = null;
 
 		main = new HorizontalPanel ();
-		focusable.add ( main );
+		initWidget ( main );
 
 		quantity = new FloatBox ();
 		quantity.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
-				/* dummy */
+				if ( constraintsDialog != null )
+					constraintsDialog.show ();
 			}
 
 			public void onLostFocus ( Widget sender ) {
 				float val;
 				float input;
 				Product prod;
+
+				if ( constraintsDialog != null )
+					constraintsDialog.hide ();
 
 				input = quantity.getVal ();
 				if ( input == 0 )
@@ -60,14 +63,14 @@ public class ProductUserSelector extends ObjectWidget {
 				val = prod.getFloat ( "minimum_order" );
 				if ( val != 0 && input < val ) {
 					Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
-					quantity.setVal ( 0 );
+					undoChange ();
 					return;
 				}
 
 				val = prod.getFloat ( "multiple_order" );
 				if ( ( val != 0 ) && ( input % val ) != 0 ) {
 					Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
-					quantity.setVal ( 0 );
+					undoChange ();
 					return;
 				}
 			}
@@ -78,6 +81,34 @@ public class ProductUserSelector extends ObjectWidget {
 		main.add ( measure );
 
 		setProduct ( prod );
+
+		main.add ( constraintsDialog );
+	}
+
+	private void disposeConstraints ( Product prod, Widget quantity ) {
+		float min;
+		float mult;
+		String text;
+
+		min = prod.getFloat ( "minimum_order" );
+		mult = prod.getFloat ( "multiple_order" );
+
+		if ( min != 0 || mult != 0 ) {
+			constraintsDialog = new SuggestionBox ();
+			constraintsDialog.relativeTo ( quantity, SuggestionBox.ALIGN_RIGHT );
+			text = "";
+
+			if ( min != 0 )
+				text = text + "Quantità minima ordinabile: " + min + " " + measure.getText ();
+
+			if ( mult != 0 ) {
+				if ( text != "" )
+					text = text + "<br>";
+				text = text + "Quantità ordinabile per multipli di: " + mult + " " + measure.getText ();
+			}
+
+			constraintsDialog.setHTML ( text );
+		}
 	}
 
 	private void undoChange () {
@@ -91,6 +122,8 @@ public class ProductUserSelector extends ObjectWidget {
 		m = ( Measure ) prod.getObject ( "measure" );
 		if ( m != null )
 			measure.setText ( m.getString ( "symbol" ) );
+
+		disposeConstraints ( prod, quantity );
 	}
 
 	public void setQuantity ( float quant ) {
@@ -130,9 +163,7 @@ public class ProductUserSelector extends ObjectWidget {
 		Product prod;
 
 		currentValue = ( ProductUser ) element;
-
 		quantity.setVal ( element.getFloat ( "quantity" ) );
-
 		prod = ( Product ) element.getObject ( "product" );
 		setProduct ( prod );
 	}

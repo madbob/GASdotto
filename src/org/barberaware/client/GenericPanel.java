@@ -17,6 +17,7 @@
 
 package org.barberaware.client;
 
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class GenericPanel extends VerticalPanel {

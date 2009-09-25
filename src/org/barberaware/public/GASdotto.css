@@ -31,6 +31,10 @@
 	background-color:	#00FF00;
 }
 
+.hidden {
+	display:		none;
+}
+
 .notifications-box {
 	width:			90%;
 	margin:			5px;
@@ -244,9 +248,8 @@
 .user-selector {
 	cursor:			pointer;
 	cursor:			hand;
-	border:			1px solid #000000;
-	margin:			2px;
-	padding:		2px;
+	margin-left:		4px;
+	margin-right:		4px;
 }
 
 .products-selection .description {
@@ -265,6 +268,18 @@
 .file-link {
 	background:		#FFFFFF url('images/download.png') no-repeat scroll 0pt 50%;
         padding-left:		22px;
+}
+
+.suggestion-box .gwt-HTML {
+	background-color:	#01C0FF;
+	padding:		5px;
+	border:			5px solid #000000;
+}
+
+.highlight-part {
+	margin:			2px;
+	padding:		2px;
+	border:			2px solid #000000;
 }
 
 fieldset {

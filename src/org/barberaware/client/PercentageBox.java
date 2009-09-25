@@ -84,7 +84,10 @@ public class PercentageBox extends TextBox {
 	}
 
 	public void setValue ( String value ) {
-		setText ( value );
+		if ( value.length () == 0 )
+			setText ( "0" );
+		else
+			setText ( value );
 	}
 
 	public String getValue () {

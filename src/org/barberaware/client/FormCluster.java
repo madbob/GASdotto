@@ -21,13 +21,13 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public abstract class FormCluster extends FormGroup {
+	private String				objType;
 	private boolean				automatic;
 	private boolean				addable;
+	private boolean				locked;
 
-	private void buildCommon ( String type, boolean auto ) {
-		automatic = auto;
-
-		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
+	private void registerCallbacks () {
+		Utils.getServer ().onObjectEvent ( objType, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				if ( automatic == true ) {
 					int add;
@@ -53,14 +53,42 @@ public abstract class FormCluster extends FormGroup {
 		} );
 	}
 
+	/*
+		Il parametro "lock" permette di posticipare la registrazione delle callbacks di
+		gestione degli elementi, se == true occorre invocare unlock() nel momento in cui
+		si entra nel pannello
+	*/
+	public FormCluster ( String type, String icon_path, boolean auto, boolean lock ) {
+		super ( icon_path );
+		automatic = auto;
+		objType = type;
+		locked = lock;
+
+		if ( lock == false )
+			registerCallbacks ();
+	}
+
 	public FormCluster ( String type, String icon_path, boolean auto ) {
 		super ( icon_path );
-		buildCommon ( type, auto );
+		automatic = auto;
+		objType = type;
+		locked = false;
+		registerCallbacks ();
 	}
 
 	public FormCluster ( String type, String icon_path ) {
 		super ( icon_path );
-		buildCommon ( type, true );
+		automatic = true;
+		objType = type;
+		locked = false;
+		registerCallbacks ();
+	}
+
+	public void unlock () {
+		if ( locked ) {
+			registerCallbacks ();
+			locked = false;
+		}
 	}
 
 	/*

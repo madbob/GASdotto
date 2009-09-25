@@ -31,8 +31,8 @@ class Product extends FromServer {
 		$this->addAttribute ( "unit_price", "FLOAT" );
 		$this->addAttribute ( "surplus", "PERCENTAGE" );
 		$this->addAttribute ( "measure", "OBJECT::Measure" );
-		$this->addAttribute ( "minimum_order", "INTEGER" );
-		$this->addAttribute ( "multiple_order", "INTEGER" );
+		$this->addAttribute ( "minimum_order", "FLOAT" );
+		$this->addAttribute ( "multiple_order", "FLOAT" );
 		$this->addAttribute ( "stock_size", "INTEGER" );
 		$this->addAttribute ( "mutable_price", "BOOLEAN" );
 		$this->addAttribute ( "available", "BOOLEAN" );

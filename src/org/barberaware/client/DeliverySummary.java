@@ -25,15 +25,42 @@ public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
 	private int			numOrders;
 
-	/**
-		TODO	Sarebbe forse opportuno registrare una callback sulle modifiche degli utenti, in modo da
-			correggere all'occorrenza i nomi e le segnalazioni di mancato pagamento quote
-	*/
-
 	public DeliverySummary () {
 		main = new VerticalPanel ();
 		initWidget ( main );
 		main.setWidth ( "100%" );
+
+		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				/* dummy */
+			}
+
+			public void onModify ( FromServer object ) {
+				int index;
+				FromServerForm form;
+				User user;
+
+				if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+					user = ( User ) object;
+					index = retrieveUser ( user );
+
+					if ( index != -1 ) {
+						form = ( FromServerForm ) main.getWidget ( index );
+						user.checkUserPaying ( form );
+					}
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				int index;
+				User user;
+
+				user = ( User ) object;
+				index = retrieveUser ( user );
+				if ( index != -1 )
+					main.remove ( index );
+			}
+		} );
 
 		numOrders = 0;
 		cleanUp ();
@@ -103,6 +130,21 @@ public class DeliverySummary extends Composite {
 		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
 			row = ( FromServerForm ) main.getWidget ( i );
 			if ( row.getObject ().getLocalID () == index )
+				return i;
+		}
+
+		return -1;
+	}
+
+	private int retrieveUser ( User user ) {
+		int index;
+		FromServerForm row;
+
+		index = user.getLocalID ();
+
+		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
+			row = ( FromServerForm ) main.getWidget ( i );
+			if ( row.getObject ().getObject ( "baseuser" ).getLocalID () == index )
 				return i;
 		}
 

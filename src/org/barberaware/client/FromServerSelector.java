@@ -161,20 +161,43 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		int search_id;
 		int id;
 		int num_items;
+		String search_name;
 
-		/**
-			TODO	Qui si potrebbe sfruttare il parametro sortItems per procedere
-				con una ricerca ponderata dell'elemento nella lista, che sarebbe
-				ordinata per nome e dunque piu' rapidamente controllabile
-		*/
-
-		search_id = object.getLocalID ();
 		num_items = main.getItemCount ();
 
-		for ( int i = 0; i < num_items; i++ ) {
-			id = Integer.parseInt ( main.getValue ( i ) );
-			if ( search_id == id )
-				return i;
+		/*
+			Se gli elementi sono ordinati per nome faccio la ricerca sulla stringa
+			degli items
+		*/
+
+		if ( sortItems == true ) {
+			search_name = object.getString ( "name" );
+
+			/**
+				TODO	Usare una ricerca binaria?
+			*/
+
+			for ( int i = 0; i < num_items; i++ ) {
+				switch ( search_name.compareTo ( main.getItemText ( i ) ) ) {
+					case 0:
+						return i;
+
+					case -1:
+						return -1;
+
+					default:
+						break;
+				}
+			}
+		}
+		else {
+			search_id = object.getLocalID ();
+
+			for ( int i = 0; i < num_items; i++ ) {
+				id = Integer.parseInt ( main.getValue ( i ) );
+				if ( search_id == id )
+					return i;
+			}
 		}
 
 		return -1;

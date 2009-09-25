@@ -156,7 +156,7 @@ public class ProductsUserSelection extends FromServerArray {
 
 		raw = product.getBool ( "mutable_price" );
 		if ( raw == true )
-			info_str += " (il prodotto viene misurato alla consegna)";
+			info_str += " (prodotto misurato alla consegna)";
 
 		plus = product.getFloat ( "shipping_price" );
 		if ( plus != 0 )

@@ -326,7 +326,6 @@ public abstract class FromServer implements Comparator {
 				return attr;
 		}
 
-		Window.alert ( "Cercato attributo " + name + " in oggetto tipo " + type );
 		return null;
 	}
 

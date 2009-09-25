@@ -31,9 +31,9 @@ public class Product extends FromServer {
 		addAttribute ( "surplus", FromServer.PERCENTAGE );
 		addAttribute ( "shipping_price", FromServer.FLOAT );
 		addAttribute ( "measure", FromServer.OBJECT, Measure.class );
-		addAttribute ( "minimum_order", FromServer.INTEGER );
-		addAttribute ( "multiple_order", FromServer.INTEGER );
-		addAttribute ( "stock_size", FromServer.INTEGER );
+		addAttribute ( "minimum_order", FromServer.FLOAT );
+		addAttribute ( "multiple_order", FromServer.FLOAT );
+		addAttribute ( "stock_size", FromServer.FLOAT );
 		addAttribute ( "mutable_price", FromServer.BOOLEAN );
 		addAttribute ( "available", FromServer.BOOLEAN );
 		addAttribute ( "archived", FromServer.BOOLEAN );
