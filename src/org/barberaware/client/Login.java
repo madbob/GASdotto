@@ -30,6 +30,7 @@ public class Login extends Composite {
 		VerticalPanel main;
 		VerticalPanel container;
 		Widget login;
+		HTML logo;
 		GAS gas;
 
 		main = new VerticalPanel ();
@@ -63,6 +64,11 @@ public class Login extends Composite {
 			container.setCellHorizontalAlignment ( login, HasHorizontalAlignment.ALIGN_CENTER );
 
 			container.add ( doPresentationFooter ( gas ) );
+
+			logo = new HTML ( "<p style=\"margin-top: 50px;\"><a href=\"http://gasdotto.barberaware.org\"><img src=\"images/gasdotto_logo.png\" border=\"0\"></a></p>" );
+			container.add ( logo );
+			container.setCellHorizontalAlignment ( logo, HasHorizontalAlignment.ALIGN_RIGHT );
+			container.setCellVerticalAlignment ( logo, HasVerticalAlignment.ALIGN_BOTTOM );
 
 			main.add ( container );
 		}
