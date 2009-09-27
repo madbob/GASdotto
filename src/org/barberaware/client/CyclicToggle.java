@@ -22,11 +22,13 @@ import com.google.gwt.user.client.ui.*;
 
 public class CyclicToggle extends Composite implements IntNumericWidget {
 	private DeckPanel		main;
+	private int			defaultSelection;
 
 	public CyclicToggle () {
 		FocusPanel focus;
 
 		main = new DeckPanel ();
+		defaultSelection = 0;
 
 		main.setStyleName ( "cyclic-toggle" );
 		focus = new FocusPanel ( main );
@@ -65,8 +67,15 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 		main.add ( useless );
 	}
 
+	public void setDefaultSelection ( int sel ) {
+		defaultSelection = sel;
+	}
+
 	public void setVal ( int state ) {
-		main.showWidget ( state );
+		if ( state < main.getWidgetCount () )
+			main.showWidget ( state );
+		else
+			main.showWidget ( defaultSelection );
 	}
 
 	public int getVal () {

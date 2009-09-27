@@ -85,8 +85,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 for ( $i = 0; $i < count ( $products_sums ); $i++ )
     $output .= sprintf ( ",%.02f €", round ( $products_sums [ $i ], 2 ) );
 
-header("Content-Type: plain/text");
-header('Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";');
+header ( "Content-Type: plain/text" );
+header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
 echo $output;
 
 function sort_product_by_name ( $first, $second ) {

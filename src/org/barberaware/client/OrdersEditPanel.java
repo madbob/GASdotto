@@ -61,10 +61,16 @@ public class OrdersEditPanel extends GenericPanel {
 
 					frame.addPair ( "Fornitore", new Label ( supplier.getString ( "name" ) ) );
 
+					/*
+						Nella selezione non appare lo stato 3, usato per l'auto-sospensione
+						(nel caso di un ordine con data di apertura nel futuro)
+					*/
+
 					status = new CyclicToggle ();
 					status.addState ( "images/order_status_opened.png" );
 					status.addState ( "images/order_status_closed.png" );
 					status.addState ( "images/order_status_suspended.png" );
+					status.setDefaultSelection ( 2 );
 					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", status ) );
 
 					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
@@ -79,11 +85,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					/* riassunto ordine */
 
-					sframe = new CaptionPanel ( "Stato Ordini" );
-					complete_list = new OrderSummary ( order );
-					ver.setExtraWidget ( "summary", complete_list );
-					sframe.add ( complete_list );
-					ver.add ( sframe );
+					addOrderSummary ( ver );
 
 					return ver;
 				}
@@ -189,6 +191,25 @@ public class OrdersEditPanel extends GenericPanel {
 
 					return ver;
 				}
+
+				protected void customNew ( FromServer object, boolean true_new ) {
+					/*
+						Quando si crea un nuovo Order, l'oggetto assegnato al form resta
+						sempre l'originale, dunque senza la lista di prodotti contemplati
+						(che vengono assegnati dalla relativa componente server ed
+						accessibili quando si ricarica l'oggetto).
+						Qui si forza il ri-assegnamento dell'oggetto che viene ripescato dal
+						server, in modo che abbia la lista dei prodotti e se ne possa
+						compilare il summary
+					*/
+					FromServerForm form;
+
+					form = main.retrieveForm ( object );
+					if ( form != null ) {
+						form.setObject ( object );
+						addOrderSummary ( form );
+					}
+				}
 		};
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
@@ -202,7 +223,8 @@ public class OrdersEditPanel extends GenericPanel {
 
 				if ( form != null ) {
 					summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
-					summary.syncOrders ();
+					if ( summary != null )
+						summary.syncOrders ();
 				}
 			}
 
@@ -220,6 +242,27 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 
 		addTop ( main );
+	}
+
+	private void addOrderSummary ( FromServerForm form ) {
+		Order order;
+		CaptionPanel sframe;
+		OrderSummary complete_list;
+
+		if ( form == null )
+			return;
+
+		complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+		if ( complete_list != null )
+			return;
+
+		order = ( Order ) form.getObject ();
+		sframe = new CaptionPanel ( "Stato Ordini" );
+
+		complete_list = new OrderSummary ( order );
+		form.setExtraWidget ( "summary", complete_list );
+		sframe.add ( complete_list );
+		form.add ( sframe );
 	}
 
 	/****************************************************************** GenericPanel */

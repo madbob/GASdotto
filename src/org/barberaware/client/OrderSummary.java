@@ -185,6 +185,9 @@ public class OrderSummary extends Composite {
 
 		products = currentOrder.getArray ( "products" );
 
+		if ( products == null )
+			return;
+
 		for ( i = 0, e = 1; i < products.size (); i++, e++ ) {
 			prod = ( Product ) products.get ( i );
 			measure = measureSymbol ( prod );

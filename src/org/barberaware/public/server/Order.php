@@ -42,6 +42,17 @@ class Order extends FromServer {
 		$query = sprintf ( "UPDATE %s SET status = 1 WHERE enddate < NOW()", $this->tablename );
 		query_and_check ( $query, "Impossibile chiudere vecchi ordini" );
 
+		/*
+			Questo e' per aprire gli ordini che sono stati creati con data di inizio
+			nel futuro
+		*/
+		$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 3 AND startdate < NOW() AND enddate > NOW()", $this->tablename );
+		query_and_check ( $query, "Impossibile aprire ordini sospesi" );
+
+		/**
+			TODO	Settare status ordini con ciclicita'
+		*/
+
 		if ( isset ( $request->status ) ) {
 			$ret = array ();
 
@@ -95,6 +106,13 @@ class Order extends FromServer {
 			$product->readFromDB ( $row [ 0 ] );
 			array_push ( $obj->products, $product->exportable () );
 		}
+
+		/*
+			Gli ordini con data di apertura nel futuro vengono marcati come "sospesi"
+		*/
+		$startdate = $obj->startdate . " 23:59:59";
+		if ( strtotime ( $startdate ) > time () )
+			$obj->status = 3;
 
 		return parent::save ( $obj );
 	}

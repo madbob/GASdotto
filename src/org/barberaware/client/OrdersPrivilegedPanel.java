@@ -27,8 +27,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	public OrdersPrivilegedPanel () {
 		super ();
 
-		hasOrders = false;
-		addTop ( new Label ( "Non ci sono ordini aperti" ) );
+		noAvailableOrders ();
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -121,10 +120,19 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				*/
 
 				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 )
+				if ( index != -1 ) {
 					remove ( index );
+
+					if ( getWidgetCount () == 1 )
+						noAvailableOrders ();
+				}
 			}
 		} );
+	}
+
+	private void noAvailableOrders () {
+		hasOrders = false;
+		addTop ( new Label ( "Non ci sono ordini aperti" ) );
 	}
 
 	private void verifyOrderUserForInclusion ( OrderUser order_user ) {
