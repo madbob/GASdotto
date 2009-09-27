@@ -29,6 +29,10 @@ if ( check_session () == false )
 $order = new Order ();
 $order->readFromDB ( $id );
 
+$supplier = $order->getAttribute ( 'supplier' )->value;
+$supplier_name = $supplier->getAttribute ( 'name' )->value;
+$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
@@ -60,7 +64,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$user_products = $order_user->products;
 	usort ( $user_products, "sort_product_user_by_name" );
 
-	for ( $a = 0, $e = 0; $a < count ( $products ) && $e < count ( $user_products ); $a++ ) {
+	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
@@ -75,13 +79,14 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$output .= sprintf ( "," );
 	}
 
-	$output .= sprintf ( "%s €\n", $user_total );
+	$output .= sprintf ( "%.02f €\n", round ( $user_total, 2 ) );
 }
 
 for ( $i = 0; $i < count ( $products_sums ); $i++ )
-    $output .= sprintf ( ",%s €\n", $products_sums [ $i ] );
+    $output .= sprintf ( ",%.02f €", round ( $products_sums [ $i ], 2 ) );
 
 header("Content-Type: plain/text");
+header('Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";');
 echo $output;
 
 function sort_product_by_name ( $first, $second ) {

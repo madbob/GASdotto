@@ -125,6 +125,7 @@ public class DeliveryPanel extends GenericPanel {
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 
 		ver.add ( Utils.getServer ().fileLink ( "Scarica file CSV", "", "order_csv.php?id=" + order.getLocalID () ) );
+		ver.add ( Utils.getServer ().fileLink ( "Scarica file PDF", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
 
 		summary = new DeliverySummary ();
 		ver.setExtraWidget ( "list", summary );

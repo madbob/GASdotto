@@ -124,10 +124,13 @@ public class HomePanel extends GenericPanel {
 				index = retrieveOrderRow ( object );
 
 				if ( index != -1 ) {
-					if ( object.getInt ( "status" ) == Order.OPENED )
+					if ( object.getInt ( "status" ) == Order.OPENED ) {
 						modOrderRow ( ( Order ) object );
-					else
+					}
+					else {
 						orders.removeRow ( index );
+						checkNoOrders ();
+					}
 				}
 			}
 
