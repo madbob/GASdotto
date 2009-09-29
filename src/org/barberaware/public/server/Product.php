@@ -99,7 +99,7 @@ class Product extends FromServer {
 				$align_existing_orders = true;
 
 			else {
-				$query = sprintf ( "SELECT id FROM orders_products WHERE target = %d", $obj->id );
+				$query = sprintf ( "SELECT id FROM Orders_products WHERE target = %d", $obj->id );
 				$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
 
 				if ( $returned->rowCount () != 0 ) {
@@ -129,20 +129,20 @@ class Product extends FromServer {
 		$id = parent::save ( $obj );
 
 		if ( $align_existing_orders == true ) {
-			$query = sprintf ( "SELECT id FROM orders WHERE supplier = %d AND enddate > DATE('%s')",
+			$query = sprintf ( "SELECT id FROM Orders WHERE supplier = %d AND enddate > DATE('%s')",
 						$obj->supplier->id, date ( "Y-m-d" ) );
 			$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
 
 			if ( $obj->available == "true" ) {
 				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-					$query = sprintf ( "INSERT INTO orders_products ( parent, target ) VALUES ( %d, %d )",
+					$query = sprintf ( "INSERT INTO Orders_products ( parent, target ) VALUES ( %d, %d )",
 								$row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
 				}
 			}
 			else {
 				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-					$query = sprintf ( "DELETE FROM orders_products WHERE parent = %d AND target = %d",
+					$query = sprintf ( "DELETE FROM Orders_products WHERE parent = %d AND target = %d",
 								$row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile eliminare prodotto non piu' ordinabile" );
 				}
