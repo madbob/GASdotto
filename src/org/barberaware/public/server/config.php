@@ -18,10 +18,8 @@
  */
 
 $dbdriver		= "pgsql";
-$dbhost			= "localhost";
 $dbuser			= "root";
 $dbpassword		= "pippo";
 $session_key		= "0tfvb9876tgbnouyhgfvbn";
-$instance_identifier	= 1;
 
 ?>

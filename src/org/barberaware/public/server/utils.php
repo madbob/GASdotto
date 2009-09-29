@@ -86,14 +86,28 @@ function last_id ( $class ) {
 function connect_to_the_database () {
 	global $dbdriver;
 	global $dbhost;
+	global $dbport;
 	global $dbuser;
 	global $dbpassword;
 	global $instance_identifier;
 	global $db;
 
+	if ( !isset ( $dbhost ) )
+		$dbhost = 'localhost';
+
+	if ( !isset ( $dbport ) ) {
+		if ( $dbdriver == 'mysql' )
+			$dbport = 3306;
+		else if ( $dbdriver == 'pgsql' )
+			$dbport = 5432;
+	}
+
+	if ( !isset ( $instance_identifier ) )
+		$instance_identifier = 1;
+
 	try {
 		$dbname = 'gasdotto_' . $instance_identifier;
-		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname, $dbuser, $dbpassword );
+		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
 		return true;
 	}
 	catch ( PDOException $e ) {

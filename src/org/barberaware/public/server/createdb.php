@@ -35,7 +35,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE gas (
+	$query = sprintf ( "CREATE TABLE GAS (
 					id serial,
 					name varchar ( 100 ) default '',
 					mail varchar ( 100 ) default '',
@@ -52,7 +52,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE users (
+	$query = sprintf ( "CREATE TABLE Users (
 					id serial,
 					login varchar ( 100 ) default '',
 					firstname varchar ( 100 ) default '',
@@ -71,7 +71,7 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella users" );
 
-	$query = sprintf ( "INSERT INTO users ( login, firstname, paying, privileges ) VALUES ( 'root', 'Root', now(), 2 )" );
+	$query = sprintf ( "INSERT INTO Users ( login, firstname, paying, privileges ) VALUES ( 'root', 'Root', now(), 2 )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella users" );
 
 	/*
@@ -120,7 +120,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE notification (
+	$query = sprintf ( "CREATE TABLE Notification (
 					id serial,
 					alert_type int default 0,
 					description varchar ( 500 ) default '',
@@ -135,7 +135,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE notification_recipent (
+	$query = sprintf ( "CREATE TABLE Notification_recipent (
 					id serial,
 					parent int references notification ( id ) on delete cascade,
 					target int references users ( id ) on delete cascade,
@@ -148,7 +148,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE customfile (
+	$query = sprintf ( "CREATE TABLE CustomFile (
 					id serial,
 					name varchar ( 100 ) default '',
 					server_path varchar ( 100 ) default '',
@@ -163,7 +163,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE supplier (
+	$query = sprintf ( "CREATE TABLE Supplier (
 					id serial,
 					name varchar ( 100 ) default '',
 					contact varchar ( 100 ) default '',
@@ -183,7 +183,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE supplier_references (
+	$query = sprintf ( "CREATE TABLE Supplier_references (
 					id serial,
 					parent int references supplier ( id ) on delete cascade,
 					target int references users ( id ) on delete cascade,
@@ -197,7 +197,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE supplier_files (
+	$query = sprintf ( "CREATE TABLE Supplier_files (
 					id serial,
 					parent int references supplier ( id ) on delete cascade,
 					target int references customfile ( id ) on delete cascade,
@@ -211,7 +211,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE category (
+	$query = sprintf ( "CREATE TABLE Category (
 					id serial,
 					name varchar ( 100 ) default '',
 					description varchar ( 500 ) default '',
@@ -220,23 +220,23 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella category" );
 
-	$query = sprintf ( "INSERT INTO category ( name ) VALUES ( 'Non Specificato' )" );
+	$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Non Specificato' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella category" );
 
-	$query = sprintf ( "INSERT INTO category ( name ) VALUES ( 'Frutta e Verdura' )" );
+	$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Frutta e Verdura' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella category" );
 
-	$query = sprintf ( "INSERT INTO category ( name ) VALUES ( 'Cosmesi' )" );
+	$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Cosmesi' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella category" );
 
-	$query = sprintf ( "INSERT INTO category ( name ) VALUES ( 'Bevande' )" );
+	$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Bevande' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella category" );
 
 	/*
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE measure (
+	$query = sprintf ( "CREATE TABLE Measure (
 					id serial,
 					name varchar ( 100 ) default '',
 					symbol varchar ( 100 ) default '',
@@ -245,23 +245,23 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella measure" );
 
-	$query = sprintf ( "INSERT INTO measure ( name, symbol ) VALUES ( 'Non Specificato', '?' )" );
+	$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Non Specificato', '?' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella measure" );
 
-	$query = sprintf ( "INSERT INTO measure ( name, symbol ) VALUES ( 'Chili', 'kg' )" );
+	$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Chili', 'kg' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella measure" );
 
-	$query = sprintf ( "INSERT INTO measure ( name, symbol ) VALUES ( 'Litri', 'l' )" );
+	$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Litri', 'l' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella measure" );
 
-	$query = sprintf ( "INSERT INTO measure ( name, symbol ) VALUES ( 'Pezzi', 'pezzi' )" );
+	$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Pezzi', 'pezzi' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella measure" );
 
 	/*
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE product (
+	$query = sprintf ( "CREATE TABLE Product (
 					id serial,
 					name varchar ( 100 ) default '',
 					category int references category ( id ),
@@ -287,7 +287,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE orders (
+	$query = sprintf ( "CREATE TABLE Orders (
 					id serial,
 					supplier int references supplier ( id ) on delete cascade,
 					startdate date,
@@ -306,7 +306,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE orders_products (
+        $query = sprintf ( "CREATE TABLE Orders_products (
 					id serial,
 					parent int references orders ( id ) on delete cascade,
 					target int references product ( id ) on delete cascade,
@@ -320,7 +320,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE orderuser (
+        $query = sprintf ( "CREATE TABLE OrderUser (
 					id serial,
 					baseorder int references orders ( id ) on delete cascade,
 					baseuser int references users ( id ) on delete cascade,
@@ -334,7 +334,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE productuser (
+        $query = sprintf ( "CREATE TABLE ProductUser (
 					id serial,
 					product int references product ( id ) on delete cascade,
 					quantity float,
@@ -349,7 +349,7 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE orderuser_products (
+        $query = sprintf ( "CREATE TABLE OrderUser_products (
 					id serial,
 					parent int references orderuser ( id ) on delete cascade,
 					target int references productuser ( id ) on delete cascade,

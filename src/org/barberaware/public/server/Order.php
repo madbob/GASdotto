@@ -21,7 +21,7 @@ require_once ( "utils.php" );
 
 class Order extends FromServer {
 	public function __construct () {
-		parent::__construct ( "Order", "orders" );
+		parent::__construct ( "Order", "Orders" );
 
 		$this->addAttribute ( "supplier", "OBJECT::Supplier" );
 		$this->addAttribute ( "products", "ARRAY::Product" );

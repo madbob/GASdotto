@@ -21,7 +21,7 @@ require_once ( "utils.php" );
 
 class User extends FromServer {
 	public function __construct () {
-		parent::__construct ( "User", "users" );
+		parent::__construct ( "User", "Users" );
 
 		$this->addAttribute ( "login", "STRING" );
 		$this->addAttribute ( "firstname", "STRING" );
