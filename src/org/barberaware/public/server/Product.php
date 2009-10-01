@@ -99,10 +99,7 @@ class Product extends FromServer {
 				$align_existing_orders = true;
 
 			else {
-				$query = sprintf ( "SELECT id FROM Orders_products WHERE target = %d", $obj->id );
-				$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
-
-				if ( $returned->rowCount () != 0 ) {
+				if ( db_row_count ( sprintf ( "FROM Orders_products WHERE target = %d", $obj->id ) ) != 0 ) {
 					$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );
 					query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
 
@@ -114,9 +111,8 @@ class Product extends FromServer {
 						per evitare di ripetere nuovamente l'operazione
 					*/
 
-					$query = sprintf ( "SELECT id FROM %s WHERE previous_description = %d", $this->tablename, $obj->id );
-					$returned = query_and_check ( $query, "Impossibile verificare catena prodotti in " . $this->classname );
-					if ( $returned->rowCount () == 0 ) {
+					$query = sprintf ( "FROM %s WHERE previous_description = %d", $this->tablename, $obj->id );
+					if ( db_row_count ( $query ) == 0 ) {
 						$obj->previous_description = $obj->id;
 						$obj->id = -1;
 					}

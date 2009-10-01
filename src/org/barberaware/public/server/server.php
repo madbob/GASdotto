@@ -40,10 +40,13 @@ if ( check_session () == false ) {
 
 					$name = escape_string ( $obj->username );
 					$pwd = escape_string ( $obj->password );
-					$query = sprintf ( "SELECT * FROM accounts WHERE username = ( SELECT id FROM Users WHERE login = '%s' )", $name );
-					$returned = query_and_check ( $query, "Impossibile validare utente" );
 
-					if ( $returned->rowCount () == 1 ) {
+					$query = sprintf ( "FROM accounts WHERE username = ( SELECT id FROM Users WHERE login = '%s' )", $name );
+
+					if ( db_row_count ( $query ) == 1 ) {
+						$query = "SELECT * " . $query;
+						$returned = query_and_check ( $query, "Impossibile validare utente" );
+
 						$row = $returned->fetch ( PDO::FETCH_ASSOC );
 
 						if ( md5 ( $pwd ) == $row [ 'password' ] ) {

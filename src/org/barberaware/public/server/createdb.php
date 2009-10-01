@@ -85,7 +85,8 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella accounts" );
 
-	$query = sprintf ( "INSERT INTO accounts ( username, password ) VALUES ( 1, '27b4b5b01b0d1fcab2046369720ff75e' )" );
+	/* Si, la password di default e' molto stupida :-P */
+	$query = sprintf ( "INSERT INTO accounts ( username, password ) VALUES ( 1, '" . md5 ( "ciccio" ) . "' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella accounts" );
 
 	/*

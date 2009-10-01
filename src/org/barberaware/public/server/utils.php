@@ -66,6 +66,20 @@ function query_and_check ( $query, $error ) {
 	return $ret;
 }
 
+function db_row_count ( $query ) {
+	global $db;
+
+	$true_query = "SELECT COUNT(*) " . $query;
+	$ret = $db->query ( $true_query );
+
+	if ( $ret == false ) {
+		$error_code = $db->errorInfo ();
+		error_exit ( "Error checking for row count, executing |" . $true_query . "| " . " (" . ( $error_code [ 2 ] ) . ")" );
+	}
+
+	return $ret->fetchColumn ();
+}
+
 function escape_string ( $string ) {
 	/**
 		TODO	Implementare decentemente questa funzione
@@ -157,9 +171,9 @@ function check_session () {
 	if ( $current_session_id == false )
 		return false;
 
-	$query = sprintf ( "SELECT username FROM current_sessions WHERE session_id = '%s'", $current_session_id );
-	$result = query_and_check ( $query, "Impossibile identificare sessione aperta" );
-	if ( $result->rowCount () == 0 ) {
+	$query = sprintf ( "FROM current_sessions WHERE session_id = '%s'", $current_session_id );
+
+	if ( db_row_count ( $query ) == 0 ) {
 		/*
 			Se sono qui e' probabilmente perche' il cookie sulla macchina dell'utente
 			non e' coerente con quanto salvato nel DB, dunque cancello suddetto
@@ -170,6 +184,9 @@ function check_session () {
 		setcookie ( 'gasdotto', "", 0, '/', '', 0 );
 		error_exit ( "Impossibile accedere alla sessione" );
 	}
+
+	$query = "SELECT username " . $query;
+	$result = query_and_check ( $query, "Impossibile identificare sessione aperta" );
 
 	$row = $result->fetch ( PDO::FETCH_NUM );
 	/*
@@ -241,13 +258,15 @@ function create_automatic_session ( $userid ) {
 }
 
 function retrieve_automatic_session ( $hash ) {
-	$query = sprintf ( "SELECT username FROM automatic_sessions WHERE session_id = '%s'", $hash );
-	$result = query_and_check ( $query, "Impossibile recuperare sessione automatica" );
+	$query = sprintf ( "FROM automatic_sessions WHERE session_id = '%s'", $hash );
 
-	if ( $result->rowCount () == 0 )
+	if ( db_row_count ( $query ) == 0 ) {
 		return -1;
-
+	}
 	else {
+		$query = "SELECT username " . $query;
+		$result = query_and_check ( $query, "Impossibile recuperare sessione automatica" );
+
 		$row = $result->fetch ( PDO::FETCH_NUM );
 		return $row [ 0 ];
 	}

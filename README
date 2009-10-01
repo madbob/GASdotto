@@ -2,7 +2,7 @@
 
 GASdotto 0.1
 Roberto -MadBob- Guido
-Giugno 2009
+Settembre 2009
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -13,29 +13,42 @@ presso i membri del gruppo, i quali potranno svolgere le proprie ordinazioni su 
 semplificare la vita dei responsabili.
 Per maggiori informazioni si consulti il sito http://gasdotto.barberaware.org
 
-------------------------------------------------------------------------------------[Installazione]
+------------------------------------------------------------------------------------[Requisiti]
 
 GASdotto e' strutturato come programma client/server: il client e' implementato in Java e
 destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
 
-Per compilare, installare ed usare il tutto sono necessari:
-Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	versione 1.5.3
-PHP			http://php.net/					versione 5.2.6 o superiore
+Per compilare il tutto e' necessario:
+Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	testato su versione 1.5.3
+
+Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
+PHP			http://php.net/					testato su versione 5.2.6
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
 Apache			http://apache.org/				testato su versione 2.2.11
+
+Il database in cui verranno messi i dati puo' essere selezionato tra:
 PostgreSQL		http://www.postgresql.org/			testato su versione 8.3.7
+MySQL			http://www.mysql.com				testato su versione 5.0.81
+
+------------------------------------------------------------------------------------[Compilazione]
+
+I seguenti passaggi sono richiesti per l'installazione dai sorgenti reperibili sul repository SVN
+raggiungibile con
+svn checkout svn://svn.barberaware.org/svnroot/gasdotto
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH
-- creare un database vuoto in PostgreSQL, eventualmente assegnandolo ad un nuovo utente creato
-ad-hoc. Tale database dovra' essere chiamato "gasdotto_" + una variabile di istanza a propria
-scelta, che dovra' essere iscritta nel file config.php: di default, il nome usato sara'
-"gasdotto_1"
+- creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
+nuovo utente creato ad-hoc. Tale database dovra' essere chiamato "gasdotto_" + una variabile di
+istanza a propria scelta, che dovra' essere iscritta nel file config.php: di default, il nome
+usato sara' "gasdotto_1"
 - editare il file src/org/barberaware/public/server/org.barberaware.GASdotto/server/config.php
 con le credenziali di accesso al proprio database e la variabile di istanza scelta al passaggio
 precedente
-- eseguire install.php nella cartella src/org/barberaware/public/server/ per creare il database
+- eseguire install.php nella cartella src/org/barberaware/public/server/ per creare il database.
+In esso viene pre-configurato un singolo account con diritti di amministrazione: username "root"
+e password "ciccio".
 - eseguire ./GASdotto-compile
 - esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione al
 server web
