@@ -79,8 +79,9 @@ class FromServerAttribute {
 							$parent->tablename, $this->name, $id );
 
 				$existing = query_and_check ( $query, "Impossibile recuperare array per " . $parent->classname );
+				$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
 
-				while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
+				foreach ( $rows as $row ) {
 					$subobj = new $objtype;
 					$subobj->readFromDB ( $row [ 'target' ] );
 					array_push ( $ret, $subobj );
@@ -223,7 +224,7 @@ abstract class FromServer {
 	public function readFromDB ( $id ) {
 		$query = sprintf ( "SELECT * FROM %s WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
-		$row = $returned->fetch ( PDO::FETCH_ASSOC );
+		$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
@@ -241,8 +242,8 @@ abstract class FromServer {
 					computazionale, ma si risparmia in traffico dati
 			*/
 
-			if ( isset ( $row [ $attr->name ] ) )
-				$attr->value = $attr->traslate_field ( $this, $row [ $attr->name ] );
+			if ( isset ( $row [ 0 ] [ $attr->name ] ) )
+				$attr->value = $attr->traslate_field ( $this, $row [ 0 ] [ $attr->name ] );
 			else
 				$attr->value = $attr->traslate_field ( $this, null );
 		}
@@ -277,8 +278,9 @@ abstract class FromServer {
 		$query .= sprintf ( " ORDER BY %s", $this->sorting );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
 			array_push ( $ret, $obj->exportable () );
@@ -393,6 +395,7 @@ abstract class FromServer {
 					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d",
 								$this->tablename, $name, $id );
 					$existing = query_and_check ( $query, "Impossibile recuperare lista per sincronizzare oggetto " . $this->classname );
+					$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
 
 					/*
 						Procedimento:
@@ -406,7 +409,7 @@ abstract class FromServer {
 							- se ID != -100, salvo
 					*/
 
-					while ( $row = $existing->fetch ( PDO::FETCH_ASSOC ) ) {
+					foreach ( $rows as $row ) {
 						$found = false;
 
 						for ( $a = 0; $a < count ( $arr ); $a++ ) {

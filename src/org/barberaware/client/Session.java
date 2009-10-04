@@ -22,6 +22,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class Session {
+	private static boolean		isInstalled	= false;
 	private static GAS		currentGAS	= null;
 	private static User		currentUser	= null;
 	private static SystemConf	currentSystem	= null;
@@ -34,17 +35,28 @@ public class Session {
 		Utils.getServer ().serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				JSONObject obj;
+				JSONString error;
 
-				obj = response.isObject ();
+				error = response.isString ();
 
-				currentUser = new User ();
-				currentUser.fromJSONObject ( obj.get ( "user" ).isObject () );
+				if ( error != null ) {
+					if ( error.stringValue () == "no_db" )
+						isInstalled = false;
+				}
+				else {
+					isInstalled = true;
 
-				currentGAS = new GAS ();
-				currentGAS.fromJSONObject ( obj.get ( "gas" ).isObject () );
+					obj = response.isObject ();
 
-				currentSystem = new SystemConf ();
-				currentSystem.fromJSONObject ( obj.get ( "system" ).isObject () );
+					currentUser = new User ();
+					currentUser.fromJSONObject ( obj.get ( "user" ).isObject () );
+
+					currentGAS = new GAS ();
+					currentGAS.fromJSONObject ( obj.get ( "gas" ).isObject () );
+
+					currentSystem = new SystemConf ();
+					currentSystem.fromJSONObject ( obj.get ( "system" ).isObject () );
+				}
 
 				on_finish.onComplete ( null );
 			}
@@ -52,6 +64,10 @@ public class Session {
 				Window.Location.reload ();
 			}
 		} );
+	}
+
+	public static boolean platformCheck () {
+		return isInstalled;
 	}
 
 	public static boolean isLoggedIn () {

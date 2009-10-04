@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,28 +17,13 @@
 
 package org.barberaware.client;
 
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.json.client.*;
-import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.*;
+import java.util.*;
 
-public class GASdotto implements EntryPoint {
-	public void onModuleLoad () {
-		Utils.initEnvironment ();
+public class Probe extends FromServer {
+	public Probe () {
+		super ();
 
-		Session.initSession ( new ServerResponse () {
-			public void onComplete ( JSONValue response ) {
-				Widget main;
-
-				if ( Session.platformCheck () == false )
-					main = new InstallForm ();
-				else if ( Session.isLoggedIn () )
-					main = new MainApp ();
-				else
-					main = new Login ();
-
-				RootPanel.get ().add ( main );
-			}
-		} );
+		addAttribute ( "writable", FromServer.BOOLEAN );
+		addAttribute ( "dbdrivers", FromServer.STRING );
 	}
 }

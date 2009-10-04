@@ -78,7 +78,7 @@ public class ServerHook {
 		return GWT.getModuleBaseURL ();
 	}
 
-	public String getURL () {
+	public static String getURL () {
 		return GWT.getModuleBaseURL () + "server/";
 	}
 

@@ -53,8 +53,9 @@ class Notification extends FromServer {
 
 		$query .= sprintf ( " %s.target = %d AND %s.id = %s.parent ORDER BY startdate DESC", $references, $current_user, $this->tablename, $references );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
 			array_push ( $ret, $obj->exportable () );

@@ -53,8 +53,9 @@ class Product extends FromServer {
 						$this->tablename );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
 			array_push ( $ret, $obj->exportable () );
@@ -128,16 +129,17 @@ class Product extends FromServer {
 			$query = sprintf ( "SELECT id FROM Orders WHERE supplier = %d AND enddate > DATE('%s')",
 						$obj->supplier->id, date ( "Y-m-d" ) );
 			$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
+			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
 			if ( $obj->available == "true" ) {
-				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+				foreach ( $rows as $row ) {
 					$query = sprintf ( "INSERT INTO Orders_products ( parent, target ) VALUES ( %d, %d )",
 								$row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
 				}
 			}
 			else {
-				while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+				foreach ( $rows as $row ) {
 					$query = sprintf ( "DELETE FROM Orders_products WHERE parent = %d AND target = %d",
 								$row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile eliminare prodotto non piu' ordinabile" );

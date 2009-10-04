@@ -47,10 +47,10 @@ if ( check_session () == false ) {
 						$query = "SELECT * " . $query;
 						$returned = query_and_check ( $query, "Impossibile validare utente" );
 
-						$row = $returned->fetch ( PDO::FETCH_ASSOC );
+						$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-						if ( md5 ( $pwd ) == $row [ 'password' ] ) {
-							$userid = $row [ 'username' ];
+						if ( md5 ( $pwd ) == $row [ 0 ] [ 'password' ] ) {
+							$userid = $row [ 0 ] [ 'username' ];
 							perform_authentication ( $userid );
 							$ret->readFromDB ( $userid );
 						}

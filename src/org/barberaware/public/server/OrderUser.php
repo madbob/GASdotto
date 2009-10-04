@@ -42,8 +42,9 @@ class OrderUser extends FromServer {
 						$this->tablename, $request->order );
 
 			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+			foreach ( $rows as $row ) {
 				$obj = new $this->classname;
 				$obj->readFromDB ( $row [ 'id' ] );
 				array_push ( $ret, $obj->exportable () );

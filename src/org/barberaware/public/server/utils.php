@@ -101,6 +101,7 @@ function connect_to_the_database () {
 	global $dbdriver;
 	global $dbhost;
 	global $dbport;
+	global $dbname;
 	global $dbuser;
 	global $dbpassword;
 	global $instance_identifier;
@@ -119,14 +120,18 @@ function connect_to_the_database () {
 	if ( !isset ( $instance_identifier ) )
 		$instance_identifier = 1;
 
-	try {
+	if ( !isset ( $dbname ) )
 		$dbname = 'gasdotto_' . $instance_identifier;
+
+	try {
 		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
 		return true;
 	}
 	catch ( PDOException $e ) {
-		echo $e->getMessage ();
-		return false;
+		$json = new Services_JSON ();
+		$output = $json->encode ( "no_db" );
+		print ( $output );
+		exit;
 	}
 }
 
@@ -188,12 +193,12 @@ function check_session () {
 	$query = "SELECT username " . $query;
 	$result = query_and_check ( $query, "Impossibile identificare sessione aperta" );
 
-	$row = $result->fetch ( PDO::FETCH_NUM );
+	$row = $result->fetchAll ( PDO::FETCH_NUM );
 	/*
 		Nella tabella "current_sessions" il campo "username" contiene l'ID dell'utente.
 		Triste scelta di nome...
 	*/
-	$current_user = $row [ 0 ];
+	$current_user = $row [ 0 ] [ 0 ];
 	return true;
 }
 
@@ -267,8 +272,8 @@ function retrieve_automatic_session ( $hash ) {
 		$query = "SELECT username " . $query;
 		$result = query_and_check ( $query, "Impossibile recuperare sessione automatica" );
 
-		$row = $result->fetch ( PDO::FETCH_NUM );
-		return $row [ 0 ];
+		$row = $result->fetchAll ( PDO::FETCH_NUM );
+		return $row [ 0 ] [ 0 ];
 	}
 }
 

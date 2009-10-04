@@ -45,6 +45,8 @@ public class FromServerFactory {
 			return new Notification ();
 		else if ( name.equals ( "SystemConf" ) )
 			return new SystemConf ();
+		else if ( name.equals ( "Probe" ) )
+			return new Probe ();
 		else
 			return null;
 	}
