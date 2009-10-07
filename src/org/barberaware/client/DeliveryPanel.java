@@ -21,6 +21,15 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+/**
+	TODO	Per motivi di semplicita' e' stato deciso di trattare in questo pannello sia gli ordini chiusi che
+		quelli aperti, per mettere sempre a disposizione strumenti di analisi globale (CSV e PDF) per
+		compiere operazioni di revisione. Presto o tardi tali funzionalita' dovrebbero essere integrate
+		nell'applicazione vera e propria, ma fino a tal momento ci si accontenta di questa soluzione
+		provvisoria. Quando il tutto sara' sistemato, correggere le parti sotto marcate come "RI-CORREGGERE
+		QUESTO" decommentando i punti critici ed eliminando il codice temporaneo
+*/
+
 public class DeliveryPanel extends GenericPanel {
 	private boolean		hasOrders;
 
@@ -70,8 +79,13 @@ public class DeliveryPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
+
+				/* RI-CORREGGERE QUESTO */
+				/*
 				if ( ord.getInt ( "status" ) == Order.CLOSED )
 					addTop ( doOrderRow ( ord ) );
+				*/
+				addTop ( doOrderRow ( ord ) );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -83,6 +97,8 @@ public class DeliveryPanel extends GenericPanel {
 				status = ord.getInt ( "status" );
 				index = retrieveOrderForm ( ord );
 
+				/* RI-CORREGGERE QUESTO */
+				/*
 				if ( index != -1 && status == Order.OPENED )
 					remove ( index );
 
@@ -100,6 +116,20 @@ public class DeliveryPanel extends GenericPanel {
 						if ( uord.getObject ( "baseorder" ).equals ( object ) )
 							syncUserOrder ( form, uord, 0 );
 					}
+				}
+				*/
+				FromServerForm form;
+				ArrayList uorders;
+				OrderUser uord;
+
+				form = ( FromServerForm ) doOrderRow ( ord );
+				addTop ( form );
+				uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+
+				for ( int i = 0; i < uorders.size (); i++ ) {
+					uord = ( OrderUser ) uorders.get ( i );
+					if ( uord.getObject ( "baseorder" ).equals ( object ) )
+						syncUserOrder ( form, uord, 0 );
 				}
 			}
 
@@ -210,7 +240,12 @@ public class DeliveryPanel extends GenericPanel {
 		ServerRequest params;
 
 		params = new ServerRequest ( "Order" );
-		params.add ( "status", Order.CLOSED );
+
+		/* RI-CORREGGERE QUESTO */
+		/*
+			params.add ( "status", Order.CLOSED );
+		*/
+
 		Utils.getServer ().testObjectReceive ( params );
 
 		Utils.getServer ().testObjectReceive ( "OrderUser" );

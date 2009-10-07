@@ -141,10 +141,13 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$row = array ();
 	$order_user = $contents [ $i ];
 
+	$user_products = $order_user->products;
+	if ( is_array ( $user_products ) == false )
+		continue;
+
 	$row [] = sprintf ( "%s %s", $order_user->baseuser->firstname, $order_user->baseuser->surname );
 
 	$user_total = 0;
-	$user_products = $order_user->products;
 	usort ( $user_products, "sort_product_user_by_name" );
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {

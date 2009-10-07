@@ -181,8 +181,6 @@ public class OrdersEditPanel extends GenericPanel {
 					date.setValue ( now );
 
 					now.setMonth ( now.getMonth () + 3 );
-					if ( now.getMonth () < 3 )
-						now.setYear ( now.getYear () + 1 );
 
 					date = ( DateSelector ) ver.retriveInternalWidget ( "enddate" );
 					date.setValue ( now );

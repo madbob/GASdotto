@@ -227,6 +227,13 @@ public class ProductsEditPanel extends Composite {
 		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				table.revertChanges ();
+				/*
+					La rappresentazione a tabella e' secondaria rispetto alla
+					lista, quando si salva o si annulla si torna alla vista
+					principale anche per avere un senso di feedback per
+					l'operazione
+				*/
+				main.showWidget ( 0 );
 			}
 		} );
 		buttons.add ( button, "Annulla" );
@@ -234,6 +241,7 @@ public class ProductsEditPanel extends Composite {
 		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				table.saveChanges ();
+				main.showWidget ( 0 );
 			}
 		} );
 		buttons.add ( button, "Salva" );
