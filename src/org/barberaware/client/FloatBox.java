@@ -21,7 +21,7 @@ import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
 
-public class FloatBox extends TextBox {
+public class FloatBox extends TextBox implements FloatWidget {
 	public FloatBox () {
 		setText ( "0" );
 
@@ -57,6 +57,8 @@ public class FloatBox extends TextBox {
 
 		setVisibleLength ( 6 );
 	}
+
+	/****************************************************************** FloatWidget */
 
 	public void setVal ( float value ) {
 		setText ( Float.toString ( value ) );

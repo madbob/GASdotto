@@ -224,10 +224,12 @@ public class ServerHook {
 	}
 
 	public void testObjectReceive ( ServerRequest params ) {
-		if ( executingMonitor > MAXIMUM_CONCURRENT_REQUESTS )
+		if ( executingMonitor > MAXIMUM_CONCURRENT_REQUESTS ) {
 			monitorSchedulingQueue.add ( params );
-		else
+		}
+		else {
 			testObjectReceiveImpl ( params );
+		}
 	}
 
 	public void triggerObjectCreation ( FromServer object ) {

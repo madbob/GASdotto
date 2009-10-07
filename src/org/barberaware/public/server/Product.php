@@ -96,9 +96,9 @@ class Product extends FromServer {
 			$prod = new Product ();
 			$prod->readFromDB ( $obj->id );
 
-			if ( $prod->getAttribute ( "available" )->value != $obj->available )
+			if ( $prod->getAttribute ( "available" )->value != $obj->available ) {
 				$align_existing_orders = true;
-
+			}
 			else {
 				if ( db_row_count ( sprintf ( "FROM Orders_products WHERE target = %d", $obj->id ) ) != 0 ) {
 					$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );

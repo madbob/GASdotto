@@ -23,9 +23,12 @@ import com.google.gwt.user.client.ui.*;
 
 public class SuppliersEditPanel extends GenericPanel {
 	private FormCluster		main;
+	private ArrayList		scheduledProducts;
 
 	public SuppliersEditPanel () {
 		super ();
+
+		scheduledProducts = new ArrayList ();
 
 		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
@@ -47,6 +50,8 @@ public class SuppliersEditPanel extends GenericPanel {
 					products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
 					products.enable ( true );
 				}
+
+				checkProductsSchedule ();
 			}
 		};
 
@@ -55,28 +60,10 @@ public class SuppliersEditPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Product product;
-				ProductsEditPanel panel;
 
 				product = ( Product ) object;
-				panel = retrieveProductsPanel ( product );
-
-				if ( panel != null ) {
-					IconsBar icons;
-					FromServerForm supplier_form;
-
-					/*
-						Se prima la lista era vuota ed ora non lo e'
-						piu', rimuovo l'icona messa "sulla fiducia" al
-						momento della creazione
-					*/
-					supplier_form = main.retrieveForm ( product.getObject ( "supplier" ) );
-					icons = supplier_form.getIconsBar ();
-
-					if ( icons.hasImage ( "images/notifications/supplier_no_products.png" ) )
-						icons.delImage ( "images/notifications/supplier_no_products.png" );
-
-					panel.addProduct ( product );
-				}
+				if ( insertProduct ( product ) == false )
+					scheduledProducts.add ( product );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -101,6 +88,35 @@ public class SuppliersEditPanel extends GenericPanel {
 					panel.deleteProduct ( product );
 			}
 		} );
+
+		Utils.getServer ().testObjectReceive ( "Supplier" );
+	}
+
+	private boolean insertProduct ( Product product ) {
+		ProductsEditPanel panel;
+
+		panel = retrieveProductsPanel ( product );
+
+		if ( panel != null ) {
+			IconsBar icons;
+			FromServerForm supplier_form;
+
+			/*
+				Se prima la lista era vuota ed ora non lo e'
+				piu', rimuovo l'icona messa "sulla fiducia" al
+				momento della creazione
+			*/
+			supplier_form = main.retrieveForm ( product.getObject ( "supplier" ) );
+			icons = supplier_form.getIconsBar ();
+
+			if ( icons.hasImage ( "images/notifications/supplier_no_products.png" ) )
+				icons.delImage ( "images/notifications/supplier_no_products.png" );
+
+			panel.addProduct ( product );
+			return true;
+		}
+		else
+			return false;
 	}
 
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
@@ -128,11 +144,22 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		} );
 
+		/**
+			TODO	In particolari circostanze l'assegnazione automatica del referente non funziona.
+				Se non sono mai stati creati fornitori, ed all'apertura dell'applicazione salto
+				subito a questo pannello, la lista di utenti non e' mai stata fetchata dal server. La
+				prima volta avviene durante la creazione del MultiSelector, ma essendo asincrona
+				potrebbe non essere stata completata quando faccio l'assegnamento e dunque
+				l'operazione va a vuoto. Occorrerebbe predisporre un qualche trigger sull'effettivo
+				popolamento del MultiSelector
+		*/
+
 		/*
 			Di default, l'utente che crea il fornitore ne e' anche referente
 		*/
 		if ( supp.isValid () == false )
 			references.addElement ( Session.getUser () );
+
 		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
@@ -215,6 +242,19 @@ public class SuppliersEditPanel extends GenericPanel {
 		return ver;
 	}
 
+	private void checkProductsSchedule () {
+		Product product;
+
+		for ( int i = 0; i < scheduledProducts.size (); i++ ) {
+			product = ( Product ) scheduledProducts.get ( i );
+
+			if ( insertProduct ( product ) == true ) {
+				scheduledProducts.remove ( i );
+				i--;
+			}
+		}
+	}
+
 	private ProductsEditPanel retrieveProductsPanel ( Product product ) {
 		Supplier supplier;
 		FromServerForm supplier_form;
@@ -268,10 +308,5 @@ public class SuppliersEditPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Measure" );
 		Utils.getServer ().testObjectReceive ( "Category" );
-
-		/*
-			Questo e' per forzare il popolamento della lista di referenti
-		*/
-		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }

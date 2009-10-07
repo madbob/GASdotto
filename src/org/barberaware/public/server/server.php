@@ -118,6 +118,6 @@ else {
 	}
 }
 
-echo $json->encode ( $ret );
+echo $json->encode ( $ret ) . "\n";
 
 ?>

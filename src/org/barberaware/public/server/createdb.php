@@ -21,8 +21,10 @@ require_once ( "utils.php" );
 
 function install_main_db () {
 	global $instance_identifier;
+	global $dbname;
 
-	$dbname = 'gasdotto_' . $instance_identifier;
+	if ( !isset ( $dbname ) )
+		$dbname = 'gasdotto_' . $instance_identifier;
 
 	/*
 		Si assume che il database sia gia' stato creato e sia vuoto

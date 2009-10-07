@@ -67,9 +67,9 @@ public class FromServerWidget extends Composite {
 		}
 
 		else if ( type == FromServer.LONGSTRING ) {
-			TextArea ta;
+			DummyTextArea ta;
 
-			ta = new TextArea ();
+			ta = new DummyTextArea ();
 			ta.setVisibleLines ( 2 );
 			ta.setCharacterWidth ( 70 );
 			wid = ta;
@@ -120,17 +120,14 @@ public class FromServerWidget extends Composite {
 		if ( type == -1 )
 			return;
 
-		else if ( type == FromServer.STRING )
+		else if ( type == FromServer.STRING || type == FromServer.LONGSTRING )
 			( ( StringWidget ) wid ).setValue ( object.getString ( name ) );
-
-		else if ( type == FromServer.LONGSTRING )
-			( ( TextArea ) wid ).setText ( object.getString ( name ) );
 
 		else if ( type == FromServer.INTEGER )
 			( ( IntNumericWidget ) wid ).setVal ( object.getInt ( name ) );
 
 		else if ( type == FromServer.FLOAT )
-			( ( FloatBox ) wid ).setVal ( object.getFloat ( name ) );
+			( ( FloatWidget ) wid ).setVal ( object.getFloat ( name ) );
 
 		else if ( type == FromServer.PERCENTAGE )
 			( ( PercentageBox ) wid ).setValue ( object.getString ( name ) );
@@ -158,17 +155,14 @@ public class FromServerWidget extends Composite {
 		if ( ( validation != null ) && ( validation.check ( object, name, wid ) == false ) )
 			return false;
 
-		else if ( type == FromServer.STRING )
+		else if ( type == FromServer.STRING || type == FromServer.LONGSTRING )
 			object.setString ( name, ( ( StringWidget ) wid ).getValue () );
-
-		else if ( type == FromServer.LONGSTRING )
-			object.setString ( name, ( ( TextArea ) wid ).getText () );
 
 		else if ( type == FromServer.INTEGER )
 			object.setInt ( name, ( ( IntNumericWidget ) wid ).getVal () );
 
 		else if ( type == FromServer.FLOAT )
-			object.setFloat ( name, ( ( FloatBox ) wid ).getVal () );
+			object.setFloat ( name, ( ( FloatWidget ) wid ).getVal () );
 
 		else if ( type == FromServer.PERCENTAGE )
 			object.setString ( name, ( ( PercentageBox ) wid ).getValue () );
@@ -199,17 +193,14 @@ public class FromServerWidget extends Composite {
 		if ( type == -1 )
 			ret = true;
 
-		else if ( type == FromServer.STRING )
+		else if ( type == FromServer.STRING || type == FromServer.LONGSTRING )
 			ret = object.getString ( name ).equals ( ( ( StringWidget ) wid ).getValue () );
-
-		else if ( type == FromServer.LONGSTRING )
-			ret = object.getString ( name ).equals ( ( ( TextArea ) wid ).getText () );
 
 		else if ( type == FromServer.INTEGER )
 			ret = object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getVal ();
 
 		else if ( type == FromServer.FLOAT )
-			ret = object.getFloat ( name ) == ( ( FloatBox ) wid ).getVal ();
+			ret = object.getFloat ( name ) == ( ( FloatWidget ) wid ).getVal ();
 
 		else if ( type == FromServer.PERCENTAGE )
 			ret = object.getString ( name ).equals ( ( ( PercentageBox ) wid ).getValue () );

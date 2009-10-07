@@ -265,6 +265,11 @@
 	font-size:		9px;
 }
 
+.static-value {
+	font-size:		15px;
+	font-weight:		bold;
+}
+
 .file-link {
 	background:		#FFFFFF url('images/download.png') no-repeat scroll 0pt 50%;
         padding-left:		22px;

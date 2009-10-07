@@ -22,6 +22,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class SuppliersPanel extends GenericPanel {
+	private ArrayList		scheduledProducts;
+
 	private abstract class OrdersList extends Composite {
 		private FlexTable	main;
 		private FromServerForm	mainForm;
@@ -203,12 +205,15 @@ public class SuppliersPanel extends GenericPanel {
 	public SuppliersPanel () {
 		super ();
 
+		scheduledProducts = new ArrayList ();
+
 		main = new FormCluster ( "Supplier", null ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				String desc;
 				CaptionPanel frame;
 				FromServerForm ver;
 				Supplier supplier;
+				ProductsPresentationList products;
 				OpenedOrdersList orders;
 				PastOrdersList past_orders;
 
@@ -221,6 +226,12 @@ public class SuppliersPanel extends GenericPanel {
 				frame = new CaptionPanel ( "Descrizione" );
 				ver.add ( frame );
 				frame.add ( new Label ( desc ) );
+
+				products = new ProductsPresentationList ( supplier );
+				ver.setExtraWidget ( "products", products );
+				frame = new CaptionPanel ( "Prodotti" );
+				ver.add ( frame );
+				frame.add ( products );
 
 				orders = new OpenedOrdersList ( supp, ver );
 				ver.setExtraWidget ( "orders", orders );
@@ -253,6 +264,10 @@ public class SuppliersPanel extends GenericPanel {
 					previsto
 				*/
 				return null;
+			}
+
+			protected void customNew ( FromServer object, boolean true_new ) {
+				checkProductsSchedule ();
 			}
 		};
 
@@ -347,6 +362,76 @@ public class SuppliersPanel extends GenericPanel {
 				}
 			}
 		} );
+
+		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				Product prod;
+
+				prod = ( Product ) object;
+				if ( insertProduct ( prod ) == false )
+					scheduledProducts.add ( prod );
+			}
+
+			public void onModify ( FromServer object ) {
+				Product prod;
+				ProductsPresentationList panel;
+
+				prod = ( Product ) object;
+				panel = retrieveProductsPanel ( prod );
+				if ( panel == null )
+					panel.refreshProduct ( prod );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				Product prod;
+				ProductsPresentationList panel;
+
+				prod = ( Product ) object;
+				panel = retrieveProductsPanel ( prod );
+				if ( panel == null )
+					panel.deleteProduct ( prod );
+			}
+		} );
+
+		Utils.getServer ().testObjectReceive ( "Supplier" );
+	}
+
+	private ProductsPresentationList retrieveProductsPanel ( Product product ) {
+		Supplier supplier;
+		FromServerForm supplier_form;
+
+		supplier = ( Supplier ) product.getObject ( "supplier" );
+		supplier_form = main.retrieveForm ( supplier );
+
+		if ( supplier_form != null )
+			return ( ProductsPresentationList ) supplier_form.retriveInternalWidget ( "products" );
+		else
+			return null;
+	}
+
+	private boolean insertProduct ( Product product ) {
+		ProductsPresentationList panel;
+
+		panel = retrieveProductsPanel ( product );
+		if ( panel != null ) {
+			panel.addProduct ( product );
+			return true;
+		}
+		else
+			return false;
+	}
+
+	private void checkProductsSchedule () {
+		Product product;
+
+		for ( int i = 0; i < scheduledProducts.size (); i++ ) {
+			product = ( Product ) scheduledProducts.get ( i );
+
+			if ( insertProduct ( product ) == true ) {
+				scheduledProducts.remove ( i );
+				i--;
+			}
+		}
 	}
 
 	/****************************************************************** GenericPanel */
@@ -386,6 +471,7 @@ public class SuppliersPanel extends GenericPanel {
 
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
+		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}

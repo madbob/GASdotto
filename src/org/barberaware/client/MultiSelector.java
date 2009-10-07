@@ -108,6 +108,8 @@ public class MultiSelector extends FromServerArray {
 					items.removeRow ( a );
 			}
 		} );
+
+		Utils.getServer ().testObjectReceive ( type );
 	}
 
 	private Panel doDialog () {
