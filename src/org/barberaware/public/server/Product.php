@@ -43,14 +43,20 @@ class Product extends FromServer {
 	public function get ( $request ) {
 		$ret = array ();
 
+		if ( isset ( $request->supplier ) )
+			$tuning = sprintf ( " AND supplier = %d ", $request->supplier );
+		else
+			$tuning = "";
+
 		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND archived = false ORDER BY id",
-						$this->tablename, $ids );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND archived = false %s ORDER BY id",
+						$this->tablename, $ids, $tuning );
 		}
-		else
-			$query = sprintf ( "SELECT id FROM %s WHERE archived = false ORDER BY id",
-						$this->tablename );
+		else {
+			$query = sprintf ( "SELECT id FROM %s WHERE archived = false %s ORDER BY id",
+						$this->tablename, $tuning );
+		}
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
@@ -100,7 +106,7 @@ class Product extends FromServer {
 				$align_existing_orders = true;
 			}
 			else {
-				if ( db_row_count ( sprintf ( "FROM Orders_products WHERE target = %d", $obj->id ) ) != 0 ) {
+				if ( ( $obj->archived == false ) && ( db_row_count ( sprintf ( "FROM Orders_products WHERE target = %d", $obj->id ) ) != 0 ) ) {
 					$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %d", $this->tablename, $obj->id );
 					query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
 
@@ -120,8 +126,9 @@ class Product extends FromServer {
 				}
 			}
 		}
-		else
+		else {
 			$align_existing_orders = true;
+		}
 
 		$id = parent::save ( $obj );
 

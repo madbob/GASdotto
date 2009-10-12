@@ -74,8 +74,9 @@ class Order extends FromServer {
 				array_push ( $ret, $obj->exportable () );
 			}
 		}
-		else
+		else {
 			$ret = parent::get ( $request );
+		}
 
 		return $ret;
 	}

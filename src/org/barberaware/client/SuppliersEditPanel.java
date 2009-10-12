@@ -144,23 +144,16 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		} );
 
-		/**
-			TODO	In particolari circostanze l'assegnazione automatica del referente non funziona.
-				Se non sono mai stati creati fornitori, ed all'apertura dell'applicazione salto
-				subito a questo pannello, la lista di utenti non e' mai stata fetchata dal server. La
-				prima volta avviene durante la creazione del MultiSelector, ma essendo asincrona
-				potrebbe non essere stata completata quando faccio l'assegnamento e dunque
-				l'operazione va a vuoto. Occorrerebbe predisporre un qualche trigger sull'effettivo
-				popolamento del MultiSelector
-		*/
+		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
 
 		/*
-			Di default, l'utente che crea il fornitore ne e' anche referente
+			Di default, l'utente che crea il fornitore ne e' anche referente.
+			Il settaggio viene settato dopo l'immissione del widget nel form per
+			evitare che il valore venga sovrascritto nel FromServerForm con la lista
+			(vuota) di referenti del nuovo fornitore
 		*/
 		if ( supp.isValid () == false )
 			references.addElement ( Session.getUser () );
-
-		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );
@@ -193,12 +186,29 @@ public class SuppliersEditPanel extends GenericPanel {
 		return vertical;
 	}
 
+	private Widget productsBuilder ( FromServerForm ver, Supplier supp ) {
+		ProductsEditPanel products;
+		VerticalPanel container;
+		Label notify;
+
+		container = new VerticalPanel ();
+
+		notify = new Label ( "Attenzione: i valori qui riportati non fanno riferimento agli ordini già aperti per il fornitore, per modificare tali dati operare sul pannello \"Gestione Ordini\"" );
+		notify.setStyleName ( "smaller-text" );
+		container.add ( notify );
+
+		products = new ProductsEditPanel ( supp, supp.isValid () );
+		ver.setExtraWidget ( "products", products );
+		container.add ( products );
+
+		return container;
+	}
+
 	private FromServerForm commonFormBuilder ( FromServer supp ) {
 		final FromServerForm ver;
 		Supplier supplier;
 		TabPanel tabs;
 		IconsBar icons;
-		ProductsEditPanel products;
 
 		supplier = ( Supplier ) supp;
 
@@ -213,10 +223,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		ver.add ( tabs );
 
 		tabs.add ( attributesBuilder ( ver, supplier ), "Dettagli" );
-
-		products = new ProductsEditPanel ( supplier, supp.isValid () );
-		ver.setExtraWidget ( "products", products );
-		tabs.add ( products, "Prodotti" );
+		tabs.add ( productsBuilder ( ver, supplier ), "Prodotti" );
 
 		/*
 			La tab dei files viene attivata solo se effettivamente e' concesso il

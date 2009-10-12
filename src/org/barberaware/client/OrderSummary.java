@@ -66,9 +66,12 @@ public class OrderSummary extends Composite {
 	}
 
 	public void reFill ( Order order ) {
-		currentOrder = order;
+		int num;
 
-		for ( int i = 1; i < main.getRowCount (); i++ )
+		currentOrder = order;
+		num = main.getRowCount ();
+
+		for ( int i = 1; i < num; i++ )
 			main.removeRow ( 1 );
 
 		fillList ();
@@ -103,9 +106,9 @@ public class OrderSummary extends Composite {
 		if ( ordersUsers == null )
 			ordersUsers = new ArrayList ();
 
-		/*
-			Probabilmente l'algoritmo di ricostruzione della lista di quantita' puo'
-			essere assai migliorato...
+		/**
+			TODO	Probabilmente l'algoritmo di ricostruzione della lista di
+				quantita' puo' essere assai migliorato...
 		*/
 		cached_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 		total_price = 0;

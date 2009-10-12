@@ -21,6 +21,7 @@ import java.lang.*;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.json.client.*;
 
 public class Utils {
@@ -196,5 +197,38 @@ public class Utils {
 			tmp.set ( i, array.get ( i ) );
 
 		return tmp;
+	}
+
+	/****************************************************** graphic */
+
+	public static void graphicPulseWidget ( final Widget wid ) {
+		Timer fading;
+		Element tmp;
+
+		tmp = wid.getElement ();
+		DOM.setStyleAttribute ( tmp, "opacity", "0.4" );
+		DOM.setStyleAttribute ( tmp, "filter", "alpha(opacity:1.0)" );
+
+		fading = new Timer () {
+			public void run () {
+				double opacity;
+				Element tmp;
+
+				tmp = wid.getElement ();
+				opacity = Double.parseDouble ( DOM.getStyleAttribute ( tmp, "opacity" ) );
+
+				if ( opacity < 1.0 ) {
+					String newvalue;
+					newvalue = Double.toString ( opacity + 0.2 );
+					DOM.setStyleAttribute ( tmp, "opacity", newvalue );
+					DOM.setStyleAttribute ( tmp, "filter", "alpha(opacity:" + newvalue + ")" );
+				}
+				else {
+					cancel ();
+				}
+			}
+		};
+
+		fading.scheduleRepeating ( 100 );
 	}
 }

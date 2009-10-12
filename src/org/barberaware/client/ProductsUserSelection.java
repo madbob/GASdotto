@@ -85,8 +85,10 @@ public class ProductsUserSelection extends FromServerArray {
 
 			for ( a = 0; a < rows; a += 2 ) {
 				selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
-				if ( selector.getValue ().equals ( prod ) )
+				if ( selector.getValue ().getObject ( "product" ).equals ( prod ) ) {
+					modProductRow ( a, prod );
 					break;
+				}
 			}
 
 			if ( a == rows )
@@ -98,12 +100,12 @@ public class ProductsUserSelection extends FromServerArray {
 				migliorato...
 		*/
 
-		for ( a = 0; a < original_rows; a++ ) {
+		for ( a = 0; a < original_rows; a += 2 ) {
 			selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
 
 			for ( i = 0; i < num_products; i++ ) {
 				prod = ( Product ) products.get ( i );
-				if ( selector.getValue ().equals ( prod ) )
+				if ( selector.getValue ().getObject ( "product" ).equals ( prod ) )
 					break;
 			}
 
@@ -178,6 +180,62 @@ public class ProductsUserSelection extends FromServerArray {
 		main.setWidget ( index + 1, 0, new Label ( info_str ) );
 		formatter.setColSpan ( index + 1, 0, 3 );
 		formatter.setStyleName ( index + 1, 0, "description" );
+	}
+
+	private void modProductRow ( int index, Product product ) {
+		String info_str;
+		String plus_str;
+		float plus;
+		boolean raw;
+		FlexTable.FlexCellFormatter formatter;
+		Label lab;
+		Measure measure;
+		ProductUserSelector sel;
+
+		formatter = main.getFlexCellFormatter ();
+
+		measure = ( Measure ) product.getObject ( "measure" );
+
+		lab = ( Label ) main.getWidget ( index, 0 );
+		lab.setText ( product.getString ( "name" ) );
+
+		sel = ( ProductUserSelector ) main.getWidget ( index, 1 );
+		sel.setProduct ( product );
+
+		/*
+			Prezzo
+		*/
+
+		plus = product.getFloat ( "unit_price" );
+		info_str = plus + " € / " + measure.getString ( "symbol" );
+
+		/**
+			TODO	Aggiungere una icona per indicare i prodotti il cui prezzo viene
+				fissato alla consegna
+		*/
+
+		raw = product.getBool ( "mutable_price" );
+		if ( raw == true )
+			info_str += " (prodotto misurato alla consegna)";
+
+		plus = product.getFloat ( "shipping_price" );
+		if ( plus != 0 )
+			info_str += " + " + plus + " € trasporto";
+
+		plus_str = product.getString ( "surplus" );
+		if ( plus_str != null && plus_str != "" && plus_str != "0" )
+			info_str += " + " + Utils.showPercentage ( plus_str ) + " surplus";
+
+		lab = ( Label ) main.getWidget ( index, 2 );
+		lab.setText ( info_str );
+
+		/*
+			Informazioni aggiuntive
+		*/
+
+		info_str = product.getString ( "description" );
+		lab = ( Label ) main.getWidget ( index + 1, 0 );
+		lab.setText ( info_str );
 	}
 
 	private void updateTotal () {

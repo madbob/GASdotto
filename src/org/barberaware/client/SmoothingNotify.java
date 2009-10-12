@@ -44,7 +44,7 @@ public class SmoothingNotify extends Composite {
 	public static int	NOTIFY_INFO		= 1;
 
 	public SmoothingNotify () {
-		staticTime = 5000;
+		staticTime = 4000;
 		fadeFrequency = 100;
 
 		requests = new CircularArray ();

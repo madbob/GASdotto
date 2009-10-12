@@ -315,6 +315,25 @@ public class ServerHook {
 		return ret;
 	}
 
+	public void invalidateCacheByCondition ( ObjectRequest req ) {
+		int len;
+		String type;
+		ArrayList objects;
+		FromServer obj;
+
+		type = req.getType ();
+		objects = getObjectsFromCache ( type );
+		len = objects.size ();
+
+		for ( int i = 0; i < len; i++ ) {
+			obj = ( FromServer ) objects.get ( i );
+			if ( req.matches ( obj ) )
+				triggerObjectDeletion ( obj );
+		}
+
+		testObjectReceive ( type );
+	}
+
 	/****************************************************************** loading */
 
 	private void createLoadingNotification () {

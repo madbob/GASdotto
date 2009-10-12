@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,6 +19,10 @@ package org.barberaware.client;
 
 import java.lang.*;
 import com.google.gwt.json.client.*;
+
+/**
+	TODO	Questa classe potrebbe essere soppressa ed fatta convergere in ObjectRequest
+*/
 
 public class ServerRequest extends JSONObject {
 	public ServerRequest ( String type ) {

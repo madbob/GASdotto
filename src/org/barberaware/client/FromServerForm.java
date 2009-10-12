@@ -29,7 +29,7 @@ public class FromServerForm extends Composite {
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
-	private FromServerFormCallbacks	callbacks;
+	private ArrayList		callbacks;
 
 	/**
 		TODO	Sostituire l'ArrayList con una HashMap
@@ -48,6 +48,7 @@ public class FromServerForm extends Composite {
 		object = obj;
 
 		widgets = new ArrayList ();
+		callbacks = new ArrayList ();
 
 		/*
 			Poiche' l'array dei dati addizionali viene usato solo in specifici casi,
@@ -125,11 +126,11 @@ public class FromServerForm extends Composite {
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
 		if ( routine == null ) {
-			callbacks = new FromServerFormCallbacks ();
+			callbacks.clear ();
 		}
 		else {
-			callbacks = routine;
-			summary.setText ( callbacks.getName ( this ) );
+			callbacks.add ( routine );
+			summary.setText ( routine.getName ( this ) );
 		}
 	}
 
@@ -161,11 +162,12 @@ public class FromServerForm extends Composite {
 
 	private Panel doSummary ( FromServer object ) {
 		HorizontalPanel main;
+		String name;
 
 		main = new HorizontalPanel ();
 		main.setStyleName ( "element-summary" );
 
-		summary = new Label ( callbacks.getName ( this ) );
+		summary = new Label ( retrieveNameInCallbacks () );
 		main.add ( summary );
 
 		icons = doIconsBar ();
@@ -195,7 +197,9 @@ public class FromServerForm extends Composite {
 
 					else {
 						if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
-							callbacks.onDelete ( myself );
+							for ( int i = 0; i < callbacks.size (); i++ )
+								( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onDelete ( myself );
+
 							object.destroy ( null );
 							main.setOpen ( false );
 							invalidate ();
@@ -213,7 +217,10 @@ public class FromServerForm extends Composite {
 				}
 				else {
 					resetObject ();
-					callbacks.onReset ( myself );
+
+					for ( int i = 0; i < callbacks.size (); i++ )
+						( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onReset ( myself );
+
 					main.setOpen ( false );
 				}
 			}
@@ -243,11 +250,13 @@ public class FromServerForm extends Composite {
 	}
 
 	private void onOpenCb () {
-		callbacks.onOpen ( this );
+		for ( int i = 0; i < callbacks.size (); i++ )
+			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onOpen ( this );
 	}
 
 	private void onCloseCb () {
-		callbacks.onClose ( this );
+		for ( int i = 0; i < callbacks.size (); i++ )
+			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClose ( this );
 	}
 
 	/****************************************************************** build */
@@ -381,13 +390,27 @@ public class FromServerForm extends Composite {
 		return ret;
 	}
 
-	private boolean savingObject () {
+	private String retrieveNameInCallbacks () {
+		String name;
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			name = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).getName ( this );
+			if ( name != null && name.equals ( "" ) == false)
+				return name;
+		}
+
+		return "";
+	}
+
+	public boolean savingObject () {
 		if ( rebuildObject () == false )
 			return false;
 
-		callbacks.onSave ( this );
+		for ( int i = 0; i < callbacks.size (); i++ )
+			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this );
+
 		object.save ( null );
-		summary.setText ( callbacks.getName ( this ) );
+		summary.setText ( retrieveNameInCallbacks () );
 		return true;
 	}
 

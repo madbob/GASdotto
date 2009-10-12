@@ -141,6 +141,7 @@ public class FromServerTable extends FromServerArray {
 				if ( c.edit == true ) {
 					wid = ( FromServerWidget ) main.getWidget ( i + 1, a );
 					wid.set ( obj );
+					Utils.graphicPulseWidget ( wid );
 				}
 			}
 		}

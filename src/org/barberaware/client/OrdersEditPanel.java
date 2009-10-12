@@ -86,6 +86,7 @@ public class OrdersEditPanel extends GenericPanel {
 					/* riassunto ordine */
 
 					addOrderSummary ( ver );
+					addProductsHandler ( ver );
 
 					return ver;
 				}
@@ -104,10 +105,13 @@ public class OrdersEditPanel extends GenericPanel {
 
 					ver = new FromServerForm ( order );
 
+					/**
+						TODO	Questa callback e' valida solo per i nuovi ordini, una volta
+							salvato andrebbe rimossa dal form
+					*/
 					ver.setCallback ( new FromServerFormCallbacks () {
 						public void onSave ( FromServerForm form ) {
 							Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'", SmoothingNotify.NOTIFY_INFO );
-							ver.setCallback ( null );
 						}
 					} );
 
@@ -206,6 +210,7 @@ public class OrdersEditPanel extends GenericPanel {
 					if ( form != null ) {
 						form.setObject ( object );
 						addOrderSummary ( form );
+						addProductsHandler ( form );
 					}
 				}
 		};
@@ -260,6 +265,60 @@ public class OrdersEditPanel extends GenericPanel {
 		complete_list = new OrderSummary ( order );
 		form.setExtraWidget ( "summary", complete_list );
 		sframe.add ( complete_list );
+		form.add ( sframe );
+	}
+
+	private void addProductsHandler ( final FromServerForm form ) {
+		final FromServerTable table;
+		VerticalPanel container;
+		CaptionPanel sframe;
+		ButtonsBar buttons;
+		PushButton button;
+
+		if ( ( FromServerTable ) form.retriveInternalWidget ( "products" ) != null )
+			return;
+
+		container = new VerticalPanel ();
+
+		table = new FromServerTable ();
+		table.addColumn ( "Nome", "name", false );
+		table.addColumn ( "Prezzo Unitario", "unit_price", true );
+		table.addColumn ( "Prezzo Trasporto", "shipping_price", true );
+		container.add ( form.getPersonalizedWidget ( "products", table ) );
+
+		buttons = new ButtonsBar ();
+		container.add ( buttons );
+
+		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
+			public void onClick ( Widget sender ) {
+				table.revertChanges ();
+			}
+		} );
+		buttons.add ( button, "Annulla" );
+
+		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
+			public void onClick ( Widget sender ) {
+				Order order;
+				ObjectRequest req;
+				OrderSummary summary;
+
+				order = ( Order ) form.getObject ();
+				table.saveChanges ();
+
+				req = new ObjectRequest ( "OrderUser" );
+				req.add ( "baseorder", order );
+				Utils.getServer ().invalidateCacheByCondition ( req );
+
+				summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+				summary.reFill ( order );
+
+				Utils.getServer ().triggerObjectModification ( order );
+			}
+		} );
+		buttons.add ( button, "Salva" );
+
+		sframe = new CaptionPanel ( "Prodotti" );
+		sframe.add ( container );
 		form.add ( sframe );
 	}
 

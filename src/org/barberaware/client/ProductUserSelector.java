@@ -79,7 +79,7 @@ public class ProductUserSelector extends ObjectWidget {
 		measure = new Label ();
 		main.add ( measure );
 
-		setProduct ( prod );
+		defineOnProduct ( prod );
 	}
 
 	private void disposeConstraints ( Product prod, Widget quantity ) {
@@ -117,7 +117,7 @@ public class ProductUserSelector extends ObjectWidget {
 		changeListeners.fireChange ( quantity );
 	}
 
-	private void setProduct ( Product prod ) {
+	private void defineOnProduct ( Product prod ) {
 		Measure m;
 
 		m = ( Measure ) prod.getObject ( "measure" );
@@ -125,6 +125,11 @@ public class ProductUserSelector extends ObjectWidget {
 			measure.setText ( m.getString ( "symbol" ) );
 
 		disposeConstraints ( prod, quantity );
+	}
+
+	public void setProduct ( Product prod ) {
+		currentValue.setObject ( "product", prod );
+		defineOnProduct ( prod );
 	}
 
 	public void setQuantity ( float quant ) {
@@ -166,7 +171,7 @@ public class ProductUserSelector extends ObjectWidget {
 		currentValue = ( ProductUser ) element;
 		quantity.setVal ( element.getFloat ( "quantity" ) );
 		prod = ( Product ) element.getObject ( "product" );
-		setProduct ( prod );
+		defineOnProduct ( prod );
 	}
 
 	public FromServer getValue () {
