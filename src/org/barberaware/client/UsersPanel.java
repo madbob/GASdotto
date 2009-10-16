@@ -132,6 +132,10 @@ public class UsersPanel extends GenericPanel {
 						} );
 					}
 
+					/**
+						TODO	Aggiungere icona identificativa dei privilegi utente
+					*/
+
 					return ver;
 				}
 
@@ -186,7 +190,7 @@ public class UsersPanel extends GenericPanel {
 	}
 
 	private FromServerValidateCallback checkLoginNameCallback () {
-		return 
+		return
 			new FromServerValidateCallback () {
 				public boolean check ( FromServer object, String attribute, Widget widget ) {
 					String text;

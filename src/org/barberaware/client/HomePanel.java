@@ -23,8 +23,8 @@ import com.google.gwt.user.client.ui.*;
 
 public class HomePanel extends GenericPanel {
 	private NotificationsBox	notifications;
-	private FlexTable		orders;
-	private boolean			hasOrders;
+	private PlainFillBox		openedOrders;
+	private PlainFillBox		closedOrders;
 
 	/****************************************************************** init */
 
@@ -34,42 +34,39 @@ public class HomePanel extends GenericPanel {
 		notifications = new NotificationsBox ();
 		add ( notifications );
 
-		add ( doOrdersSummary () );
-	}
+		openedOrders = doOrdersSummary ( "Non ci sono ordini aperti in questo momento.", "Ordini aperti in questo momento: " );
+		add ( openedOrders );
 
-	private Panel doOrdersSummary () {
-		hasOrders = false;
+		add ( new HTML ( "<hr>" ) );
 
-		orders = new FlexTable ();
-
-		orders.addTableListener ( new TableListener () {
-			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
-				Hidden id;
-
-				if ( row == 0 )
-					return;
-
-				id = ( Hidden ) orders.getWidget ( row, 0 );
-				goTo ( "orders::" + id.getValue () );
-			}
-		} );
-
-		checkNoOrders ();
+		closedOrders = doOrdersSummary ( "Non ci sono ordini in consegna.", "Ordini ora in consegna: " );
+		add ( closedOrders );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
 					int index;
+					Order ord;
+					PlainFillBox tab;
 
-					index = retrieveOrderRow ( ( Order ) object.getObject ( "baseorder" ) );
+					ord = ( Order ) object.getObject ( "baseorder" );
+
+					index = retrieveOrderRow ( openedOrders, ord );
+					if ( index == -1 ) {
+						index = retrieveOrderRow ( closedOrders, ord );
+						tab = closedOrders;
+					}
+					else
+						tab = openedOrders;
+
 					if ( index != -1 ) {
 						Label total;
 						OrderUser uorder;
 
 						uorder = ( OrderUser ) object;
-						total = new Label ( " (hai già ordinato " + Utils.priceToString ( uorder.getTotalPrice () ) + " €)" );
+						total = new Label ( " (hai ordinato " + Utils.priceToString ( uorder.getTotalPrice () ) + " €)" );
 						total.setStyleName ( "smaller-text" );
-						orders.setWidget ( index, 3, total );
+						tab.setWidget ( index, 3, total );
 					}
 				}
 			}
@@ -77,14 +74,25 @@ public class HomePanel extends GenericPanel {
 			public void onModify ( FromServer object ) {
 				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
 					int index;
+					Order ord;
+					PlainFillBox tab;
 
-					index = retrieveOrderRow ( ( Order ) object.getObject ( "baseorder" ) );
+					ord = ( Order ) object.getObject ( "baseorder" );
+
+					index = retrieveOrderRow ( openedOrders, ord );
 					if ( index == -1 ) {
+						index = retrieveOrderRow ( closedOrders, ord );
+						tab = closedOrders;
+					}
+					else
+						tab = openedOrders;
+
+					if ( index != -1 ) {
 						OrderUser uorder;
 						Label total;
 
 						uorder = ( OrderUser ) object;
-						total = ( Label ) orders.getWidget ( index, 3 );
+						total = ( Label ) tab.getWidget ( index, 3 );
 
 						if ( total != null )
 							total.setText ( Utils.priceToString ( uorder.getTotalPrice () ) );
@@ -97,101 +105,148 @@ public class HomePanel extends GenericPanel {
 			public void onDestroy ( FromServer object ) {
 				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
 					int index;
+					Order ord;
+					PlainFillBox tab;
 
-					index = retrieveOrderRow ( ( Order ) object.getObject ( "baseorder" ) );
-					if ( index == -1 )
-						orders.setWidget ( index, 3, new Label ( "" ) );
+					ord = ( Order ) object.getObject ( "baseorder" );
+
+					index = retrieveOrderRow ( openedOrders, ord );
+					if ( index == -1 ) {
+						index = retrieveOrderRow ( closedOrders, ord );
+						tab = closedOrders;
+					}
+					else
+						tab = openedOrders;
+
+					if ( index != -1 )
+						tab.setWidget ( index, 3, new Label ( "" ) );
 				}
 			}
 		} );
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				if ( object.getInt ( "status" ) == Order.OPENED ) {
-					if ( hasOrders == false ) {
-						orders.removeRow ( 0 );
-						orders.setWidget ( 0, 0, new Label ( "Ordini aperti in questo momento: " ) );
-						hasOrders = true;
-					}
+				int status;
+				Order ord;
 
-					doOrderRow ( ( Order ) object );
-				}
+				ord = ( Order ) object;
+				status = object.getInt ( "status" );
+
+				if ( status == Order.OPENED )
+					doOrderRow ( openedOrders, ord );
+				else if ( status == Order.CLOSED )
+					doOrderRow ( closedOrders, ord );
 			}
 
 			public void onModify ( FromServer object ) {
 				int index;
+				Order ord;
 
-				index = retrieveOrderRow ( object );
+				ord = ( Order ) object;
+
+				index = retrieveOrderRow ( openedOrders, object );
 
 				if ( index != -1 ) {
-					if ( object.getInt ( "status" ) == Order.OPENED ) {
-						modOrderRow ( ( Order ) object );
-					}
-					else {
-						orders.removeRow ( index );
-						checkNoOrders ();
-					}
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						modOrderRow ( openedOrders, ord );
+					else
+						openedOrders.removeRow ( index );
+				}
+				else {
+					/*
+						Questo e' per gestire ordini che sono stati riaperti
+					*/
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						doOrderRow ( openedOrders, ord );
+				}
+
+				index = retrieveOrderRow ( closedOrders, object );
+
+				if ( index != -1 ) {
+					if ( object.getInt ( "status" ) == Order.CLOSED )
+						modOrderRow ( closedOrders, ord );
+					else
+						closedOrders.removeRow ( index );
+				}
+				else {
+					/*
+						Questo e' per gestire ordini che sono stati richiusi
+					*/
+					if ( object.getInt ( "status" ) == Order.CLOSED )
+						doOrderRow ( closedOrders, ord );
 				}
 			}
 
 			public void onDestroy ( FromServer object ) {
 				int index;
 
-				index = retrieveOrderRow ( object );
-				if ( index != -1 ) {
-					orders.removeRow ( index );
-					checkNoOrders ();
-				}
+				index = retrieveOrderRow ( openedOrders, object );
+				if ( index != -1 )
+					openedOrders.removeRow ( index );
+
+				index = retrieveOrderRow ( closedOrders, object );
+				if ( index != -1 )
+					closedOrders.removeRow ( index );
+			}
+		} );
+	}
+
+	private PlainFillBox doOrdersSummary ( String empty, String full ) {
+		PlainFillBox orders;
+
+		orders = new PlainFillBox ();
+		orders.setStrings ( empty, full );
+
+		orders.addTableListener ( new TableListener () {
+			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+				Hidden id;
+				PlainFillBox table;
+
+				if ( row == 0 )
+					return;
+
+				table = ( PlainFillBox ) sender;
+				id = ( Hidden ) table.getWidget ( row, 1 );
+				goTo ( "orders::" + id.getValue () );
 			}
 		} );
 
 		return orders;
 	}
 
-	private void checkNoOrders () {
-		/*
-			Se c'e' una sola riga, e' l'header della lista degli ordini aperti e/o la
-			notifica dell'assenza di ordini
-		*/
-		if ( orders.getRowCount () <= 1 ) {
-			hasOrders = false;
-			orders.setWidget ( 0, 0, new Label ( "Non ci sono ordini aperti in questo momento." ) );
-		}
-	}
-
-	private void doOrderRow ( Order order ) {
-		int row;
+	private void doOrderRow ( PlainFillBox orders, Order order ) {
 		int index;
 		String name;
 		Label text;
+		ArrayList data;
 
-		index = retrieveOrderRow ( order );
+		index = retrieveOrderRow ( orders, order );
 		if ( index == -1 ) {
-			row = orders.getRowCount ();
 			name = order.getString ( "name" );
-
-			orders.setWidget ( row, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
-
 			text = new Label ( name );
 			text.setStyleName ( "clickable" );
-			orders.setWidget ( row, 1, text );
+
+			data = new ArrayList ();
+			data.add ( text );
+			data.add ( new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
+			orders.addRow ( data );
 		}
 	}
 
-	private void modOrderRow ( Order order ) {
+	private void modOrderRow ( PlainFillBox orders, Order order ) {
 		int index;
 		String name;
 		Label label;
 
-		index = retrieveOrderRow ( order );
+		index = retrieveOrderRow ( orders, order );
 		if ( index != -1 ) {
 			name = order.getString ( "name" );
-			label = ( Label ) orders.getWidget ( index, 1 );
+			label = ( Label ) orders.getWidget ( index, 0 );
 			label.setText ( "name" );
 		}
 	}
 
-	private int retrieveOrderRow ( FromServer target ) {
+	private int retrieveOrderRow ( PlainFillBox table, FromServer target ) {
 		String target_id_str;
 		Hidden id;
 
@@ -200,8 +255,8 @@ public class HomePanel extends GenericPanel {
 		/*
 			Come al solito, qui si parte da 1 perche' in 0 c'e' l'intestazione
 		*/
-		for ( int i = 1; i < orders.getRowCount (); i++ ) {
-			id = ( Hidden ) orders.getWidget ( i, 0 );
+		for ( int i = 1; i < table.getRowCount (); i++ ) {
+			id = ( Hidden ) table.getWidget ( i, 1 );
 
 			if ( target_id_str.equals ( id.getValue () ) )
 				return i;

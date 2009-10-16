@@ -45,6 +45,12 @@ public class UserSelector extends ObjectWidget {
 		} );
 		main.add ( first );
 
+		/**
+			TODO	Provare a perfezionare la visualizzazione su Explorer: se si
+				toglie il width da highlight-part.td sparisce la combo box degli
+				utenti, ma cosi' com'e' non e' il massimo
+		*/
+
 		select = new FromServerSelector ( "User", true, true );
 		main.add ( select );
 

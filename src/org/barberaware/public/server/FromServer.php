@@ -254,7 +254,7 @@ abstract class FromServer {
 
 		$ret = array ();
 
-		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+		if ( isset ( $request ) && ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
 			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $this->tablename, $ids );
 		}
@@ -267,7 +267,7 @@ abstract class FromServer {
 			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
 		}
 
-		if ( isset ( $request->id ) )
+		if ( isset ( $request ) && isset ( $request->id ) )
 			$query .= sprintf ( " AND id = %d ", $request->id );
 
 		if ( $this->user_check != null ) {

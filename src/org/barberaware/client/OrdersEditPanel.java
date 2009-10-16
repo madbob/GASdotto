@@ -43,6 +43,10 @@ public class OrdersEditPanel extends GenericPanel {
 					OrderSummary complete_list;
 
 					order = ( Order ) ord;
+
+					if ( order.getInt ( "status" ) == Order.SHIPPED )
+						return null;
+
 					supplier = ( Supplier ) order.getObject ( "supplier" );
 
 					if ( supplier.iAmReference () == false )
@@ -70,6 +74,7 @@ public class OrdersEditPanel extends GenericPanel {
 					status.addState ( "images/order_status_opened.png" );
 					status.addState ( "images/order_status_closed.png" );
 					status.addState ( "images/order_status_suspended.png" );
+					status.addState ( "images/order_status_shipped.png" );
 					status.setDefaultSelection ( 2 );
 					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", status ) );
 
@@ -186,10 +191,17 @@ public class OrdersEditPanel extends GenericPanel {
 
 					now.setMonth ( now.getMonth () + 3 );
 
+					/*
 					date = ( DateSelector ) ver.retriveInternalWidget ( "enddate" );
 					date.setValue ( now );
 					date = ( DateSelector ) ver.retriveInternalWidget ( "shippingdate" );
 					date.setValue ( now );
+					*/
+
+					/**
+						TODO	La data di chiusura non deve essere settata di default, ma
+							bisogna controllare che ci sia al momento del salvataggio
+					*/
 
 					return ver;
 				}
@@ -275,7 +287,8 @@ public class OrdersEditPanel extends GenericPanel {
 		ButtonsBar buttons;
 		PushButton button;
 
-		if ( ( FromServerTable ) form.retriveInternalWidget ( "products" ) != null )
+		table = ( FromServerTable ) form.retriveInternalWidget ( "products" );
+		if ( table != null )
 			return;
 
 		container = new VerticalPanel ();

@@ -54,28 +54,32 @@ class Order extends FromServer {
 		*/
 
 		if ( isset ( $request->status ) ) {
-			$ret = array ();
-
 			$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
-
-			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-				$ids = join ( ',', $request->has );
-				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
-			}
-
-			$query .= "ORDER BY id";
-
-			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-
-			foreach ( $rows as $row ) {
-				$obj = new $this->classname;
-				$obj->readFromDB ( $row [ 'id' ] );
-				array_push ( $ret, $obj->exportable () );
-			}
 		}
 		else {
-			$ret = parent::get ( $request );
+			/*
+				Gli ordini con status = 3 ("consegnato") non sono piu' esposti
+				all'applicazione, vengono conservati solo ad uso statistico
+			*/
+			$query = sprintf ( "SELECT id FROM %s WHERE status != %d ", $this->tablename, 3 );
+		}
+
+		$ret = array ();
+
+		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+			$ids = join ( ',', $request->has );
+			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+		}
+
+		$query .= "ORDER BY id";
+
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+
+		foreach ( $rows as $row ) {
+			$obj = new $this->classname;
+			$obj->readFromDB ( $row [ 'id' ] );
+			array_push ( $ret, $obj->exportable () );
 		}
 
 		return $ret;

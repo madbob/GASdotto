@@ -287,6 +287,10 @@
 	border:			2px solid #000000;
 }
 
+.highlight-part td {
+	width:			50%;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;
@@ -322,7 +326,7 @@ input, textarea, select {
 }
 
 br {
-	clear:			left;  
+	clear:			left;
 }
 
 .gwt-DisclosurePanel {

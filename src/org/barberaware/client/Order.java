@@ -20,44 +20,50 @@ package org.barberaware.client;
 import java.util.*;
 
 public class Order extends FromServer {
+	/*
+		Attenzione che questi indici sono cablati anche nella componente server,
+		modificare con cautela
+	*/
+
 	public static int	OPENED		= 0;
 	public static int	CLOSED		= 1;
 	public static int	SUSPENDED	= 2;
-	public static int	AUTO_SUSPEND	= 3;
+	public static int	SHIPPED		= 3;
+
+	/*
+		Lo stato di auto-sospensione deve essere ultimo, altrimenti la selezione in
+		OrdersEditPanel da problemi
+	*/
+	public static int	AUTO_SUSPEND	= 4;
 
 	public Order () {
 		super ();
 
 		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
 			public String retrive ( FromServer obj ) {
+				Date ship;
 				Supplier supplier;
 				String sup;
 				String start;
 				String end;
-				User current;
+				String shipping;
 
 				supplier = ( Supplier ) obj.getObject ( "supplier" );
 				if ( supplier == null )
 					return "Nuovo Ordine";
 
-				current = Session.getUser ();
 				sup = supplier.getString ( "name" );
 
-				/*
-					Si assume che all'utente comune non importi la data di
-					apertura dell'ordine ma solo entro quando puo' avanzare
-					la richiesta, dunque e' inutile visualizzare informazioni
-					ridondanti
-				*/
-				if ( current.getInt ( "privileges" ) == User.USER_COMMON ) {
-					end = Utils.printableDate ( obj.getDate ( "enddate" ) );
-					return sup + " (fino al " + end + ")";
-				}
-				else {
-					start = Utils.printableDate ( obj.getDate ( "startdate" ) );
-					end = Utils.printableDate ( obj.getDate ( "enddate" ) );
-					return sup + " (" + start + " / " + end + ")";
-				}
+				start = Utils.printableDate ( obj.getDate ( "startdate" ) );
+				end = Utils.printableDate ( obj.getDate ( "enddate" ) );
+
+				ship = obj.getDate ( "shippingdate" );
+				if ( ship != null )
+					shipping = ", in consegna il " + Utils.printableDate ( ship );
+				else
+					shipping = "";
+
+				return sup + " (dal " + start + " al " + end + shipping + ")";
 			}
 		} );
 

@@ -49,6 +49,7 @@ public class FromServerForm extends Composite {
 
 		widgets = new ArrayList ();
 		callbacks = new ArrayList ();
+		noExplicitCallbacks ();
 
 		/*
 			Poiche' l'array dei dati addizionali viene usato solo in specifici casi,
@@ -126,7 +127,7 @@ public class FromServerForm extends Composite {
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
 		if ( routine == null ) {
-			callbacks.clear ();
+			noExplicitCallbacks ();
 		}
 		else {
 			callbacks.add ( routine );
@@ -158,6 +159,16 @@ public class FromServerForm extends Composite {
 
 	public boolean isOpen () {
 		return main.isOpen ();
+	}
+
+	private void noExplicitCallbacks () {
+		callbacks.clear ();
+
+		/*
+			Viene comunque sempre settata una classe di callback di default, per
+			garantire che almeno il nome del form sia sempre gestito
+		*/
+		callbacks.add ( new FromServerFormCallbacks () );
 	}
 
 	private Panel doSummary ( FromServer object ) {

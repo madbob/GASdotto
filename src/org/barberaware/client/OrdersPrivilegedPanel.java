@@ -76,11 +76,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 			public void onModify ( FromServer object ) {
 				int index;
+				int status;
 
 				index = retrieveOrderForm ( ( Order ) object );
+				status = object.getInt ( "status" );
 
 				if ( index != -1 ) {
-					if ( object.getInt ( "status" ) == Order.OPENED )
+					if ( status == Order.OPENED )
 						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
 					else
 						remove ( index );
@@ -90,7 +92,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						Questo per gestire il ben raro caso in cui un
 						ordine viene ri-aperto
 					*/
-					if ( object.getInt ( "status" ) == Order.OPENED ) {
+					if ( status == Order.OPENED ) {
 						ArrayList uorders;
 						OrderUser uorder;
 
