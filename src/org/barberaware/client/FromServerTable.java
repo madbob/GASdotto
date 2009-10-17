@@ -184,6 +184,10 @@ public class FromServerTable extends FromServerArray {
 		FromServer obj;
 
 		clean ();
+
+		if ( elements == null )
+			return;
+
 		num = elements.size ();
 
 		for ( int i = num - 1; i >= 0; i-- ) {
@@ -229,7 +233,7 @@ public class FromServerTable extends FromServerArray {
 
 	public ArrayList getElements () {
 		syncRowsContents ();
-		return rows;
+		return Utils.dupliacateFromServerArray ( rows );
 	}
 
 	private int retrieveElementRow ( FromServer element ) {

@@ -182,6 +182,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					frame.addPair ( "Data apertura", ver.getWidget ( "startdate" ) );
 					frame.addPair ( "Data chiusura", ver.getWidget ( "enddate" ) );
+					ver.setValidation ( "enddate", FromServerValidateCallback.defaultDateValidationCallback () );
 					frame.addPair ( "Data consegna", ver.getWidget ( "shippingdate" ) );
 					frame.addPair ( "Si ripete", ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
@@ -190,18 +191,6 @@ public class OrdersEditPanel extends GenericPanel {
 					date.setValue ( now );
 
 					now.setMonth ( now.getMonth () + 3 );
-
-					/*
-					date = ( DateSelector ) ver.retriveInternalWidget ( "enddate" );
-					date.setValue ( now );
-					date = ( DateSelector ) ver.retriveInternalWidget ( "shippingdate" );
-					date.setValue ( now );
-					*/
-
-					/**
-						TODO	La data di chiusura non deve essere settata di default, ma
-							bisogna controllare che ci sia al momento del salvataggio
-					*/
 
 					return ver;
 				}
@@ -287,8 +276,7 @@ public class OrdersEditPanel extends GenericPanel {
 		ButtonsBar buttons;
 		PushButton button;
 
-		table = ( FromServerTable ) form.retriveInternalWidget ( "products" );
-		if ( table != null )
+		if ( ( FromServerTable ) form.retriveInternalWidget ( "products" ) != null )
 			return;
 
 		container = new VerticalPanel ();

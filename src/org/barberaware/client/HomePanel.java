@@ -143,7 +143,6 @@ public class HomePanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-
 				index = retrieveOrderRow ( openedOrders, object );
 
 				if ( index != -1 ) {

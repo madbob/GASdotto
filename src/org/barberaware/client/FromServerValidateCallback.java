@@ -165,4 +165,22 @@ public abstract class FromServerValidateCallback {
 				}
 			};
 	}
+
+	public static FromServerValidateCallback defaultDateValidationCallback () {
+		return
+			new FromServerValidateCallback () {
+				public boolean check ( FromServer object, String attribute, Widget widget ) {
+					DateSelector selector;
+
+					selector = ( DateSelector ) widget;
+
+					if ( selector.getValue () == null ) {
+						Utils.showNotification ( "Devi settare la data" );
+						return false;
+					}
+					else
+						return true;
+				}
+			};
+	}
 }

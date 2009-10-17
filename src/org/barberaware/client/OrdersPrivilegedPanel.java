@@ -27,7 +27,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	public OrdersPrivilegedPanel () {
 		super ();
 
-		noAvailableOrders ();
+		checkNoAvailableOrders ();
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -77,15 +77,21 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			public void onModify ( FromServer object ) {
 				int index;
 				int status;
+				Order ord;
 
-				index = retrieveOrderForm ( ( Order ) object );
+				ord = ( Order ) object;
+
+				index = retrieveOrderForm ( ord );
 				status = object.getInt ( "status" );
 
 				if ( index != -1 ) {
-					if ( status == Order.OPENED )
-						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ( Order ) object );
-					else
+					if ( status == Order.OPENED ) {
+						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ord );
+					}
+					else {
 						remove ( index );
+						checkNoAvailableOrders ();
+					}
 				}
 				else {
 					/*
@@ -116,25 +122,20 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			public void onDestroy ( FromServer object ) {
 				int index;
 
-				/**
-					TODO	Se l'ordine viene cancellato dal pannello di edit
-						non sembra essere cancellato da qui: controllare
-				*/
-
 				index = retrieveOrderForm ( ( Order ) object );
 				if ( index != -1 ) {
 					remove ( index );
-
-					if ( getWidgetCount () == 1 )
-						noAvailableOrders ();
+					checkNoAvailableOrders ();
 				}
 			}
 		} );
 	}
 
-	private void noAvailableOrders () {
-		hasOrders = false;
-		addTop ( new Label ( "Non ci sono ordini aperti" ) );
+	private void checkNoAvailableOrders () {
+		if ( getWidgetCount () == 1 ) {
+			hasOrders = false;
+			addTop ( new Label ( "Non ci sono ordini aperti" ) );
+		}
 	}
 
 	private void verifyOrderUserForInclusion ( OrderUser order_user ) {

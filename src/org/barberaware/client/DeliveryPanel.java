@@ -90,10 +90,11 @@ public class DeliveryPanel extends GenericPanel {
 
 			public void onModify ( FromServer object ) {
 				int status;
-				Order ord;
 				int index;
+				Order ord;
 
 				ord = ( Order ) object;
+
 				status = ord.getInt ( "status" );
 				index = retrieveOrderForm ( ord );
 

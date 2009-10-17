@@ -176,9 +176,15 @@ public class Header extends Composite {
 		main.add ( item );
 		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_LEFT );
 
+		/**
+			TODO	Eventualmente rimuovere definitivamente il permalink
+		*/
+		/*
 		item = doPermalinkButton ();
 		main.add ( item );
 		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_RIGHT );
+		*/
+
 		item = doLogoutButton ();
 		main.add ( item );
 		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_RIGHT );

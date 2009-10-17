@@ -114,6 +114,7 @@ public class OrdersPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
+
 				index = retrieveOrderForm ( ord );
 				if ( index != -1 ) {
 					if ( ord.getInt ( "status" ) == Order.OPENED )
