@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,37 +18,24 @@
 package org.barberaware.client;
 
 import java.util.*;
-import java.lang.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class FloatLabel extends Label implements FloatWidget {
-	private String		postfix			= null;
-	private float		value			= 0;
+public class DateViewer extends Label implements DateWidget {
+	private Date		currentDate		= null;
 
-	public FloatLabel () {
-		setStyleName ( "static-value" );
-	}
+	/****************************************************************** DateWidget */
 
-	public void setPostfix ( String post ) {
-		postfix = post;
-		setText ( Float.toString ( value ) + post );
-	}
+	public void setValue ( Date date ) {
+		currentDate = date;
 
-	/****************************************************************** FloatWidget */
-
-	public void setVal ( float val ) {
-		String text;
-
-		value = val;
-		text = Float.toString ( value );
-
-		if ( postfix == null )
-			setText ( text );
+		if ( date == null )
+			setText ( "Mai" );
 		else
-			setText ( text + postfix );
+			setText ( Utils.printableDate ( date ) );
 	}
 
-	public float getVal () {
-		return value;
+	public Date getValue () {
+		return currentDate;
 	}
 }

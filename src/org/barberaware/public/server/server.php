@@ -53,6 +53,7 @@ if ( check_session () == false ) {
 							$userid = $row [ 0 ] [ 'username' ];
 							perform_authentication ( $userid );
 							$ret->readFromDB ( $userid );
+							$ret->registerLogin ();
 						}
 					}
 

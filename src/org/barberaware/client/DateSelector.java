@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class DateSelector extends Composite {
+public class DateSelector extends Composite implements DateWidget {
 	private TextBox			main;
 	private CalendarWidget		cal;
 	private DialogBox		dialog;
@@ -70,6 +70,23 @@ public class DateSelector extends Composite {
 		main.setText ( Utils.printableDate ( date ) );
 	}
 
+	public void setEnabled ( boolean enabled ) {
+		main.setEnabled ( enabled );
+	}
+
+	public void clean () {
+		main.setText ( "Scegli una data" );
+	}
+
+	/****************************************************************** DateWidget */
+
+	public void setValue ( Date date ) {
+		if ( date == null )
+			clean ();
+		else
+			syncDate ( date );
+	}
+
 	public Date getValue () {
 		Date ret;
 
@@ -85,20 +102,5 @@ public class DateSelector extends Composite {
 			ret = cal.getDate ();
 
 		return ret;
-	}
-
-	public void setValue ( Date date ) {
-		if ( date == null )
-			clean ();
-		else
-			syncDate ( date );
-	}
-
-	public void setEnabled ( boolean enabled ) {
-		main.setEnabled ( enabled );
-	}
-
-	public void clean () {
-		main.setText ( "Scegli una data" );
 	}
 }

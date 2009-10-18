@@ -104,7 +104,7 @@ public class OrdersEditPanel extends GenericPanel {
 					Widget suppliers_main;
 					Date now;
 					FromServerSelector suppliers;
-					DateSelector date;
+					DateWidget date;
 
 					order = new Order ();
 
@@ -187,7 +187,7 @@ public class OrdersEditPanel extends GenericPanel {
 					frame.addPair ( "Si ripete", ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 
 					now = new Date ( System.currentTimeMillis () );
-					date = ( DateSelector ) ver.retriveInternalWidget ( "startdate" );
+					date = ( DateWidget ) ver.retriveInternalWidget ( "startdate" );
 					date.setValue ( now );
 
 					now.setMonth ( now.getMonth () + 3 );

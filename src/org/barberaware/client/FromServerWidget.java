@@ -136,7 +136,7 @@ public class FromServerWidget extends Composite {
 			( ( PercentageBox ) wid ).setValue ( object.getString ( name ) );
 
 		else if ( type == FromServer.DATE )
-			( ( DateSelector ) wid ).setValue ( object.getDate ( name ) );
+			( ( DateWidget ) wid ).setValue ( object.getDate ( name ) );
 
 		else if ( type == FromServer.BOOLEAN )
 			( ( BooleanSelector ) wid ).setDown ( object.getBool ( name ) );
@@ -171,7 +171,7 @@ public class FromServerWidget extends Composite {
 			object.setString ( name, ( ( PercentageBox ) wid ).getValue () );
 
 		else if ( type == FromServer.DATE )
-			object.setDate ( name, ( ( DateSelector ) wid ).getValue () );
+			object.setDate ( name, ( ( DateWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.BOOLEAN )
 			object.setBool ( name, ( ( BooleanSelector ) wid ).isDown () );
@@ -212,7 +212,7 @@ public class FromServerWidget extends Composite {
 			Date newer;
 			Date older;
 
-			newer = ( ( DateSelector ) wid ).getValue ();
+			newer = ( ( DateWidget ) wid ).getValue ();
 			older = object.getDate ( name );
 
 			if ( newer == null && older == null )

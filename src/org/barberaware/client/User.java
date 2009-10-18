@@ -57,6 +57,7 @@ public class User extends FromServer {
 		addAttribute ( "address", FromServer.ADDRESS );
 		addAttribute ( "paying", FromServer.DATE );
 		addAttribute ( "privileges", FromServer.INTEGER );
+		addAttribute ( "lastlogin", FromServer.DATE );
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
 	}

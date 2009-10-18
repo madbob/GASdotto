@@ -140,6 +140,8 @@ public class UsersPanel extends GenericPanel {
 						} );
 					}
 
+					frame.addPair ( "Ultimo Login", ver.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
+
 					setRoleIcon ( ver, user );
 					return ver;
 				}

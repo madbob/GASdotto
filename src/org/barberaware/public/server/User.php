@@ -35,6 +35,7 @@ class User extends FromServer {
 		$this->addAttribute ( "address", "ADDRESS" );
 		$this->addAttribute ( "paying", "DATE" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
+		$this->addAttribute ( "lastlogin", "DATE" );
 
 		$this->setSorting ( "surname" );
 	}
@@ -68,6 +69,12 @@ class User extends FromServer {
 		query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
 
 		return $id;
+	}
+
+	public function registerLogin () {
+		$query = sprintf ( "UPDATE %s SET lastlogin = DATE('%s') WHERE id = %d",
+		                   $this->tablename, date ( "Y-m-d", time () ), $this->getAttribute ( "id" )->value );
+		query_and_check ( $query, "Impossibile salvare data login" );
 	}
 }
 

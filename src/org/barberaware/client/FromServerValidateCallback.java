@@ -170,9 +170,9 @@ public abstract class FromServerValidateCallback {
 		return
 			new FromServerValidateCallback () {
 				public boolean check ( FromServer object, String attribute, Widget widget ) {
-					DateSelector selector;
+					DateWidget selector;
 
-					selector = ( DateSelector ) widget;
+					selector = ( DateWidget ) widget;
 
 					if ( selector.getValue () == null ) {
 						Utils.showNotification ( "Devi settare la data" );
