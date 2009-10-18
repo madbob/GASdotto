@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 public abstract class FormGroup extends Composite {
 	private VerticalPanel			main;
+	private Panel				addButtons;
 	private boolean				addable;
 
 	public FormGroup ( String icon_path ) {
@@ -31,9 +32,11 @@ public abstract class FormGroup extends Composite {
 		initWidget ( main );
 
 		addable = false;
+		addButtons = doAddButtonsBar ();
+		main.add ( addButtons );
 
 		if ( icon_path != null ) {
-			main.add ( doAddButton ( icon_path ) );
+			doAddButton ( icon_path );
 			addable = true;
 		}
 	}
@@ -62,18 +65,24 @@ public abstract class FormGroup extends Composite {
 		}
 	}
 
-	private Panel doAddButton ( String icon_path ) {
-		PushButton button;
+	private Panel doAddButtonsBar () {
 		HorizontalPanel pan;
 
 		pan = new HorizontalPanel ();
 		pan.setStyleName ( "bottom-buttons" );
+		return pan;
+	}
+
+	private void doAddButton ( String icon_path ) {
+		PushButton button;
 
 		button = new PushButton ( new Image ( icon_path ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				FromServerForm new_form;
 
 				new_form = doNewEditableRow ();
+				if ( new_form == null )
+					return;
 
 				new_form.setCallback ( new FromServerFormCallbacks () {
 					public void onOpen ( FromServerForm form ) {
@@ -86,8 +95,14 @@ public abstract class FormGroup extends Composite {
 			}
 		} );
 
-		pan.add ( button );
-		return pan;
+		addButtons.add ( button );
+	}
+
+	public void extraAddButton ( String icon_path, ClickListener callback ) {
+		PushButton button;
+
+		button = new PushButton ( new Image ( icon_path ), callback );
+		addButtons.add ( button );
 	}
 
 	public FromServerForm retrieveFormById ( int id ) {

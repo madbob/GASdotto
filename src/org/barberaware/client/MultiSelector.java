@@ -21,31 +21,29 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class MultiSelector extends FromServerArray {
+public class MultiSelector extends Composite implements FromServerArray {
 	private VerticalPanel		main;
 
 	private FilterCallback		filterCallback;
 
-	private DialogBox		dialog;
-	private FlexTable		items;
-
+	private SelectionDialog		dialog;
 	private String			objectType;
-	private boolean			manageAll;
-	private ArrayList		selected;
-	private boolean			opened;
 
-	public MultiSelector ( String type, boolean selectall, FilterCallback filter ) {
+	/*
+		Il parametro "mode" si riferisce ai valori in SelectionDialog
+	*/
+	public MultiSelector ( String type, int mode, FilterCallback filter ) {
 		Button mod_button;
 
-		opened = false;
 		objectType = type;
-		manageAll = selectall;
-		selected = new ArrayList ();
 		filterCallback = filter;
 
-		dialog = new DialogBox ( false );
-		dialog.setText ( "Seleziona" );
-		dialog.setWidget ( doDialog () );
+		dialog = new SelectionDialog ( mode );
+		dialog.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog dialog ) {
+				rebuildMainList ();
+			}
+		} );
 
 		main = new VerticalPanel ();
 		main.setStyleName ( "multi-selector" );
@@ -54,133 +52,33 @@ public class MultiSelector extends FromServerArray {
 		mod_button = new Button ( "Modifica Lista" );
 		mod_button.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
-				if ( opened == false ) {
-					opened = true;
-					syncToDialog ();
-					dialog.center ();
-					dialog.show ();
-				}
+				dialog.center ();
+				dialog.show ();
 			}
 		} );
 		main.add ( mod_button );
 
-		clean ();
+		if ( type != null ) {
+			Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					if ( checkValidity ( object ) == true )
+						dialog.addElementInList ( object );
+				}
 
-		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				if ( filterCallback != null )
-					if ( filterCallback.check ( object, null ) == false )
-						return;
-
-				doSelectableRow ( object );
-			}
-
-			public void onModify ( FromServer object ) {
-				int a;
-				boolean do_it;
-				Label name;
-
-				a = retrieveObjIndex ( object );
-
-				if ( filterCallback != null )
-					do_it = filterCallback.check ( object, null );
-				else
-					do_it = true;
-
-				if ( do_it == true ) {
-					if ( a != -1 ) {
-						name = ( Label ) items.getWidget ( a, 2 );
-						name.setText ( object.getString ( "name" ) );
-					}
+				public void onModify ( FromServer object ) {
+					if ( checkValidity ( object ) == true )
+						dialog.updateElementInList ( object );
 					else
-						onReceive ( object );
+						dialog.removeElementInList ( object );
 				}
-				else
-					if ( a != -1 )
-						onDestroy ( object );
-			}
 
-			public void onDestroy ( FromServer object ) {
-				int a;
-
-				a = retrieveObjIndex ( object );
-				if ( a != -1 )
-					items.removeRow ( a );
-			}
-		} );
-
-		Utils.getServer ().testObjectReceive ( type );
-	}
-
-	private Panel doDialog () {
-		VerticalPanel pan;
-		HorizontalPanel buttons;
-		Button but;
-
-		pan = new VerticalPanel ();
-
-		if ( manageAll == true )
-			pan.add ( doSelectDeselectAll () );
-
-		items = new FlexTable ();
-		pan.add ( items );
-
-		buttons = new HorizontalPanel ();
-		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				syncFromDialog ();
-				opened = false;
-				dialog.hide ();
-			}
-		} );
-		buttons.add ( but );
-
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				opened = false;
-				dialog.hide ();
-			}
-		} );
-		buttons.add ( but );
-
-		return pan;
-	}
-
-	private HorizontalPanel doSelectDeselectAll () {
-		Button toggle;
-		HorizontalPanel buttons;
-
-		buttons = new HorizontalPanel ();
-
-		toggle = new Button ( "Seleziona Tutti" );
-		toggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				CheckBox iter;
-
-				for ( int i = 0; i < items.getRowCount (); i++ ) {
-					iter = ( CheckBox ) items.getWidget ( i, 1 );
-					iter.setChecked ( true );
+				public void onDestroy ( FromServer object ) {
+					dialog.removeElementInList ( object );
 				}
-			}
-		} );
-		buttons.add ( toggle );
+			} );
 
-		toggle = new Button ( "Deseleziona Tutti" );
-		toggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				CheckBox iter;
-
-				for ( int i = 0; i < items.getRowCount (); i++ ) {
-					iter = ( CheckBox ) items.getWidget ( i, 1 );
-					iter.setChecked ( false );
-				}
-			}
-		} );
-		buttons.add ( toggle );
-
-		return buttons;
+			Utils.getServer ().testObjectReceive ( type );
+		}
 	}
 
 	public void clean () {
@@ -191,170 +89,59 @@ public class MultiSelector extends FromServerArray {
 			main.remove ( 1 );
 	}
 
-	private void doSelectableRow ( FromServer obj ) {
-		int index;
-		String str_id;
-		Hidden iter;
-		CheckBox check;
+	public void forceInitialElements ( ArrayList elements ) {
+		int num;
+		FromServer obj;
 
-		str_id = Integer.toString ( obj.getLocalID () );
-		index = items.getRowCount ();
+		num = elements.size ();
 
-		for ( int i = 0; i < index; i++ ) {
-			iter = ( Hidden ) items.getWidget ( i, 0 );
-			if ( iter.getName ().equals ( str_id ) )
-				return;
+		for ( int i = 0; i < num; i++ ) {
+			obj = ( FromServer ) elements.get ( i );
+			if ( checkValidity ( obj ) == true )
+				dialog.addElementInList ( obj );
 		}
+	}
 
-		items.insertRow ( index );
-
-		items.setWidget ( index, 0, new Hidden ( str_id ) );
-		items.setWidget ( index, 1, new CheckBox () );
-		items.setWidget ( index, 2, new Label ( obj.getString ( "name" ) ) );
+	private boolean checkValidity ( FromServer object ) {
+		if ( filterCallback != null )
+			return filterCallback.check ( object, null );
+		else
+			return true;
 	}
 
 	private void rebuildMainList () {
-		int i;
 		int num;
 		FromServer iter;
+		ArrayList objects;
 
 		clean ();
-		num = selected.size ();
+		objects = dialog.getElements ();
+		num = objects.size ();
 
-		for ( i = 0; i < num; i++ ) {
-			iter = ( FromServer ) selected.get ( i );
+		for ( int i = 0; i < num; i++ ) {
+			iter = ( FromServer ) objects.get ( i );
 			main.add ( new Label ( iter.getString ( "name" ) ) );
 		}
-	}
-
-	private void syncToDialog () {
-		int a;
-		int sel_num;
-		int avail_num;
-		String tmp_id;
-		CheckBox check;
-		FromServer tmp;
-
-		sel_num = selected.size ();
-
-		avail_num = items.getRowCount ();
-		for ( int i = 0; i < avail_num; i++ ) {
-			check = ( CheckBox ) items.getWidget ( i, 1 );
-			check.setChecked ( false );
-		}
-
-		if ( sel_num == 0 ) {
-			for ( int i = 0; i < sel_num; i++ ) {
-				check = ( CheckBox ) items.getWidget ( i, 1 );
-				check.setChecked ( true );
-			}
-		}
-		else {
-			for ( int i = 0; i < sel_num; i++ ) {
-				tmp = ( FromServer ) selected.get ( i );
-
-				a = retrieveObjIndex ( tmp );
-				if ( a != -1 ) {
-					check = ( CheckBox ) items.getWidget ( a, 1 );
-					check.setChecked ( true );
-				}
-			}
-		}
-	}
-
-	private void syncFromDialog () {
-		int avail_num;
-		CheckBox check;
-		String final_output;
-
-		selected.clear ();
-		avail_num = items.getRowCount ();
-		final_output = "";
-
-		for ( int i = 0; i < avail_num; i++ ) {
-			check = ( CheckBox ) items.getWidget ( i, 1 );
-
-			if ( check.isChecked () ) {
-				int selected_id;
-				Hidden hid;
-				FromServer obj;
-
-				hid = ( Hidden ) items.getWidget ( i, 0 );
-				selected_id = Integer.parseInt ( hid.getName () );
-				obj = Utils.getServer ().getObjectFromCache ( objectType, selected_id );
-				selected.add ( obj );
-			}
-		}
-
-		rebuildMainList ();
-	}
-
-	private int retrieveObjIndex ( FromServer obj ) {
-		int avail_num;
-		String id;
-		Hidden hid;
-
-		id = Integer.toString ( obj.getLocalID () );
-		avail_num = items.getRowCount ();
-
-		for ( int i = 0; i < avail_num; i++ ) {
-			hid = ( Hidden ) items.getWidget ( i, 0 );
-			if ( id.equals ( hid.getName () ) )
-				return i;
-		}
-
-		return -1;
 	}
 
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
-		boolean found;
-		FromServer iter;
-
-		if ( element != null ) {
-			found = false;
-
-			for ( int i = 0; i < selected.size (); i++ ) {
-				iter = ( FromServer ) selected.get ( i );
-				if ( iter.equals ( element ) == true ) {
-					found = true;
-					break;
-				}
-			}
-
-			if ( found == false )
-				selected.add ( element );
-
-			rebuildMainList ();
-		}
+		dialog.addElement ( element );
+		rebuildMainList ();
 	}
 
 	public void setElements ( ArrayList elements ) {
-		selected.clear ();
-
-		if ( elements != null ) {
-			for ( int i = 0; i < elements.size (); i++ )
-				selected.add ( elements.get ( i ) );
-		}
-
+		dialog.setElements ( elements );
 		rebuildMainList ();
 	}
 
 	public void removeElement ( FromServer element ) {
-		/* dummy */
+		dialog.removeElement ( element );
+		rebuildMainList ();
 	}
 
 	public ArrayList getElements () {
-		int num;
-		ArrayList ret;
-
-		ret = new ArrayList ();
-		num = selected.size ();
-
-		for ( int i = 0; i < num; i++ )
-			ret.add ( selected.get ( i ) );
-
-		return ret;
+		return dialog.getElements ();
 	}
 }

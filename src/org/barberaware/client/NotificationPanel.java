@@ -42,7 +42,7 @@ public class NotificationPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );
 
-					users = new MultiSelector ( "User", true, null );
+					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
 					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", users ) );
 
 					frame.addPair ( "Data Inizio", ver.getWidget ( "startdate" ) );

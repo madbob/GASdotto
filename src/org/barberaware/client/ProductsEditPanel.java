@@ -203,7 +203,60 @@ public class ProductsEditPanel extends Composite {
 				}
 		};
 
+		list.extraAddButton ( "images/new_dup_product.png", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				duplicateProduct ();
+			}
+		} );
+
 		return list;
+	}
+
+	private void duplicateProduct () {
+		int num;
+		ArrayList products;
+		SelectionDialog selector;
+
+		products = list.collectContents ();
+
+		num = products.size ();
+		if ( num == 0 ) {
+			Utils.showNotification ( "Non ci sono prodotti da duplicare!" );
+			return;
+		}
+
+		selector = new SelectionDialog ( SelectionDialog.SELECTION_MODE_SINGLE );
+
+		selector.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog dialog ) {
+				SelectionDialog sel;
+				ArrayList products;
+				FromServer prod;
+
+				sel = ( SelectionDialog ) dialog;
+
+				products = sel.getElements ();
+				if ( products.size () == 0 ) {
+					Utils.showNotification ( "Non hai specificato il prodotto da duplicare" );
+					return;
+				}
+
+				prod = ( ( FromServer ) products.get ( 0 ) ).duplicate ();
+				prod.setLocalID ( -1 );
+				prod.setString ( "name", prod.getString ( "name" ) + " 2" );
+				list.addElement ( prod );
+			}
+
+			public void onCancel ( SavingDialog dialog ) {
+				/* dummy */
+			}
+		} );
+
+		for ( int i = 0; i < num; i++ )
+			selector.addElementInList ( ( FromServer ) products.get ( i ) );
+
+		selector.center ();
+		selector.show ();
 	}
 
 	/****************************************************************** tabella */

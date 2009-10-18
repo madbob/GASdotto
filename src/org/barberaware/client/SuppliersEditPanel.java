@@ -138,7 +138,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Nome Contatto", ver.getWidget ( "contact" ) );
 
-		references = new MultiSelector ( "User", false, new FilterCallback () {
+		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
 			public boolean check ( FromServer obj, String text ) {
 				return ( obj.getInt ( "privileges" ) >= User.USER_RESPONSABLE );
 			}

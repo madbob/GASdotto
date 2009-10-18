@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class FilesStaticList extends FromServerArray {
+public class FilesStaticList extends Composite implements FromServerArray {
 	private VerticalPanel	main;
 	private ArrayList	currentFiles;
 

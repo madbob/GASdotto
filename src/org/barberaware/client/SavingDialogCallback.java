@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
 
 package org.barberaware.client;
 
-import java.util.*;
+public class SavingDialogCallback {
+	public void onSave ( SavingDialog dialog ) {
+		/* dummy */
+	}
 
-public interface FromServerArray {
-	public void addElement ( FromServer element );
-	public void setElements ( ArrayList elements );
-	public void removeElement ( FromServer element );
-	public ArrayList getElements ();
+	public void onCancel ( SavingDialog dialog ) {
+		/* dummy */
+	}
 }

@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class ProductsUserSelection extends FromServerArray {
+public class ProductsUserSelection extends Composite implements FromServerArray {
 	private FlexTable		main;
 	private float			total;
 	private PriceViewer		totalLabel;

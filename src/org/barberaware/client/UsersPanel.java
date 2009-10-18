@@ -92,8 +92,16 @@ public class UsersPanel extends GenericPanel {
 						frame.addPair ( "Quota pagata", ver.getWidget ( "paying" ) );
 						user.checkUserPaying ( ver );
 					}
-					else
-						user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
+					else {
+						/*
+							Se la gestione delle quote non e' attivata, e non e' stata
+							definita alcuna data di pagamento, viene settata una data
+							volutamente nel passato per far si che il giorno in cui la
+							funzione viene abilitata risulti non pagante
+						*/
+						if ( user.getDate ( "paying" ) == null )
+							user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
+					}
 
 					privileges = new CyclicToggle ();
 					privileges.addState ( "images/user_role_standard.png" );
@@ -132,10 +140,7 @@ public class UsersPanel extends GenericPanel {
 						} );
 					}
 
-					/**
-						TODO	Aggiungere icona identificativa dei privilegi utente
-					*/
-
+					setRoleIcon ( ver, user );
 					return ver;
 				}
 
@@ -144,6 +149,10 @@ public class UsersPanel extends GenericPanel {
 				}
 
 				protected void customModify ( FromServerForm form ) {
+					/**
+						TODO	Questo non sembra funzionare, controllare
+					*/
+
 					if ( Session.getGAS ().getBool ( "payments" ) == true ) {
 						User user;
 						user = ( User ) form.getObject ();
@@ -227,6 +236,25 @@ public class UsersPanel extends GenericPanel {
 					return ret;
 				}
 			};
+	}
+
+	private void setRoleIcon ( FromServerForm form, User user ) {
+		int privileges;
+		IconsBar bar;
+
+		privileges = user.getInt ( "privileges" );
+		bar = form.getIconsBar ();
+
+		if ( privileges == User.USER_RESPONSABLE ) {
+			bar.addImage ( "images/notifications/user_responsable.png" );
+		}
+		else if ( privileges == User.USER_ADMIN ) {
+			bar.addImage ( "images/notifications/user_admin.png" );
+		}
+		else {
+			bar.delImage ( "images/notifications/user_responsable.png" );
+			bar.delImage ( "images/notifications/user_admin.png" );
+		}
 	}
 
 	/****************************************************************** GenericPanel */

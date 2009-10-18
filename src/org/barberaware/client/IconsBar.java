@@ -46,6 +46,13 @@ public class IconsBar extends Composite {
 		return -1;
 	}
 
+	/**
+		TODO	Se si potessero assegnare "label" ai contenuti sarebbe piu' semplice e
+			veloce identificarli e rimuoverli. Cfr. caso delle icone per il ruolo
+			degli utenti, che devono essere iterate per entrambi i possibili paths se
+			l'utente e' "normale"
+	*/
+
 	public void addImage ( String path ) {
 		int index;
 

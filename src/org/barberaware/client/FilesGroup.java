@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class FilesGroup extends FromServerArray {
+public class FilesGroup extends Composite implements FromServerArray {
 	private FormGroup		main;
 
 	public FilesGroup () {

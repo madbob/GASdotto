@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class FromServerTable extends FromServerArray {
+public class FromServerTable extends Composite implements FromServerArray {
 	private class FromServerTableColumn {
 		public String		head;
 		public String		attr;
