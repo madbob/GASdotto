@@ -24,6 +24,11 @@ import com.google.gwt.user.client.ui.*;
 public class IconsBar extends Composite {
 	private HorizontalPanel		main;
 
+	/**
+		TODO	Organizzare la visualizzazione in colonne, per permettere l'allineamento
+			di contenuti analoghi tra diverse righe
+	*/
+
 	public IconsBar () {
 		main = new HorizontalPanel ();
 		main.setStyleName ( "icons-bar" );

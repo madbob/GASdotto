@@ -103,6 +103,9 @@ public class FromServerWidget extends Composite {
 			wid = new FromServerSelector ( object.getClassName ( attribute ), false, true );
 		}
 
+		else if ( type == FromServer.PRICE )
+			wid = new PriceBox ();
+
 		/*
 			Il tipo FromServer.ARRAY non viene gestito direttamente, occorre
 			implementare un FromServerArray
@@ -126,7 +129,7 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.INTEGER )
 			( ( IntNumericWidget ) wid ).setVal ( object.getInt ( name ) );
 
-		else if ( type == FromServer.FLOAT )
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
 			( ( FloatWidget ) wid ).setVal ( object.getFloat ( name ) );
 
 		else if ( type == FromServer.PERCENTAGE )
@@ -161,7 +164,7 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.INTEGER )
 			object.setInt ( name, ( ( IntNumericWidget ) wid ).getVal () );
 
-		else if ( type == FromServer.FLOAT )
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
 			object.setFloat ( name, ( ( FloatWidget ) wid ).getVal () );
 
 		else if ( type == FromServer.PERCENTAGE )
@@ -199,7 +202,7 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.INTEGER )
 			ret = object.getInt ( name ) == ( ( IntNumericWidget ) wid ).getVal ();
 
-		else if ( type == FromServer.FLOAT )
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
 			ret = object.getFloat ( name ) == ( ( FloatWidget ) wid ).getVal ();
 
 		else if ( type == FromServer.PERCENTAGE )

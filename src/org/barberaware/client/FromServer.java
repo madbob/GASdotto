@@ -36,6 +36,7 @@ public abstract class FromServer implements Comparator {
 	public static int	FAKESTRING	= 8;
 	public static int	PERCENTAGE	= 9;
 	public static int	ADDRESS		= 10;
+	public static int	PRICE		= 11;
 
 	private int		localID;
 	private String		type;
@@ -356,7 +357,7 @@ public abstract class FromServer implements Comparator {
 				if ( attr.type == FromServer.INTEGER )
 					attr.setInt ( 0 );
 
-				else if ( attr.type == FromServer.FLOAT )
+				else if ( attr.type == FromServer.FLOAT || attr.type == FromServer.PRICE )
 					attr.setFloat ( 0 );
 
 				else if ( attr.type == FromServer.ARRAY )
@@ -384,7 +385,7 @@ public abstract class FromServer implements Comparator {
 						attr.setInt ( 0 );
 				}
 
-				else if ( attr.type == FromServer.FLOAT )
+				else if ( attr.type == FromServer.FLOAT || attr.type == FromServer.PRICE )
 					attr.setFloat ( Float.parseFloat ( value.isString ().stringValue () ) );
 
 				else if ( attr.type == FromServer.ARRAY ) {

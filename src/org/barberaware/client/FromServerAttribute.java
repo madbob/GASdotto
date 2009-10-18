@@ -94,7 +94,7 @@ public class FromServerAttribute {
 		else if ( type == FromServer.INTEGER )
 			integer = cpy.integer;
 
-		else if ( type == FromServer.FLOAT )
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
 			floating = cpy.floating;
 
 		else if ( type == FromServer.ARRAY )
@@ -163,7 +163,7 @@ public class FromServerAttribute {
 		else if ( type == FromServer.INTEGER )
 			return new JSONString ( Integer.toString ( integer ) );
 
-		else if ( type == FromServer.FLOAT )
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
 			return new JSONString ( Float.toString ( floating ) );
 
 		else if ( type == FromServer.ARRAY ) {
