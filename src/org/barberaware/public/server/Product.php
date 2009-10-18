@@ -133,22 +133,22 @@ class Product extends FromServer {
 		$id = parent::save ( $obj );
 
 		if ( $align_existing_orders == true ) {
-			$query = sprintf ( "SELECT id FROM Orders WHERE supplier = %d AND enddate > DATE('%s')",
-						$obj->supplier->id, date ( "Y-m-d" ) );
+			$query = sprintf ( "SELECT id FROM Orders WHERE supplier = %d AND status = 0",
+			                   $obj->supplier->id, date ( "Y-m-d" ) );
 			$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
 			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
 			if ( $obj->available == "true" ) {
 				foreach ( $rows as $row ) {
 					$query = sprintf ( "INSERT INTO Orders_products ( parent, target ) VALUES ( %d, %d )",
-								$row [ "id" ], $id );
+					                   $row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
 				}
 			}
 			else {
 				foreach ( $rows as $row ) {
 					$query = sprintf ( "DELETE FROM Orders_products WHERE parent = %d AND target = %d",
-								$row [ "id" ], $id );
+					                   $row [ "id" ], $id );
 					query_and_check ( $query, "Impossibile eliminare prodotto non piu' ordinabile" );
 				}
 			}

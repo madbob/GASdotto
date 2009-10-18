@@ -193,7 +193,11 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		container = new VerticalPanel ();
 
-		notify = new Label ( "Attenzione: i valori qui riportati non fanno riferimento agli ordini già aperti per il fornitore, per modificare tali dati operare sul pannello \"Gestione Ordini\"" );
+		/**
+			TODO	Questa notifica si potrebbe visualizzare solo se ci sono ordini
+				effettivamente aperti per il fornitore
+		*/
+		notify = new Label ( "Attenzione: i valori qui riportati per i prodotti esistenti non fanno riferimento agli ordini già aperti, per modificare tali dati operare sul pannello \"Gestione Ordini\".\nSe aggiungi un prodotto marcato come ordinabile, esso verrà aggiunto agli ordini ora aperti per questo fornitore." );
 		notify.setStyleName ( "smaller-text" );
 		container.add ( notify );
 
