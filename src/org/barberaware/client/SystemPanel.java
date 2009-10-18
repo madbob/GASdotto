@@ -35,7 +35,7 @@ public class SystemPanel extends GenericPanel {
 		add ( sframe );
 
 		sframe = new CaptionPanel ( "Categorie" );
-		categories = new FormCluster ( "Category", "images/new_category.png" ) {
+		categories = new FormCluster ( "Category", "Nuova Categoria" ) {
 			protected FromServerForm doEditableRow ( FromServer cat ) {
 				return doCategoryForm ( cat );
 			}
@@ -48,7 +48,7 @@ public class SystemPanel extends GenericPanel {
 		add ( sframe );
 
 		sframe = new CaptionPanel ( "Unità di misura" );
-		measures = new FormCluster ( "Measure", "images/new_measure.png" ) {
+		measures = new FormCluster ( "Measure", "Nuova Misura" ) {
 			protected FromServerForm doEditableRow ( FromServer measure ) {
 				return doMeasureForm ( measure );
 			}

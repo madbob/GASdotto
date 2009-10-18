@@ -29,7 +29,7 @@ public class UsersPanel extends GenericPanel {
 
 		FormClusterFilter filter;
 
-		main = new FormCluster ( "User", "images/new_user.png", true, true ) {
+		main = new FormCluster ( "User", "Nuovo Utente", true, true ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
 					final FromServerForm ver;
 					HorizontalPanel hor;

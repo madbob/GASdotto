@@ -103,7 +103,7 @@ public class ProductsEditPanel extends Composite {
 	/****************************************************************** lista */
 
 	private Widget doListView () {
-		list = new FormCluster ( "Product", "images/new_product.png", false ) {
+		list = new FormCluster ( "Product", "Nuovo Prodotto", false ) {
 				protected FromServerForm doEditableRow ( FromServer product ) {
 					FromServerForm ver;
 					HorizontalPanel hor;
@@ -203,11 +203,11 @@ public class ProductsEditPanel extends Composite {
 				}
 		};
 
-		list.extraAddButton ( "images/new_dup_product.png", new ClickListener () {
+		list.extraAddButton ( new AddButton ( "Duplica Prodotto", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				duplicateProduct ();
 			}
-		} );
+		} ) );
 
 		return list;
 	}

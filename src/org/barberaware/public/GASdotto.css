@@ -175,6 +175,25 @@
 	font-size:		10px;
 }
 
+.add-button {
+	cursor:			pointer;
+	cursor:			hand;
+	padding:		0px;
+	margin:			0px;
+	width:			186px;
+	height:			32px;
+	background:		#FFFFFF url('images/new_button.png') no-repeat scroll 0pt 0pt;
+	text-align:		right;
+	font-size:		13px;
+	font-weight:		bold;
+}
+
+.add-button .html-face {
+	height:			100%;
+	vertical-align:		middle;
+	padding:		7px;
+}
+
 .bottom-buttons {
 	padding:		10px;
 	text-align:		right;

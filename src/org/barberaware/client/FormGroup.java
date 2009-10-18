@@ -26,7 +26,7 @@ public abstract class FormGroup extends Composite {
 	private Panel				addButtons;
 	private boolean				addable;
 
-	public FormGroup ( String icon_path ) {
+	public FormGroup ( String adding_text ) {
 		main = new VerticalPanel ();
 		main.setStyleName ( "form-cluster" );
 		initWidget ( main );
@@ -35,8 +35,8 @@ public abstract class FormGroup extends Composite {
 		addButtons = doAddButtonsBar ();
 		main.add ( addButtons );
 
-		if ( icon_path != null ) {
-			doAddButton ( icon_path );
+		if ( adding_text != null ) {
+			doAddButton ( adding_text );
 			addable = true;
 		}
 	}
@@ -73,10 +73,10 @@ public abstract class FormGroup extends Composite {
 		return pan;
 	}
 
-	private void doAddButton ( String icon_path ) {
-		PushButton button;
+	private void doAddButton ( String adding_text ) {
+		AddButton button;
 
-		button = new PushButton ( new Image ( icon_path ), new ClickListener () {
+		button = new AddButton ( adding_text, new ClickListener () {
 			public void onClick ( Widget sender ) {
 				FromServerForm new_form;
 
@@ -98,10 +98,7 @@ public abstract class FormGroup extends Composite {
 		addButtons.add ( button );
 	}
 
-	public void extraAddButton ( String icon_path, ClickListener callback ) {
-		PushButton button;
-
-		button = new PushButton ( new Image ( icon_path ), callback );
+	public void extraAddButton ( AddButton button ) {
 		addButtons.add ( button );
 	}
 

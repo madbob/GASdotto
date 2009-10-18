@@ -58,8 +58,8 @@ public abstract class FormCluster extends FormGroup {
 		gestione degli elementi, se == true occorre invocare unlock() nel momento in cui
 		si entra nel pannello
 	*/
-	public FormCluster ( String type, String icon_path, boolean auto, boolean lock ) {
-		super ( icon_path );
+	public FormCluster ( String type, String adding_text, boolean auto, boolean lock ) {
+		super ( adding_text );
 		automatic = auto;
 		objType = type;
 		locked = lock;
@@ -68,16 +68,16 @@ public abstract class FormCluster extends FormGroup {
 			registerCallbacks ();
 	}
 
-	public FormCluster ( String type, String icon_path, boolean auto ) {
-		super ( icon_path );
+	public FormCluster ( String type, String adding_text, boolean auto ) {
+		super ( adding_text );
 		automatic = auto;
 		objType = type;
 		locked = false;
 		registerCallbacks ();
 	}
 
-	public FormCluster ( String type, String icon_path ) {
-		super ( icon_path );
+	public FormCluster ( String type, String adding_text ) {
+		super ( adding_text );
 		automatic = true;
 		objType = type;
 		locked = false;

@@ -30,7 +30,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		scheduledProducts = new ArrayList ();
 
-		main = new FormCluster ( "Supplier", "images/new_supplier.png" ) {
+		main = new FormCluster ( "Supplier", "Nuovo Fornitore" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
 				FromServerForm ver;
 				ver = commonFormBuilder ( supp );

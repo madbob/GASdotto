@@ -27,7 +27,7 @@ public class NotificationPanel extends GenericPanel {
 	public NotificationPanel () {
 		super ();
 
-		main = new FormCluster ( "Notification", "images/new_notification.png" ) {
+		main = new FormCluster ( "Notification", "Nuova Notifica" ) {
 				protected FromServerForm doEditableRow ( FromServer n ) {
 					FromServerForm ver;
 					CustomCaptionPanel frame;

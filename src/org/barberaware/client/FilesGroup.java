@@ -25,7 +25,7 @@ public class FilesGroup extends Composite implements FromServerArray {
 	private FormGroup		main;
 
 	public FilesGroup () {
-		main = new FormGroup ( "images/new_file.png" ) {
+		main = new FormGroup ( "Nuovo File" ) {
 			protected FromServerForm doEditableRow ( FromServer n ) {
 				CustomFile file;
 				FlexTable fields;

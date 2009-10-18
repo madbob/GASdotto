@@ -31,7 +31,7 @@ public class OrdersEditPanel extends GenericPanel {
 	public OrdersEditPanel () {
 		super ();
 
-		main = new FormCluster ( "Order", "images/new_order.png" ) {
+		main = new FormCluster ( "Order", "Nuovo Ordine" ) {
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					final FromServerForm ver;
 					HorizontalPanel hor;
