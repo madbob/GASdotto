@@ -21,6 +21,10 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+/**
+	TODO	Probabilmente questo puo' sostituire in toto OrdersPanel, da verificare
+*/
+
 public class OrdersPrivilegedPanel extends GenericPanel {
 	private boolean		hasOrders;
 
@@ -31,29 +35,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				verifyOrderUserForInclusion ( ( OrderUser ) object );
+				findAndAlign ( ( OrderUser ) object, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				int index;
-				FromServerForm form;
-
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
-				if ( index != -1 ) {
-					form = ( FromServerForm ) getWidget ( index );
-					syncUserOrder ( form, ( OrderUser ) object, 1 );
-				}
+				findAndAlign ( ( OrderUser ) object, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				int index;
-				FromServerForm form;
-
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
-				if ( index != -1 ) {
-					form = ( FromServerForm ) getWidget ( index );
-					syncUserOrder ( form, ( OrderUser ) object, 2 );
-				}
+				findAndAlign ( ( OrderUser ) object, 2 );
 			}
 		} );
 
@@ -62,16 +52,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-
-				if ( ord.getInt ( "status" ) == Order.OPENED ) {
-					Supplier supplier;
-
-					supplier = ( Supplier ) object.getObject ( "supplier" );
-					if ( supplier.iAmReference () == false )
-						return;
-
-					addTop ( doOrderRow ( ord ) );
-				}
+				if ( ord.getInt ( "status" ) == Order.OPENED )
+					addTop ( doOrderRow ( ord, canMultiUser ( ord ) ) );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -113,7 +95,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 						for ( int i = 0; i < uorders.size (); i++ ) {
 							uorder = ( OrderUser ) uorders.get ( i );
-							verifyOrderUserForInclusion ( uorder );
+							findAndAlign ( uorder, 0 );
 						}
 					}
 				}
@@ -138,28 +120,20 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		}
 	}
 
-	private void verifyOrderUserForInclusion ( OrderUser order_user ) {
-		FromServerForm form;
-		Order order;
-		Order tmp_order;
+	private boolean canMultiUser ( Order order ) {
+		Supplier supplier;
 
-		order = ( Order ) order_user.getObject ( "baseorder" );
-
-		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
-			form = ( FromServerForm ) getWidget ( i );
-			tmp_order = ( Order ) form.getObject ().getObject ( "baseorder" );
-
-			if ( order.equals ( tmp_order ) )
-				syncUserOrder ( form, order_user, 0 );
-		}
+		supplier = ( Supplier ) order.getObject ( "supplier" );
+		return supplier.iAmReference ();
 	}
 
-	private Widget doOrderRow ( Order order ) {
+	private Widget doOrderRow ( Order order, boolean editable ) {
 		final FromServerForm ver;
 		HorizontalPanel pan;
 		OrderUser uorder;
 		UserSelector users;
 		ProductsUserSelection products;
+		IconsBar bar;
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
@@ -170,48 +144,83 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", order );
 
 		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
-		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onClose ( FromServerForm form ) {
-				cleanForm ( form, true );
-			}
 
-			public void onOpen ( FromServerForm form ) {
-				UserSelector selector;
+		if ( editable == true ) {
+			ver.setCallback ( new FromServerFormCallbacks () {
+				public void onClose ( FromServerForm form ) {
+					cleanForm ( form, true );
+				}
 
-				selector = ( UserSelector ) form.retriveInternalWidget ( "baseuser" );
-				retrieveCurrentOrderByUser ( form, ( User ) selector.getValue () );
-			}
-		} );
+				public void onOpen ( FromServerForm form ) {
+					UserSelector selector;
 
-		pan = new HorizontalPanel ();
-		pan.setStyleName ( "highlight-part" );
-		pan.add ( new Label ( "Ordine eseguito a nome di " ) );
+					selector = ( UserSelector ) form.retriveInternalWidget ( "baseuser" );
+					retrieveCurrentOrderByUser ( form, ( User ) selector.getValue () );
+				}
+			} );
 
-		users = new UserSelector ();
-		users.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				/**
-					TODO	Accertarsi che non siano stati modificati i
-						valori nel frattempo, selezionando un utente
-						diverso.
-						Per far le cose per bene si potrebbe aggiungere
-						una funzione compareValue() in FromServerArray e
-						ObjectWidget, ma implica correggere un po' tante
-						cose in giro...
-				*/
+			pan = new HorizontalPanel ();
+			pan.setStyleName ( "highlight-part" );
+			pan.add ( new Label ( "Ordine eseguito a nome di " ) );
 
-				UserSelector selector;
-				selector = ( UserSelector ) sender;
-				retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
-			}
-		} );
-		pan.add ( ver.getPersonalizedWidget ( "baseuser", users ) );
-		ver.add ( pan );
+			users = new UserSelector ();
+			users.addChangeListener ( new ChangeListener () {
+				public void onChange ( Widget sender ) {
+					/**
+						TODO	Accertarsi che non siano stati modificati i
+							valori nel frattempo, selezionando un utente
+							diverso.
+							Per far le cose per bene si potrebbe aggiungere
+							una funzione compareValue() in FromServerArray e
+							ObjectWidget, ma implica correggere un po' tante
+							cose in giro...
+					*/
+
+					UserSelector selector;
+					selector = ( UserSelector ) sender;
+					retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
+				}
+			} );
+			pan.add ( ver.getPersonalizedWidget ( "baseuser", users ) );
+			ver.add ( pan );
+
+			bar = ver.getIconsBar ();
+			bar.addImage ( "images/notifications/multiuser_order.png" );
+		}
+		else {
+			uorder.setObject ( "baseuser", Session.getUser () );
+		}
 
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
 		return ver;
+	}
+
+	/*
+		action: gli stessi valori di syncUserOrder
+	*/
+	private void findAndAlign ( OrderUser uorder, int action ) {
+		int index;
+		Order order;
+		FromServerForm form;
+
+		order = ( Order ) uorder.getObject ( "baseorder" );
+
+		index = retrieveOrderForm ( order );
+		if ( index != -1 ) {
+			form = ( FromServerForm ) getWidget ( index );
+
+			if ( canMultiUser ( order ) ) {
+				syncUserOrder ( form, uorder, action );
+			}
+			else {
+				if ( action == 2 )
+					resetProducts ( form );
+				else
+					alignOrderRow ( form, uorder );
+			}
+		}
 	}
 
 	/*
@@ -297,6 +306,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		ver.setObject ( uorder );
 	}
 
+	private void resetProducts ( FromServerForm ver ) {
+		ProductsUserSelection table;
+
+		table = ( ProductsUserSelection ) ver.retriveInternalWidget ( "products" );
+		table.setElements ( null );
+	}
+
 	private void cleanForm ( FromServerForm form, boolean complete ) {
 		OrderUser uorder;
 		OrderUser original_uorder;
@@ -306,15 +322,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", original_uorder.getObject ( "baseorder" ) );
 		form.setObject ( uorder );
 
-		if ( complete == true ) {
+		if ( complete == true )
 			form.refreshContents ( uorder );
-		}
-		else {
-			ProductsUserSelection table;
-
-			table = ( ProductsUserSelection ) form.retriveInternalWidget ( "products" );
-			table.setElements ( null );
-		}
+		else
+			resetProducts ( form );
 	}
 
 	private int retrieveOrderForm ( Order parent ) {
