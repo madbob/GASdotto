@@ -44,9 +44,13 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		if ( products != null ) {
 			num_products = products.size ();
 
-			for ( i = 0, a = 0; i < num_products; i++, a += 2 ) {
+			for ( i = 0, a = 0; i < num_products; i++ ) {
 				prod = ( Product ) products.get ( i );
+				if ( prod.getBool ( "available" ) == false )
+					continue;
+
 				addProductRow ( a, prod );
+				a += 2;
 			}
 		}
 
@@ -72,6 +76,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		int original_rows;
 		int rows;
 		int index;
+		boolean to_remove;
 		ArrayList track_existing;
 		Product prod;
 		ProductUserSelector selector;
@@ -81,6 +86,10 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		for ( i = 0; i < num_products; i++ ) {
 			prod = ( Product ) products.get ( i );
+
+			if ( prod.getBool ( "available" ) == false )
+				continue;
+
 			rows = main.getRowCount ();
 
 			for ( a = 0; a < rows; a += 2 ) {
@@ -102,14 +111,19 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		for ( a = 0; a < original_rows; a += 2 ) {
 			selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
+			to_remove = true;
 
 			for ( i = 0; i < num_products; i++ ) {
 				prod = ( Product ) products.get ( i );
-				if ( selector.getValue ().getObject ( "product" ).equals ( prod ) )
+
+				if ( selector.getValue ().getObject ( "product" ).equals ( prod ) ) {
+					if ( prod.getBool ( "available" ) == true )
+						to_remove = false;
 					break;
+				}
 			}
 
-			if ( i == num_products ) {
+			if ( to_remove ) {
 				main.removeRow ( a );
 				a--;
 				original_rows--;
@@ -292,7 +306,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 			for ( int i = 0; i < rows; i += 2 ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
+
 				sel_prod = ( Product ) selector.getValue ().getObject ( "product" );
+				if ( sel_prod.getBool ( "available" ) == false )
+					continue;
+
 				found = false;
 
 				for ( int a = 0; a < num_elements; a++ ) {

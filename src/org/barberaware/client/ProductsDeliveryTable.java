@@ -155,9 +155,13 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		for ( i = 1; i < main.getRowCount (); i++ )
 			main.removeRow ( 1 );
 
-		for ( e = 1, i = 0; i < elements.size (); e++, i++ ) {
+		for ( e = 1, i = 0; i < elements.size (); i++ ) {
 			prod_user = ( ProductUser ) elements.get ( i );
+
 			prod = ( Product ) prod_user.getObject ( "product" );
+			if ( prod.getBool ( "available" ) == false )
+				continue;
+
 			measure = ( Measure ) prod.getObject ( "measure" );
 
 			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
@@ -182,6 +186,8 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			price_product = delivered * prod.getTotalPrice ();
 			main.setWidget ( e, 4, new Label ( Utils.priceToString ( price_product ) + " €" ) );
 			price_total = price_total + price_product;
+
+			e++;
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );

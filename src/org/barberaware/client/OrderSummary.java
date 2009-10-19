@@ -111,6 +111,9 @@ public class OrderSummary extends Composite {
 				quantita' puo' essere assai migliorato...
 		*/
 		cached_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		if ( cached_orders == null )
+			return;
+
 		total_price = 0;
 
 		for ( int i = 0; i < cached_orders.size (); i++ ) {
@@ -122,14 +125,22 @@ public class OrderSummary extends Composite {
 
 				for ( int a = 0; a < user_products.size (); a++ ) {
 					user_product = ( ProductUser ) user_products.get ( a );
-					user_product_ref = user_product.getObject ( "product" ).getLocalID ();
+
+					order_product = ( Product ) user_product.getObject ( "product" );
+					if ( order_product.getBool ( "available" ) == false )
+						continue;
+
+					user_product_ref = order_product.getLocalID ();
 
 					for ( int e = 0; e < products.size (); e++ ) {
 						order_product = ( Product ) products.get ( e );
 
 						if ( user_product_ref == order_product.getLocalID () ) {
-							quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
-							prices [ e ] = prices [ e ] + user_product.getTotalPrice ();
+							if ( order_product.getBool ( "available" ) == true ) {
+								quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
+								prices [ e ] = prices [ e ] + user_product.getTotalPrice ();
+							}
+
 							break;
 						}
 					}
@@ -139,8 +150,11 @@ public class OrderSummary extends Composite {
 			}
 		}
 
-		for ( int i = 0, e = 1; i < products.size (); i++, e++ ) {
+		for ( int i = 0, e = 1; i < products.size (); i++ ) {
 			order_product = ( Product ) products.get ( i );
+
+			if ( order_product.getBool ( "available" ) == false )
+				continue;
 
 			product_quantity_sum = ( Label ) main.getWidget ( e, 3 );
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
@@ -151,6 +165,8 @@ public class OrderSummary extends Composite {
 			stock = order_product.getFloat ( "stock_size" );
 			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] % stock != 0 ) )
 				addManualAdjustIcon ( i, order_product );
+
+			e++;
 		}
 
 		totalLabel.setValue ( total_price );
@@ -191,8 +207,12 @@ public class OrderSummary extends Composite {
 		if ( products == null )
 			return;
 
-		for ( i = 0, e = 1; i < products.size (); i++, e++ ) {
+		for ( i = 0, e = 1; i < products.size (); i++ ) {
 			prod = ( Product ) products.get ( i );
+
+			if ( prod.getBool ( "available" ) == false )
+				continue;
+
 			measure = measureSymbol ( prod );
 
 			main.setWidget ( e, 0, new Hidden ( Integer.toString ( prod.getLocalID () ) ) );
@@ -200,6 +220,7 @@ public class OrderSummary extends Composite {
 			main.setWidget ( e, 2, new Label ( Utils.priceToString ( prod.getTotalPrice () ) + " € / " + measure ) );
 			main.setWidget ( e, 3, new Label ( "0 " + measure ) );
 			main.setWidget ( e, 4, new Label ( "0.00 €" ) );
+			e++;
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );

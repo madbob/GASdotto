@@ -283,6 +283,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		table = new FromServerTable ();
 		table.addColumn ( "Nome", "name", false );
+		table.addColumn ( "Ordinabile", "available", true );
 		table.addColumn ( "Prezzo Unitario", "unit_price", true );
 		table.addColumn ( "Prezzo Trasporto", "shipping_price", true );
 		container.add ( form.getPersonalizedWidget ( "products", table ) );

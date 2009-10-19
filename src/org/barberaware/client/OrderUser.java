@@ -19,6 +19,8 @@ package org.barberaware.client;
 
 import java.util.*;
 
+import com.google.gwt.user.client.*;
+
 public class OrderUser extends FromServer {
 	public OrderUser () {
 		super ();
@@ -49,11 +51,18 @@ public class OrderUser extends FromServer {
 		ArrayList products;
 		ProductUser prod;
 
-		total = 0;
 		products = getArray ( "products" );
+		if ( products == null )
+			return 0;
+
+		total = 0;
 
 		for ( int i = 0; i < products.size (); i++ ) {
 			prod = ( ProductUser ) products.get ( i );
+
+			if ( prod.getObject ( "product" ).getBool ( "available" ) == false )
+				continue;
+
 			total += prod.getTotalPrice ();
 		}
 
