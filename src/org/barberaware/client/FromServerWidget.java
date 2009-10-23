@@ -66,14 +66,8 @@ public class FromServerWidget extends Composite {
 			wid = tb;
 		}
 
-		else if ( type == FromServer.LONGSTRING ) {
-			DummyTextArea ta;
-
-			ta = new DummyTextArea ();
-			ta.setVisibleLines ( 2 );
-			ta.setCharacterWidth ( 70 );
-			wid = ta;
-		}
+		else if ( type == FromServer.LONGSTRING )
+			wid = new DummyTextArea ();
 
 		else if ( type == FromServer.INTEGER )
 			wid = new NumberBox ();

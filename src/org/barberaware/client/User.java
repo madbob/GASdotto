@@ -37,10 +37,17 @@ public class User extends FromServer {
 				name = obj.getString ( "firstname" );
 				surname = obj.getString ( "surname" );
 
-				if ( name.equals ( "" ) && surname.equals ( "" ) )
+				if ( name.equals ( "" ) && surname.equals ( "" ) ) {
 					return "Nuovo Utente";
-				else
-					return surname + " " + name;
+				}
+				else {
+					if ( name.equals ( "" ) )
+						return surname;
+					else if ( surname.equals ( "" ) )
+						return name;
+					else
+						return surname + " " + name;
+				}
 			}
 		} );
 

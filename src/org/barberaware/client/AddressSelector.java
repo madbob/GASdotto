@@ -81,10 +81,15 @@ public class AddressSelector extends Composite {
 	}
 
 	private Panel doDialog () {
+		VerticalPanel container;
 		FlexTable pan;
+		HorizontalPanel buttons;
 		Button but;
 
+		container = new VerticalPanel ();
+
 		pan = new FlexTable ();
+		container.add ( pan );
 
 		pan.setWidget ( 0, 0, new Label ( "Indirizzo" ) );
 		street = new TextBox ();
@@ -98,6 +103,11 @@ public class AddressSelector extends Composite {
 		city = new TextBox ();
 		pan.setWidget ( 2, 1, city );
 
+		buttons = new HorizontalPanel ();
+		buttons.setStyleName ( "dialog-buttons" );
+		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		container.add ( buttons );
+
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				if ( syncFromDialog () == true ) {
@@ -106,7 +116,7 @@ public class AddressSelector extends Composite {
 				}
 			}
 		} );
-		pan.setWidget ( 3, 0, but );
+		buttons.add ( but );
 
 		but = new Button ( "Annulla", new ClickListener () {
 			public void onClick ( Widget sender ) {
@@ -114,9 +124,9 @@ public class AddressSelector extends Composite {
 				dialog.hide ();
 			}
 		} );
-		pan.setWidget ( 3, 1, but );
+		buttons.add ( but );
 
-		return pan;
+		return container;
 	}
 
 	private void syncToDialog () {

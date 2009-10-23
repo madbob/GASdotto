@@ -24,6 +24,8 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class Utils {
 	private static SmoothingNotify	notifies;
 	private static ServerHook	server;

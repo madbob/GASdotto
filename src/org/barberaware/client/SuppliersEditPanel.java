@@ -134,6 +134,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		frame = new CustomCaptionPanel ( "Attributi" );
 		hor.add ( frame );
+		hor.setCellWidth ( frame, "50%" );
 
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Nome Contatto", ver.getWidget ( "contact" ) );
@@ -157,6 +158,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );
+		hor.setCellWidth ( frame, "50%" );
 
 		frame.addPair ( "Indirizzo", ver.getWidget ( "address" ) );
 
@@ -175,13 +177,19 @@ public class SuppliersEditPanel extends GenericPanel {
 		sframe.add ( ver.getWidget ( "description" ) );
 		vertical.add ( sframe );
 
+		hor = new HorizontalPanel ();
+		hor.setWidth ( "100%" );
+		vertical.add ( hor );
+
 		sframe = new CaptionPanel ( "Modalità avanzamento ordini" );
 		sframe.add ( ver.getWidget ( "order_mode" ) );
-		vertical.add ( sframe );
+		hor.add ( sframe );
+		hor.setCellWidth ( sframe, "50%" );
 
 		sframe = new CaptionPanel ( "Modalità pagamento" );
 		sframe.add ( ver.getWidget ( "paying_mode" ) );
-		vertical.add ( sframe );
+		hor.add ( sframe );
+		hor.setCellWidth ( sframe, "50%" );
 
 		return vertical;
 	}

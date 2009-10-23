@@ -48,14 +48,16 @@ public abstract class GenericPanel extends VerticalPanel {
 			da 1
 		*/
 
+		/*
 		head = new GenericPanelHead ( this );
 		add ( head );
 		setCellWidth ( head, "100%" );
 		setCellHorizontalAlignment ( head, HasHorizontalAlignment.ALIGN_RIGHT );
+		*/
 	}
 
 	protected void addTop ( Widget to_add ) {
-		insert ( to_add, 1 );
+		insert ( to_add, 0 );
 	}
 
 	protected void addBottom ( Widget to_add ) {

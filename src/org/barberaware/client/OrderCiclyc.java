@@ -100,7 +100,8 @@ public class OrderCiclyc extends Composite implements StringWidget {
 		dateSelector.setVisible ( false );
 
 		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "bottom-buttons" );
+		buttons.setStyleName ( "dialog-buttons" );
+		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		pan.add ( buttons );
 
 		but = new Button ( "Salva", new ClickListener () {

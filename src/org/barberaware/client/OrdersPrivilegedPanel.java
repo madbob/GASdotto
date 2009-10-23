@@ -114,7 +114,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	}
 
 	private void checkNoAvailableOrders () {
-		if ( getWidgetCount () == 1 ) {
+		if ( getWidgetCount () == 0 ) {
 			hasOrders = false;
 			addTop ( new Label ( "Non ci sono ordini aperti" ) );
 		}
@@ -137,7 +137,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 1 );
+			remove ( 0 );
 		}
 
 		uorder = new OrderUser ();
@@ -332,7 +332,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm form;
 		OrderUser tmp_order;
 
-		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
+		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
 			tmp_order = ( OrderUser ) form.getObject ();
 
@@ -370,7 +370,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		index = -1;
 
-		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
+		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			if ( iter.isOpen () == true ) {
 				index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();

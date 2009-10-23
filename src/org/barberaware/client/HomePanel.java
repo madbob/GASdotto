@@ -228,6 +228,7 @@ public class HomePanel extends GenericPanel {
 			data = new ArrayList ();
 			data.add ( text );
 			data.add ( new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
+
 			orders.addRow ( data );
 		}
 	}
@@ -251,9 +252,6 @@ public class HomePanel extends GenericPanel {
 
 		target_id_str = Integer.toString ( target.getLocalID () );
 
-		/*
-			Come al solito, qui si parte da 1 perche' in 0 c'e' l'intestazione
-		*/
 		for ( int i = 1; i < table.getRowCount (); i++ ) {
 			id = ( Hidden ) table.getWidget ( i, 1 );
 

@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class SelectionDialog extends DialogBox implements FromServerArray, SavingDialog {
 	public static int		SELECTION_MODE_SINGLE	= 0;
 	public static int		SELECTION_MODE_MULTI	= 1;
@@ -45,18 +47,34 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 
 	public void addElementInList ( FromServer object ) {
 		int index;
+		int num;
+		int cmp;
 		String str_id;
+		String str_name;
 		Hidden iter;
+		Label label;
 		CheckBox check;
 
 		str_id = Integer.toString ( object.getLocalID () );
-		index = itemsTable.getRowCount ();
+		str_name = object.getString ( "name" );
+		index = -1;
+		num = itemsTable.getRowCount ();
 
-		for ( int i = 0; i < index; i++ ) {
+		for ( int i = 0; i < num; i++ ) {
 			iter = ( Hidden ) itemsTable.getWidget ( i, 0 );
 			if ( iter.getName ().equals ( str_id ) )
 				return;
+
+			if ( index == -1 ) {
+				label = ( Label ) itemsTable.getWidget ( i, 2 );
+				cmp = label.getText ().compareTo ( str_name );
+				if ( cmp > 0 )
+					index = i;
+			}
 		}
+
+		if ( index == -1 )
+			index = num;
 
 		itemsTable.insertRow ( index );
 
@@ -77,7 +95,7 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 
 		itemsTable.setWidget ( index, 0, new Hidden ( str_id ) );
 		itemsTable.setWidget ( index, 1, check );
-		itemsTable.setWidget ( index, 2, new Label ( object.getString ( "name" ) ) );
+		itemsTable.setWidget ( index, 2, new Label ( str_name ) );
 
 		loadedObjects.add ( object );
 	}
@@ -148,6 +166,8 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		pan.add ( itemsTable );
 
 		buttons = new HorizontalPanel ();
+		buttons.setStyleName ( "dialog-buttons" );
+		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		pan.add ( buttons );
 
 		but = new Button ( "Salva", new ClickListener () {

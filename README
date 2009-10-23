@@ -26,6 +26,7 @@ PHP			http://php.net/					testato su versione 5.2.6
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
 Apache			http://apache.org/				testato su versione 2.2.11
+GWT-Log			http://code.google.com/p/gwt-log/		testato su versione 2.5.2
 
 Il database in cui verranno messi i dati puo' essere selezionato tra:
 PostgreSQL		http://www.postgresql.org/			testato su versione 8.3.7

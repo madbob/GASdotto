@@ -199,6 +199,12 @@
 	text-align:		right;
 }
 
+.dialog-buttons {
+	width:			100%;
+	padding:		10px;
+	text-align:		center;
+}
+
 .main-footer {
 	width:			100%;
 }
@@ -268,6 +274,10 @@
 	cursor:			hand;
 	margin-left:		4px;
 	margin-right:		4px;
+}
+
+.dummy-text-area {
+	width:			100%;
 }
 
 .products-selection .description {

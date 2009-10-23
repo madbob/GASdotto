@@ -149,9 +149,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		measure = ( Measure ) product.getObject ( "measure" );
 
 		main.setWidget ( index, 0, new Label ( product.getString ( "name" ) ) );
+		formatter.setWidth ( index, 0, "20%" );
 
 		sel = new ProductUserSelector ( product );
 		main.setWidget ( index, 1, sel );
+		formatter.setWidth ( index, 1, "20%" );
 		sel.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				updateTotal ();
@@ -183,6 +185,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			info_str += " + " + Utils.showPercentage ( plus_str ) + " surplus";
 
 		main.setWidget ( index, 2, new Label ( info_str ) );
+		formatter.setWidth ( index, 2, "60%" );
 
 		formatter.setHorizontalAlignment ( index, 2, HasHorizontalAlignment.ALIGN_RIGHT );
 

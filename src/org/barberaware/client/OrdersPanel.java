@@ -41,7 +41,7 @@ public class OrdersPanel extends GenericPanel {
 
 				order = ( Order ) object.getObject ( "baseorder" );
 
-				for ( int i = 1; i < getWidgetCount (); i++ ) {
+				for ( int i = 0; i < getWidgetCount (); i++ ) {
 					order_form = ( FromServerForm ) getWidget ( i );
 
 					/*
@@ -106,7 +106,7 @@ public class OrdersPanel extends GenericPanel {
 
 				index = retrieveOrderForm ( ord );
 				if ( index == -1 )
-					insert ( doOrderRow ( ord ), 1 );
+					insert ( doOrderRow ( ord ), 0 );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -173,7 +173,7 @@ public class OrdersPanel extends GenericPanel {
 		OrderUser tmp_order;
 
 		if ( emptyLabel == null ) {
-			for ( int i = 1; i < getWidgetCount (); i++ ) {
+			for ( int i = 0; i < getWidgetCount (); i++ ) {
 				form = ( FromServerForm ) getWidget ( i );
 				tmp_order = ( OrderUser ) form.getObject ();
 
@@ -212,7 +212,7 @@ public class OrdersPanel extends GenericPanel {
 
 		index = -1;
 
-		for ( int i = 1; i < getWidgetCount (); i++ ) {
+		for ( int i = 0; i < getWidgetCount (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			if ( iter.isOpen () == true ) {
 				index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();

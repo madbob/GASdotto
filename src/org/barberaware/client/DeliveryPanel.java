@@ -150,7 +150,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 1 );
+			remove ( 0 );
 		}
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
@@ -195,7 +195,7 @@ public class DeliveryPanel extends GenericPanel {
 		FromServerForm form;
 		Order tmp_order;
 
-		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
+		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
 			tmp_order = ( Order ) form.getObject ();
 
@@ -222,7 +222,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		index = -1;
 
-		for ( int i = ( hasOrders == true ? 1 : 2 ); i < getWidgetCount (); i++ ) {
+		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			if ( iter.isOpen () == true ) {
 				index = iter.getObject ().getLocalID ();
