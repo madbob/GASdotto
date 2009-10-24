@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /**
 	TODO	Probabilmente questo puo' sostituire in toto OrdersPanel, da verificare
 */
@@ -49,11 +51,14 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
+				int index;
 				Order ord;
 
 				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.OPENED )
-					addTop ( doOrderRow ( ord, canMultiUser ( ord ) ) );
+				if ( ord.getInt ( "status" ) == Order.OPENED ) {
+					index = getSortedPosition ( object );
+					insert ( doOrderRow ( ord, canMultiUser ( ord ) ), index );
+				}
 			}
 
 			public void onModify ( FromServer object ) {
@@ -111,6 +116,37 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				}
 			}
 		} );
+	}
+
+	private int getSortedPosition ( FromServer object ) {
+		int i;
+		int cmp;
+		int num;
+		Date tdate;
+		FromServer object_2;
+		FromServerForm iter;
+
+		if ( hasOrders == false )
+			return 0;
+
+		num = getWidgetCount ();
+		if ( object == null )
+			return num;
+
+		tdate = object.getDate ( "enddate" );
+
+		for ( i = 0; i < num; i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			object_2 = iter.getObject ();
+
+			if ( object_2 != null ) {
+				cmp = ( object_2.getObject ( "baseorder" ).getDate ( "enddate" ).compareTo ( tdate ) );
+				if ( cmp > 0 )
+					break;
+			}
+		}
+
+		return i;
 	}
 
 	private void checkNoAvailableOrders () {
@@ -332,7 +368,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm form;
 		OrderUser tmp_order;
 
-		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
+		if ( hasOrders == false )
+			return -1;
+
+		for ( int i = 0; i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
 			tmp_order = ( OrderUser ) form.getObject ();
 
@@ -370,11 +409,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		index = -1;
 
-		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
-			iter = ( FromServerForm ) getWidget ( i );
-			if ( iter.isOpen () == true ) {
-				index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();
-				break;
+		if ( hasOrders == true ) {
+			for ( int i = 0; i < getWidgetCount (); i++ ) {
+				iter = ( FromServerForm ) getWidget ( i );
+				if ( iter.isOpen () == true ) {
+					index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();
+					break;
+				}
 			}
 		}
 

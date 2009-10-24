@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class OrdersPanel extends GenericPanel {
 	private Label		emptyLabel		= null;
 
@@ -105,8 +107,10 @@ public class OrdersPanel extends GenericPanel {
 					return;
 
 				index = retrieveOrderForm ( ord );
-				if ( index == -1 )
-					insert ( doOrderRow ( ord ), 0 );
+				if ( index == -1 ) {
+					index = getSortedPosition ( object );
+					insert ( doOrderRow ( ord ), index );
+				}
 			}
 
 			public void onModify ( FromServer object ) {
@@ -135,6 +139,32 @@ public class OrdersPanel extends GenericPanel {
 
 		emptyLabel = new Label ( "Non ci sono ordini aperti in questo momento" );
 		addTop ( emptyLabel );
+	}
+
+	private int getSortedPosition ( FromServer object ) {
+		int i;
+		int cmp;
+		Date tdate;
+		FromServer object_2;
+		FromServerForm iter;
+
+		if ( emptyLabel != null )
+			return 0;
+
+		tdate = object.getDate ( "enddate" );
+
+		for ( i = 0; i < getWidgetCount (); i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			object_2 = iter.getObject ();
+
+			if ( object_2 != null ) {
+				cmp = ( object_2.getObject ( "baseorder" ).getDate ( "enddate" ).compareTo ( tdate ) );
+				if ( cmp > 0 )
+					break;
+			}
+		}
+
+		return i;
 	}
 
 	private Widget doOrderRow ( Order order ) {

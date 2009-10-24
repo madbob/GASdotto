@@ -124,7 +124,7 @@ public abstract class FromServer implements Comparator {
 				return attr;
 		}
 
-		Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "'" );
+		Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
 		return null;
 	}
 

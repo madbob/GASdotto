@@ -90,6 +90,10 @@ public class OrdersEditPanel extends GenericPanel {
 
 					/* riassunto ordine */
 
+					/**
+						TODO	Summary e pannello edit potrebbero essere
+							uniti insieme per evitare ridondanze
+					*/
 					addOrderSummary ( ver );
 					addProductsHandler ( ver );
 
@@ -214,6 +218,15 @@ public class OrdersEditPanel extends GenericPanel {
 						addProductsHandler ( form );
 					}
 				}
+
+				protected int sorting ( FromServer first, FromServer second ) {
+					if ( first == null )
+						return 1;
+					else if ( second == null )
+						return -1;
+
+					return -1 * ( first.getDate ( "enddate" ).compareTo ( second.getDate ( "enddate" ) ) );
+				}
 		};
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
@@ -291,6 +304,9 @@ public class OrdersEditPanel extends GenericPanel {
 		buttons = new ButtonsBar ();
 		container.add ( buttons );
 
+		/**
+			TODO	Visualizzare il tasto di reset solo se si apportano modifiche
+		*/
 		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				table.revertChanges ();
@@ -298,6 +314,11 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 		buttons.add ( button, "Annulla" );
 
+		/**
+			TODO	Eliminare il pulsante di salvataggio della sola tabellina, fare
+				riferimento al tasto di salvataggio unico per l'ordine onde
+				evitare di duplicare tasti a casaccio
+		*/
 		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				Order order;

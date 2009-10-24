@@ -23,6 +23,9 @@ function install_main_db () {
 	global $instance_identifier;
 	global $dbname;
 
+	if ( !isset ( $instance_identifier ) )
+		$instance_identifier = 1;
+
 	if ( !isset ( $dbname ) )
 		$dbname = 'gasdotto_' . $instance_identifier;
 

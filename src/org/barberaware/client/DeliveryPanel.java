@@ -76,6 +76,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
+				int index;
 				Order ord;
 
 				ord = ( Order ) object;
@@ -85,7 +86,9 @@ public class DeliveryPanel extends GenericPanel {
 				if ( ord.getInt ( "status" ) == Order.CLOSED )
 					addTop ( doOrderRow ( ord ) );
 				*/
-				addTop ( doOrderRow ( ord ) );
+
+				index = getSortedPosition ( object );
+				insert ( doOrderRow ( ord ), index );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -144,7 +147,41 @@ public class DeliveryPanel extends GenericPanel {
 		} );
 	}
 
+	private int getSortedPosition ( FromServer object ) {
+		int i;
+		int num;
+		Date cdate;
+		Date tdate;
+		FromServer object_2;
+		FromServerForm iter;
+
+		if ( hasOrders == false )
+			return 0;
+
+		tdate = object.getDate ( "shippingdate" );
+		if ( tdate == null )
+			return 0;
+
+		num = getWidgetCount ();
+		if ( object == null )
+			return num;
+
+		for ( i = 0; i < num; i++ ) {
+			iter = ( FromServerForm ) getWidget ( i );
+			object_2 = iter.getObject ();
+
+			if ( object_2 != null ) {
+				cdate = object_2.getDate ( "shippingdate" );
+				if ( cdate != null && cdate.compareTo ( tdate ) > 0 )
+					break;
+			}
+		}
+
+		return i;
+	}
+
 	private Widget doOrderRow ( Order order ) {
+		HorizontalPanel downloads;
 		final FromServerForm ver;
 		DeliverySummary summary;
 
@@ -155,8 +192,13 @@ public class DeliveryPanel extends GenericPanel {
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 
-		ver.add ( Utils.getServer ().fileLink ( "Scarica file CSV", "", "order_csv.php?id=" + order.getLocalID () ) );
-		ver.add ( Utils.getServer ().fileLink ( "Scarica file PDF", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
+		downloads = new HorizontalPanel ();
+		downloads.setStyleName ( "bottom-buttons" );
+		downloads.add ( Utils.getServer ().fileLink ( "Scarica file CSV", "", "order_csv.php?id=" + order.getLocalID () ) );
+		downloads.add ( Utils.getServer ().fileLink ( "Scarica file PDF", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
+		ver.add ( downloads );
+
+		ver.add ( new HTML ( "<hr>" ) );
 
 		summary = new DeliverySummary ();
 		ver.setExtraWidget ( "list", summary );
