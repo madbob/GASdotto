@@ -135,18 +135,44 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		return total;
 	}
 
-	private void addProductRow ( int index, Product product ) {
+	private String getPriceInfo ( Product product ) {
 		String info_str;
 		String plus_str;
 		float plus;
 		boolean raw;
-		FlexTable.FlexCellFormatter formatter;
 		Measure measure;
+
+		measure = ( Measure ) product.getObject ( "measure" );
+
+		plus = product.getFloat ( "unit_price" );
+		info_str = plus + " € / " + measure.getString ( "symbol" );
+
+		/**
+			TODO	Aggiungere una icona per indicare i prodotti il cui prezzo viene
+				fissato alla consegna
+		*/
+
+		raw = product.getBool ( "mutable_price" );
+		if ( raw == true )
+			info_str += " (prodotto misurato alla consegna)";
+
+		plus = product.getFloat ( "shipping_price" );
+		if ( plus != 0 )
+			info_str += " + " + plus + " € trasporto";
+
+		plus_str = product.getString ( "surplus" );
+		if ( plus_str != null && plus_str != "" && plus_str != "0" )
+			info_str += " + " + Utils.showPercentage ( plus_str ) + " surplus";
+
+		return info_str;
+	}
+
+	private void addProductRow ( int index, Product product ) {
+		String info_str;
+		FlexTable.FlexCellFormatter formatter;
 		ProductUserSelector sel;
 
 		formatter = main.getFlexCellFormatter ();
-
-		measure = ( Measure ) product.getObject ( "measure" );
 
 		main.setWidget ( index, 0, new Label ( product.getString ( "name" ) ) );
 		formatter.setWidth ( index, 0, "20%" );
@@ -164,26 +190,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			Prezzo
 		*/
 
-		plus = product.getFloat ( "unit_price" );
-		info_str = plus + " € / " + measure.getString ( "symbol" );
-
-		/**
-			TODO	Aggiungere una icona per indicare i prodotti il cui prezzo viene
-				fissato alla consegna
-		*/
-
-		raw = product.getBool ( "mutable_price" );
-		if ( raw == true )
-			info_str += " (prodotto misurato alla consegna)";
-
-		plus = product.getFloat ( "shipping_price" );
-		if ( plus != 0 )
-			info_str += " + " + plus + " € trasporto";
-
-		plus_str = product.getString ( "surplus" );
-		if ( plus_str != null && plus_str != "" && plus_str != "0" )
-			info_str += " + " + Utils.showPercentage ( plus_str ) + " surplus";
-
+		info_str = getPriceInfo ( product );
 		main.setWidget ( index, 2, new Label ( info_str ) );
 		formatter.setWidth ( index, 2, "60%" );
 
@@ -201,17 +208,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 	private void modProductRow ( int index, Product product ) {
 		String info_str;
-		String plus_str;
-		float plus;
-		boolean raw;
 		FlexTable.FlexCellFormatter formatter;
 		Label lab;
-		Measure measure;
 		ProductUserSelector sel;
 
 		formatter = main.getFlexCellFormatter ();
-
-		measure = ( Measure ) product.getObject ( "measure" );
 
 		lab = ( Label ) main.getWidget ( index, 0 );
 		lab.setText ( product.getString ( "name" ) );
@@ -223,26 +224,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			Prezzo
 		*/
 
-		plus = product.getFloat ( "unit_price" );
-		info_str = plus + " € / " + measure.getString ( "symbol" );
-
-		/**
-			TODO	Aggiungere una icona per indicare i prodotti il cui prezzo viene
-				fissato alla consegna
-		*/
-
-		raw = product.getBool ( "mutable_price" );
-		if ( raw == true )
-			info_str += " (prodotto misurato alla consegna)";
-
-		plus = product.getFloat ( "shipping_price" );
-		if ( plus != 0 )
-			info_str += " + " + plus + " € trasporto";
-
-		plus_str = product.getString ( "surplus" );
-		if ( plus_str != null && plus_str != "" && plus_str != "0" )
-			info_str += " + " + Utils.showPercentage ( plus_str ) + " surplus";
-
+		info_str = getPriceInfo ( product );
 		lab = ( Label ) main.getWidget ( index, 2 );
 		lab.setText ( info_str );
 

@@ -40,11 +40,7 @@ public abstract class FromServer implements Comparator {
 
 	private int		localID;
 	private String		type;
-
-	/**
-		TODO	Sostituire l'ArrayList con una HashMap
-	*/
-	private ArrayList	attributes;
+	private HashMap		attributes;
 
 	/*
 		Internamente questo attributo, settato in fase di costruzione di una delle classi
@@ -68,7 +64,7 @@ public abstract class FromServer implements Comparator {
 
 	public FromServer () {
 		localID = -1;
-		attributes = new ArrayList ();
+		attributes = new HashMap ();
 		type = Utils.classFinalName ( this.getClass ().getName () );
 		forceReloadFromServer = false;
 		savingOperation = false;
@@ -104,28 +100,21 @@ public abstract class FromServer implements Comparator {
 	}
 
 	protected void addAttribute ( String name, int type, Class object ) {
-		attributes.add ( new FromServerAttribute ( name, type, object ) );
+		attributes.put ( name, new FromServerAttribute ( name, type, object ) );
 	}
 
 	protected void addFakeAttribute ( String name, int type, StringFromObjectClosure value ) {
-		attributes.add ( new FromServerAttribute ( name, type, value ) );
+		attributes.put ( name, new FromServerAttribute ( name, type, value ) );
 	}
 
 	private FromServerAttribute getInternalAttribute ( String name ) {
-		int size;
-		FromServerAttribute attr;
+		FromServerAttribute ret;
 
-		size = attributes.size ();
+		ret = ( FromServerAttribute ) attributes.get ( name );
+		if ( ret == null )
+			Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
 
-		for ( int i = 0; i < size; i++ ) {
-			attr = ( FromServerAttribute ) attributes.get ( i );
-
-			if ( attr.name.equals ( name ) )
-				return attr;
-		}
-
-		Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
-		return null;
+		return ret;
 	}
 
 	/*
@@ -134,16 +123,20 @@ public abstract class FromServer implements Comparator {
 		server quelli vengono prese per le informazioni buone e la cache e' invalida
 	*/
 	public FromServer duplicate () {
+		String k;
+		Object [] keys;
 		FromServer obj;
 		FromServerAttribute my_attr;
 		FromServerAttribute cpy_attr;
 
 		obj = FromServerFactory.create ( type );
 		obj.localID = localID;
+		keys = attributes.keySet ().toArray ();
 
-		for ( int i = 0; i < attributes.size (); i++ ) {
-			my_attr = ( FromServerAttribute ) attributes.get ( i );
-			cpy_attr = ( FromServerAttribute ) obj.attributes.get ( i );
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			my_attr = ( FromServerAttribute ) attributes.get ( k );
+			cpy_attr = ( FromServerAttribute ) obj.attributes.get ( k );
 			cpy_attr.setValue ( my_attr );
 		}
 
@@ -305,7 +298,8 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public JSONObject toJSONObject () {
-		int attrs_num;
+		String k;
+		Object [] keys;
 		FromServerAttribute attr;
 		JSONObject obj;
 		JSONValue value;
@@ -314,21 +308,23 @@ public abstract class FromServer implements Comparator {
 		obj.put ( "id", new JSONString ( Integer.toString ( localID ) ) );
 		obj.put ( "type", new JSONString ( type ) );
 
-		attrs_num = attributes.size ();
+		keys = attributes.keySet ().toArray ();
 
-		for ( int i = 0; i < attrs_num; i++ ) {
-			attr = ( FromServerAttribute ) attributes.get ( i );
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			attr = ( FromServerAttribute ) attributes.get ( k );
 
 			value = attr.getJSON ();
 			if ( value != null )
-				obj.put ( attr.name, value );
+				obj.put ( k, value );
 		}
 
 		return obj;
 	}
 
 	public void fromJSONObject ( JSONObject obj ) {
-		int attrs_num;
+		String k;
+		Object [] keys;
 		JSONValue value;
 		FromServer tmp;
 		FromServerAttribute attr;
@@ -347,12 +343,12 @@ public abstract class FromServer implements Comparator {
 				return;
 		}
 
-		attrs_num = attributes.size ();
+		keys = attributes.keySet ().toArray ();
 
-		for ( int i = 0; i < attrs_num; i++ ) {
-			attr = ( FromServerAttribute ) attributes.get ( i );
-
-			value = obj.get ( attr.name );
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			attr = ( FromServerAttribute ) attributes.get ( k );
+			value = obj.get ( k );
 
 			if ( value == null ) {
 				if ( attr.type == FromServer.INTEGER )

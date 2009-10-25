@@ -28,31 +28,24 @@ public class OrderSummary extends Composite {
 	private ArrayList		ordersUsers;
 
 	public OrderSummary ( Order order ) {
-		HTMLTable.RowFormatter formatter;
-
 		currentOrder = order;
 
 		main = new FlexTable ();
-		main.setCellPadding ( 5 );
-		main.setCellSpacing ( 5 );
+		main.setStyleName ( "elements-table" );
 		initWidget ( main );
 
-		/**
-			TODO	Nella colonna 0 della tabella ci stanno gli elementi nascosti con
-				gli ID dei prodotti, ma comunque mi resta la casellina nella
-				prima riga vuota; sarebbe carino inventarsi qualcosa per non
-				visualizzarla, anche se probabilmente c'e' da rivedere la
-				formattazione della tabella intera
-		*/
-
 		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );
-		main.setWidget ( 0, 2, new Label ( "Prezzo Unitario" ) );
-		main.setWidget ( 0, 3, new Label ( "Quantità Ordinata" ) );
-		main.setWidget ( 0, 4, new Label ( "Prezzo Totale" ) );
-		main.setWidget ( 0, 5, new Label ( "Notifiche" ) );
+		main.setWidget ( 0, 2, new Label ( "Quantità Ordinata" ) );
+		main.setWidget ( 0, 3, new Label ( "Prezzo Totale" ) );
+		main.setWidget ( 0, 4, new Label ( "Notifiche" ) );
 
-		formatter = main.getRowFormatter ();
-		formatter.addStyleName ( 0, "table-header" );
+		main.getRowFormatter ().setStyleName ( 0, "table-header" );
+
+		/*
+			La prima colonna e' ad uso e consumo interno e non mostra alcuna
+			informazione utile, dunque viene nascosta
+		*/
+		main.getColumnFormatter ().setStyleName ( 0, "hidden" );
 
 		totalLabel = null;
 
@@ -156,10 +149,10 @@ public class OrderSummary extends Composite {
 			if ( order_product.getBool ( "available" ) == false )
 				continue;
 
-			product_quantity_sum = ( Label ) main.getWidget ( e, 3 );
+			product_quantity_sum = ( Label ) main.getWidget ( e, 2 );
 			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
 
-			product_quantity_sum = ( Label ) main.getWidget ( e, 4 );
+			product_quantity_sum = ( Label ) main.getWidget ( e, 3 );
 			product_quantity_sum.setText ( Utils.priceToString ( prices [ i ] ) + " €" );
 
 			stock = order_product.getFloat ( "stock_size" );
@@ -182,7 +175,7 @@ public class OrderSummary extends Composite {
 			}
 		} );
 
-		main.setWidget ( row, 5, cell );
+		main.setWidget ( row, 4, cell );
 	}
 
 	private String measureSymbol ( Product prod ) {
@@ -203,7 +196,6 @@ public class OrderSummary extends Composite {
 		String measure;
 
 		products = currentOrder.getArray ( "products" );
-
 		if ( products == null )
 			return;
 
@@ -217,14 +209,13 @@ public class OrderSummary extends Composite {
 
 			main.setWidget ( e, 0, new Hidden ( Integer.toString ( prod.getLocalID () ) ) );
 			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( e, 2, new Label ( Utils.priceToString ( prod.getTotalPrice () ) + " € / " + measure ) );
-			main.setWidget ( e, 3, new Label ( "0 " + measure ) );
-			main.setWidget ( e, 4, new Label ( "0.00 €" ) );
+			main.setWidget ( e, 2, new Label ( "0 " + measure ) );
+			main.setWidget ( e, 3, new Label ( "0.00 €" ) );
 			e++;
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( e, 0, 6 );
+		main.getFlexCellFormatter ().setColSpan ( e, 0, 5 );
 
 		e++;
 
@@ -235,6 +226,6 @@ public class OrderSummary extends Composite {
 		else
 			totalLabel.setValue ( 0 );
 
-		main.setWidget ( e, 4, totalLabel );
+		main.setWidget ( e, 3, totalLabel );
 	}
 }

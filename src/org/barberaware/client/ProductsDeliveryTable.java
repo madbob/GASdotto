@@ -31,8 +31,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		HTMLTable.RowFormatter formatter;
 
 		main = new FlexTable ();
-		main.setCellPadding ( 5 );
-		main.setCellSpacing ( 5 );
+		main.setStyleName ( "elements-table" );
 		initWidget ( main );
 
 		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );

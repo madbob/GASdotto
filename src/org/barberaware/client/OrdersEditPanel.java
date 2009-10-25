@@ -62,6 +62,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					frame = new CustomCaptionPanel ( "Attributi" );
 					hor.add ( frame );
+					hor.setCellWidth ( frame, "50%" );
 
 					frame.addPair ( "Fornitore", new Label ( supplier.getString ( "name" ) ) );
 
@@ -82,6 +83,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					frame = new CustomCaptionPanel ( "Date" );
 					hor.add ( frame );
+					hor.setCellWidth ( frame, "50%" );
 
 					frame.addPair ( "Data apertura", ver.getWidget ( "startdate" ) );
 					frame.addPair ( "Data chiusura", ver.getWidget ( "enddate" ) );
@@ -90,12 +92,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					/* riassunto ordine */
 
-					/**
-						TODO	Summary e pannello edit potrebbero essere
-							uniti insieme per evitare ridondanze
-					*/
-					addOrderSummary ( ver );
-					addProductsHandler ( ver );
+					addOrderDetails ( ver );
 
 					return ver;
 				}
@@ -214,8 +211,7 @@ public class OrdersEditPanel extends GenericPanel {
 					form = main.retrieveForm ( object );
 					if ( form != null ) {
 						form.setObject ( object );
-						addOrderSummary ( form );
-						addProductsHandler ( form );
+						addOrderDetails ( form );
 					}
 				}
 
@@ -261,17 +257,39 @@ public class OrdersEditPanel extends GenericPanel {
 		addTop ( main );
 	}
 
-	private void addOrderSummary ( FromServerForm form ) {
+	private void addOrderDetails ( FromServerForm form ) {
+		HorizontalPanel pan;
+		CaptionPanel p_summary;
+		CaptionPanel p_products;
+
+		p_summary = addOrderSummary ( form );
+		p_products = addProductsHandler ( form );
+
+		if ( p_summary != null && p_products != null ) {
+			pan = new HorizontalPanel ();
+			pan.setWidth ( "100%" );
+
+			pan.add ( p_summary );
+			pan.setCellWidth ( p_summary, "50%" );
+
+			pan.add ( p_products );
+			pan.setCellWidth ( p_products, "50%" );
+
+			form.add ( pan );
+		}
+	}
+
+	private CaptionPanel addOrderSummary ( FromServerForm form ) {
 		Order order;
 		CaptionPanel sframe;
 		OrderSummary complete_list;
 
 		if ( form == null )
-			return;
+			return null;
 
 		complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
 		if ( complete_list != null )
-			return;
+			return null;
 
 		order = ( Order ) form.getObject ();
 		sframe = new CaptionPanel ( "Stato Ordini" );
@@ -279,10 +297,10 @@ public class OrdersEditPanel extends GenericPanel {
 		complete_list = new OrderSummary ( order );
 		form.setExtraWidget ( "summary", complete_list );
 		sframe.add ( complete_list );
-		form.add ( sframe );
+		return sframe;
 	}
 
-	private void addProductsHandler ( final FromServerForm form ) {
+	private CaptionPanel addProductsHandler ( final FromServerForm form ) {
 		final FromServerTable table;
 		VerticalPanel container;
 		CaptionPanel sframe;
@@ -290,7 +308,7 @@ public class OrdersEditPanel extends GenericPanel {
 		PushButton button;
 
 		if ( ( FromServerTable ) form.retriveInternalWidget ( "products" ) != null )
-			return;
+			return null;
 
 		container = new VerticalPanel ();
 
@@ -342,7 +360,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		sframe = new CaptionPanel ( "Prodotti" );
 		sframe.add ( container );
-		form.add ( sframe );
+		return sframe;
 	}
 
 	/****************************************************************** GenericPanel */

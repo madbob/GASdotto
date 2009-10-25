@@ -30,12 +30,7 @@ public class FromServerForm extends Composite {
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
 	private ArrayList		callbacks;
-
-	/**
-		TODO	Sostituire l'ArrayList con una HashMap
-	*/
-
-	private ArrayList		widgets;
+	private HashMap			widgets;
 	private ArrayList		addictionalData;
 
 	public static int		FULL_EDITABLE		= 0;
@@ -47,7 +42,7 @@ public class FromServerForm extends Composite {
 	private void buildCommon ( FromServer obj, int editable ) {
 		object = obj;
 
-		widgets = new ArrayList ();
+		widgets = new HashMap ();
 		callbacks = new ArrayList ();
 		noExplicitCallbacks ();
 
@@ -273,19 +268,7 @@ public class FromServerForm extends Composite {
 	/****************************************************************** build */
 
 	private FromServerWidget retriveWidgetFromList ( String attribute ) {
-		int existing;
-		FromServerWidget tmp;
-
-		existing = widgets.size ();
-
-		for ( int i = 0; i < existing; i++ ) {
-			tmp = ( FromServerWidget ) widgets.get ( i );
-
-			if ( tmp.name.equals ( attribute ) )
-				return tmp;
-		}
-
-		return null;
+		return ( FromServerWidget ) widgets.get ( attribute );
 	}
 
 	public Widget getWidget ( String attribute ) {
@@ -294,7 +277,7 @@ public class FromServerForm extends Composite {
 		tmp = retriveWidgetFromList ( attribute );
 		if ( tmp == null ) {
 			tmp = new FromServerWidget ( object, attribute );
-			widgets.add ( tmp );
+			widgets.put ( attribute, tmp );
 		}
 
 		return tmp;
@@ -310,7 +293,7 @@ public class FromServerForm extends Composite {
 		tmp = retriveWidgetFromList ( attribute );
 		if ( tmp == null ) {
 			tmp = new FromServerWidget ( object, attribute, widget );
-			widgets.add ( tmp );
+			widgets.put ( attribute, tmp );
 		}
 
 		return tmp;
@@ -342,7 +325,7 @@ public class FromServerForm extends Composite {
 		FromServer
 	*/
 	public void setExtraWidget ( String name, Widget extra ) {
-		widgets.add ( new FromServerWidget ( name, extra ) );
+		widgets.put ( name, new FromServerWidget ( name, extra ) );
 	}
 
 	public IconsBar getIconsBar () {
@@ -352,10 +335,13 @@ public class FromServerForm extends Composite {
 	/****************************************************************** handling */
 
 	public void refreshContents ( FromServer obj ) {
+		Object [] wids;
 		FromServerWidget iter;
 
-		for ( int i = 0; i < widgets.size (); i++ ) {
-			iter = ( FromServerWidget ) widgets.get ( i );
+		wids = widgets.values ().toArray ();
+
+		for ( int i = 0; i < wids.length; i++ ) {
+			iter = ( FromServerWidget ) wids [ i ];
 			iter.set ( obj );
 		}
 	}
@@ -382,15 +368,15 @@ public class FromServerForm extends Composite {
 	}
 
 	private boolean contentsChanged () {
-		int num;
+		Object [] wids;
 		boolean ret;
 		FromServerWidget tmp;
 
-		num = widgets.size ();
+		wids = widgets.values ().toArray ();
 		ret = false;
 
-		for ( int i = 0; i < num; i++ ) {
-			tmp = ( FromServerWidget ) widgets.get ( i );
+		for ( int i = 0; i < wids.length; i++ ) {
+			tmp = ( FromServerWidget ) wids [ i ];
 
 			if ( tmp.compare ( object ) == false ) {
 				ret = true;
@@ -426,13 +412,13 @@ public class FromServerForm extends Composite {
 	}
 
 	private boolean rebuildObject () {
-		int num;
+		Object [] wids;
 		FromServerWidget tmp;
 
-		num = widgets.size ();
+		wids = widgets.values ().toArray ();
 
-		for ( int i = 0; i < num; i++ ) {
-			tmp = ( FromServerWidget ) widgets.get ( i );
+		for ( int i = 0; i < wids.length; i++ ) {
+			tmp = ( FromServerWidget ) wids [ i ];
 			if ( tmp.assign ( object ) == false )
 				return false;
 		}
@@ -441,16 +427,16 @@ public class FromServerForm extends Composite {
 	}
 
 	private void resetObject () {
-		int num;
+		Object [] wids;
 		FromServerWidget tmp;
 
 		if ( object == null )
 			return;
 
-		num = widgets.size ();
+		wids = widgets.values ().toArray ();
 
-		for ( int i = 0; i < num; i++ ) {
-			tmp = ( FromServerWidget ) widgets.get ( i );
+		for ( int i = 0; i < wids.length; i++ ) {
+			tmp = ( FromServerWidget ) wids [ i ];
 			tmp.set ( object );
 		}
 	}

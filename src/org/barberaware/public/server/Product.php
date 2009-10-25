@@ -140,9 +140,12 @@ class Product extends FromServer {
 
 			if ( $obj->available == "true" ) {
 				foreach ( $rows as $row ) {
-					$query = sprintf ( "INSERT INTO Orders_products ( parent, target ) VALUES ( %d, %d )",
-					                   $row [ "id" ], $id );
-					query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
+					$query = sprintf ( "FROM Orders_products WHERE parent = %d AND target = %d", $row [ "id" ], $id );
+					if ( db_row_count ( $query ) == 0 ) {
+						$query = sprintf ( "INSERT INTO Orders_products ( parent, target ) VALUES ( %d, %d )",
+								$row [ "id" ], $id );
+						query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
+					}
 				}
 			}
 			else {

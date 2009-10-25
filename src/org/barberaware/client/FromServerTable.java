@@ -82,7 +82,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			main.setWidget ( 0, i, new Label ( c.head ) );
 		}
 
-		main.getRowFormatter ().addStyleName ( 0, "table-header" );
+		main.getRowFormatter ().setStyleName ( 0, "table-header" );
 	}
 
 	private void syncRowsContents () {
@@ -190,7 +190,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		num = elements.size ();
 
-		for ( int i = num - 1; i >= 0; i-- ) {
+		for ( int i = 0; i < num; i++ ) {
 			obj = ( FromServer ) elements.get ( i );
 			addElement ( obj );
 		}
