@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public abstract class FormGroup extends Composite {
 	private VerticalPanel			main;
 	private Panel				addButtons;
@@ -218,14 +220,16 @@ public abstract class FormGroup extends Composite {
 	public void deleteElement ( FromServer object ) {
 		int i;
 		int tot;
+		FromServer obj;
 		FromServerForm iter;
 
 		tot = latestIterableIndex ();
 
 		for ( i = 0; i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
+			obj = iter.getObject ();
 
-			if ( iter.equals ( object ) == true ) {
+			if ( obj != null && obj.equals ( object ) == true ) {
 				main.remove ( i );
 				break;
 			}

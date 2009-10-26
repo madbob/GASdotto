@@ -94,8 +94,11 @@ public class DeliveryPanel extends GenericPanel {
 					addTop ( doOrderRow ( ord ) );
 				*/
 
-				index = getSortedPosition ( object );
-				insert ( doOrderRow ( ord ), index );
+				index = retrieveOrderForm ( ord );
+				if ( index == -1 ) {
+					index = getSortedPosition ( object );
+					insert ( doOrderRow ( ord ), index );
+				}
 			}
 
 			public void onModify ( FromServer object ) {

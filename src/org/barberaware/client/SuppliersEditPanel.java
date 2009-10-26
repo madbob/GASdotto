@@ -86,8 +86,9 @@ public class SuppliersEditPanel extends GenericPanel {
 				product = ( Product ) object;
 
 				panel = retrieveProductsPanel ( product );
-				if ( panel != null )
+				if ( panel != null ) {
 					panel.deleteProduct ( product );
+				}
 			}
 
 			protected String debugName () {
@@ -211,7 +212,7 @@ public class SuppliersEditPanel extends GenericPanel {
 			TODO	Questa notifica si potrebbe visualizzare solo se ci sono ordini
 				effettivamente aperti per il fornitore
 		*/
-		notify = new Label ( "Attenzione: i valori qui riportati per i prodotti esistenti non fanno riferimento agli ordini già aperti, per modificare tali dati operare sul pannello \"Gestione Ordini\".\nSe aggiungi un prodotto marcato come ordinabile, esso verrà aggiunto agli ordini ora aperti per questo fornitore." );
+		notify = new Label ( "Attenzione: i valori qui riportati per i prodotti esistenti non fanno riferimento agli ordini già aperti, per modificare tali dati operare sul pannello \"Gestione Ordini\".\nSe aggiungi un prodotto marcato come ordinabile, oppure ne rimuovi uno, esso verrà aggiunto o rimosso agli ordini ora aperti per questo fornitore." );
 		notify.setStyleName ( "smaller-text" );
 		container.add ( notify );
 
