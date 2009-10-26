@@ -58,4 +58,12 @@ public abstract class ServerObjectReceive implements RequestCallback {
 	protected abstract void onReceive ( FromServer object );
 	protected abstract void onModify ( FromServer object );
 	protected abstract void onDestroy ( FromServer object );
+
+	/*
+		Da sovrascrivere con una stringa a piacere, univoca per ogni istanza della
+		classe. Usata a sole finalita' di debug
+	*/
+	protected String debugName () {
+		return "undefined";
+	}
 }

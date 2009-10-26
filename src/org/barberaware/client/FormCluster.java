@@ -20,6 +20,8 @@ package org.barberaware.client;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public abstract class FormCluster extends FormGroup {
 	private String				objType;
 	private boolean				automatic;
@@ -29,15 +31,17 @@ public abstract class FormCluster extends FormGroup {
 	private void registerCallbacks () {
 		Utils.getServer ().onObjectEvent ( objType, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				if ( automatic == true ) {
-					int add;
+				int add;
 
+				add = 0;
+
+				if ( automatic == true ) {
 					add = addElement ( object );
 					if ( add == 2 )
 						return;
-
-					customNew ( object, add == 1 );
 				}
+
+				customNew ( object, add == 1 );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -49,6 +53,11 @@ public abstract class FormCluster extends FormGroup {
 
 			public void onDestroy ( FromServer object ) {
 				deleteElement ( object );
+				customDelete ( object );
+			}
+
+			protected String debugName () {
+				return "FormCluster per " + objType;
 			}
 		} );
 	}
@@ -68,6 +77,12 @@ public abstract class FormCluster extends FormGroup {
 			registerCallbacks ();
 	}
 
+	/*
+		Il parametro "auto" permette di definire l'automatismo di popolamento del
+		FormCluster: se == true esso viene automaticamente caricato con tutti gli oggetti
+		del tipo specificato in arrivo, altrimenti e' necessario invocare manualmente
+		addElement per ogni elemento da mostrare e gestire
+	*/
 	public FormCluster ( String type, String adding_text, boolean auto ) {
 		super ( adding_text );
 		automatic = auto;
@@ -104,9 +119,18 @@ public abstract class FormCluster extends FormGroup {
 		salvataggio di uno degli elementi della lista. Il parametro true_new e' true
 		quando si tratta di un nuovo oggetto proveniente dal server, false se e' stato
 		salvato un oggetto editato appunto all'interno del FormCluster e di cui magari si
-		vuole cambiare il contenuto del form costruito con doNewEditableRow()
+		vuole cambiare il contenuto del form costruito con doNewEditableRow().
+		Attenzione: viene chiamata anche per i FormCluster non "automatici".
 	*/
 	protected void customNew ( FromServer object, boolean true_new ) {
+		/* dummy */
+	}
+
+	/*
+		Questa funzione puo' essere sovrascritta per personalizzare il comportamento in
+		caso di distruzione di uno degli elementi della lista
+	*/
+	protected void customDelete ( FromServer object ) {
 		/* dummy */
 	}
 }

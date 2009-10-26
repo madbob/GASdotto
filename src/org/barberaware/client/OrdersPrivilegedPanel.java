@@ -47,6 +47,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			public void onDestroy ( FromServer object ) {
 				findAndAlign ( ( OrderUser ) object, 2 );
 			}
+
+			protected String debugName () {
+				return "OrdersPrivilegedPanel";
+			}
 		} );
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
@@ -55,9 +59,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-				if ( ord.getInt ( "status" ) == Order.OPENED ) {
-					index = getSortedPosition ( object );
-					insert ( doOrderRow ( ord, canMultiUser ( ord ) ), index );
+
+				index = retrieveOrderForm ( ord );
+				if ( index == -1 ) {
+					if ( ord.getInt ( "status" ) == Order.OPENED ) {
+						index = getSortedPosition ( object );
+						insert ( doOrderRow ( ord, canMultiUser ( ord ) ), index );
+					}
 				}
 			}
 
@@ -114,6 +122,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					remove ( index );
 					checkNoAvailableOrders ();
 				}
+			}
+
+			protected String debugName () {
+				return "OrdersPrivilegedPanel";
 			}
 		} );
 	}

@@ -24,6 +24,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class ServerHook {
 	private class ServerMonitor {
 		public String		type;
@@ -121,6 +123,10 @@ public class ServerHook {
 	/****************************************************************** monitors */
 
 	private void addObjectIntoMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+		/**
+			TODO	Provvedere a verificare se l'oggetto e' gia' nella cache, e
+				tornare un valore di conseguenza
+		*/
 		monitor.objects.add ( obj );
 		monitor.comparingObjects.set ( monitor.comparingObjects.size (), new JSONNumber ( obj.getLocalID () ) );
 	}
@@ -275,6 +281,22 @@ public class ServerHook {
 		}
 	}
 
+	public void addToCache ( FromServer object ) {
+		/**
+			TODO	Decommentare questo dopo aver messo un controllo di duplicati in
+				addObjectIntoMonitorCache(), e ricordarsi di eseguire le callback
+				di creazione
+		*/
+
+		/*
+		ServerMonitor tmp;
+
+		tmp = getMonitor ( object.getType () );
+		if ( tmp != null )
+			addObjectIntoMonitorCache ( tmp, object );
+		*/
+	}
+
 	/*
 		Attenzione: questa funzione funge solo per reperire gli oggetti nella cache
 		locale, e non sincronizza la cache con il server: usare solo per accedere dati
@@ -327,8 +349,9 @@ public class ServerHook {
 
 		for ( int i = 0; i < len; i++ ) {
 			obj = ( FromServer ) objects.get ( i );
-			if ( req.matches ( obj ) )
+			if ( req.matches ( obj ) ) {
 				triggerObjectDeletion ( obj );
+			}
 		}
 
 		testObjectReceive ( type );

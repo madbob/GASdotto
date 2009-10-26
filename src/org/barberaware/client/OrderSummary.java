@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class OrderSummary extends Composite {
 	private Order			currentOrder;
 	private FlexTable		main;
@@ -82,9 +84,7 @@ public class OrderSummary extends Composite {
 		Product order_product;
 		int user_product_ref;
 		ProductUser user_product;
-		Label product_quantity_sum;
 		float total_price;
-		float stock;
 
 		my_id = currentOrder.getLocalID ();
 		products = currentOrder.getArray ( "products" );
@@ -143,26 +143,43 @@ public class OrderSummary extends Composite {
 			}
 		}
 
-		for ( int i = 0, e = 1; i < products.size (); i++ ) {
-			order_product = ( Product ) products.get ( i );
+		syncTable ( products, quantities, prices );
+		totalLabel.setValue ( total_price );
+	}
 
-			if ( order_product.getBool ( "available" ) == false )
+	private void syncTable ( ArrayList products, float [] quantities, float [] prices ) {
+		int i;
+		int e;
+		int current_children;
+		boolean new_row;
+		Hidden product_id;
+		Product product;
+
+		current_children = main.getRowCount () - 2;
+
+		for ( i = 0, e = 1; i < products.size (); i++ ) {
+			product = ( Product ) products.get ( i );
+
+			if ( product.getBool ( "available" ) == false )
 				continue;
 
-			product_quantity_sum = ( Label ) main.getWidget ( e, 2 );
-			product_quantity_sum.setText ( quantities [ i ] + " " + measureSymbol ( order_product ) );
+			new_row = false;
 
-			product_quantity_sum = ( Label ) main.getWidget ( e, 3 );
-			product_quantity_sum.setText ( Utils.priceToString ( prices [ i ] ) + " €" );
+			if ( e >= current_children ) {
+				new_row = true;
+			}
+			else {
+				product_id = ( Hidden ) main.getWidget ( e, 0 );
+				if ( Integer.toString ( product.getLocalID () ) != product_id.getName () )
+					new_row = true;
+			}
 
-			stock = order_product.getFloat ( "stock_size" );
-			if ( ( stock != 0 ) && ( quantities [ i ] != 0 ) && ( quantities [ i ] % stock != 0 ) )
-				addManualAdjustIcon ( i, order_product );
+			if ( new_row == true )
+				main.insertRow ( e );
 
+			setDataRow ( e, product, quantities [ i ], prices [ i ], new_row );
 			e++;
 		}
-
-		totalLabel.setValue ( total_price );
 	}
 
 	private void addManualAdjustIcon ( int row, Product prod ) {
@@ -188,12 +205,46 @@ public class OrderSummary extends Composite {
 			return "";
 	}
 
+	private Label editableLabel ( int row, int col, boolean new_row ) {
+		Label lab;
+
+		if ( new_row == false ) {
+			lab = ( Label ) main.getWidget ( row, col );
+		}
+		else {
+			lab = new Label ();
+			main.setWidget ( row, col, lab );
+		}
+
+		return lab;
+	}
+
+	private void setDataRow ( int index, Product product, float quantity, float price, boolean new_row ) {
+		float stock;
+		Label lab;
+
+		if ( new_row == true )
+			main.setWidget ( index, 0, new Hidden ( Integer.toString ( product.getLocalID () ) ) );
+
+		lab = editableLabel ( index, 1, new_row );
+		lab.setText ( product.getString ( "name" ) );
+
+		lab = editableLabel ( index, 2, new_row );
+		lab.setText ( quantity + " " + measureSymbol ( product ) );
+
+		lab = editableLabel ( index, 3, new_row );
+		lab.setText ( Utils.priceToString ( price ) + " €" );
+
+		stock = product.getFloat ( "stock_size" );
+		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) )
+			addManualAdjustIcon ( index, product );
+	}
+
 	private void fillList () {
 		int i;
 		int e;
 		ArrayList products;
 		Product prod;
-		String measure;
 
 		products = currentOrder.getArray ( "products" );
 		if ( products == null )
@@ -205,12 +256,7 @@ public class OrderSummary extends Composite {
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			measure = measureSymbol ( prod );
-
-			main.setWidget ( e, 0, new Hidden ( Integer.toString ( prod.getLocalID () ) ) );
-			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( e, 2, new Label ( "0 " + measure ) );
-			main.setWidget ( e, 3, new Label ( "0.00 €" ) );
+			setDataRow ( e, prod, 0, 0, true );
 			e++;
 		}
 

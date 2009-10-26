@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /**
 	TODO	Per motivi di semplicita' e' stato deciso di trattare in questo pannello sia gli ordini chiusi che
 		quelli aperti, per mettere sempre a disposizione strumenti di analisi globale (CSV e PDF) per
@@ -67,10 +69,15 @@ public class DeliveryPanel extends GenericPanel {
 				FromServerForm form;
 
 				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
+
 				if ( index != -1 ) {
 					form = ( FromServerForm ) getWidget ( index );
 					syncUserOrder ( form, ( OrderUser ) object, 2 );
 				}
+			}
+
+			protected String debugName () {
+				return "DeliveryPanel";
 			}
 		} );
 
@@ -143,6 +150,10 @@ public class DeliveryPanel extends GenericPanel {
 				index = retrieveOrderForm ( ( Order ) object );
 				if ( index != -1 )
 					remove ( index );
+			}
+
+			protected String debugName () {
+				return "DeliveryPanel";
 			}
 		} );
 	}
@@ -237,12 +248,14 @@ public class DeliveryPanel extends GenericPanel {
 		FromServerForm form;
 		Order tmp_order;
 
-		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
-			form = ( FromServerForm ) getWidget ( i );
-			tmp_order = ( Order ) form.getObject ();
+		if ( hasOrders == true ) {
+			for ( int i = 0; i < getWidgetCount (); i++ ) {
+				form = ( FromServerForm ) getWidget ( i );
+				tmp_order = ( Order ) form.getObject ();
 
-			if ( parent.getLocalID () == tmp_order.getLocalID () )
-				return i;
+				if ( parent.getLocalID () == tmp_order.getLocalID () )
+					return i;
+			}
 		}
 
 		return -1;

@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class ProductsUserSelection extends Composite implements FromServerArray {
 	private FlexTable		main;
 	private float			total;
@@ -90,7 +92,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			rows = main.getRowCount ();
+			rows = main.getRowCount () - 2;
 
 			for ( a = 0; a < rows; a += 2 ) {
 				selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
@@ -125,7 +127,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 			if ( to_remove ) {
 				main.removeRow ( a );
-				a--;
+				main.removeRow ( a + 1 );
+				a = a - 2;
 				original_rows--;
 			}
 		}

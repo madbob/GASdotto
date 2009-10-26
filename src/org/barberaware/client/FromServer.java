@@ -328,6 +328,7 @@ public abstract class FromServer implements Comparator {
 		JSONValue value;
 		FromServer tmp;
 		FromServerAttribute attr;
+		ServerHook server;
 
 		if ( obj == null )
 			return;
@@ -344,6 +345,7 @@ public abstract class FromServer implements Comparator {
 		}
 
 		keys = attributes.keySet ().toArray ();
+		server = Utils.getServer ();
 
 		for ( int i = 0; i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
@@ -396,6 +398,12 @@ public abstract class FromServer implements Comparator {
 						tmp = FromServerFactory.create ( attr.object_type.getName () );
 						tmp.fromJSONObject ( array.get ( a ).isObject () );
 						arr.add ( tmp );
+
+						/*
+							Metto subito in cache gli oggetti che mi arrivano insieme ad
+							altri, cosi' non scarico cento volte la stessa roba
+						*/
+						server.addToCache ( tmp );
 					}
 
 					attr.setArray ( arr );
@@ -405,6 +413,12 @@ public abstract class FromServer implements Comparator {
 					tmp = FromServerFactory.create ( attr.object_type.getName () );
 					tmp.fromJSONObject ( value.isObject () );
 					attr.setObject ( tmp );
+
+					/*
+						Metto subito in cache gli oggetti che mi arrivano insieme ad altri,
+						cosi' non scarico cento volte la stessa roba
+					*/
+					server.addToCache ( tmp );
 				}
 
 				else if ( attr.type == FromServer.DATE )

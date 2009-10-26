@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class SuppliersEditPanel extends GenericPanel {
 	private FormCluster		main;
 	private ArrayList		scheduledProducts;
@@ -86,6 +88,10 @@ public class SuppliersEditPanel extends GenericPanel {
 				panel = retrieveProductsPanel ( product );
 				if ( panel != null )
 					panel.deleteProduct ( product );
+			}
+
+			protected String debugName () {
+				return "SuppliersEditPanel";
 			}
 		} );
 

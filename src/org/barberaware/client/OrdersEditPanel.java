@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class OrdersEditPanel extends GenericPanel {
 	private abstract class ForeachProductListCallback {
 		public abstract void doIt ( Order order, FlexTable list, Product product );
@@ -252,9 +254,36 @@ public class OrdersEditPanel extends GenericPanel {
 			public void onDestroy ( FromServer object ) {
 				syncOrder ( ( OrderUser ) object );
 			}
+
+			protected String debugName () {
+				return "OrdersEditPanel";
+			}
+		} );
+
+		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				reloadOrdersBySupplier ( ( Supplier ) object.getObject ( "supplier" ) );
+			}
+
+			public void onModify ( FromServer object ) {
+				/* dummy */
+			}
+
+			public void onDestroy ( FromServer object ) {
+				reloadOrdersBySupplier ( ( Supplier ) object.getObject ( "supplier" ) );
+			}
 		} );
 
 		addTop ( main );
+	}
+
+	private void reloadOrdersBySupplier ( Supplier supplier ) {
+		ObjectRequest req;
+
+		req = new ObjectRequest ( "Order" );
+		req.add ( "supplier", supplier );
+		req.add ( "status", Order.OPENED );
+		Utils.getServer ().invalidateCacheByCondition ( req );
 	}
 
 	private void addOrderDetails ( FromServerForm form ) {
@@ -345,6 +374,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 				order = ( Order ) form.getObject ();
 				table.saveChanges ();
+				order.setArray ( "products", table.getElements () );
 
 				req = new ObjectRequest ( "OrderUser" );
 				req.add ( "baseorder", order );

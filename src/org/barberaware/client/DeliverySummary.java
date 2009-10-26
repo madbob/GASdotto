@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
 	private int			numOrders;
@@ -114,6 +116,7 @@ public class DeliverySummary extends Composite {
 		int index;
 
 		index = retrieveOrder ( uorder );
+
 		if ( index != -1 ) {
 			main.remove ( index );
 			numOrders -= 1;
@@ -125,12 +128,14 @@ public class DeliverySummary extends Composite {
 		int index;
 		FromServerForm row;
 
-		index = uorder.getLocalID ();
+		if ( numOrders != 0 ) {
+			index = uorder.getLocalID ();
 
-		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-			row = ( FromServerForm ) main.getWidget ( i );
-			if ( row.getObject ().getLocalID () == index )
-				return i;
+			for ( int i = 0; i < main.getWidgetCount (); i++ ) {
+				row = ( FromServerForm ) main.getWidget ( i );
+				if ( row.getObject ().getLocalID () == index )
+					return i;
+			}
 		}
 
 		return -1;
