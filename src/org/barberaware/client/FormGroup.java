@@ -43,63 +43,6 @@ public abstract class FormGroup extends Composite {
 		}
 	}
 
-	private void closeOtherForms ( FromServerForm target ) {
-		int tot;
-		FromServerForm iter;
-
-		tot = latestIterableIndex ();
-
-		for ( int i = 0; i < tot; i++ ) {
-			iter = ( FromServerForm ) main.getWidget ( i );
-
-			if ( iter != target ) {
-				if ( iter.isOpen () ) {
-					/*
-						Tendenzialmente qui si potrebbe assumere che un
-						solo Form e' aperto in ogni momento, e se si
-						trova quello precedentemente "open" basta
-						chiuderlo ed uscire dal ciclo, ma per sicurezza
-						me li passo tutti
-					*/
-					iter.open ( false );
-				}
-			}
-		}
-	}
-
-	private Panel doAddButtonsBar () {
-		HorizontalPanel pan;
-
-		pan = new HorizontalPanel ();
-		pan.setStyleName ( "bottom-buttons" );
-		return pan;
-	}
-
-	private void doAddButton ( String adding_text ) {
-		AddButton button;
-
-		button = new AddButton ( adding_text, new ClickListener () {
-			public void onClick ( Widget sender ) {
-				FromServerForm new_form;
-
-				new_form = doNewEditableRow ();
-				if ( new_form == null )
-					return;
-
-				new_form.setCallback ( new FromServerFormCallbacks () {
-					public void onOpen ( FromServerForm form ) {
-						closeOtherForms ( form );
-					}
-				} );
-
-				new_form.open ( true );
-				main.insert ( new_form, latestIterableIndex () );
-			}
-		} );
-
-		addButtons.add ( button );
-	}
-
 	public void extraAddButton ( AddButton button ) {
 		addButtons.add ( button );
 	}
@@ -141,22 +84,6 @@ public abstract class FormGroup extends Composite {
 
 	public int latestIterableIndex () {
 		return main.getWidgetCount () - ( addable ? 1 : 0 );
-	}
-
-	private int getPosition ( FromServer object ) {
-		int i;
-		FromServer object_2;
-		FromServerForm iter;
-
-		for ( i = 0; i < latestIterableIndex (); i++ ) {
-			iter = ( FromServerForm ) main.getWidget ( i );
-			object_2 = iter.getObject ();
-
-			if ( object_2 != null && sorting ( object, object_2 ) > 0 )
-				break;
-		}
-
-		return i;
 	}
 
 	/*
@@ -275,6 +202,79 @@ public abstract class FormGroup extends Composite {
 		}
 
 		return array;
+	}
+
+	private void closeOtherForms ( FromServerForm target ) {
+		int tot;
+		FromServerForm iter;
+
+		tot = latestIterableIndex ();
+
+		for ( int i = 0; i < tot; i++ ) {
+			iter = ( FromServerForm ) main.getWidget ( i );
+
+			if ( iter != target ) {
+				if ( iter.isOpen () ) {
+					/*
+						Tendenzialmente qui si potrebbe assumere che un
+						solo Form e' aperto in ogni momento, e se si
+						trova quello precedentemente "open" basta
+						chiuderlo ed uscire dal ciclo, ma per sicurezza
+						me li passo tutti
+					*/
+					iter.open ( false );
+				}
+			}
+		}
+	}
+
+	private Panel doAddButtonsBar () {
+		HorizontalPanel pan;
+
+		pan = new HorizontalPanel ();
+		pan.setStyleName ( "bottom-buttons" );
+		return pan;
+	}
+
+	private void doAddButton ( String adding_text ) {
+		AddButton button;
+
+		button = new AddButton ( adding_text, new ClickListener () {
+			public void onClick ( Widget sender ) {
+				FromServerForm new_form;
+
+				new_form = doNewEditableRow ();
+				if ( new_form == null )
+					return;
+
+				new_form.setCallback ( new FromServerFormCallbacks () {
+					public void onOpen ( FromServerForm form ) {
+						closeOtherForms ( form );
+					}
+				} );
+
+				new_form.open ( true );
+				main.insert ( new_form, latestIterableIndex () );
+			}
+		} );
+
+		addButtons.add ( button );
+	}
+
+	private int getPosition ( FromServer object ) {
+		int i;
+		FromServer object_2;
+		FromServerForm iter;
+
+		for ( i = 0; i < latestIterableIndex (); i++ ) {
+			iter = ( FromServerForm ) main.getWidget ( i );
+			object_2 = iter.getObject ();
+
+			if ( object_2 != null && sorting ( object, object_2 ) > 0 )
+				break;
+		}
+
+		return i;
 	}
 
 	/*

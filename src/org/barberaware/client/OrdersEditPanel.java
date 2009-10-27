@@ -262,7 +262,49 @@ public class OrdersEditPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				reloadOrdersBySupplier ( ( Supplier ) object.getObject ( "supplier" ) );
+				int num_orders;
+				int num_products;
+				boolean already_has;
+				ArrayList orders;
+				ArrayList products;
+				Order order;
+				Supplier prod_supplier;
+				Product order_product;
+
+				/*
+					Tutto questo gran giro per controllare che il prodotto ricevuto non sia gia'
+					negli ordini immessi nel pannello. Se cio' non accadesse gli ordini
+					verrebbero invalidati e ricaricati ad ogni prodotto che arriva, soprattutto
+					in fase di startup dell'applicazione, generando un traffico immenso e
+					possibili inconsistenze
+				*/
+
+				prod_supplier = ( Supplier ) object.getObject ( "supplier" );
+				orders = main.collectContents ();
+				num_orders = orders.size ();
+
+				for ( int i = 0; i < num_orders; i++ ) {
+					order = ( Order ) orders.get ( i );
+
+					if ( order.getObject ( "supplier" ).equals ( prod_supplier ) ) {
+						products = order.getArray ( "products" );
+						num_products = products.size ();
+						already_has = false;
+
+						for ( int e = 0; e < num_products; e++ ) {
+							order_product = ( Product ) products.get ( i );
+							if ( order_product.equals ( object ) ) {
+								already_has = true;
+								break;
+							}
+						}
+
+						if ( already_has == false ) {
+							reloadOrdersBySupplier ( prod_supplier );
+							break;
+						}
+					}
+				}
 			}
 
 			public void onModify ( FromServer object ) {

@@ -65,6 +65,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					if ( ord.getInt ( "status" ) == Order.OPENED ) {
 						index = getSortedPosition ( object );
 						insert ( doOrderRow ( ord, canMultiUser ( ord ) ), index );
+						alignOrdersInCache ( ord );
 					}
 				}
 			}
@@ -94,22 +95,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						ordine viene ri-aperto
 					*/
 					if ( status == Order.OPENED ) {
-						ArrayList uorders;
-						OrderUser uorder;
-
 						onReceive ( object );
-
-						/*
-							Quando un Order viene riaperto mi tocca forzare un nuovo
-							controllo sugli OrderUser gia' prelevati dal server. Per
-							fortuna e' un evento che capita raramente...
-						*/
-
-						uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
-						for ( int i = 0; i < uorders.size (); i++ ) {
-							uorder = ( OrderUser ) uorders.get ( i );
-							findAndAlign ( uorder, 0 );
-						}
+						alignOrdersInCache ( ord );
 					}
 				}
 			}
@@ -128,6 +115,21 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return "OrdersPrivilegedPanel";
 			}
 		} );
+	}
+
+	private void alignOrdersInCache ( Order order ) {
+		int num;
+		ArrayList uorders;
+		OrderUser uorder;
+
+		uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		num = uorders.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			uorder = ( OrderUser ) uorders.get ( i );
+			if ( order.equals ( uorder.getObject ( "baseorder" ) ) )
+				findAndAlign ( uorder, 0 );
+		}
 	}
 
 	private int getSortedPosition ( FromServer object ) {

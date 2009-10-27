@@ -63,12 +63,15 @@ class User extends FromServer {
 	}
 
 	public function destroy ( $obj ) {
-		$id = parent::destroy ( $obj );
-
-		$query = sprintf ( "DELETE FROM accounts WHERE username = %d", $id );
+		/*
+			Prima viene rimosso l'account in quanto la tabella contiene una
+			constraint verso Users
+		*/
+		$query = sprintf ( "DELETE FROM accounts WHERE username = %d", $obj->id );
 		query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
 
-		return $id;
+		parent::destroy ( $obj );
+		return $obj->id;
 	}
 
 	public function registerLogin () {
