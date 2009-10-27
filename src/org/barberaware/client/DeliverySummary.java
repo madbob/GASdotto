@@ -62,6 +62,10 @@ public class DeliverySummary extends Composite {
 				if ( index != -1 )
 					main.remove ( index );
 			}
+
+			protected String debugName () {
+				return "DeliverySummary";
+			}
 		} );
 
 		numOrders = 0;
@@ -144,13 +148,23 @@ public class DeliverySummary extends Composite {
 	private int retrieveUser ( User user ) {
 		int index;
 		FromServerForm row;
+		User test;
+		OrderUser uorder;
+
+		if ( numOrders == 0 )
+			return -1;
 
 		index = user.getLocalID ();
 
 		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
 			row = ( FromServerForm ) main.getWidget ( i );
-			if ( row.getObject ().getObject ( "baseuser" ).getLocalID () == index )
-				return i;
+			uorder = ( OrderUser ) row.getObject ();
+
+			if ( uorder != null ) {
+				test = ( User ) uorder.getObject ( "baseuser" );
+				if ( test != null && test.getLocalID () == index )
+					return i;
+			}
 		}
 
 		return -1;

@@ -81,10 +81,12 @@ public class FromServerResponse extends ServerResponse {
 				else
 					server.triggerObjectCreation ( reference );
 			}
-			else if ( type == ACTION_MODIFY )
+			else if ( type == ACTION_MODIFY ) {
 				server.triggerObjectModification ( reference );
-			else if ( type == ACTION_DELETE )
+			}
+			else if ( type == ACTION_DELETE ) {
 				server.triggerObjectDeletion ( reference );
+			}
 
 			if ( callback != null )
 				callback.onComplete ( response );

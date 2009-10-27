@@ -151,15 +151,14 @@ public class UsersPanel extends GenericPanel {
 				}
 
 				protected void customModify ( FromServerForm form ) {
-					/**
-						TODO	Questo non sembra funzionare, controllare
-					*/
+					User user;
 
-					if ( Session.getGAS ().getBool ( "payments" ) == true ) {
-						User user;
-						user = ( User ) form.getObject ();
+					user = ( User ) form.getObject ();
+
+					if ( Session.getGAS ().getBool ( "payments" ) == true )
 						user.checkUserPaying ( form );
-					}
+
+					setRoleIcon ( form, user );
 				}
 
 				protected int sorting ( FromServer first, FromServer second ) {
@@ -247,15 +246,14 @@ public class UsersPanel extends GenericPanel {
 		privileges = user.getInt ( "privileges" );
 		bar = form.getIconsBar ();
 
+		bar.delImage ( "images/notifications/user_responsable.png" );
+		bar.delImage ( "images/notifications/user_admin.png" );
+
 		if ( privileges == User.USER_RESPONSABLE ) {
 			bar.addImage ( "images/notifications/user_responsable.png" );
 		}
 		else if ( privileges == User.USER_ADMIN ) {
 			bar.addImage ( "images/notifications/user_admin.png" );
-		}
-		else {
-			bar.delImage ( "images/notifications/user_responsable.png" );
-			bar.delImage ( "images/notifications/user_admin.png" );
 		}
 	}
 

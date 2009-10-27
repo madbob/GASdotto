@@ -75,6 +75,10 @@ public class MultiSelector extends Composite implements FromServerArray {
 				public void onDestroy ( FromServer object ) {
 					dialog.removeElementInList ( object );
 				}
+
+				protected String debugName () {
+					return "MultiSelector su " + objectType;
+				}
 			} );
 
 			Utils.getServer ().testObjectReceive ( type );
