@@ -21,9 +21,9 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class SuppliersPanel extends GenericPanel {
-	private ArrayList		scheduledProducts;
+import com.allen_sauer.gwt.log.client.Log;
 
+public class SuppliersPanel extends GenericPanel {
 	private abstract class OrdersList extends Composite {
 		private FlexTable	main;
 		private FromServerForm	mainForm;
@@ -201,6 +201,7 @@ public class SuppliersPanel extends GenericPanel {
 	}
 
 	private FormCluster		main;
+	private ArrayList		scheduledProducts;
 
 	public SuppliersPanel () {
 		super ();
@@ -317,6 +318,10 @@ public class SuppliersPanel extends GenericPanel {
 					list.delOrder ( ( Order ) object );
 				}
 			}
+
+			protected String debugName () {
+				return "SuppliersPanel";
+			}
 		} );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
@@ -329,6 +334,7 @@ public class SuppliersPanel extends GenericPanel {
 
 				if ( form != null ) {
 					PastOrdersList list;
+
 					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
 					list.addOrder ( ord );
 				}
@@ -361,6 +367,10 @@ public class SuppliersPanel extends GenericPanel {
 					list.delOrder ( ord );
 				}
 			}
+
+			protected String debugName () {
+				return "SuppliersPanel";
+			}
 		} );
 
 		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
@@ -390,6 +400,10 @@ public class SuppliersPanel extends GenericPanel {
 				panel = retrieveProductsPanel ( prod );
 				if ( panel == null )
 					panel.deleteProduct ( prod );
+			}
+
+			protected String debugName () {
+				return "SuppliersPanel";
 			}
 		} );
 

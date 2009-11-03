@@ -24,9 +24,9 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FormGroup extends Composite {
-	private VerticalPanel			main;
-	private Panel				addButtons;
-	private boolean				addable;
+	private VerticalPanel			main			= null;
+	private Panel				addButtons		= null;
+	private boolean				addable			= false;
 
 	public FormGroup ( String adding_text ) {
 		main = new VerticalPanel ();
@@ -34,16 +34,19 @@ public abstract class FormGroup extends Composite {
 		initWidget ( main );
 
 		addable = false;
-		addButtons = doAddButtonsBar ();
-		main.add ( addButtons );
 
 		if ( adding_text != null ) {
+			addButtons = doAddButtonsBar ();
+			main.add ( addButtons );
 			doAddButton ( adding_text );
 			addable = true;
 		}
 	}
 
 	public void extraAddButton ( AddButton button ) {
+		if ( addButtons == null )
+			return;
+
 		addButtons.add ( button );
 	}
 
@@ -59,7 +62,6 @@ public abstract class FormGroup extends Composite {
 		for ( i = 0; i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 			cmp = iter.getObject ();
-
 			if ( cmp != null && cmp.getLocalID () == id )
 				break;
 		}
