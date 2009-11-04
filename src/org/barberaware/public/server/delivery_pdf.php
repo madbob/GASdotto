@@ -119,7 +119,7 @@ $pdf->SetFooterMargin ( 10 );
 $pdf->SetAutoPageBreak ( true, 25 );
 $pdf->setImageScale ( 1 );
 $pdf->setLanguageArray ( $l );
-$pdf->SetFont ( 'helvetica', '', 12 );
+$pdf->SetFont ( 'helvetica', '', 7 );
 $pdf->AddPage ();
 
 /*

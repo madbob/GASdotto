@@ -117,7 +117,7 @@ class Order extends FromServer {
 		/*
 			Gli ordini con data di apertura nel futuro vengono marcati come "sospesi"
 		*/
-		$startdate = $obj->startdate . " 23:59:59";
+		$startdate = $obj->startdate . " 00:00:00";
 		if ( strtotime ( $startdate ) > time () )
 			$obj->status = 3;
 
