@@ -228,7 +228,8 @@ public class ProductsEditPanel extends Composite {
 					return;
 				}
 
-				prod = ( ( FromServer ) products.get ( 0 ) ).duplicate ();
+				prod = ( FromServer ) products.get ( 0 );
+				prod = prod.duplicate ();
 				prod.setLocalID ( -1 );
 				prod.setString ( "name", prod.getString ( "name" ) + " 2" );
 				list.addElement ( prod );

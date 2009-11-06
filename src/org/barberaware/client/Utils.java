@@ -97,6 +97,9 @@ public class Utils {
 		FromServer iter;
 		ArrayList ret;
 
+		if ( array == null )
+			return null;
+
 		ret = new ArrayList ();
 
 		for ( int i = 0; i < array.size (); i++ ) {
