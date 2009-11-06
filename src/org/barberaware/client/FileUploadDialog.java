@@ -28,17 +28,18 @@ public class FileUploadDialog extends Composite implements StringWidget {
 	private FileUpload		upload;
 
 	private boolean			opened;
-	private boolean			set;
+	private String			completeFile;
 
 	public FileUploadDialog () {
 		opened = false;
-		set = false;
+		completeFile = "";
 
 		dialog = new DialogBox ( false );
 		dialog.setText ( "Seleziona File" );
 		dialog.setWidget ( doDialog () );
 
-		main = new Button ( "Nessun file selezionato" );
+		main = new Button ();
+		showFileName ();
 		main.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
 				if ( opened == false ) {
@@ -50,6 +51,17 @@ public class FileUploadDialog extends Composite implements StringWidget {
 		} );
 
 		initWidget ( main );
+	}
+
+	private void showFileName () {
+		String [] path;
+		
+		if ( completeFile == null || completeFile.equals ( "" ) )
+			main.setText ( "Nessun file selezionato" );
+		else {
+			path = completeFile.split ( "/" );
+			main.setText ( path [ path.length - 1 ] );
+		}
 	}
 
 	private Panel doDialog () {
@@ -98,8 +110,8 @@ public class FileUploadDialog extends Composite implements StringWidget {
 
 			public void onSubmitComplete ( FormSubmitCompleteEvent event ) {
 				Utils.getServer ().loadingAlert ( false );
-				main.setText ( event.getResults () );
-				set = true;
+				completeFile = event.getResults ();
+				showFileName ();
 				dialog.hide ();
 			}
 		} );
@@ -108,20 +120,11 @@ public class FileUploadDialog extends Composite implements StringWidget {
 	}
 
 	public void setValue ( String value ) {
-		if ( value != null && value.length () != 0 ) {
-			main.setText ( value );
-			set = true;
-		}
-		else {
-			main.setText ( "Nessun file selezionato" );
-			set = false;
-		}
+		completeFile = value;
+		showFileName ();
 	}
 
 	public String getValue () {
-		if ( set == true )
-			return main.getText ();
-		else
-			return "";
+		return completeFile;
 	}
 }

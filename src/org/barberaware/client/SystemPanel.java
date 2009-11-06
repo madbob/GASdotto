@@ -85,6 +85,7 @@ public class SystemPanel extends GenericPanel {
 
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
+		frame.addPair ( "Icona", ver.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
 		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
 
 		/*

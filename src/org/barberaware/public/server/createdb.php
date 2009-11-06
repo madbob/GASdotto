@@ -53,6 +53,9 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella gas" );
 
+	$query = sprintf ( "INSERT INTO GAS ( name ) VALUES ( 'Il Mio GAS' )" );
+	query_and_check ( $query, "Impossibile inizializzare tabella users" );
+
 	/*
 		=======================================================================================
 	*/

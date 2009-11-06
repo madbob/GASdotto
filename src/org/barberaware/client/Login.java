@@ -78,14 +78,23 @@ public class Login extends Composite {
 		String desc;
 		VerticalPanel container;
 		Label label;
+		Image image;
 
 		container = new VerticalPanel ();
-
-		desc = gas.getString ( "name" );
+		
+		desc = gas.getString ( "image" );
 		if ( desc.equals ( "" ) == false ) {
-			label = new Label ( desc );
-			label.setStyleName ( "genericpanel-header" );
-			container.add ( label );
+			image = new Image ( Utils.getServer ().getDomain () + desc );
+			image.setStyleName ( "genericpanel-header" );
+			container.add ( image );
+		}
+		else {
+			desc = gas.getString ( "name" );
+			if ( desc.equals ( "" ) == false ) {
+				label = new Label ( desc );
+				label.setStyleName ( "genericpanel-header" );
+				container.add ( label );
+			}
 		}
 
 		desc = gas.getString ( "description" );
