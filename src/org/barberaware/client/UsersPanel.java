@@ -160,15 +160,6 @@ public class UsersPanel extends GenericPanel {
 
 					setRoleIcon ( form, user );
 				}
-
-				protected int sorting ( FromServer first, FromServer second ) {
-					if ( first == null )
-						return 1;
-					else if ( second == null )
-						return -1;
-
-					return -1 * ( first.getString ( "name" ).compareTo ( second.getString ( "name" ) ) );
-				}
 		};
 
 		/*

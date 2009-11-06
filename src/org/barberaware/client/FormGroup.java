@@ -284,7 +284,20 @@ public abstract class FormGroup extends Composite {
 		all'interno della lista di forms
 	*/
 	protected int sorting ( FromServer first, FromServer second ) {
-		return 0;
+		String a;
+		String b;
+
+		if ( first == null )
+			return 1;
+		else if ( second == null )
+			return -1;
+
+		a = first.getString ( "name" );
+		b = second.getString ( "name" );
+		if ( a == null || b == null )
+			return 0;
+
+		return -1 * ( a.compareTo ( b ) );
 	}
 
 	protected abstract FromServerForm doNewEditableRow ();

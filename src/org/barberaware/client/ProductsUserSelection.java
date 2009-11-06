@@ -51,7 +51,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				if ( prod.getBool ( "available" ) == false )
 					continue;
 
-				addProductRow ( a, prod );
+				addProductRow ( prod );
 				a += 2;
 			}
 		}
@@ -103,7 +103,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			}
 
 			if ( a == rows )
-				addProductRow ( rows, prod );
+				addProductRow ( prod );
 		}
 
 		/**
@@ -170,19 +170,23 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		return info_str;
 	}
 
-	private void addProductRow ( int index, Product product ) {
+	private void addProductRow ( Product product ) {
+		int row;
 		String info_str;
 		FlexTable.FlexCellFormatter formatter;
 		ProductUserSelector sel;
 
+		row = getProductAddingPosition ( product );
+		main.insertRow ( row );
+
 		formatter = main.getFlexCellFormatter ();
 
-		main.setWidget ( index, 0, new Label ( product.getString ( "name" ) ) );
-		formatter.setWidth ( index, 0, "20%" );
+		main.setWidget ( row, 0, new Label ( product.getString ( "name" ) ) );
+		formatter.setWidth ( row, 0, "20%" );
 
 		sel = new ProductUserSelector ( product );
-		main.setWidget ( index, 1, sel );
-		formatter.setWidth ( index, 1, "20%" );
+		main.setWidget ( row, 1, sel );
+		formatter.setWidth ( row, 1, "20%" );
 		sel.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				updateTotal ();
@@ -194,19 +198,38 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		*/
 
 		info_str = getPriceInfo ( product );
-		main.setWidget ( index, 2, new Label ( info_str ) );
-		formatter.setWidth ( index, 2, "60%" );
+		main.setWidget ( row, 2, new Label ( info_str ) );
+		formatter.setWidth ( row, 2, "60%" );
 
-		formatter.setHorizontalAlignment ( index, 2, HasHorizontalAlignment.ALIGN_RIGHT );
+		formatter.setHorizontalAlignment ( row, 2, HasHorizontalAlignment.ALIGN_RIGHT );
 
 		/*
 			Informazioni aggiuntive
 		*/
 
+		main.insertRow ( row + 1 );
 		info_str = product.getString ( "description" );
-		main.setWidget ( index + 1, 0, new Label ( info_str ) );
-		formatter.setColSpan ( index + 1, 0, 3 );
-		formatter.setStyleName ( index + 1, 0, "description" );
+		main.setWidget ( row + 1, 0, new Label ( info_str ) );
+		formatter.setColSpan ( row + 1, 0, 3 );
+		formatter.setStyleName ( row + 1, 0, "description" );
+	}
+
+	private int getProductAddingPosition ( Product prod ) {
+		int i;
+		int tot;
+		String name;
+		Label existing_name;
+
+		name = prod.getString ( "name" );
+		tot = main.getRowCount () - 2;
+
+		for ( i = 0; i < tot; i += 2 ) {
+			existing_name = ( Label ) main.getWidget ( i, 0 );
+			if ( name.compareTo ( existing_name.getText () ) <= 0 )
+				break;
+		}
+
+		return i;
 	}
 
 	private void modProductRow ( int index, Product product ) {

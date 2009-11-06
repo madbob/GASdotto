@@ -181,21 +181,6 @@ public class ProductsEditPanel extends Composite {
 					return doEditableRow ( product );
 				}
 
-				protected int sorting ( FromServer first, FromServer second ) {
-					int comp_cat;
-					Category first_cat;
-					Category second_cat;
-
-					first_cat = ( Category ) first.getObject ( "category" );
-					second_cat = ( Category ) second.getObject ( "category" );
-
-					comp_cat = first_cat.compare ( first_cat, second_cat );
-					if ( comp_cat == 0 )
-						return first.compare ( first, second );
-					else
-						return comp_cat;
-				}
-
 				protected void customModify ( FromServerForm form ) {
 					FromServer obj;
 

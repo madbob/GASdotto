@@ -136,8 +136,14 @@ public class DeliveryPanel extends GenericPanel {
 				ArrayList uorders;
 				OrderUser uord;
 
-				form = ( FromServerForm ) doOrderRow ( ord );
-				addTop ( form );
+				if ( index == -1 ) {
+					form = ( FromServerForm ) doOrderRow ( ord );
+					addTop ( form );
+				}
+				else {
+					form = ( FromServerForm ) getWidget ( index );
+				}
+
 				uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 
 				for ( int i = 0; i < uorders.size (); i++ ) {
