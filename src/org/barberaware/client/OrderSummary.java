@@ -147,38 +147,46 @@ public class OrderSummary extends Composite {
 		totalLabel.setValue ( total_price );
 	}
 
+	private int searchProduct ( Product prod ) {
+		int current_children;
+		String id;
+		Hidden existing_id;
+
+		current_children = main.getRowCount () - 2;
+		id = Integer.toString ( prod.getLocalID () );
+
+		for ( int i = 1; i < current_children; i++ ) {
+			existing_id = ( Hidden ) main.getWidget ( i, 0 );
+			if ( id == existing_id.getName () )
+				return i;
+		}
+
+		return -1;
+	}
+
 	private void syncTable ( ArrayList products, float [] quantities, float [] prices ) {
 		int i;
 		int e;
-		int current_children;
 		boolean new_row;
-		Hidden product_id;
 		Product product;
 
-		current_children = main.getRowCount () - 2;
-
-		for ( i = 0, e = 1; i < products.size (); i++ ) {
+		for ( i = 0; i < products.size (); i++ ) {
 			product = ( Product ) products.get ( i );
 
 			if ( product.getBool ( "available" ) == false )
 				continue;
 
-			new_row = false;
-
-			if ( e >= current_children ) {
+			e = searchProduct ( product );
+			if ( e == -1 ) {
+				e = main.getRowCount () - 2;
+				main.insertRow ( e );
 				new_row = true;
 			}
 			else {
-				product_id = ( Hidden ) main.getWidget ( e, 0 );
-				if ( Integer.toString ( product.getLocalID () ) != product_id.getName () )
-					new_row = true;
+				new_row = false;
 			}
 
-			if ( new_row == true )
-				main.insertRow ( e );
-
 			setDataRow ( e, product, quantities [ i ], prices [ i ], new_row );
-			e++;
 		}
 	}
 
@@ -249,6 +257,8 @@ public class OrderSummary extends Composite {
 		products = currentOrder.getArray ( "products" );
 		if ( products == null )
 			return;
+
+		products = Utils.sortArrayByName ( products );
 
 		for ( i = 0, e = 1; i < products.size (); i++ ) {
 			prod = ( Product ) products.get ( i );

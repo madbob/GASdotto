@@ -181,6 +181,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 	public void setElements ( ArrayList elements ) {
 		int num;
+		ArrayList sorted_elements;
 		FromServer obj;
 
 		clean ();
@@ -188,10 +189,11 @@ public class FromServerTable extends Composite implements FromServerArray {
 		if ( elements == null )
 			return;
 
-		num = elements.size ();
+		sorted_elements = Utils.sortArrayByName ( elements );
+		num = sorted_elements.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			obj = ( FromServer ) elements.get ( i );
+			obj = ( FromServer ) sorted_elements.get ( i );
 			addElement ( obj );
 		}
 	}

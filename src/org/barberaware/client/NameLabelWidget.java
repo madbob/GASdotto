@@ -25,6 +25,7 @@ public class NameLabelWidget extends ObjectWidget {
 
 	public NameLabelWidget () {
 		main = new Label ();
+		main.setStyleName ( "static-value" );
 		initWidget ( main );
 	}
 

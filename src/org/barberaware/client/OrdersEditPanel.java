@@ -50,7 +50,6 @@ public class OrdersEditPanel extends GenericPanel {
 						return null;
 
 					supplier = ( Supplier ) order.getObject ( "supplier" );
-
 					if ( supplier.iAmReference () == false )
 						return null;
 
@@ -66,7 +65,7 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.add ( frame );
 					hor.setCellWidth ( frame, "50%" );
 
-					frame.addPair ( "Fornitore", new Label ( supplier.getString ( "name" ) ) );
+					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", new NameLabelWidget () ) );
 
 					/*
 						Nella selezione non appare lo stato 3, usato per l'auto-sospensione

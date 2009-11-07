@@ -1,3 +1,16 @@
+body {
+	padding:		0px;
+	margin:			0px;
+	vertical-align:		top;
+}
+
+.main {
+	width:			100%;
+	height:			100%;
+	text-align:		left;
+	vertical-align:		top;
+}
+
 .smoothing-notify {
 	opacity:		1.0;
 	z-index:		100;
@@ -180,7 +193,9 @@
 }
 
 .buttons-bar .help {
-	height:			15px;
+	height:			20px;
+	margin-top:		0px;
+	margin-bottom:		0px;
 	margin-left:		5px;
 	margin-right:		5px;
 	text-align:		center;

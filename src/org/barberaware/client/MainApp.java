@@ -31,9 +31,7 @@ public class MainApp extends Composite {
 
 		main = new VerticalPanel ();
 		initWidget ( main );
-		main.setSize ( "100%", "100%" );
-
-		main.add ( Utils.getNotificationsArea () );
+		main.setStyleName ( "main" );
 
 		header = new Header ();
 		main.add ( header );
@@ -53,6 +51,8 @@ public class MainApp extends Composite {
 		header.wireMainStack ( stack );
 
 		main.add ( new Footer () );
+
+		main.add ( Utils.getNotificationsArea () );
 
 		stack.showPanelAtPos ( 0 );
 		openLink ();

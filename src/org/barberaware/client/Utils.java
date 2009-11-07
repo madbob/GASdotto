@@ -110,6 +110,32 @@ public class Utils {
 		return ret;
 	}
 
+	public static ArrayList sortArrayByName ( ArrayList array ) {
+		ArrayList ret;
+
+		ret = Utils.dupliacateFromServerArray ( array );
+		Collections.sort ( ret, new Comparator () {
+			public int compare ( Object first, Object second ) {
+				FromServer tmp;
+				String name_first;
+				String name_second;
+
+				tmp = ( FromServer ) first;
+				name_first = tmp.getString ( "name" );
+				tmp = ( FromServer ) second;
+				name_second = tmp.getString ( "name" );
+
+				return name_first.compareTo ( name_second );
+			}
+
+			public boolean equals ( Object obj ) {
+				return false;
+			}
+		} );
+
+		return ret;
+	}
+
 	public static float sumPercentage ( float origin, String percentage ) {
 		float perc;
 
