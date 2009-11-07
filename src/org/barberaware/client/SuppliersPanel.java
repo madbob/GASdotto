@@ -493,9 +493,14 @@ public class SuppliersPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		ServerRequest params;
+
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Order" );
-		Utils.getServer ().testObjectReceive ( "OrderUser" );
+
+		params = new ServerRequest ( "OrderUser" );
+		params.add ( "all", 1 );
+		Utils.getServer ().testObjectReceive ( params );
 	}
 }

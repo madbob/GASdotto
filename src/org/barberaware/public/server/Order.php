@@ -46,7 +46,7 @@ class Order extends FromServer {
 			Questo e' per aprire gli ordini che sono stati creati con data di inizio
 			nel futuro
 		*/
-		$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 3 AND startdate < NOW() AND enddate > NOW()", $this->tablename );
+		$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 2 AND startdate < NOW() AND enddate > NOW()", $this->tablename );
 		query_and_check ( $query, "Impossibile aprire ordini sospesi" );
 
 		/**
@@ -61,7 +61,7 @@ class Order extends FromServer {
 				Gli ordini con status = 3 ("consegnato") non sono piu' esposti
 				all'applicazione, vengono conservati solo ad uso statistico
 			*/
-			$query = sprintf ( "SELECT id FROM %s WHERE status != %d ", $this->tablename, 3 );
+			$query = sprintf ( "SELECT id FROM %s WHERE status != 3 ", $this->tablename );
 		}
 
 		$ret = array ();
@@ -119,7 +119,7 @@ class Order extends FromServer {
 		*/
 		$startdate = $obj->startdate . " 00:00:00";
 		if ( strtotime ( $startdate ) > time () )
-			$obj->status = 3;
+			$obj->status = 2;
 
 		return parent::save ( $obj );
 	}

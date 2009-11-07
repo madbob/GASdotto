@@ -31,15 +31,20 @@ class OrderUser extends FromServer {
 	}
 
 	public function get ( $request ) {
+		global $current_user;
+
 		$ret = array ();
+		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
 
 		/*
 			Al momento questo viene usato solo per order_csv.php, dunque non viene
 			contemplato il parametro "has" come nelle altre ricerche
 		*/
 		if ( isset ( $request->order ) ) {
-			$query = sprintf ( "SELECT id FROM %s WHERE baseorder = %d ORDER BY id",
-						$this->tablename, $request->order );
+			$query .= sprintf ( "baseorder = %d ORDER BY id", $request->order );
+
+			if ( current_permissions () == 0 )
+				$query .= sprintf ( " AND baseuser = %d ", $current_user );
 
 			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
@@ -51,24 +56,29 @@ class OrderUser extends FromServer {
 			}
 		}
 		else {
-			/**
-				TODO	Correggere completamente: filtrare in funzione dell'utente, e aggiungere un
-					parametro per pescare anche gli ordini chiusi e consegnati
-			*/
-
 			$ord = new Order ();
 
-			/*
-				Per le richieste generiche, vengono scartati i dati per ordini
-				che sono gia' stati consegnati (status = 3)
-			*/
-			$query = sprintf ( "SELECT id FROM %s WHERE baseorder NOT IN (SELECT id FROM %s WHERE status = %d)",
-			                   $this->tablename, $ord->tablename, 3 );
+			if ( !isset ( $request->all ) ) {
+				/*
+					Per le richieste generiche, vengono scartati i dati per ordini
+					che sono gia' stati consegnati (status = 3)
+				*/
+				$query .= sprintf ( "baseorder NOT IN (SELECT id FROM %s WHERE status = %d) ", $ord->tablename, 3 );
+			}
+			else {
+				/*
+					Riempitivo...
+				*/
+				$query .= sprintf ( "id > -1 " );
+			}
 
 			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 				$ids = join ( ',', $request->has );
-				$query .= sprintf ( " AND id NOT IN ( %s ) ", $ids );
+				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
 			}
+
+			if ( current_permissions () == 0 )
+				$query .= sprintf ( "AND baseuser = %d ", $current_user );
 
 			$query .= "ORDER BY id";
 
