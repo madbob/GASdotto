@@ -51,6 +51,11 @@ class OrderUser extends FromServer {
 			}
 		}
 		else {
+			/**
+				TODO	Correggere completamente: filtrare in funzione dell'utente, e aggiungere un
+					parametro per pescare anche gli ordini chiusi e consegnati
+			*/
+
 			$ord = new Order ();
 
 			/*

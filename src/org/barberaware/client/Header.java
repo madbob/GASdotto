@@ -24,35 +24,6 @@ import com.google.gwt.user.client.ui.*;
 public class Header extends Composite {
 	private MainStack	stack;
 	private DialogBox	logout;
-	private DialogBox	permalinkDialog;
-	private TextBox		permalink;
-
-	private void doPermalink () {
-		Button but;
-		VerticalPanel contents;
-
-		permalinkDialog = new DialogBox ();
-		permalinkDialog.setText ( "Permalink" );
-
-		contents = new VerticalPanel ();
-		contents.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
-		contents.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-
-		permalink = new TextBox ();
-		permalink.setReadOnly ( true );
-		permalink.setVisibleLength ( 50 );
-		contents.add ( permalink );
-
-		but = new Button ( "Annulla" );
-		but.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				permalinkDialog.hide ();
-			}
-		} );
-		contents.add ( but );
-
-		permalinkDialog.setWidget ( contents );
-	}
 
 	private void doLogout () {
 		Button but;
@@ -90,31 +61,6 @@ public class Header extends Composite {
 		contents.add ( but );
 
 		logout.setWidget ( contents );
-	}
-
-	private Widget doPermalinkButton () {
-		FocusPanel main;
-		HorizontalPanel container;
-
-		main = new FocusPanel ();
-
-		container = new HorizontalPanel ();
-		container.setStyleName ( "main-menu-item" );
-		container.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		container.add ( new Label ( "Permalink" ) );
-		container.add ( new Image ( "images/permalink.png" ) );
-
-		main.add ( container );
-
-		main.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				permalink.setText ( stack.getCurrentBookmark () );
-				permalinkDialog.center ();
-				permalinkDialog.show ();
-			}
-		} );
-
-		return main;
 	}
 
 	private Widget doLogoutButton () {
@@ -164,26 +110,9 @@ public class Header extends Composite {
 
 		doLogout ();
 
-		/*
-			Per motivi di semplicita' dell'interfaccia il tasto per il permalink
-			viene visualizzato solo per referenti ed amministratori, che in fondo
-			sono gli unici che se ne fanno qualcosa
-		*/
-		if ( Session.getUser ().getInt ( "privileges" ) >= User.USER_RESPONSABLE )
-			doPermalink ();
-
 		item = doGreetings ();
 		main.add ( item );
 		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_LEFT );
-
-		/**
-			TODO	Eventualmente rimuovere definitivamente il permalink
-		*/
-		/*
-		item = doPermalinkButton ();
-		main.add ( item );
-		main.setCellHorizontalAlignment ( item, HasHorizontalAlignment.ALIGN_RIGHT );
-		*/
 
 		item = doLogoutButton ();
 		main.add ( item );

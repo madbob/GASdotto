@@ -79,24 +79,30 @@ public class SuppliersPanel extends GenericPanel {
 				icons = mainForm.getIconsBar ();
 				icons.addImage ( getMainIcon () );
 			}
-
-			num++;
+			else {
+				if ( retrieveOrder ( order ) != -1 )
+					return;
+			}
 
 			main.setWidget ( num, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
 			main.setWidget ( num, 1, new Label ( order.getString ( "name" ) ) );
+			num++;
 		}
 
 		private int retrieveOrder ( Order order ) {
 			int rows;
-			String name;
-			Label text;
+			String id;
+			Hidden existing_id;
+
+			if ( num == 0 )
+				return -1;
 
 			rows = main.getRowCount ();
-			name = order.getString ( "name" );
+			id = Integer.toString ( order.getLocalID () );
 
 			for ( int i = 0; i < rows; i++ ) {
-				text = ( Label ) main.getWidget ( i, 0 );
-				if ( text.equals ( name ) )
+				existing_id = ( Hidden ) main.getWidget ( i, 0 );
+				if ( existing_id.getValue ().equals ( id ) )
 					return i;
 			}
 
@@ -236,13 +242,13 @@ public class SuppliersPanel extends GenericPanel {
 
 				orders = new OpenedOrdersList ( supp, ver );
 				ver.setExtraWidget ( "orders", orders );
-				frame = new CaptionPanel ( "Ordini aperti" );
+				frame = new CaptionPanel ( "Ordini correntemente aperti" );
 				ver.add ( frame );
 				frame.add ( orders );
 
 				past_orders = new PastOrdersList ( supp, ver );
 				ver.setExtraWidget ( "past_orders", past_orders );
-				frame = new CaptionPanel ( "Ordini passati" );
+				frame = new CaptionPanel ( "Ordini effettuati" );
 				ver.add ( frame );
 				frame.add ( past_orders );
 
@@ -328,6 +334,9 @@ public class SuppliersPanel extends GenericPanel {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
 				Order ord;
+
+				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+					return;
 
 				ord = ( Order ) object.getObject ( "baseorder" );
 				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
