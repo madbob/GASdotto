@@ -28,6 +28,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "phone", FromServer.STRING );
 		addAttribute ( "fax", FromServer.STRING );
 		addAttribute ( "mail", FromServer.STRING );
+		addAttribute ( "website", FromServer.STRING );
 		addAttribute ( "address", FromServer.ADDRESS );
 		addAttribute ( "order_mode", FromServer.LONGSTRING );
 		addAttribute ( "paying_mode", FromServer.LONGSTRING );

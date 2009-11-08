@@ -75,16 +75,17 @@ public class OrderSummary extends Composite {
 
 	public void syncOrders () {
 		int my_id;
-		ArrayList products;
+		int user_product_ref;
 		float [] quantities;
 		float [] prices;
-		ArrayList cached_orders;
-		OrderUser user_ord;
-		ArrayList user_products;
-		Product order_product;
-		int user_product_ref;
-		ProductUser user_product;
+		float prod_total_price;
 		float total_price;
+		ArrayList cached_orders;
+		ArrayList products;
+		ArrayList user_products;
+		OrderUser user_ord;
+		Product order_product;
+		ProductUser user_product;
 
 		my_id = currentOrder.getLocalID ();
 		products = currentOrder.getArray ( "products" );
@@ -113,16 +114,11 @@ public class OrderSummary extends Composite {
 			user_ord = ( OrderUser ) cached_orders.get ( i );
 
 			if ( user_ord.getObject ( "baseorder" ).getLocalID () == my_id ) {
-				total_price += user_ord.getTotalPrice ();
 				user_products = user_ord.getArray ( "products" );
 
 				for ( int a = 0; a < user_products.size (); a++ ) {
 					user_product = ( ProductUser ) user_products.get ( a );
-
 					order_product = ( Product ) user_product.getObject ( "product" );
-					if ( order_product.getBool ( "available" ) == false )
-						continue;
-
 					user_product_ref = order_product.getLocalID ();
 
 					for ( int e = 0; e < products.size (); e++ ) {
@@ -131,7 +127,17 @@ public class OrderSummary extends Composite {
 						if ( user_product_ref == order_product.getLocalID () ) {
 							if ( order_product.getBool ( "available" ) == true ) {
 								quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
-								prices [ e ] = prices [ e ] + user_product.getTotalPrice ();
+
+								/*
+									Il total_price lo ricostruisco prodotto per
+									prodotto anziche' ricorrere alla funzione
+									getTotalPrice() di OrderUser per evitare di
+									reiterare una volta di troppo l'array di
+									prodotti
+								*/
+								prod_total_price = user_product.getTotalPrice ();
+								prices [ e ] = prices [ e ] + prod_total_price;
+								total_price += prod_total_price;
 							}
 
 							break;

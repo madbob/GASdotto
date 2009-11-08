@@ -28,6 +28,7 @@ class Supplier extends FromServer {
 		$this->addAttribute ( "phone", "STRING" );
 		$this->addAttribute ( "fax", "STRING" );
 		$this->addAttribute ( "mail", "STRING" );
+		$this->addAttribute ( "website", "STRING" );
 		$this->addAttribute ( "address", "ADDRESS" );
 		$this->addAttribute ( "order_mode", "STRING" );
 		$this->addAttribute ( "paying_mode", "STRING" );

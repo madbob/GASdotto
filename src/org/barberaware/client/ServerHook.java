@@ -122,13 +122,21 @@ public class ServerHook {
 
 	/****************************************************************** monitors */
 
-	private void addObjectIntoMonitorCache ( ServerMonitor monitor, FromServer obj ) {
-		/**
-			TODO	Provvedere a verificare se l'oggetto e' gia' nella cache, e
-				tornare un valore di conseguenza
-		*/
+	private boolean addObjectIntoMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+		int num;
+		FromServer iter;
+
+		num = monitor.objects.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			iter = ( FromServer ) monitor.objects.get ( i );
+			if ( obj.equals ( iter ) )
+				return false;
+		}
+
 		monitor.objects.add ( obj );
 		monitor.comparingObjects.set ( monitor.comparingObjects.size (), new JSONNumber ( obj.getLocalID () ) );
+		return true;
 	}
 
 	private void deleteObjectFromMonitorCache ( ServerMonitor monitor, FromServer obj ) {
@@ -198,6 +206,18 @@ public class ServerHook {
 		return null;
 	}
 
+	private void executeReceivingCallbacks ( ServerMonitor monitor, FromServer object ) {
+		int num;
+		ServerObjectReceive callback;
+
+		num = monitor.callbacks.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
+			callback.onReceive ( object );
+		}
+	}
+
 	public void onObjectEvent ( String type, ServerObjectReceive callback ) {
 		ServerMonitor tmp;
 		FromServer obj;
@@ -240,16 +260,11 @@ public class ServerHook {
 
 	public void triggerObjectCreation ( FromServer object ) {
 		ServerMonitor tmp;
-		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
 		if ( tmp != null ) {
-			addObjectIntoMonitorCache ( tmp, object );
-
-			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
-				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
-				callback.onReceive ( object );
-			}
+			if ( addObjectIntoMonitorCache ( tmp, object ) == true )
+				executeReceivingCallbacks ( tmp, object );
 		}
 	}
 
@@ -282,19 +297,13 @@ public class ServerHook {
 	}
 
 	public void addToCache ( FromServer object ) {
-		/**
-			TODO	Decommentare questo dopo aver messo un controllo di duplicati in
-				addObjectIntoMonitorCache(), e ricordarsi di eseguire le callback
-				di creazione
-		*/
-
-		/*
 		ServerMonitor tmp;
 
 		tmp = getMonitor ( object.getType () );
-		if ( tmp != null )
-			addObjectIntoMonitorCache ( tmp, object );
-		*/
+		if ( tmp != null ) {
+			if ( addObjectIntoMonitorCache ( tmp, object ) == true )
+				executeReceivingCallbacks ( tmp, object );
+		}
 	}
 
 	/*

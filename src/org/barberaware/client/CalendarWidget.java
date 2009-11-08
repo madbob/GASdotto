@@ -19,261 +19,273 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 */
 
+/*
+	Modified by:
+		GASdotto 0.1
+		Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+*/
+
 package org.barberaware.client;
 
-import java.util.Date;
-
+import java.util.*;
 import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.*;
-import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.ChangeListener;
-import com.google.gwt.user.client.ui.ChangeListenerCollection;
-import com.google.gwt.user.client.ui.ClickListener;
-import com.google.gwt.user.client.ui.Composite;
-import com.google.gwt.user.client.ui.DockPanel;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasAlignment;
-import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.SourcesChangeEvents;
-import com.google.gwt.user.client.ui.Widget;
+import com.google.gwt.user.client.ui.*;
 
-public class CalendarWidget extends Composite
-    implements ClickListener, SourcesChangeEvents {
+public class CalendarWidget extends Composite implements ClickListener, SavingDialog {
+	private class NavBar extends Composite implements ClickListener {
+		public DockPanel	bar = new DockPanel ();
+		public Button		prevMonth = new Button ( "&lt;", this );
+		public Button		nextMonth = new Button ( "&gt;", this );
+		public HTML		title = new HTML ();
 
-  private class NavBar extends Composite implements ClickListener {
+		private CalendarWidget calendar;
 
-    public DockPanel bar = new DockPanel();
-    public Button prevMonth = new Button("&lt;", this);
-    public Button nextMonth = new Button("&gt;", this);
-    public HTML title = new HTML();
+		public NavBar ( CalendarWidget calendar ) {
+			this.calendar = calendar;
 
-    private CalendarWidget calendar;
+			setWidget ( bar );
+			bar.setStyleName ( "navbar" );
+			title.setStyleName ( "header" );
 
-    public NavBar(CalendarWidget calendar) {
-      this.calendar = calendar;
+			HorizontalPanel prevButtons = new HorizontalPanel ();
+			prevButtons.add ( prevMonth );
 
-      setWidget(bar);
-      bar.setStyleName("navbar");
-      title.setStyleName("header");
+			HorizontalPanel nextButtons = new HorizontalPanel ();
+			nextButtons.add ( nextMonth );
 
-      HorizontalPanel prevButtons = new HorizontalPanel();
-      prevButtons.add(prevMonth);
+			bar.add ( prevButtons, DockPanel.WEST );
+			bar.setCellHorizontalAlignment ( prevButtons, DockPanel.ALIGN_LEFT );
+			bar.add ( nextButtons, DockPanel.EAST );
+			bar.setCellHorizontalAlignment ( nextButtons, DockPanel.ALIGN_RIGHT );
+			bar.add ( title, DockPanel.CENTER );
+			bar.setVerticalAlignment ( DockPanel.ALIGN_MIDDLE );
+			bar.setCellHorizontalAlignment ( title, HasAlignment.ALIGN_CENTER );
+			bar.setCellVerticalAlignment ( title, HasAlignment.ALIGN_MIDDLE );
+			bar.setCellWidth ( title, "100%" );
+		}
 
-      HorizontalPanel nextButtons = new HorizontalPanel();
-      nextButtons.add(nextMonth);
+		public void onClick ( Widget sender ) {
+			if ( sender == prevMonth )
+				calendar.prevMonth ();
+			else if ( sender == nextMonth )
+				calendar.nextMonth ();
+		}
+	}
 
-      bar.add(prevButtons, DockPanel.WEST);
-      bar.setCellHorizontalAlignment(prevButtons, DockPanel.ALIGN_LEFT);
-      bar.add(nextButtons, DockPanel.EAST);
-      bar.setCellHorizontalAlignment(nextButtons, DockPanel.ALIGN_RIGHT);
-      bar.add(title, DockPanel.CENTER);
-      bar.setVerticalAlignment(DockPanel.ALIGN_MIDDLE);
-      bar.setCellHorizontalAlignment(title, HasAlignment.ALIGN_CENTER);
-      bar.setCellVerticalAlignment(title, HasAlignment.ALIGN_MIDDLE);
-      bar.setCellWidth(title, "100%");
-    }
+	private static class CellHTML extends HTML {
+		private int day;
 
-    public void onClick(Widget sender) {
-      if (sender == prevMonth) {
-        calendar.prevMonth();
-      } else if (sender == nextMonth) {
-        calendar.nextMonth();
-      }
-    }
-  }
+		public CellHTML ( String text, int day ) {
+			super ( text );
+			this.day = day;
+		}
 
-  private static class CellHTML extends HTML {
-    private int day;
+		public int getDay () {
+			return day;
+		}
+	}
 
-    public CellHTML(String text, int day) {
-      super(text);
-      this.day = day;
-    }
+	private NavBar		navbar;
+	private DockPanel	outer;
+	private Grid		grid;
 
-    public int getDay() {
-      return day;
-    }
-  }
+	private Date		date = new Date();
+	private Date		originalDate;
+	private ArrayList	callbacks;
 
-  private NavBar navbar;
-  private DockPanel outer;
-  private Grid grid;
+	public CalendarWidget () {
+		Button exit;
 
-  private Date date = new Date();
-  private Date originalDate;
+		exit = new Button ( "Annulla", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				fireCallbacks ( 1 );
+			}
+		} );
 
-  private ChangeListenerCollection changeListeners;
+		outer = new DockPanel ();
+		navbar = new NavBar ( this );
 
-  public CalendarWidget() {
-    Button exit;
+		grid = new Grid ( 6, 7 ) {
+			public boolean clearCell ( int row, int column ) {
+				boolean retValue = super.clearCell ( row, column );
+				Element td = getCellFormatter ().getElement ( row, column );
+				DOM.setInnerHTML ( td, "" );
+				return retValue;
+			}
+		};
 
-    exit = new Button ( "Annulla", new ClickListener () {
-      public void onClick ( Widget sender ) {
-        if (changeListeners != null) {
-          date = originalDate;
-          changeListeners.fireChange(null);
-        }
-      }
-    } );
+		setWidget ( outer );
+		grid.setStyleName ( "table" );
+		grid.setCellSpacing ( 0 );
+		outer.add ( navbar, DockPanel.NORTH );
+		outer.add ( grid, DockPanel.CENTER );
+		outer.add ( exit, DockPanel.SOUTH );
+		drawCalendar ();
+		setStyleName ( "CalendarWidget" );
+	}
 
-    outer = new DockPanel();
-    navbar = new NavBar(this);
+	private void fireCallbacks ( int mode ) {
+		int i;
+		int num;
+		SavingDialogCallback call;
 
-    grid = new Grid(6, 7) {
-      public boolean clearCell(int row, int column) {
-        boolean retValue = super.clearCell(row, column);
+		if ( callbacks == null )
+			return;
 
-        Element td = getCellFormatter().getElement(row, column);
-        DOM.setInnerHTML(td, "");
-        return retValue;
-      }
-    };
+		num = callbacks.size ();
 
-    setWidget(outer);
-    grid.setStyleName("table");
-    grid.setCellSpacing(0);
-    outer.add(navbar, DockPanel.NORTH);
-    outer.add(grid, DockPanel.CENTER);
-    outer.add(exit, DockPanel.SOUTH);
-    drawCalendar();
-    setStyleName("CalendarWidget");
-  }
+		if ( mode == 0 ) {
+			for ( i = 0; i < num; i++ ) {
+				call = ( SavingDialogCallback ) callbacks.get ( i );
+				call.onSave ( this );
+			}
+		}
+		else {
+			date = originalDate;
 
-  private void drawCalendar() {
-    int year = getYear();
-    int month = getMonth();
-    int day = getDay();
-    setHeaderText(year, month);
-    grid.getRowFormatter().setStyleName(0, "weekheader");
-    for (int i = 0; i < Utils.days.length; i++) {
-      grid.getCellFormatter().setStyleName(0, i, "days");
-      grid.setText(0, i, Utils.days[i].substring(0, 3));
-    }
+			for ( i = 0; i < num; i++ ) {
+				call = ( SavingDialogCallback ) callbacks.get ( i );
+				call.onCancel ( this );
+			}
+		}
+	}
 
-    Date now = new Date();
-    int sameDay = now.getDate();
-    int today = (now.getMonth() == month && now.getYear()+1900 == year) ? sameDay : 0;
+	private void drawCalendar () {
+		int year = getYear();
+		int month = getMonth();
+		int day = getDay();
+		setHeaderText(year, month);
+		grid.getRowFormatter().setStyleName(0, "weekheader");
+		for (int i = 0; i < Utils.days.length; i++) {
+			grid.getCellFormatter().setStyleName(0, i, "days");
+			grid.setText(0, i, Utils.days[i].substring(0, 3));
+		}
 
-    int firstDay = new Date(year - 1900, month, 1).getDay();
-    int numOfDays = getDaysInMonth(year, month);
+		Date now = new Date();
+		int sameDay = now.getDate();
+		int today = (now.getMonth() == month && now.getYear()+1900 == year) ? sameDay : 0;
 
-    int j = 0;
-    for (int i = 1; i < 6; i++) {
-      for (int k = 0; k < 7; k++, j++) {
-        int displayNum = (j - firstDay + 1);
-        if (j < firstDay || displayNum > numOfDays) {
-          grid.getCellFormatter().setStyleName(i, k, "empty");
-          grid.setHTML(i, k, "&nbsp;");
-        } else {
-          HTML html = new CellHTML(
-            "<span>" + String.valueOf(displayNum) + "</span>",
-            displayNum);
-          html.addClickListener(this);
-          grid.getCellFormatter().setStyleName(i, k, "cell");
-          if (displayNum == today) {
-            grid.getCellFormatter().addStyleName(i, k, "today");
-          } else if (displayNum == sameDay) {
-            grid.getCellFormatter().addStyleName(i, k, "day");
-          }
-          grid.setWidget(i, k, html);
-        }
-      }
-    }
-  }
+		int firstDay = new Date(year - 1900, month, 1).getDay();
+		int numOfDays = getDaysInMonth(year, month);
 
-  protected void setHeaderText(int year, int month) {
-    navbar.title.setText(Utils.months[month] + " " + year);
-  }
+		int j = 0;
+		for (int i = 1; i < 6; i++) {
+			for (int k = 0; k < 7; k++, j++) {
+				int displayNum = (j - firstDay + 1);
+				if (j < firstDay || displayNum > numOfDays) {
+					grid.getCellFormatter().setStyleName(i, k, "empty");
+					grid.setHTML(i, k, "&nbsp;");
+				} else {
+					HTML html = new CellHTML(
+					"<span>" + String.valueOf(displayNum) + "</span>",
+					displayNum);
+					html.addClickListener(this);
+					grid.getCellFormatter().setStyleName(i, k, "cell");
+					if (displayNum == today) {
+						grid.getCellFormatter().addStyleName(i, k, "today");
+					} else if (displayNum == sameDay) {
+						grid.getCellFormatter().addStyleName(i, k, "day");
+					}
+					grid.setWidget(i, k, html);
+				}
+			}
+		}
+	}
 
-  private int getDaysInMonth(int year, int month) {
-    switch (month) {
-      case 1:
-        if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
-          return 29; // leap year
-        else
-          return 28;
-      case 3:
-        return 30;
-      case 5:
-        return 30;
-      case 8:
-        return 30;
-      case 10:
-        return 30;
-      default:
-        return 31;
-    }
-  }
+	protected void setHeaderText(int year, int month) {
+		navbar.title.setText(Utils.months[month] + " " + year);
+	}
 
-  public void prevMonth() {
-    int month = getMonth() - 1;
-    if (month < 0) {
-      setDate(getYear() - 1, 11, getDay());
-    } else {
-      setMonth(month);
-    }
-    drawCalendar();
-  }
+	private int getDaysInMonth(int year, int month) {
+		switch (month) {
+			case 1:
+				if ((year % 4 == 0 && year % 100 != 0) || year % 400 == 0)
+					return 29; // leap year
+				else
+					return 28;
+			case 3:
+				return 30;
+			case 5:
+				return 30;
+			case 8:
+				return 30;
+			case 10:
+				return 30;
+			default:
+				return 31;
+		}
+	}
 
-  public void nextMonth() {
-    int month = getMonth() + 1;
-    if (month > 11) {
-      setDate(getYear() + 1, 0, getDay());
-    } else {
-      setMonth(month);
-    }
-    drawCalendar();
-  }
+	public void prevMonth() {
+		int month = getMonth() - 1;
 
-  public void setDate(int year, int month, int day) {
-    date = new Date(year - 1900, month, day);
-    originalDate = ( Date ) date.clone ();
-    drawCalendar();
-  }
+		if (month < 0)
+			setDate(getYear() - 1, 11, getDay());
+		else
+			setMonth(month);
 
-  private void setYear(int year) {
-    date.setYear(year - 1900);
-  }
+		drawCalendar();
+	}
 
-  private void setMonth(int month) {
-    date.setMonth(month);
-  }
+	public void nextMonth() {
+		int month = getMonth() + 1;
 
-  public int getYear() {
-    return 1900 + date.getYear();
-  }
+		if (month > 11)
+			setDate(getYear() + 1, 0, getDay());
+		else
+			setMonth(month);
 
-  public int getMonth() {
-    return date.getMonth();
-  }
+		drawCalendar();
+	}
 
-  public int getDay() {
-    return date.getDate();
-  }
+	public void setDate(int year, int month, int day) {
+		date = new Date(year - 1900, month, day);
+		originalDate = ( Date ) date.clone ();
+		drawCalendar();
+	}
 
-  public Date getDate() {
-    return date;
-  }
+	private void setYear(int year) {
+		date.setYear(year - 1900);
+	}
 
-  public void onClick(Widget sender) {
-    CellHTML cell = (CellHTML)sender;
-    setDate(getYear(), getMonth(), cell.getDay());
-    drawCalendar();
-    if (changeListeners != null) {
-      changeListeners.fireChange(this);
-    }
-  }
+	private void setMonth(int month) {
+		date.setMonth(month);
+	}
 
-  public void addChangeListener(ChangeListener listener) {
-    if (changeListeners == null)
-      changeListeners = new ChangeListenerCollection();
-    changeListeners.add(listener);
-  }
+	public int getYear() {
+		return 1900 + date.getYear();
+	}
 
-  public void removeChangeListener(ChangeListener listener) {
-    if (changeListeners != null)
-      changeListeners.remove(listener);
-  }
+	public int getMonth() {
+		return date.getMonth();
+	}
+
+	public int getDay() {
+		return date.getDate();
+	}
+
+	public Date getDate() {
+		return date;
+	}
+
+	public void onClick(Widget sender) {
+		CellHTML cell = (CellHTML)sender;
+		setDate(getYear(), getMonth(), cell.getDay());
+		drawCalendar();
+		fireCallbacks ( 0 );
+	}
+
+	public void addCallback ( SavingDialogCallback callback ) {
+		if ( callbacks == null )
+			callbacks = new ArrayList ();
+		callbacks.add ( callback );
+	}
+
+	public void removeCallback ( SavingDialogCallback callback ) {
+		if ( callbacks == null )
+			return;
+		callbacks.remove ( callback );
+	}
 }

@@ -178,6 +178,8 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
 		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
+		frame.addPair ( "Sito Web", ver.getWidget ( "website" ) );
+
 		/* dettagli */
 
 		sframe = new CaptionPanel ( "Descrizione (pubblicamente leggibile)" );

@@ -31,12 +31,20 @@ public class DateSelector extends Composite implements DateWidget {
 		opened = false;
 
 		cal = new CalendarWidget ();
-		cal.addChangeListener (
-			new ChangeListener () {
-				public void onChange ( Widget sender ) {
+		cal.addCallback (
+			new SavingDialogCallback () {
+				private void commonClose () {
 					dialog.hide ();
 					opened = false;
+				}
+
+				public void onSave ( SavingDialog d ) {
+					commonClose ();
 					syncDate ( cal.getDate () );
+				}
+
+				public void onCancel ( SavingDialog d ) {
+					commonClose ();
 				}
 			}
 		);
@@ -49,8 +57,19 @@ public class DateSelector extends Composite implements DateWidget {
 		main.setVisibleLength ( 17 );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
+				Date now;
+
 				if ( opened == false ) {
 					opened = true;
+
+					/*
+						Come richiesto da Pier
+						http://lists.barberaware.org/pipermail/gasdotto-devel/2009-November/000218.html
+						la data mostrata all'apertura del calendario e' sempre quella attuale
+					*/
+					now = new Date ( System.currentTimeMillis () );
+					cal.setDate ( now.getYear () + 1900, now.getMonth (), now.getDate () );
+
 					dialog.center ();
 					dialog.show ();
 				}
@@ -66,7 +85,7 @@ public class DateSelector extends Composite implements DateWidget {
 	}
 
 	private void syncDate ( Date date ) {
-		cal.setDate ( date.getYear () + 1900, date.getMonth (), date.getDate () );
+		// cal.setDate ( date.getYear () + 1900, date.getMonth (), date.getDate () );
 		main.setText ( Utils.printableDate ( date ) );
 	}
 

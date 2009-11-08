@@ -41,7 +41,6 @@ public class OrdersEditPanel extends GenericPanel {
 					CaptionPanel sframe;
 					Order order;
 					Supplier supplier;
-					CyclicToggle status;
 					OrderSummary complete_list;
 
 					order = ( Order ) ord;
@@ -66,20 +65,7 @@ public class OrdersEditPanel extends GenericPanel {
 					hor.setCellWidth ( frame, "50%" );
 
 					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", new NameLabelWidget () ) );
-
-					/*
-						Nella selezione non appare lo stato 3, usato per l'auto-sospensione
-						(nel caso di un ordine con data di apertura nel futuro)
-					*/
-
-					status = new CyclicToggle ();
-					status.addState ( "images/order_status_opened.png" );
-					status.addState ( "images/order_status_closed.png" );
-					status.addState ( "images/order_status_suspended.png" );
-					status.addState ( "images/order_status_shipped.png" );
-					status.setDefaultSelection ( 2 );
-					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", status ) );
-
+					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", doOrderStatusSelector () ) );
 					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
 
 					frame = new CustomCaptionPanel ( "Date" );
@@ -174,7 +160,7 @@ public class OrdersEditPanel extends GenericPanel {
 					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", suppliers ) );
 					ver.setValidation ( "supplier", FromServerValidateCallback.defaultObjectValidationCallback () );
 
-					frame.addPair ( "Stato", new Label ( "Nuovo" ) );
+					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", doOrderStatusSelector () ) );
 					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
 
 					/* seconda colonna */
@@ -316,6 +302,23 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 
 		addTop ( main );
+	}
+
+	private Widget doOrderStatusSelector () {
+		CyclicToggle status;
+
+		/*
+			Nella selezione non appare lo stato 3, usato per l'auto-sospensione
+			(nel caso di un ordine con data di apertura nel futuro)
+		*/
+
+		status = new CyclicToggle ();
+		status.addState ( "images/order_status_opened.png" );
+		status.addState ( "images/order_status_closed.png" );
+		status.addState ( "images/order_status_suspended.png" );
+		status.addState ( "images/order_status_shipped.png" );
+		status.setDefaultSelection ( 2 );
+		return status;
 	}
 
 	private void reloadOrdersBySupplier ( Supplier supplier ) {

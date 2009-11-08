@@ -180,6 +180,7 @@ function install_main_db () {
 					phone varchar ( 100 ) default '',
 					fax varchar ( 100 ) default '',
 					mail varchar ( 100 ) default '',
+					website varchar ( 100 ) default '',
 					address varchar ( 100 ) default '',
 					order_mode varchar ( 500 ) default '',
 					paying_mode varchar ( 500 ) default '',
