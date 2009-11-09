@@ -21,14 +21,18 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class DateSelector extends Composite implements DateWidget {
 	private TextBox			main;
 	private CalendarWidget		cal;
+	private Date			currentDate;
 	private DialogBox		dialog;
 	private boolean			opened;
 
 	public DateSelector () {
 		opened = false;
+		currentDate = null;
 
 		cal = new CalendarWidget ();
 		cal.addCallback (
@@ -85,7 +89,7 @@ public class DateSelector extends Composite implements DateWidget {
 	}
 
 	private void syncDate ( Date date ) {
-		// cal.setDate ( date.getYear () + 1900, date.getMonth (), date.getDate () );
+		currentDate = date;
 		main.setText ( Utils.printableDate ( date ) );
 	}
 
@@ -107,19 +111,6 @@ public class DateSelector extends Composite implements DateWidget {
 	}
 
 	public Date getValue () {
-		Date ret;
-
-		/*
-			Qui per sapere se una data e' stata davvero selezionata o meno si
-			confronta la stringa all'interno del pulsante: se e' uguale a quella
-			settata quando si ripulisce, non torna null. Metodo bruttissimo e poco
-			mantenibile
-		*/
-		if ( main.getText ().equals ( "Scegli una data" ) )
-			ret = null;
-		else
-			ret = cal.getDate ();
-
-		return ret;
+		return currentDate;
 	}
 }

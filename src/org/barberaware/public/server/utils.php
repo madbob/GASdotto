@@ -148,13 +148,17 @@ function parse_session_data () {
 	$session_serial = base64_decode ( $session_serial );
 	$new_hash = md5 ( $session_serial . $session_key );
 
-	if ( $hash != $new_hash )
+	if ( $hash != $new_hash ) {
+		setcookie ( 'gasdotto', "", 0, '/', '', 0 );
 		error_exit ( "Sessione non validata" );
+	}
 
 	list ( $session_id, $ip, $user_agent ) = explode ( '-', $session_serial, 4 );
 
-	if (  $ip != $_SERVER [ 'REMOTE_ADDR' ] )
+	if (  $ip != $_SERVER [ 'REMOTE_ADDR' ] ) {
+		setcookie ( 'gasdotto', "", 0, '/', '', 0 );
 		error_exit ( "IP non riconosciuto" );
+	}
 
 	/*
 		lo User-Agent non e' volutamente controllato

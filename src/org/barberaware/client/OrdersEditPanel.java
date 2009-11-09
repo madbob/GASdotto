@@ -178,8 +178,6 @@ public class OrdersEditPanel extends GenericPanel {
 					date = ( DateWidget ) ver.retriveInternalWidget ( "startdate" );
 					date.setValue ( now );
 
-					now.setMonth ( now.getMonth () + 3 );
-
 					return ver;
 				}
 

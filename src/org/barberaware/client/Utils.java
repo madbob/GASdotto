@@ -209,7 +209,10 @@ public class Utils {
 	}
 
 	public static String printableDate ( Date d ) {
-		return d.getDate () + " " + months [ d.getMonth () ] + " " + ( d.getYear () + 1900 );
+		if ( d == null )
+			return "Non settato";
+		else
+			return d.getDate () + " " + months [ d.getMonth () ] + " " + ( d.getYear () + 1900 );
 	}
 
 	/****************************************************** json */
