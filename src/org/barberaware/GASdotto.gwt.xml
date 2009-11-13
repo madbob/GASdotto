@@ -3,6 +3,7 @@
       <!-- Inherit the core Web Toolkit stuff.                        -->
       <inherits name='com.google.gwt.user.User'/>
       <inherits name='com.google.gwt.json.JSON'/>
+      <inherits name="com.google.gwt.i18n.I18N"/>
 	
       <!-- Inherit the default GWT style sheet.  You can change       -->
       <!-- the theme of your GWT application by uncommenting          -->
@@ -22,5 +23,6 @@
     
       <!-- Specify the application specific style sheet.              -->
       <stylesheet src='GASdotto.css' />
-	
+
+      <extend-property name="locale" values="it_IT" />
 </module>

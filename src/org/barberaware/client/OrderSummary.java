@@ -247,7 +247,7 @@ public class OrderSummary extends Composite {
 		lab.setText ( quantity + " " + measureSymbol ( product ) );
 
 		lab = editableLabel ( index, 3, new_row );
-		lab.setText ( Utils.priceToString ( price ) + " €" );
+		lab.setText ( Utils.priceToString ( price ) );
 
 		stock = product.getFloat ( "stock_size" );
 		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) )

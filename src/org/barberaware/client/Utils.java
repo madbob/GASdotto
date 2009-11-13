@@ -23,6 +23,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.json.client.*;
+import com.google.gwt.i18n.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -70,19 +71,7 @@ public class Utils {
 		offerto da GWT) mi tocca ricorrere alla costruzione a mano della stringa
 	*/
 	public static String priceToString ( float price ) {
-		int sep;
-		String ret;
-
-		ret = Float.toString ( ( float ) ( ( int ) ( ( price + 0.005 ) * 100 ) ) / 100 );
-		sep = ret.indexOf ( "." );
-
-		if ( sep == -1 )
-			ret = ret + ".00";
-		else
-			if ( ret.substring ( sep ).length () != 3 )
-				ret = ret + "0";
-
-		return ret;
+		return NumberFormat.getCurrencyFormat ().format ( price );
 	}
 
 	/****************************************************** classi */

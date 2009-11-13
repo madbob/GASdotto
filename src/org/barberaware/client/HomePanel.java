@@ -43,6 +43,10 @@ public class HomePanel extends GenericPanel {
 		add ( closedOrders );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			private void fillTotalText ( Label total, OrderUser order ) {
+				total.setText ( " (hai ordinato " + Utils.priceToString ( order.getTotalPrice () ) + ")" );
+			}
+
 			public void onReceive ( FromServer object ) {
 				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
 					int index;
@@ -64,7 +68,8 @@ public class HomePanel extends GenericPanel {
 						OrderUser uorder;
 
 						uorder = ( OrderUser ) object;
-						total = new Label ( " (hai ordinato " + Utils.priceToString ( uorder.getTotalPrice () ) + " €)" );
+						total = new Label ();
+						fillTotalText ( total, uorder );
 						total.setStyleName ( "smaller-text" );
 						tab.setWidget ( index, 3, total );
 					}
@@ -95,7 +100,7 @@ public class HomePanel extends GenericPanel {
 						total = ( Label ) tab.getWidget ( index, 3 );
 
 						if ( total != null )
-							total.setText ( Utils.priceToString ( uorder.getTotalPrice () ) );
+							fillTotalText ( total, uorder );
 						else
 							onReceive ( object );
 					}

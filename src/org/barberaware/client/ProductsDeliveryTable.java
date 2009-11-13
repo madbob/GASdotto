@@ -82,7 +82,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 									SmoothingNotify.NOTIFY_INFO );
 
 					total_label = ( Label ) main.getWidget ( i, 4 );
-					total_label.setText ( Utils.priceToString ( row_sum ) + " €" );
+					total_label.setText ( Utils.priceToString ( row_sum ) );
 				}
 			}
 
@@ -119,7 +119,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 					row_sum = input * prod.getTotalPrice ();
 					total_label = ( Label ) main.getWidget ( i, 4 );
 
-					total_label.setText ( Utils.priceToString ( row_sum ) + " €" );
+					total_label.setText ( Utils.priceToString ( row_sum ) );
 					iter.setVal ( input );
 					total_sum = row_sum + total_sum;
 				}
@@ -183,7 +183,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			} );
 
 			price_product = delivered * prod.getTotalPrice ();
-			main.setWidget ( e, 4, new Label ( Utils.priceToString ( price_product ) + " €" ) );
+			main.setWidget ( e, 4, new Label ( Utils.priceToString ( price_product ) ) );
 			price_total = price_total + price_product;
 
 			e++;

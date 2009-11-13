@@ -20,21 +20,46 @@ package org.barberaware.client;
 import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.i18n.client.*;
+
+import com.allen_sauer.gwt.log.client.Log;
 
 public class PriceBox extends TextBox implements FloatWidget {
+	private float			currentValue;
+	private NumberFormat		plainFormatter;
+	private NumberFormat		priceFormatter;
+
 	public PriceBox () {
-		setText ( "0.00" );
+		setText ( Utils.priceToString ( 0 ) );
+		currentValue = 0;
+
+		plainFormatter = NumberFormat.getDecimalFormat ();
+		priceFormatter = NumberFormat.getCurrencyFormat ();
 
 		addFocusListener (
 			new FocusListener () {
 				public void onFocus ( Widget sender ) {
+					setText ( plainFormatter.format ( currentValue ) );
 				}
 
 				public void onLostFocus ( Widget sender ) {
-					if ( getText ().equals ( "" ) )
-						setText ( "0.00" );
-					else
-						setText ( Utils.priceToString ( getVal () ) );
+					float val;
+					String converted;
+
+					if ( getText ().equals ( "" ) ) {
+						setText ( Utils.priceToString ( 0 ) );
+					}
+					else {
+						try {
+							val = ( float ) plainFormatter.parse ( getText () );
+							converted = priceFormatter.format ( val );
+							setText ( converted );
+							currentValue = ( float ) priceFormatter.parse ( converted );
+						}
+						catch ( NumberFormatException e ) {
+							setText ( priceFormatter.format ( currentValue ) );
+						}
+					}
 				}
 			}
 		);
@@ -49,7 +74,7 @@ public class PriceBox extends TextBox implements FloatWidget {
 							( keyCode != KeyboardListener.KEY_UP ) &&
 							( keyCode != KeyboardListener.KEY_RIGHT ) &&
 							( keyCode != KeyboardListener.KEY_DOWN ) &&
-							( keyCode != '.' ) ) {
+							( keyCode != ',' ) ) {
 
 						cancelKey ();
 					}
@@ -63,16 +88,11 @@ public class PriceBox extends TextBox implements FloatWidget {
 	/****************************************************************** FloatWidget */
 
 	public void setVal ( float value ) {
-		setText ( Utils.priceToString ( value ) );
+		currentValue = value;
+		setText ( priceFormatter.format ( value ) );
 	}
 
 	public float getVal () {
-		String str;
-
-		str = getText ();
-		if ( str.equals ( "" ) )
-			return 0;
-
-		return Float.parseFloat ( str );
+		return currentValue;
 	}
 }
