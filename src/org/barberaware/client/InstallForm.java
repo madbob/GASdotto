@@ -51,25 +51,22 @@ public class InstallForm extends Composite {
 	}
 
 	private void doProbe () {
-		RequestBuilder builder;
-		Request response;
+		ServerRequest params;
 
-		builder = new RequestBuilder ( RequestBuilder.POST, ServerHook.getURL () + "probe.php" );
+		params = new ServerRequest ( "Probe" );
 
-		try {
-			builder.setTimeoutMillis ( 15000 );
-			response = builder.sendRequest ( "", new ServerResponse () {
-				public void onComplete ( JSONValue response ) {
-					Probe probe;
-					probe = ( Probe ) FromServer.instance ( response.isObject () );
-					main.clear ();
-					fillForm ( probe );
-				}
-			} );
-		}
-		catch ( RequestException e ) {
-      			Utils.showNotification ( "Fallito invio richiesta: " + e.getMessage () );
-		}
+		Utils.getServer ().serverGet ( params, new ServerResponse () {
+			public void onComplete ( JSONValue response ) {
+				Probe probe;
+
+				probe = ( Probe ) FromServer.instance ( response.isObject () );
+				main.clear ();
+				fillForm ( probe );
+			}
+			public void onError () {
+				Window.Location.reload ();
+			}
+		} );
 	}
 
 	private void fillForm ( Probe probe ) {
@@ -79,16 +76,23 @@ public class InstallForm extends Composite {
 			main.add ( new HTML ( "<p>Quando hai fatto, torna su questa pagina per procedere nell'installazione.</p>" ) );
 		}
 		else {
-			main.add ( doDbSettingForm () );
-			main.add ( doConfigSettingForm () );
+			main.add ( doMainForm ( probe ) );
 		}
 	}
 
-	private Widget doDbSettingForm () {
-		TextBox dbuser;
-		PasswordBox dbpassword;
-		TextBox dbname;
-		ListBox driver;
+	private Widget doMainForm ( Probe probe ) {
+		FromServerForm form;
+
+		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
+		form.alwaysOpened ( true );
+
+		form.add ( doDbSettingForm ( form, probe ) );
+		form.add ( doConfigSettingForm ( form, probe ) );
+
+		return form;
+	}
+
+	private Widget doDbSettingForm ( FromServerForm form, Probe probe ) {
 		FlexTable contents;
 		CaptionPanel db;
 
@@ -101,13 +105,14 @@ public class InstallForm extends Composite {
 		contents.setWidget ( 0, 0, new HTML ( "<p>Qui devi inserire le informazioni per accedere al database che conterrà le informazioni prodotte dal programma.</p>" ) );
 		contents.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
 
+		contents.setWidget ( 2, 0, new Label ( "Nome del Database" ) );
+		contents.setWidget ( 2, 1, form.getWidget ( "dbname" ) );
+
 		contents.setWidget ( 1, 0, new Label ( "Username" ) );
-		dbuser = new TextBox ();
-		contents.setWidget ( 1, 1, dbuser );
+		contents.setWidget ( 1, 1, form.getWidget ( "dbuser" ) );
 
 		contents.setWidget ( 2, 0, new Label ( "Password" ) );
-		dbpassword = new PasswordBox ();
-		contents.setWidget ( 2, 1, dbpassword );
+		contents.setWidget ( 2, 1, form.getWidget ( "dbpassword" ) );
 
 		/**
 			TODO	Aggiungere dettagli
@@ -116,9 +121,7 @@ public class InstallForm extends Composite {
 		return db;
 	}
 
-	private Widget doConfigSettingForm () {
-		PasswordBox rootpassword;
-		PasswordBox checkrootpassword;
+	private Widget doConfigSettingForm ( FromServerForm form, Probe probe ) {
 		FlexTable contents;
 		HorizontalPanel row;
 		CaptionPanel app;
@@ -133,12 +136,7 @@ public class InstallForm extends Composite {
 		contents.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
 
 		contents.setWidget ( 1, 0, new Label ( "Password dell'Amministratore" ) );
-		rootpassword = new PasswordBox ();
-		contents.setWidget ( 1, 1, rootpassword );
-
-		contents.setWidget ( 2, 0, new Label ( "Ripeti Password dell'Amministratore" ) );
-		checkrootpassword = new PasswordBox ();
-		contents.setWidget ( 2, 1, checkrootpassword );
+		contents.setWidget ( 1, 1, form.getPersonalizedWidget ( "rootpassword", new PasswordBox () ) );
 
 		return app;
 	}

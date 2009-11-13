@@ -297,6 +297,26 @@ public abstract class FromServer implements Comparator {
 		}
 	}
 
+	public ArrayList getContainedObjectsClasses () {
+		String k;
+		Object [] keys;
+		ArrayList ret;
+		FromServerAttribute attr;
+
+		ret = new ArrayList ();
+		keys = attributes.keySet ().toArray ();
+
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			attr = ( FromServerAttribute ) attributes.get ( k );
+
+			if ( attr.type == OBJECT || attr.type == ARRAY )
+				ret.add ( attr.getClassName () );
+		}
+
+		return ret;
+	}
+
 	public JSONObject toJSONObject () {
 		String k;
 		Object [] keys;
@@ -322,13 +342,45 @@ public abstract class FromServer implements Comparator {
 		return obj;
 	}
 
+	private FromServer JSONValueToObject ( FromServerAttribute attr, JSONValue value ) {
+		JSONObject child;
+		JSONString child_id;
+		FromServer ret;
+		ServerHook server;
+
+		ret = null;
+		server = Utils.getServer ();
+
+		child = value.isObject ();
+
+		if ( child != null ) {
+			ret = FromServerFactory.create ( attr.object_type.getName () );
+			ret.fromJSONObject ( child );
+
+			/*
+				Metto subito in cache gli oggetti che mi arrivano insieme ad altri,
+				cosi' non scarico cento volte la stessa roba
+			*/
+			server.addToCache ( ret );
+		}
+		else {
+			child_id = value.isString ();
+
+			if ( child_id != null ) {
+				ret = server.getObjectFromCache ( attr.getClassName (),
+								Integer.parseInt ( child_id.stringValue () ) );
+			}
+		}
+
+		return ret;
+	}
+
 	public void fromJSONObject ( JSONObject obj ) {
 		String k;
 		Object [] keys;
 		JSONValue value;
 		FromServer tmp;
 		FromServerAttribute attr;
-		ServerHook server;
 
 		if ( obj == null )
 			return;
@@ -345,7 +397,6 @@ public abstract class FromServer implements Comparator {
 		}
 
 		keys = attributes.keySet ().toArray ();
-		server = Utils.getServer ();
 
 		for ( int i = 0; i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
@@ -395,30 +446,16 @@ public abstract class FromServer implements Comparator {
 					array = value.isArray ();
 
 					for ( int a = 0; a < array.size (); a++ ) {
-						tmp = FromServerFactory.create ( attr.object_type.getName () );
-						tmp.fromJSONObject ( array.get ( a ).isObject () );
+						tmp = JSONValueToObject ( attr, array.get ( a ) );
 						arr.add ( tmp );
-
-						/*
-							Metto subito in cache gli oggetti che mi arrivano insieme ad
-							altri, cosi' non scarico cento volte la stessa roba
-						*/
-						server.addToCache ( tmp );
 					}
 
 					attr.setArray ( arr );
 				}
 
 				else if ( attr.type == FromServer.OBJECT ) {
-					tmp = FromServerFactory.create ( attr.object_type.getName () );
-					tmp.fromJSONObject ( value.isObject () );
+					tmp = JSONValueToObject ( attr, value );
 					attr.setObject ( tmp );
-
-					/*
-						Metto subito in cache gli oggetti che mi arrivano insieme ad altri,
-						cosi' non scarico cento volte la stessa roba
-					*/
-					server.addToCache ( tmp );
 				}
 
 				else if ( attr.type == FromServer.DATE )

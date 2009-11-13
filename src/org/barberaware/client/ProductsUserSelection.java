@@ -43,6 +43,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		i = 0;
 		a = 0;
 
+		addTotalRow ();
+
 		if ( products != null ) {
 			num_products = products.size ();
 
@@ -55,20 +57,22 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				a += 2;
 			}
 		}
-
-		addTotalRow ( a );
 	}
 
-	private void addTotalRow ( int index ) {
-		main.setWidget ( index, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( index, 0, 2 );
+	private void addTotalRow () {
+		/*
+			La riga dei totali viene piazzata da principio in testa, poi man mano che
+			i prodotti vengono inseriti in ordine alfabetico si creano le altre righe
+			sopra nelle giuste posizioni
+		*/
 
-		index++;
+		main.setWidget ( 0, 0, new HTML ( "<hr>" ) );
+		main.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
 
 		totalLabel = new PriceViewer ();
 		totalLabel.setStyleName ( "bigger-text" );
-		main.setWidget ( index, 0, new Label ( "Totale" ) );
-		main.setWidget ( index, 1, totalLabel );
+		main.setWidget ( 1, 0, new Label ( "Totale" ) );
+		main.setWidget ( 1, 1, totalLabel );
 	}
 
 	public void upgradeProductsList ( ArrayList products ) {

@@ -55,8 +55,46 @@ public abstract class ServerObjectReceive implements RequestCallback {
 		/* dummy */
 	}
 
+	/*
+		Richiamata ad ogni nuovo oggetto del tipo definito in arrivo, ricevuto dal
+		server. All'atto della registrazione della callback questa viene eseguita anche
+		sugli elementi gia' presenti in cache
+	*/
 	protected abstract void onReceive ( FromServer object );
+
+	/*
+		Simile a onReceive, ma viene invocata una volta sola per ogni blocco di oggetti
+		in arrivo dal server. Ideale per trattare i dati in ingresso all'avvio
+		dell'applicazione, quando tutte le informazioni vengono caricate in un colpo
+		solo. Non riceve nessun parametro, i dati sono reperibili nella cache di
+		ServerHook: volutamente non viene specificato quali sono i dati arrivati tutti
+		insieme nel blocco, per forzare a gestire i dati in modo omogeneo come se fossero
+		sempre tutti nuovi (ed evitarsi tanti grattacapi per discriminare oggetti vecchi
+		e nuovi).
+		Da sovrascrivere solo quando necessario.
+	*/
+	protected void onBlockBegin () {
+		/* dummy */
+	}
+
+	/*
+		Indica che il blocco di dati, iniziato con onBlockBegin(), e' terminato.
+		Da sovrascrivere solo quando necessario.
+	*/
+	protected void onBlockEnd () {
+		/* dummy */
+	}
+
+	/*
+		Richiamata ogni volta che un oggetto viene modificato, localmente o su
+		indicazione del server
+	*/
 	protected abstract void onModify ( FromServer object );
+
+	/*
+		Richiamata ogni volta che un oggetto viene eliminato, localmente o su indicazione
+		del server
+	*/
 	protected abstract void onDestroy ( FromServer object );
 
 	/*

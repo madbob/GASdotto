@@ -45,15 +45,6 @@ class OrderUser extends FromServer {
 
 			if ( current_permissions () == 0 )
 				$query .= sprintf ( " AND baseuser = %d ", $current_user );
-
-			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-
-			foreach ( $rows as $row ) {
-				$obj = new $this->classname;
-				$obj->readFromDB ( $row [ 'id' ] );
-				array_push ( $ret, $obj->exportable () );
-			}
 		}
 		else {
 			$ord = new Order ();
@@ -81,15 +72,15 @@ class OrderUser extends FromServer {
 				$query .= sprintf ( "AND baseuser = %d ", $current_user );
 
 			$query .= "ORDER BY id";
+		}
 
-			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-			foreach ( $rows as $row ) {
-				$obj = new $this->classname;
-				$obj->readFromDB ( $row [ 'id' ] );
-				array_push ( $ret, $obj->exportable () );
-			}
+		foreach ( $rows as $row ) {
+			$obj = new $this->classname;
+			$obj->readFromDB ( $row [ 'id' ] );
+			array_push ( $ret, $obj->exportable ( $request ) );
 		}
 
 		return $ret;

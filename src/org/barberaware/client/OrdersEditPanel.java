@@ -211,6 +211,8 @@ public class OrdersEditPanel extends GenericPanel {
 		};
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			private boolean		lock		= false;
+
 			private void syncOrder ( OrderUser user ) {
 				Order order;
 				FromServerForm form;
@@ -227,7 +229,26 @@ public class OrdersEditPanel extends GenericPanel {
 			}
 
 			public void onReceive ( FromServer object ) {
-				syncOrder ( ( OrderUser ) object );
+				if ( lock == false )
+					syncOrder ( ( OrderUser ) object );
+			}
+
+			public void onBlockBegin () {
+				lock = true;
+			}
+
+			public void onBlockEnd () {
+				FromServerForm form;
+				OrderSummary summary;
+
+				for ( int i = 0; i < main.latestIterableIndex (); i++ ) {
+					form = main.retrieveForm ( i );
+					summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+					if ( summary != null )
+						summary.syncOrders ();
+				}
+
+				lock = false;
 			}
 
 			public void onModify ( FromServer object ) {

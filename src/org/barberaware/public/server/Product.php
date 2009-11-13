@@ -64,7 +64,7 @@ class Product extends FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable () );
+			array_push ( $ret, $obj->exportable ( $request ) );
 		}
 
 		return $ret;

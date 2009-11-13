@@ -45,8 +45,11 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		setWidget ( doDialog () );
 	}
 
+	/*
+		Attenzione: non fa controllo di duplicati!
+	*/
 	public void addElementInList ( FromServer object ) {
-		int index;
+		int i;
 		int num;
 		int cmp;
 		String str_id;
@@ -57,26 +60,16 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 
 		str_id = Integer.toString ( object.getLocalID () );
 		str_name = object.getString ( "name" );
-		index = -1;
 		num = itemsTable.getRowCount ();
 
-		for ( int i = 0; i < num; i++ ) {
-			iter = ( Hidden ) itemsTable.getWidget ( i, 0 );
-			if ( iter.getName ().equals ( str_id ) )
-				return;
-
-			if ( index == -1 ) {
-				label = ( Label ) itemsTable.getWidget ( i, 2 );
-				cmp = label.getText ().compareTo ( str_name );
-				if ( cmp > 0 )
-					index = i;
-			}
+		for ( i = 0; i < num; i++ ) {
+			label = ( Label ) itemsTable.getWidget ( i, 2 );
+			cmp = label.getText ().compareTo ( str_name );
+			if ( cmp > 0 )
+				break;
 		}
 
-		if ( index == -1 )
-			index = num;
-
-		itemsTable.insertRow ( index );
+		itemsTable.insertRow ( i );
 
 		check = new CheckBox ();
 
@@ -93,9 +86,9 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 			} );
 		}
 
-		itemsTable.setWidget ( index, 0, new Hidden ( str_id ) );
-		itemsTable.setWidget ( index, 1, check );
-		itemsTable.setWidget ( index, 2, new Label ( str_name ) );
+		itemsTable.setWidget ( i, 0, new Hidden ( str_id ) );
+		itemsTable.setWidget ( i, 1, check );
+		itemsTable.setWidget ( i, 2, new Label ( str_name ) );
 
 		loadedObjects.add ( object );
 	}

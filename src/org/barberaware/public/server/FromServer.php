@@ -97,7 +97,22 @@ class FromServerAttribute {
 		return null;
 	}
 
-	public function export_field ( $parent, $avoid_defaults ) {
+	private static function filter_object ( $object, $filter ) {
+		if ( $filter != null ) {
+			$id_name = 'has_' . $object->classname;
+
+			if ( isset ( $filter->$id_name ) ) {
+				$id = $object->getAttribute ( "id" )->value;
+
+				if ( search_in_array ( $filter->$id_name, $id ) != -1 )
+					return $id . "";
+			}
+		}
+
+		return $object->exportable ( $filter );
+	}
+
+	public function export_field ( $parent, $filter ) {
 		list ( $type, $objtype ) = explode ( "::", $this->type );
 
 		switch ( $type ) {
@@ -136,7 +151,7 @@ class FromServerAttribute {
 				break;
 
 			case "OBJECT":
-				return $this->value->exportable ();
+				return self::filter_object ( $this->value, $filter );
 				break;
 
 			case "ARRAY":
@@ -148,7 +163,7 @@ class FromServerAttribute {
 
 				for ( $i = 0; $i < $elements_num; $i++ ) {
 					$obj = $this->value [ $i ];
-					array_push ( $ret, $obj->exportable () );
+					array_push ( $ret, self::filter_object ( $obj, $filter ) );
 				}
 
 				return $ret;
@@ -283,7 +298,7 @@ abstract class FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable () );
+			array_push ( $ret, $obj->exportable ( $request ) );
 		}
 
 		return $ret;
@@ -560,7 +575,7 @@ abstract class FromServer {
 		return $id;
 	}
 
-	public function exportable () {
+	public function exportable ( $filter = null ) {
 		$obj = new stdClass ();
 
 		$obj->type = $this->classname;
@@ -569,7 +584,7 @@ abstract class FromServer {
 			$attr = $this->attributes [ $i ];
 
 			$name = $attr->name;
-			$value = $attr->export_field ( $this, true );
+			$value = $attr->export_field ( $this, $filter );
 
 			if ( $value != null )
 				$obj->$name = $value;

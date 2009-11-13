@@ -65,7 +65,7 @@ public class ServerHook {
 		problema, e le richieste schedulate non vengano eseguite: tenere presente questa
 		limitazione qualora si volesse ritoccare questo parametro
 	*/
-	private static int	MAXIMUM_CONCURRENT_REQUESTS	= 2;
+	private static int	MAXIMUM_CONCURRENT_REQUESTS	= 1;
 
 	public ServerHook () {
 		monitors = new ArrayList ();
@@ -160,6 +160,7 @@ public class ServerHook {
 
 		serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
+				int i;
 				int existing;
 				JSONArray arr;
 				FromServer tmp;
@@ -168,10 +169,18 @@ public class ServerHook {
 				arr = response.isArray ();
 
 				if ( arr != null && arr.size () != 0 ) {
-					for ( int i = 0; i < arr.size (); i++ ) {
+					i = 0;
+
+					tmp = FromServer.instance ( arr.get ( i ).isObject () );
+					triggerObjectBlockCreation ( tmp, true );
+					triggerObjectCreation ( tmp );
+
+					for ( i = 1; i < arr.size (); i++ ) {
 						tmp = FromServer.instance ( arr.get ( i ).isObject () );
 						triggerObjectCreation ( tmp );
 					}
+
+					triggerObjectBlockCreation ( tmp, false );
 				}
 
 				executingMonitor--;
@@ -245,12 +254,37 @@ public class ServerHook {
 	*/
 	public void testObjectReceive ( String type ) {
 		ServerRequest params;
+
 		params = new ServerRequest ( type );
 		testObjectReceive ( params );
 	}
 
+	private void loadWithCachedObjects ( String type, ServerRequest params ) {
+		String subtype;
+		ArrayList subclasses;
+		FromServer obj;
+		ServerMonitor monitor;
+
+		obj = FromServerFactory.create ( type );
+		subclasses = obj.getContainedObjectsClasses ();
+
+		for ( int i = 0; i < subclasses.size (); i++ ) {
+			subtype = ( String ) subclasses.get ( i );
+			if ( params.containsKey ( "has_" + subtype ) )
+				continue;
+
+			monitor = getMonitor ( subtype );
+			if ( monitor != null ) {
+				params.put ( "has_" + subtype, monitor.comparingObjects );
+				loadWithCachedObjects ( subtype, params );
+			}
+		}
+	}
+
 	public void testObjectReceive ( ServerRequest params ) {
-		if ( executingMonitor > MAXIMUM_CONCURRENT_REQUESTS ) {
+		loadWithCachedObjects ( params.getType (), params );
+
+		if ( executingMonitor >= MAXIMUM_CONCURRENT_REQUESTS ) {
 			monitorSchedulingQueue.add ( params );
 		}
 		else {
@@ -265,6 +299,23 @@ public class ServerHook {
 		if ( tmp != null ) {
 			if ( addObjectIntoMonitorCache ( tmp, object ) == true )
 				executeReceivingCallbacks ( tmp, object );
+		}
+	}
+
+	public void triggerObjectBlockCreation ( FromServer object, boolean mode ) {
+		ServerMonitor tmp;
+		ServerObjectReceive callback;
+
+		tmp = getMonitor ( object.getType () );
+		if ( tmp != null ) {
+			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+
+				if ( mode == true )
+					callback.onBlockBegin ();
+				else
+					callback.onBlockEnd ();
+			}
 		}
 	}
 

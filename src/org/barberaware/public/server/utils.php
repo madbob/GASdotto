@@ -34,6 +34,7 @@ require_once ( "Product.php" );
 require_once ( "Order.php" );
 require_once ( "ProductUser.php" );
 require_once ( "OrderUser.php" );
+require_once ( "Probe.php" );
 
 function error_exit ( $string ) {
 	$json = new Services_JSON ();
@@ -49,6 +50,14 @@ function strbegins ( $str, $start ) {
 function class_name ( $name ) {
 	$fragments = explode ( ".", $name );
 	return $fragments [ count ( $fragments ) - 1 ];
+}
+
+function search_in_array ( $array, $val ) {
+	for ( $i = 0; $i < count ( $array ); $i++ )
+		if ( $array [ $i ] == $val )
+			return $i;
+
+	return -1;
 }
 
 /****************************************************************** db management */

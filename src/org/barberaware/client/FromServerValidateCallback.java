@@ -95,7 +95,7 @@ public abstract class FromServerValidateCallback {
 					for ( int i = 1; i < text.length (); i++ ) {
 						c = text.charAt ( i );
 
-						if ( Character.isDigit ( c ) == false && c != ' ' ) {
+						if ( Character.isDigit ( c ) == false && ( c != ' ' && c != '.' && c != '-' ) ) {
 							Utils.showNotification ( "Numero telefonico non valido" );
 							return false;
 						}

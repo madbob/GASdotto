@@ -254,15 +254,18 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	private int retrieveOrderForm ( Order parent ) {
+		int index;
 		FromServerForm form;
 		Order tmp_order;
 
 		if ( hasOrders == true ) {
+			index = parent.getLocalID ();
+
 			for ( int i = 0; i < getWidgetCount (); i++ ) {
 				form = ( FromServerForm ) getWidget ( i );
 				tmp_order = ( Order ) form.getObject ();
 
-				if ( parent.getLocalID () == tmp_order.getLocalID () )
+				if ( index == tmp_order.getLocalID () )
 					return i;
 			}
 		}
