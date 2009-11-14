@@ -100,6 +100,15 @@ function escape_string ( $string ) {
 	return $string;
 }
 
+function db_now_plus_one () {
+	global $dbdriver;
+
+	if ( $dbdriver == "pgsql" )
+		return " NOW() + INTERVAL '1 DAY' ";
+	else
+		return " NOW() + INTERVAL 1 DAY ";
+}
+
 function last_id ( $class ) {
 	global $db;
 	global $dbdriver;

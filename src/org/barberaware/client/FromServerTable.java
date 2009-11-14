@@ -85,17 +85,21 @@ public class FromServerTable extends Composite implements FromServerArray {
 		main.getRowFormatter ().setStyleName ( 0, "table-header" );
 	}
 
-	private void syncRowsContents () {
+	private ArrayList syncRowsContents () {
 		int num;
 		int cols;
+		boolean to_add;
+		ArrayList changed;
 		FromServer obj;
 		FromServerTableColumn c;
 		FromServerWidget wid;
 
+		changed = new ArrayList ();
 		num = rows.size ();
 		cols = columns.size ();
 
 		for ( int i = 0; i < num; i++ ) {
+			to_add = false;
 			obj = ( FromServer ) rows.get ( i );
 
 			for ( int a = 0; a < cols; a++ ) {
@@ -103,21 +107,31 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 				if ( c.edit == true ) {
 					wid = ( FromServerWidget ) main.getWidget ( i + 1, a );
-					wid.assign ( obj );
+
+					if ( wid.compare ( obj ) == false ) {
+						wid.assign ( obj );
+						to_add = true;
+					}
 				}
 			}
+
+			if ( to_add == true )
+				changed.add ( obj );
 		}
+
+		return changed;
 	}
 
 	public void saveChanges () {
 		int num;
+		ArrayList to_save;
 		FromServer obj;
 
-		syncRowsContents ();
-		num = rows.size ();
+		to_save = syncRowsContents ();
+		num = to_save.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			obj = ( FromServer ) rows.get ( i );
+			obj = ( FromServer ) to_save.get ( i );
 			obj.save ( null );
 		}
 	}

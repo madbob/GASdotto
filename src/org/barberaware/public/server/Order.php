@@ -37,9 +37,13 @@ class Order extends FromServer {
 		/*
 			Non e' particolarmente efficiente fare il check sullo stato degli ordini
 			ad ogni interrogazione, ma l'alternativa sarebbe piazzare uno script in
-			cron rendendo piu' problematico il deploy dell'applicazione
+			cron rendendo piu' problematico il deploy dell'applicazione.
 		*/
-		$query = sprintf ( "UPDATE %s SET status = 1 WHERE enddate < NOW()", $this->tablename );
+		/*
+			La data su cui viene confrontato l'ordine per la chiusura e' "oggi + 1",
+			per far quadrare i conti sui timestamp calcolati sulle ore
+		*/
+		$query = sprintf ( "UPDATE %s SET status = 1 WHERE enddate < %s", $this->tablename, db_now_plus_one () );
 		query_and_check ( $query, "Impossibile chiudere vecchi ordini" );
 
 		/*

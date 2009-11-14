@@ -158,6 +158,32 @@ public class ServerHook {
 		monitor.rebuildComparisons ();
 	}
 
+	/*
+		In linea di massima questa si comporta come
+
+		deleteObjectFromMonitorCache(monitor, obj);
+		addObjectIntoMonitorCache(monitor, obj);
+
+		ma si salta il controllo dei duplicati in addObjectIntoMonitorCache() e si evita
+		di ricostruire piu' volte l'elenco in monitor.comparingObjects
+	*/
+	private void updateObjecInMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+		int num;
+		FromServer iter;
+
+		num = monitor.objects.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			iter = ( FromServer ) monitor.objects.get ( i );
+			if ( iter.equals ( obj ) ) {
+				monitor.objects.remove ( i );
+				break;
+			}
+		}
+
+		monitor.objects.add ( obj );
+	}
+
 	private void executeMonitor ( final ServerMonitor monitor, ServerRequest params ) {
 		params.put ( "has", monitor.comparingObjects );
 		executingMonitor++;
@@ -342,6 +368,7 @@ public class ServerHook {
 
 		tmp = getMonitor ( object.getType () );
 		if ( tmp != null ) {
+			updateObjecInMonitorCache (tmp, object);
 			num = tmp.callbacks.size ();
 
 			for ( int i = 0; i < num; i++ ) {
