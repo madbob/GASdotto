@@ -36,15 +36,15 @@ $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
-$products_names = "";
-$products_prices = "";
+$products_names = array ();
+$products_prices = array ();
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
-	$products_names .= sprintf ( ",\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices .= sprintf ( ",%.02f €", $prod->getTotalPrice () );
+	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
+	$products_prices [] = "€ " . number_format ( $prod->getTotalPrice (), 2, ',', '' );
 }
 
-$output = $products_names . "\n" . $products_prices . "\n";
+$output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n";
 
 $products_sums = array ();
 for ( $i = 0; $i < count ( $product ); $i++ )
@@ -62,7 +62,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$output .= sprintf ( "\"%s %s\",", $order_user->baseuser->firstname, $order_user->baseuser->surname );
+	$output .= sprintf ( "\"%s %s\";", $order_user->baseuser->firstname, $order_user->baseuser->surname );
 
 	$user_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );
@@ -72,21 +72,28 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$output .= sprintf ( "%d,", $prod_user->quantity );
+			$decimal = strlen ( strstr ( $prod_user->quantity, '.' ) );
+			if ( $decimal != 0 )
+				$output .= number_format ( $prod_user->quantity, $decimal - 1, ',', '' );
+			else
+				$output .= sprintf ( "%d", $prod_user->quantity );
+
+			$output .= ";";
+
 			$sum = $prod_user->quantity * $prod->getTotalPrice ();
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 			$e++;
 		}
 		else
-			$output .= sprintf ( "," );
+			$output .= sprintf ( ";" );
 	}
 
-	$output .= sprintf ( "%.02f €\n", round ( $user_total, 2 ) );
+	$output .= "€ " . number_format ( round ( $user_total, 2 ), 2, ',', '' ) . "\n";
 }
 
 for ( $i = 0; $i < count ( $products_sums ); $i++ )
-    $output .= sprintf ( ",%.02f €", round ( $products_sums [ $i ], 2 ) );
+    $output .= ";€ " . number_format ( round ( $products_sums [ $i ], 2 ), 2, ',', '' );
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
