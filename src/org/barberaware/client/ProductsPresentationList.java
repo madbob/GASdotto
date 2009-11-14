@@ -58,7 +58,7 @@ public class ProductsPresentationList extends Composite {
 					HorizontalPanel hor;
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
-					FloatLabel price;
+					PriceViewer price;
 					StringLabel desc;
 
 					ver = new FromServerForm ( product, FromServerForm.NOT_EDITABLE );
@@ -82,12 +82,10 @@ public class ProductsPresentationList extends Composite {
 					hor.add ( frame );
 					hor.setCellWidth ( frame, "50%" );
 
-					price = new FloatLabel ();
-					price.setPostfix ( " €" );
+					price = new PriceViewer ();
 					frame.addPair ( "Unitario", ver.getPersonalizedWidget ( "unit_price", price ) );
 
-					price = new FloatLabel ();
-					price.setPostfix ( " €" );
+					price = new PriceViewer ();
 					frame.addPair ( "Trasporto", ver.getPersonalizedWidget ( "shipping_price", price ) );
 
 					sframe = new CaptionPanel ( "Descrizione" );

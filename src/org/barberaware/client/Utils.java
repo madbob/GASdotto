@@ -30,12 +30,14 @@ import com.allen_sauer.gwt.log.client.Log;
 public class Utils {
 	private static SmoothingNotify	notifies;
 	private static ServerHook	server;
-	private static Stack		buttonsStack;
+	private static NumberFormat	floatFormatter;
+	private static NumberFormat	priceFormatter;
 
 	public static void initEnvironment () {
 		notifies = new SmoothingNotify ();
 		server = new ServerHook ();
-		buttonsStack = new Stack ();
+		floatFormatter = NumberFormat.getDecimalFormat ();
+		priceFormatter = NumberFormat.getCurrencyFormat ();
 	}
 
 	/****************************************************** notifiche */
@@ -64,14 +66,20 @@ public class Utils {
 
 	/****************************************************** numeri */
 
-	/*
-		Questa funzione e' sostanzialmente un pessimo hack per avere i prezzi sempre con
-		due cifre decimali, anche quando sono 00. Forse c'e' un modo migliore, ma non
-		potendo contare su funzioni particolarmente sofisticate (non incluse nel set
-		offerto da GWT) mi tocca ricorrere alla costruzione a mano della stringa
-	*/
-	public static String priceToString ( float price ) {
-		return NumberFormat.getCurrencyFormat ().format ( price );
+	public static String priceToString ( float f ) {
+		return priceFormatter.format ( f );
+	}
+
+	public static float stringToPrice ( String s ) {
+		return ( float ) priceFormatter.parse ( s );
+	}
+
+	public static String floatToString ( float f ) {
+		return floatFormatter.format ( f );
+	}
+
+	public static float stringToFloat ( String s ) {
+		return ( float ) floatFormatter.parse ( s );
 	}
 
 	/****************************************************** classi */

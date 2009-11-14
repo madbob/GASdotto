@@ -24,8 +24,7 @@ public class PriceViewer extends Label {
 	private float		total;
 
 	public PriceViewer () {
-		total = 0;
-		setText ( "0,00 €" );
+		setValue ( 0 );
 	}
 
 	public void setValue ( float price ) {

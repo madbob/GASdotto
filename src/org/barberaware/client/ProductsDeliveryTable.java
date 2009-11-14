@@ -165,7 +165,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 
 			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
 			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( e, 2, new Label ( prod_user.getFloat ( "quantity" ) + " " + measure.getString ( "symbol" ) ) );
+			main.setWidget ( e, 2, new Label ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + " " + measure.getString ( "symbol" ) ) );
 
 			del = new FloatBox ();
 			delivered = prod_user.getFloat ( "delivered" );

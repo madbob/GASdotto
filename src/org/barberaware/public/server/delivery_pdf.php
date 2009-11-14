@@ -145,7 +145,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$row [] = sprintf ( "%s %s", $order_user->baseuser->firstname, $order_user->baseuser->surname );
+	$row [] = sprintf ( "%s", $order_user->baseuser->surname );
 
 	$user_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );

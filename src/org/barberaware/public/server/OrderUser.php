@@ -41,10 +41,7 @@ class OrderUser extends FromServer {
 			contemplato il parametro "has" come nelle altre ricerche
 		*/
 		if ( isset ( $request->order ) ) {
-			$query .= sprintf ( "baseorder = %d ORDER BY id", $request->order );
-
-			if ( current_permissions () == 0 )
-				$query .= sprintf ( " AND baseuser = %d ", $current_user );
+			$query .= sprintf ( "baseorder = %d ", $request->order );
 		}
 		else {
 			$ord = new Order ();
@@ -62,17 +59,19 @@ class OrderUser extends FromServer {
 				*/
 				$query .= sprintf ( "id > -1 " );
 			}
-
-			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-				$ids = join ( ',', $request->has );
-				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
-			}
-
-			if ( current_permissions () == 0 )
-				$query .= sprintf ( "AND baseuser = %d ", $current_user );
-
-			$query .= "ORDER BY id";
 		}
+
+		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+			$ids = join ( ',', $request->has );
+			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+		}
+
+		if ( current_permissions () == 0 )
+			$query .= sprintf ( "AND baseuser = %d ", $current_user );
+		else if ( isset ( $request->baseuser ) )
+			$query .= sprintf ( "AND baseuser = %d ", $request->baseuser );
+
+		$query .= "ORDER BY id";
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );

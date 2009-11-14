@@ -20,26 +20,20 @@ package org.barberaware.client;
 import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
-import com.google.gwt.i18n.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
 public class PriceBox extends TextBox implements FloatWidget {
 	private float			currentValue;
-	private NumberFormat		plainFormatter;
-	private NumberFormat		priceFormatter;
 
 	public PriceBox () {
 		setText ( Utils.priceToString ( 0 ) );
 		currentValue = 0;
 
-		plainFormatter = NumberFormat.getDecimalFormat ();
-		priceFormatter = NumberFormat.getCurrencyFormat ();
-
 		addFocusListener (
 			new FocusListener () {
 				public void onFocus ( Widget sender ) {
-					setText ( plainFormatter.format ( currentValue ) );
+					setText ( Utils.floatToString ( currentValue ) );
 				}
 
 				public void onLostFocus ( Widget sender ) {
@@ -51,13 +45,18 @@ public class PriceBox extends TextBox implements FloatWidget {
 					}
 					else {
 						try {
-							val = ( float ) plainFormatter.parse ( getText () );
-							converted = priceFormatter.format ( val );
+							/*
+								La doppia conversione e' per accertarsi che in
+								currentValue ci sia sempre il valore correttamente
+								arrotondato
+							*/
+							val = Utils.stringToFloat ( getText () );
+							converted = Utils.priceToString ( val );
 							setText ( converted );
-							currentValue = ( float ) priceFormatter.parse ( converted );
+							currentValue = Utils.stringToPrice ( converted );
 						}
 						catch ( NumberFormatException e ) {
-							setText ( priceFormatter.format ( currentValue ) );
+							setText ( Utils.priceToString ( currentValue ) );
 						}
 					}
 				}
@@ -89,7 +88,7 @@ public class PriceBox extends TextBox implements FloatWidget {
 
 	public void setVal ( float value ) {
 		currentValue = value;
-		setText ( priceFormatter.format ( value ) );
+		setText ( Utils.priceToString ( value ) );
 	}
 
 	public float getVal () {

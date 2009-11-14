@@ -99,12 +99,12 @@ public class ProductUserSelector extends ObjectWidget {
 			text = "";
 
 			if ( min != 0 )
-				text = text + "Quantità minima ordinabile: " + min + " " + measure.getText ();
+				text = text + "Quantità minima ordinabile: " + Utils.floatToString ( min ) + " " + measure.getText ();
 
 			if ( mult != 0 ) {
 				if ( text != "" )
 					text = text + "<br>";
-				text = text + "Quantità ordinabile per multipli di: " + mult + " " + measure.getText ();
+				text = text + "Quantità ordinabile per multipli di: " + Utils.floatToString ( mult ) + " " + measure.getText ();
 			}
 
 			constraintsDialog.setHTML ( text );

@@ -244,7 +244,7 @@ public class OrderSummary extends Composite {
 		lab.setText ( product.getString ( "name" ) );
 
 		lab = editableLabel ( index, 2, new_row );
-		lab.setText ( quantity + " " + measureSymbol ( product ) );
+		lab.setText ( Utils.floatToString ( quantity ) + " " + measureSymbol ( product ) );
 
 		lab = editableLabel ( index, 3, new_row );
 		lab.setText ( Utils.priceToString ( price ) );

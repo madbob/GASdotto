@@ -47,7 +47,7 @@ public class FloatBox extends TextBox implements FloatWidget {
 							( keyCode != KeyboardListener.KEY_UP ) &&
 							( keyCode != KeyboardListener.KEY_RIGHT ) &&
 							( keyCode != KeyboardListener.KEY_DOWN ) &&
-							( keyCode != '.' ) ) {
+							( keyCode != ',' ) ) {
 
 						cancelKey ();
 					}
@@ -61,7 +61,7 @@ public class FloatBox extends TextBox implements FloatWidget {
 	/****************************************************************** FloatWidget */
 
 	public void setVal ( float value ) {
-		setText ( Float.toString ( value ) );
+		setText ( Utils.floatToString ( value ) );
 	}
 
 	public float getVal () {
@@ -71,6 +71,6 @@ public class FloatBox extends TextBox implements FloatWidget {
 		if ( str.equals ( "" ) )
 			return 0;
 
-		return Float.parseFloat ( str );
+		return Utils.stringToFloat ( str );
 	}
 }

@@ -286,8 +286,13 @@ public class HomePanel extends GenericPanel {
 	}
 
 	public void initView () {
+		ServerRequest params;
+
 		notifications.syncList ();
 		Utils.getServer ().testObjectReceive ( "Order" );
-		Utils.getServer ().testObjectReceive ( "OrderUser" );
+
+		params = new ServerRequest ( "OrderUser" );
+		params.add ( "baseuser", Session.getUser ().getLocalID () );
+		Utils.getServer ().testObjectReceive ( params );
 	}
 }
