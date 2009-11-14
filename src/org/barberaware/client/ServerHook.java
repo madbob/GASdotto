@@ -41,11 +41,13 @@ public class ServerHook {
 		}
 
 		public void rebuildComparisons () {
+			int num;
 			FromServer obj;
 
 			comparingObjects = new JSONArray ();
+			num = objects.size ();
 
-			for ( int i = 0; i < objects.size (); i++ ) {
+			for ( int i = 0; i < num; i++ ) {
 				obj = ( FromServer ) objects.get ( i );
 				comparingObjects.set ( i, new JSONNumber ( obj.getLocalID () ) );
 			}
@@ -140,10 +142,12 @@ public class ServerHook {
 	}
 
 	private void deleteObjectFromMonitorCache ( ServerMonitor monitor, FromServer obj ) {
-		int i;
+		int num;
 		FromServer iter;
 
-		for ( i = 0; i < monitor.objects.size (); i++ ) {
+		num = monitor.objects.size ();
+
+		for ( int i = 0; i < num; i++ ) {
 			iter = ( FromServer ) monitor.objects.get ( i );
 			if ( iter.equals ( obj ) ) {
 				monitor.objects.remove ( i );
@@ -161,6 +165,7 @@ public class ServerHook {
 		serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				int i;
+				int num;
 				int existing;
 				JSONArray arr;
 				FromServer tmp;
@@ -170,12 +175,13 @@ public class ServerHook {
 
 				if ( arr != null && arr.size () != 0 ) {
 					i = 0;
+					num = arr.size ();
 
 					tmp = FromServer.instance ( arr.get ( i ).isObject () );
 					triggerObjectBlockCreation ( tmp, true );
 					triggerObjectCreation ( tmp );
 
-					for ( i = 1; i < arr.size (); i++ ) {
+					for ( i = 1; i < num; i++ ) {
 						tmp = FromServer.instance ( arr.get ( i ).isObject () );
 						triggerObjectCreation ( tmp );
 					}
@@ -203,9 +209,12 @@ public class ServerHook {
 	}
 
 	private ServerMonitor getMonitor ( String type ) {
+		int num;
 		ServerMonitor tmp;
 
-		for ( int i = 0; i < monitors.size (); i++ ) {
+		num = monitors.size ();
+
+		for ( int i = 0; i < num; i++ ) {
 			tmp = ( ServerMonitor ) monitors.get ( i );
 
 			if ( tmp.type.equals ( type ) )
@@ -228,6 +237,7 @@ public class ServerHook {
 	}
 
 	public void onObjectEvent ( String type, ServerObjectReceive callback ) {
+		int num;
 		ServerMonitor tmp;
 		FromServer obj;
 
@@ -235,8 +245,9 @@ public class ServerHook {
 
 		if ( tmp != null ) {
 			tmp.callbacks.add ( callback );
+			num = tmp.objects.size ();
 
-			for ( int i = 0; i < tmp.objects.size (); i++ ) {
+			for ( int i = 0; i < num; i++ ) {
 				obj = ( FromServer ) tmp.objects.get ( i );
 				callback.onReceive ( obj );
 			}
@@ -260,6 +271,7 @@ public class ServerHook {
 	}
 
 	private void loadWithCachedObjects ( String type, ServerRequest params ) {
+		int num;
 		String subtype;
 		ArrayList subclasses;
 		FromServer obj;
@@ -267,8 +279,9 @@ public class ServerHook {
 
 		obj = FromServerFactory.create ( type );
 		subclasses = obj.getContainedObjectsClasses ();
+		num = subclasses.size ();
 
-		for ( int i = 0; i < subclasses.size (); i++ ) {
+		for ( int i = 0; i < num; i++ ) {
 			subtype = ( String ) subclasses.get ( i );
 			if ( params.containsKey ( "has_" + subtype ) )
 				continue;
@@ -303,12 +316,15 @@ public class ServerHook {
 	}
 
 	public void triggerObjectBlockCreation ( FromServer object, boolean mode ) {
+		int num;
 		ServerMonitor tmp;
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
 		if ( tmp != null ) {
-			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+			num = tmp.callbacks.size ();
+
+			for ( int i = 0; i < num; i++ ) {
 				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 
 				if ( mode == true )
@@ -320,12 +336,15 @@ public class ServerHook {
 	}
 
 	public void triggerObjectModification ( FromServer object ) {
+		int num;
 		ServerMonitor tmp;
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
 		if ( tmp != null ) {
-			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+			num = tmp.callbacks.size ();
+
+			for ( int i = 0; i < num; i++ ) {
 				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 				callback.onModify ( object );
 			}
@@ -333,12 +352,15 @@ public class ServerHook {
 	}
 
 	public void triggerObjectDeletion ( FromServer object ) {
+		int num;
 		ServerMonitor tmp;
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
 		if ( tmp != null ) {
-			for ( int i = 0; i < tmp.callbacks.size (); i++ ) {
+			num = tmp.callbacks.size ();
+
+			for ( int i = 0; i < num; i++ ) {
 				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 				callback.onDestroy ( object );
 			}

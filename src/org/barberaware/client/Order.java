@@ -81,4 +81,12 @@ public class Order extends FromServer {
 
 		alwaysReload ( true );
 	}
+
+	public void asyncLoadUsersOrders () {
+		ServerRequest params;
+
+		params = new ServerRequest ( "OrderUser" );
+		params.add ( "baseorder", getLocalID () );
+		Utils.getServer ().testObjectReceive ( params );
+	}
 }

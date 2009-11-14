@@ -104,7 +104,8 @@ public class OrdersEditPanel extends GenericPanel {
 					*/
 					ver.setCallback ( new FromServerFormCallbacks () {
 						public void onSave ( FromServerForm form ) {
-							Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'", SmoothingNotify.NOTIFY_INFO );
+							if ( form.getObject ().getInt ( "status" ) == Order.OPENED )
+								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'", SmoothingNotify.NOTIFY_INFO );
 						}
 					} );
 
@@ -207,6 +208,13 @@ public class OrdersEditPanel extends GenericPanel {
 						return -1;
 
 					return -1 * ( first.getDate ( "enddate" ).compareTo ( second.getDate ( "enddate" ) ) );
+				}
+
+				protected void asyncLoad ( FromServerForm form ) {
+					Order ord;
+
+					ord = ( Order ) form.getObject ();
+					ord.asyncLoadUsersOrders ();
 				}
 		};
 
@@ -478,6 +486,5 @@ public class OrdersEditPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Order" );
-		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }

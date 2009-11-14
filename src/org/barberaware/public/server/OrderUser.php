@@ -40,8 +40,8 @@ class OrderUser extends FromServer {
 			Al momento questo viene usato solo per order_csv.php, dunque non viene
 			contemplato il parametro "has" come nelle altre ricerche
 		*/
-		if ( isset ( $request->order ) ) {
-			$query .= sprintf ( "baseorder = %d ", $request->order );
+		if ( isset ( $request->baseorder ) ) {
+			$query .= sprintf ( "baseorder = %d ", $request->baseorder );
 		}
 		else {
 			$ord = new Order ();

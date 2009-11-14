@@ -50,11 +50,7 @@ public class OrderSummary extends Composite {
 		main.getColumnFormatter ().setStyleName ( 0, "hidden" );
 
 		totalLabel = null;
-
-		/*
-			Questo viene creato e riempito in syncOrders()
-		*/
-		ordersUsers = null;
+		ordersUsers = new ArrayList ();
 
 		fillList ();
 		syncOrders ();
@@ -97,8 +93,7 @@ public class OrderSummary extends Composite {
 			prices [ i ] = 0;
 		}
 
-		if ( ordersUsers == null )
-			ordersUsers = new ArrayList ();
+		ordersUsers.clear ();
 
 		/**
 			TODO	Probabilmente l'algoritmo di ricostruzione della lista di

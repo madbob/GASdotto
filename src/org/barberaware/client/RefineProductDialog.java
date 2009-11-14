@@ -102,6 +102,8 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 	}
 
 	private Widget doChooses () {
+		int i;
+		int e;
 		int tot;
 		OrderUser order_user;
 		ProductUser pu;
@@ -111,7 +113,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		optionsTable = new FlexTable ();
 		tot = userOrders.size ();
 
-		for ( int i = 0; i < tot; i++ ) {
+		for ( i = 0, e = 0; i < tot; i++ ) {
 			order_user = ( OrderUser ) userOrders.get ( i );
 
 			pu = retrieveInteresting ( order_user );
@@ -119,11 +121,13 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 				continue;
 
 			username = new Label ( order_user.getObject ( "baseuser" ).getString ( "name" ) );
-			optionsTable.setWidget ( i, 0, username );
+			optionsTable.setWidget ( e, 0, username );
 
 			quantity = new FloatBox ();
 			quantity.setVal ( pu.getFloat ( "quantity" ) );
-			optionsTable.setWidget ( i, 1, quantity );
+			optionsTable.setWidget ( e, 1, quantity );
+
+			e++;
 		}
 
 		return optionsTable;

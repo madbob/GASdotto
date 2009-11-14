@@ -195,6 +195,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
 
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onOpen ( FromServerForm form ) {
+				Order ord;
+
+				ord = ( Order ) form.getObject ().getObject ( "baseorder" );
+				ord.asyncLoadUsersOrders ();
+			}
+		} );
+
 		if ( editable == true ) {
 			ver.setCallback ( new FromServerFormCallbacks () {
 				public void onClose ( FromServerForm form ) {
@@ -442,8 +451,5 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		params = new ServerRequest ( "Order" );
 		params.add ( "status", Order.OPENED );
 		Utils.getServer ().testObjectReceive ( params );
-
-		Utils.getServer ().testObjectReceive ( "OrderUser" );
-		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }

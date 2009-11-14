@@ -119,6 +119,7 @@ public abstract class FormGroup extends Composite {
 				iter.setCallback ( new FromServerFormCallbacks () {
 					public void onOpen ( FromServerForm form ) {
 						closeOtherForms ( form );
+						asyncLoad ( form );
 					}
 				} );
 
@@ -298,6 +299,15 @@ public abstract class FormGroup extends Composite {
 			return 0;
 
 		return -1 * ( a.compareTo ( b ) );
+	}
+
+	/*
+		Questa funzione puo' essere sovrascritta per compiere qualche azione quando uno
+		specifico form viene aperto: particolarmente indicata per caricare
+		asincronicamente dati solo quando richiesto
+	*/
+	protected void asyncLoad ( FromServerForm form ) {
+		/* dummy */
 	}
 
 	protected abstract FromServerForm doNewEditableRow ();

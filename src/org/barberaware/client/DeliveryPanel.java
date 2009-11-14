@@ -212,6 +212,15 @@ public class DeliveryPanel extends GenericPanel {
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onOpen ( FromServerForm form ) {
+				Order ord;
+
+				ord = ( Order ) form.getObject ();
+				ord.asyncLoadUsersOrders ();
+			}
+		} );
+
 		downloads = new HorizontalPanel ();
 		downloads.setStyleName ( "bottom-buttons" );
 		downloads.add ( Utils.getServer ().fileLink ( "Scarica file CSV", "", "order_csv.php?id=" + order.getLocalID () ) );
@@ -315,7 +324,5 @@ public class DeliveryPanel extends GenericPanel {
 		*/
 
 		Utils.getServer ().testObjectReceive ( params );
-
-		Utils.getServer ().testObjectReceive ( "OrderUser" );
 	}
 }
