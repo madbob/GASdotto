@@ -60,6 +60,10 @@ function search_in_array ( $array, $val ) {
 	return -1;
 }
 
+function format_price ( $price ) {
+	return "€ " . number_format ( $price, 2, ',', '' );
+}
+
 /****************************************************************** db management */
 
 function query_and_check ( $query, $error ) {

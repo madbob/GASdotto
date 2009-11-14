@@ -22,37 +22,28 @@ require_once ( "tcpdf/tcpdf.php" );
 
 class DeliveryReport extends TCPDF {
 	public function ColoredTable ( $header, $data ) {
-		$this->SetFillColor ( 255, 0, 0 );
-		$this->SetTextColor ( 255 );
-		$this->SetDrawColor ( 128, 0, 0 );
-		$this->SetLineWidth ( 0.3 );
-		$this->SetFont ( '', 'B' );
-
-		/*
-			210 mm (larghezza foglio A4) - 30 mm (somma dei margini destro e sinistro settati sotto) / numero di colonne
-		*/
-		$w = ( 210 - 30 ) / count ( $header );
-
-		for ( $i = 0; $i < count ( $header ); $i++ )
-			$this->Cell ( $w, 7, $header [ $i ], 1, 0, 'C', 1 );
-
-		$this->Ln ();
-
 		$this->SetFillColor ( 224, 235, 255 );
 		$this->SetTextColor ( 0 );
-		$this->SetFont ( '' );
+		$this->SetDrawColor ( 128, 0, 0 );
+		$this->SetLineWidth ( 0.3 );
+		$this->SetFont ( 'helvetica', '', 7 );
 
-		$fill = 0;
+		$html = '<table cellspacing="0" cellpadding="1" border="1"><tr>';
+		for ( $i = 0; $i < count ( $header ); $i++ )
+			$html .= '<td>' . ( $header [ $i ] ) . '</td>';
+		$html .= '</tr>';
 
 		foreach ( $data as $row ) {
-			foreach ( $row as $val )
-				$this->Cell ( $w, 6, $val, 'LR', 0, 'L', $fill );
+			$html .= '<tr>';
 
-			$this->Ln ();
-			$fill = !$fill;
+			foreach ( $row as $val )
+				$html .= '<td>' . $val . '</td>';
+
+			$html .= '</tr>';
 		}
 
-		$this->Cell ( $w * count ( $header ), 0, '', 'T' );
+		$html .= '</table>';
+		$this->writeHTML ( $html, true, false, false, false, 'C' );
 	}
 }
 
@@ -85,7 +76,7 @@ $header = array ( 'Utenti' );
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$name = $prod->getAttribute ( "name" )->value;
-	$price = sprintf ( "%.02f €", $prod->getTotalPrice () );
+	$price = format_price ( $prod->getTotalPrice () );
 
 	$measure = $prod->getAttribute ( "measure" )->value;
 	if ( $measure != null )
@@ -93,10 +84,10 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 	else
 		$symbol = "";
 
-	array_push ( $header, $name . " (" . $price . $symbol . ")" );
+	array_push ( $header, $name . "<br />(" . $price . $symbol . ")" );
 }
 
-array_push ( $header, 'Totale' );
+array_push ( $header, 'Totale per Utente' );
 
 /*
 	Init PDF
@@ -119,7 +110,6 @@ $pdf->SetFooterMargin ( 10 );
 $pdf->SetAutoPageBreak ( true, 25 );
 $pdf->setImageScale ( 1 );
 $pdf->setLanguageArray ( $l );
-$pdf->SetFont ( 'helvetica', '', 7 );
 $pdf->AddPage ();
 
 /*
@@ -129,13 +119,14 @@ $pdf->AddPage ();
 $data = array ();
 
 $products_sums = array ();
-for ( $i = 0; $i < count ( $product ); $i++ )
+for ( $i = 0; $i < count ( $products ); $i++ )
     $products_sums [] = 0;
 
 $request = new stdClass ();
 $request->order = $id;
 $order_user_proxy = new OrderUser ();
 $contents = $order_user_proxy->get ( $request );
+usort ( $contents, "sort_orders_by_user" );
 
 for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$row = array ();
@@ -155,7 +146,12 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$row [] = sprintf ( "%d", $prod_user->quantity );
+			$decimal = strlen ( strstr ( $prod_user->quantity, '.' ) );
+			if ( $decimal != 0 )
+				$row [] = number_format ( $prod_user->quantity, $decimal - 1, ',', '' );
+			else
+				$row [] = sprintf ( "%d", $prod_user->quantity );
+
 			$sum = $prod_user->quantity * $prod->getTotalPrice ();
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
@@ -165,16 +161,23 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$row [] = "";
 	}
 
-	$row [] = sprintf ( "%.02f €", round ( $user_total, 2 ) );
+	$row [] = format_price ( $user_total );
 
 	$data [] = $row;
 }
 
+$gran_total = 0;
 $row = array ();
-$row [] = "";
-for ( $i = 0; $i < count ( $products_sums ); $i++ )
-	$row [] = sprintf ( "%.02f €", round ( $products_sums [ $i ], 2 ) );
-$row [] = "";
+$row [] = "Totale per Prodotto";
+
+for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
+	$p = $products_sums [ $i ];
+	$row [] = format_price ( $p );
+	$gran_total += $p;
+}
+
+$row [] = format_price ( $gran_total );
+
 $data [] = $row;
 
 /*
@@ -194,6 +197,10 @@ function sort_product_by_name ( $first, $second ) {
 
 function sort_product_user_by_name ( $first, $second ) {
 	return strcmp ( $first->product->name, $second->product->name );
+}
+
+function sort_orders_by_user ( $first, $second ) {
+	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 }
 
 ?>

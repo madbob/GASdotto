@@ -41,7 +41,7 @@ $products_prices = array ();
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices [] = "€ " . number_format ( $prod->getTotalPrice (), 2, ',', '' );
+	$products_prices [] = format_price ( $prod->getTotalPrice () );
 }
 
 $output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n";
@@ -89,11 +89,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$output .= sprintf ( ";" );
 	}
 
-	$output .= "€ " . number_format ( round ( $user_total, 2 ), 2, ',', '' ) . "\n";
+	$output .= format_price ( round ( $user_total, 2 ) ) . "\n";
 }
 
 for ( $i = 0; $i < count ( $products_sums ); $i++ )
-    $output .= ";€ " . number_format ( round ( $products_sums [ $i ], 2 ), 2, ',', '' );
+    $output .= ";" . format_price ( round ( $products_sums [ $i ], 2 ) );
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
