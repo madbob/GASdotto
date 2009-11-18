@@ -34,9 +34,13 @@ class Probe extends FromServer {
 	}
 
 	public function get ( $request ) {
-		$this->writable = is_writable ( "./config.php" );
-		$this->dbdrivers = join ( ";", PDO::getAvailableDrivers () );
-		return $this;
+		$this->getAttribute ( "writable" )->value = is_writable ( "./config.php" );
+
+		$drivers = PDO::getAvailableDrivers ();
+		$this->getAttribute ( "dbdrivers" )->value = join ( ";", $drivers );
+		$this->getAttribute ( "dbdriver" )->value = $drivers [ 0 ];
+
+		return $this->exportable ( $request );
 	}
 
 	public function save ( $obj ) {
@@ -46,10 +50,10 @@ class Probe extends FromServer {
 		$f = fopen ( "./config.php", "w" );
 
 		fwrite ( $f, "<?\n" );
-		fwrite ( $f, sprintf ( "\$dbdriver = %s\n", $obj->dbdriver ) );
-		fwrite ( $f, sprintf ( "\$dbuser = %s\n", $obj->dbuser ) );
-		fwrite ( $f, sprintf ( "\$dbpassword = %s\n", $obj->dbpassword ) );
-		fwrite ( $f, sprintf ( "\$dbname = %s\n", $obj->dbname ) );
+		fwrite ( $f, sprintf ( "\$dbdriver = %s;\n", $obj->dbdriver ) );
+		fwrite ( $f, sprintf ( "\$dbuser = %s;\n", $obj->dbuser ) );
+		fwrite ( $f, sprintf ( "\$dbpassword = %s;\n", $obj->dbpassword ) );
+		fwrite ( $f, sprintf ( "\$dbname = %s;\n", $obj->dbname ) );
 		fwrite ( $f, "?>\n" );
 
 		fclose ( $f );
@@ -60,11 +64,15 @@ class Probe extends FromServer {
 					md5 ( $obj->rootpassword ) );
 		query_and_check ( $query, "Impossibile salvare password per utente root" );
 
+		$query = sprintf ( "UPDATE Gas SET name = '%s' AND mail = '%s'", $obj->gasname, $obj->gasmail );
+		query_and_check ( $query, "Impossibile salvare dati del GAS" );
+
 		/*
 			In chiusura vengono modificati i permessi del file in modo che non possa
 			essere nuovamente sovrascritto se non con macchinosa procedura
 		*/
 		chmod ( "./config.php", 0500 );
+		return 1;
 	}
 }
 

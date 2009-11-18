@@ -23,22 +23,26 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class InstallForm extends Composite {
 	private VerticalPanel		main;
 
 	public InstallForm () {
+		String message;
 		Button installbutton;
 		VerticalPanel container;
 
 		main = new VerticalPanel ();
+		main.setStyleName ( "genericpanel" );
 		main.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		main.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		main.setSize ( "100%", "100%" );
 		initWidget ( main );
 
-		main.add ( new HTML ( "<p>Sembra che il tuo sistema GASdotto non sia ancora stato configurato.</p>" ) );
-		main.add ( new HTML ( "<p>Se sei sicuro di aver già installato correttamente il tutto, potrebbe essere occorso un problema nel mentre: ricarica la pagina (premendo il tasto F5) per provare ad ottenere la scheramata di accesso.</p>" ) );
-		main.add ( new HTML ( "<p>Se invece questa è la prima volta che usi GASdotto, clicca sul pulsante qui sotto per iniziare la procedura di configurazione.</p>" ) );
+		message = "<p>Sembra che il tuo sistema GASdotto non sia ancora stato configurato.</p>";
+		message += "<p>Se sei sicuro di aver già installato correttamente il tutto, potrebbe essere occorso un problema nel mentre: ricarica la pagina (premendo il tasto F5) per provare ad ottenere la scheramata di accesso.</p>";
+		message += "<p>Se invece questa è la prima volta che usi GASdotto, clicca sul pulsante qui sotto per iniziare la procedura di configurazione.</p>";
+		main.add ( new HTML ( message ) );
 
 		installbutton = new Button ( "Installa GASdotto" );
 		installbutton.addClickListener ( new ClickListener () {
@@ -70,10 +74,18 @@ public class InstallForm extends Composite {
 	}
 
 	private void fillForm ( Probe probe ) {
+		String message;
+
 		if ( probe.getBool ( "writable" ) == false ) {
-			main.add ( new HTML ( "<p>Sembra che il file server/config.php non sia scrivibile da questa applicazione, e non è possibile modificare questa impostazione automaticamente.</p>" ) );
-			main.add ( new HTML ( "<p>Per favore: provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervieni direttamente sul server.</p>" ) );
-			main.add ( new HTML ( "<p>Quando hai fatto, torna su questa pagina per procedere nell'installazione.</p>" ) );
+			message = "<p>Sembra che il file server/config.php non sia scrivibile da questa applicazione, e non è possibile modificare questa impostazione automaticamente.</p>";
+			message += "<p>Per favore: provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervieni direttamente sul server.</p>";
+			message += "<p>Quando hai fatto, torna su questa pagina per procedere nell'installazione.</p>";
+			main.add ( new HTML ( message ) );
+		}
+		else if ( probe.getString ( "dbdrivers" ).equals ( "" ) == true ) {
+			message = "<p>Sembra che su questo server non sia installato alcun database, oppure alcun driver per poterlo utilizzare.</p>";
+			message += "<p>Per usare GASdotto è necessario avere <a href=\"http://www.php.net\">PHP</a>, l'estensione <a href=\"http://www.php.net/manual/en/book.pdo.php\">PDO</a>, un database a scelta tra <a href=\"http://www.mysql.com\">MySQL</a> e <a href=\"http://www.postgresql.org/\">PostGreSQL</a> ed i relativi driver: verifica che essi siano installati, o chiedi assistenza a qualcuno con maggiore dimestichezza col PC.</p>";
+			main.add ( new HTML ( message ) );
 		}
 		else {
 			main.add ( doMainForm ( probe ) );
@@ -86,58 +98,40 @@ public class InstallForm extends Composite {
 		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
 		form.alwaysOpened ( true );
 
+		form.setCallback ( new FromServerFormCallbacks () {
+			public void onSaved ( FromServerForm form ) {
+				if ( form.getObject ().getLocalID () == 1 )
+					Window.Location.reload ();
+				else
+					Utils.showNotification ( "E' occorso un problema durante l'installazione" );
+			}
+		} );
+
+		form.add ( new HTML ( "<p>Qui devi inserire le informazioni per accedere al database che conterrà le informazioni prodotte dal programma. Esso deve già essere stato creato, magari per mezzo degli strumenti offerti dal tuo servizio di hosting.</p>" ) );
 		form.add ( doDbSettingForm ( form, probe ) );
+		form.add ( new HTML ( "<p>Qui definisci alcune informazioni per l'utilizzo immediato di GASdotto. Tieni presente che l'utente amministratore, che verrà installato automaticamente, ha sempre come username \"root\".</p>" ) );
 		form.add ( doConfigSettingForm ( form, probe ) );
 
 		return form;
 	}
 
 	private Widget doDbSettingForm ( FromServerForm form, Probe probe ) {
-		FlexTable contents;
-		CaptionPanel db;
+		CustomCaptionPanel db;
 
-		db = new CaptionPanel ( "Impostazione del Database" );
-		setStyleName ( "custom-caption-panel" );
-
-		contents = new FlexTable ();
-		db.setContentWidget ( contents );
-
-		contents.setWidget ( 0, 0, new HTML ( "<p>Qui devi inserire le informazioni per accedere al database che conterrà le informazioni prodotte dal programma.</p>" ) );
-		contents.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
-
-		contents.setWidget ( 2, 0, new Label ( "Nome del Database" ) );
-		contents.setWidget ( 2, 1, form.getWidget ( "dbname" ) );
-
-		contents.setWidget ( 1, 0, new Label ( "Username" ) );
-		contents.setWidget ( 1, 1, form.getWidget ( "dbuser" ) );
-
-		contents.setWidget ( 2, 0, new Label ( "Password" ) );
-		contents.setWidget ( 2, 1, form.getWidget ( "dbpassword" ) );
-
-		/**
-			TODO	Aggiungere dettagli
-		*/
-
+		db = new CustomCaptionPanel ( "Impostazione del Database" );
+		db.addPair ( "Nome del Database", form.getWidget ( "dbname" ) );
+		db.addPair ( "Username", form.getWidget ( "dbuser" ) );
+		db.addPair ( "Password", form.getPersonalizedWidget ( "dbpassword", new PasswordBox () ) );
 		return db;
 	}
 
 	private Widget doConfigSettingForm ( FromServerForm form, Probe probe ) {
-		FlexTable contents;
-		HorizontalPanel row;
-		CaptionPanel app;
+		CustomCaptionPanel app;
 
-		app = new CaptionPanel ( "Informazioni Generali" );
-		setStyleName ( "custom-caption-panel" );
-
-		contents = new FlexTable ();
-		app.setContentWidget ( contents );
-
-		contents.setWidget ( 0, 0, new HTML ( "<p>Qui definisci alcune informazioni per l'utilizzo immediato di GASdotto. Tieni presente che l'utente amministratore, che verrà installato automaticamente, ha sempre come username \"root\"</p>" ) );
-		contents.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
-
-		contents.setWidget ( 1, 0, new Label ( "Password dell'Amministratore" ) );
-		contents.setWidget ( 1, 1, form.getPersonalizedWidget ( "rootpassword", new PasswordBox () ) );
-
+		app = new CustomCaptionPanel ( "Informazioni Generali" );
+		app.addPair ( "Nome del GAS", form.getWidget ( "gasname" ) );
+		app.addPair ( "Indirizzo Mail", form.getWidget ( "gasmail" ) );
+		app.addPair ( "Password dell'Amministratore", form.getPersonalizedWidget ( "rootpassword", new PasswordBox () ) );
 		return app;
 	}
 }

@@ -26,6 +26,10 @@ public class FromServerFormCallbacks {
 		/* dummy */
 	}
 
+	public void onSaved ( FromServerForm form ) {
+		/* dummy */
+	}
+
 	public void onReset ( FromServerForm form ) {
 		/* dummy */
 	}

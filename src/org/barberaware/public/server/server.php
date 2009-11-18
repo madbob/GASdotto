@@ -35,7 +35,7 @@ if ( $type == "Probe" ) {
 
 	switch ( $action ) {
 		case "get":
-			$ret->get ( $obj );
+			$ret = $ret->get ( $obj );
 			break;
 
 		case "save":

@@ -44,16 +44,18 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$products_prices [] = format_price ( $prod->getTotalPrice () );
 }
 
+$products_names [] = "Totale";
 $output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n";
 
 $products_sums = array ();
-for ( $i = 0; $i < count ( $product ); $i++ )
+for ( $i = 0; $i < count ( $products ); $i++ )
     $products_sums [] = 0;
 
 $request = new stdClass ();
 $request->order = $id;
 $order_user_proxy = new OrderUser ();
 $contents = $order_user_proxy->get ( $request );
+usort ( $contents, "sort_orders_by_user" );
 
 for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$order_user = $contents [ $i ];
@@ -62,7 +64,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$output .= sprintf ( "\"%s %s\";", $order_user->baseuser->firstname, $order_user->baseuser->surname );
+	$output .= sprintf ( "\"%s %s\";", $order_user->baseuser->surname, $order_user->baseuser->firstname );
 
 	$user_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );
@@ -105,4 +107,8 @@ function sort_product_by_name ( $first, $second ) {
 
 function sort_product_user_by_name ( $first, $second ) {
 	return strcmp ( $first->product->name, $second->product->name );
+}
+
+function sort_orders_by_user ( $first, $second ) {
+	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 }

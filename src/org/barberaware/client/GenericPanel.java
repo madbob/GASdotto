@@ -23,37 +23,9 @@ import com.google.gwt.user.client.ui.*;
 public abstract class GenericPanel extends VerticalPanel {
 	private MainStack		mainParent;
 
-	protected class GenericPanelHead extends Composite {
-		public GenericPanelHead ( GenericPanel panel ) {
-			HorizontalPanel head;
-
-			head = new HorizontalPanel ();
-			head.setStyleName ( "genericpanel-header" );
-			initWidget ( head );
-
-			head.add ( new Label ( panel.getName () ) );
-			head.add ( panel.getIcon () );
-		}
-	}
-
 	public GenericPanel () {
-		GenericPanelHead head;
-
 		setStyleName ( "genericpanel" );
 		setSize ( "100%", "100%" );
-
-		/*
-			Da tenere sempre presente il fatto che l'elemento in posizione 0 del
-			pannello e' il suo header, iniziare le iterazioni sui contenuti a partire
-			da 1
-		*/
-
-		/*
-		head = new GenericPanelHead ( this );
-		add ( head );
-		setCellWidth ( head, "100%" );
-		setCellHorizontalAlignment ( head, HasHorizontalAlignment.ALIGN_RIGHT );
-		*/
 	}
 
 	protected void addTop ( Widget to_add ) {

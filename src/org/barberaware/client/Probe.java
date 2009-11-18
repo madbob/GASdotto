@@ -23,11 +23,19 @@ public class Probe extends FromServer {
 	public Probe () {
 		super ();
 
+		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
+			public String retrive ( FromServer obj ) {
+				return "Configurazione";
+			}
+		} );
+
 		addAttribute ( "writable", FromServer.BOOLEAN );
 		addAttribute ( "dbdrivers", FromServer.STRING );
 		addAttribute ( "dbuser", FromServer.STRING );
 		addAttribute ( "dbpassword", FromServer.STRING );
 		addAttribute ( "dbname", FromServer.STRING );
+		addAttribute ( "gasname", FromServer.STRING );
+		addAttribute ( "gasmail", FromServer.STRING );
 		addAttribute ( "rootpassword", FromServer.STRING );
 	}
 }

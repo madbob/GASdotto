@@ -85,7 +85,14 @@ public class SystemPanel extends GenericPanel {
 
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
-		frame.addPair ( "Icona", ver.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
+
+		/*
+			Il logo in homepage puo' essere personalizzato solo se e' concesso il
+			caricamento di files sul server
+		*/
+		if ( Session.getSystemConf ().getBool ( "has_file" ) == true )
+			frame.addPair ( "Logo Homepage", ver.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
+
 		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
 
 		/*

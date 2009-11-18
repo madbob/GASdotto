@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.json.client.*;
 
 public class FromServerForm extends Composite {
 	private FromServer		object;
@@ -399,6 +400,11 @@ public class FromServerForm extends Composite {
 		return "";
 	}
 
+	private void savedCallbacks () {
+		for ( int i = 0; i < callbacks.size (); i++ )
+			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSaved ( this );
+	}
+
 	public boolean savingObject () {
 		if ( rebuildObject () == false )
 			return false;
@@ -406,8 +412,13 @@ public class FromServerForm extends Composite {
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this );
 
-		object.save ( null );
-		summary.setText ( retrieveNameInCallbacks () );
+		object.save ( new ServerResponse () {
+			public void onComplete ( JSONValue response ) {
+				savedCallbacks ();
+				summary.setText ( retrieveNameInCallbacks () );
+			}
+		} );
+
 		return true;
 	}
 
