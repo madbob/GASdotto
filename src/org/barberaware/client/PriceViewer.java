@@ -20,19 +20,25 @@ package org.barberaware.client;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class PriceViewer extends Label {
+import com.allen_sauer.gwt.log.client.Log;
+
+public class PriceViewer extends Label implements FloatWidget {
 	private float		total;
 
 	public PriceViewer () {
-		setValue ( 0 );
+		setVal ( 0 );
 	}
 
-	public void setValue ( float price ) {
+	public void sumValue ( float price ) {
+		setVal ( total + price );
+	}
+
+	public void setVal ( float price ) {
 		setText ( Utils.priceToString ( price ) );
 		total = price;
 	}
 
-	public void sumValue ( float price ) {
-		setValue ( total + price );
+	public float getVal () {
+		return total;
 	}
 }

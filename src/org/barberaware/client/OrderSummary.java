@@ -145,7 +145,7 @@ public class OrderSummary extends Composite {
 		}
 
 		syncTable ( products, quantities, prices );
-		totalLabel.setValue ( total_price );
+		totalLabel.setVal ( total_price );
 	}
 
 	private int searchProduct ( Product prod ) {
@@ -281,7 +281,7 @@ public class OrderSummary extends Composite {
 			totalLabel.setStyleName ( "bigger-text" );
 		}
 		else
-			totalLabel.setValue ( 0 );
+			totalLabel.setVal ( 0 );
 
 		main.setWidget ( e, 3, totalLabel );
 	}

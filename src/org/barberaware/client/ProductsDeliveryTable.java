@@ -89,7 +89,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			total_sum = row_sum + total_sum;
 		}
 
-		totalLabel.setValue ( total_sum );
+		totalLabel.setVal ( total_sum );
 	}
 
 	private Button createAutoCompleteButton () {
@@ -124,7 +124,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 					total_sum = row_sum + total_sum;
 				}
 
-				totalLabel.setValue ( total_sum );
+				totalLabel.setVal ( total_sum );
 			}
 		} );
 
@@ -201,7 +201,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			totalLabel.setStyleName ( "bigger-text" );
 		}
 
-		totalLabel.setValue ( price_total );
+		totalLabel.setVal ( price_total );
 		main.setWidget ( e, 4, totalLabel );
 	}
 

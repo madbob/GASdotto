@@ -281,7 +281,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		}
 
 		total = price;
-		totalLabel.setValue ( price );
+		totalLabel.setVal ( price );
 	}
 
 	/****************************************************************** FromServerArray */
