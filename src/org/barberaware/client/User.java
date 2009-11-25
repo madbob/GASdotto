@@ -25,6 +25,7 @@ public class User extends FromServer {
 	public static int	USER_COMMON		= 0;
 	public static int	USER_RESPONSABLE	= 1;
 	public static int	USER_ADMIN		= 2;
+	public static int	USER_LEAVED		= 3;
 
 	public User () {
 		super ();
@@ -55,6 +56,7 @@ public class User extends FromServer {
 		addAttribute ( "password", FromServer.STRING );
 		addAttribute ( "firstname", FromServer.STRING );
 		addAttribute ( "surname", FromServer.STRING );
+		addAttribute ( "birthday", FromServer.DATE );
 		addAttribute ( "join_date", FromServer.DATE );
 		addAttribute ( "card_number", FromServer.STRING );
 		addAttribute ( "phone", FromServer.STRING );
@@ -65,6 +67,7 @@ public class User extends FromServer {
 		addAttribute ( "paying", FromServer.DATE );
 		addAttribute ( "privileges", FromServer.INTEGER );
 		addAttribute ( "lastlogin", FromServer.DATE );
+		addAttribute ( "leaving_date", FromServer.DATE );
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
 	}

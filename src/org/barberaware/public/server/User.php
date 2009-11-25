@@ -26,6 +26,7 @@ class User extends FromServer {
 		$this->addAttribute ( "login", "STRING" );
 		$this->addAttribute ( "firstname", "STRING" );
 		$this->addAttribute ( "surname", "STRING" );
+		$this->addAttribute ( "birthday", "DATE" );
 		$this->addAttribute ( "join_date", "DATE" );
 		$this->addAttribute ( "card_number", "STRING" );
 		$this->addAttribute ( "phone", "STRING" );
@@ -36,6 +37,7 @@ class User extends FromServer {
 		$this->addAttribute ( "paying", "DATE" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
 		$this->addAttribute ( "lastlogin", "DATE" );
+		$this->addAttribute ( "leaving_date", "DATE" );
 
 		$this->setSorting ( "surname" );
 	}
@@ -57,6 +59,15 @@ class User extends FromServer {
 								$password, $id );
 
 			query_and_check ( $query, "Impossibile sincronizzare oggetto " . $this->classname );
+		}
+
+		if ( $obj->privileges == 3 ) {
+			/*
+				L'atto di cessazione della partecipazione di un utente ha effetto
+				immediato, percui invalido tutte le sessioni aperte/salvate
+			*/
+			$query = sprintf ( "DELETE FROM current_sessions WHERE username = %d", $obj->id );
+			query_and_check ( $query, "Impossibile eliminare sessioni aperte per utente sospeso" );
 		}
 
 		return $id;

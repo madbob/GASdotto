@@ -99,6 +99,7 @@ public class DateSelector extends Composite implements DateWidget {
 
 	public void clean () {
 		main.setText ( "Scegli una data" );
+		currentDate = null;
 	}
 
 	/****************************************************************** DateWidget */

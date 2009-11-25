@@ -69,7 +69,7 @@ public class SystemPanel extends GenericPanel {
 		ver = new FromServerForm ( Session.getGAS () );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSave ( FromServerForm form ) {
+			public void onSaved ( FromServerForm form ) {
 				/*
 					Poiche' i settaggi sul GAS possono andare a toccare
 					numerosissimi aspetti dell'interfaccia, provvedere qui ad

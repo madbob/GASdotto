@@ -59,19 +59,30 @@ else {
 						$name = escape_string ( $obj->username );
 						$pwd = escape_string ( $obj->password );
 
-						$query = sprintf ( "FROM accounts WHERE username = ( SELECT id FROM Users WHERE login = '%s' )", $name );
-
+						$query = sprintf ( "FROM Users WHERE login = '%s'", $name );
 						if ( db_row_count ( $query ) == 1 ) {
-							$query = "SELECT * " . $query;
-							$returned = query_and_check ( $query, "Impossibile validare utente" );
-
+							$query = "SELECT id, privileges " . $query;
+							$returned = query_and_check ( $query, "Impossibile recuperare utente" );
 							$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
-							if ( md5 ( $pwd ) == $row [ 0 ] [ 'password' ] ) {
-								$userid = $row [ 0 ] [ 'username' ];
-								perform_authentication ( $userid );
-								$ret->readFromDB ( $userid );
-								$ret->registerLogin ();
+							/*
+								Gli utenti con account marcato come "cessato" non
+								possono accedere
+							*/
+							if ( $row [ 0 ] [ 'privileges' ] != 3 ) {
+								$query = sprintf ( "FROM accounts WHERE username = %d", $row [ 0 ] [ 'id' ] );
+								if ( db_row_count ( $query ) == 1 ) {
+									$query = "SELECT * " . $query;
+									$returned = query_and_check ( $query, "Impossibile validare utente" );
+									$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
+
+									if ( md5 ( $pwd ) == $row [ 0 ] [ 'password' ] ) {
+										$userid = $row [ 0 ] [ 'username' ];
+										perform_authentication ( $userid );
+										$ret->readFromDB ( $userid );
+										$ret->registerLogin ();
+									}
+								}
 							}
 						}
 

@@ -406,11 +406,11 @@ public class FromServerForm extends Composite {
 	}
 
 	public boolean savingObject () {
-		if ( rebuildObject () == false )
-			return false;
-
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this );
+
+		if ( rebuildObject () == false )
+			return false;
 
 		object.save ( new ServerResponse () {
 			public void onComplete ( JSONValue response ) {

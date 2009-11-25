@@ -103,7 +103,7 @@ public class OrdersEditPanel extends GenericPanel {
 							salvato andrebbe rimossa dal form
 					*/
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public void onSave ( FromServerForm form ) {
+						public void onSaved ( FromServerForm form ) {
 							if ( form.getObject ().getInt ( "status" ) == Order.OPENED )
 								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'", SmoothingNotify.NOTIFY_INFO );
 						}

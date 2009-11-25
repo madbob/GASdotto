@@ -67,6 +67,10 @@ public class UserSelector extends ObjectWidget {
 		changeListeners.add ( listener );
 	}
 
+	public void addFilter ( FromServerValidateCallback filter ) {
+		select.addFilter ( filter );
+	}
+
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer selected ) {

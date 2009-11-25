@@ -223,6 +223,16 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			pan.add ( new Label ( "Ordine eseguito a nome di " ) );
 
 			users = new UserSelector ();
+
+			users.addFilter ( new FromServerValidateCallback () {
+				public boolean checkObject ( FromServer object ) {
+					if ( object.getInt ( "privileges" ) == User.USER_LEAVED )
+						return false;
+					else
+						return true;
+				}
+			} );
+
 			users.addChangeListener ( new ChangeListener () {
 				public void onChange ( Widget sender ) {
 					/**

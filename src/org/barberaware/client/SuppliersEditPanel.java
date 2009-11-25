@@ -148,7 +148,9 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
 			public boolean check ( FromServer obj, String text ) {
-				return ( obj.getInt ( "privileges" ) >= User.USER_RESPONSABLE );
+				int priv;
+				priv = obj.getInt ( "privileges" );
+				return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
 			}
 		} );
 

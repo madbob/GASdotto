@@ -54,7 +54,7 @@ function install_main_db () {
 	query_and_check ( $query, "Impossibile creare tabella gas" );
 
 	$query = sprintf ( "INSERT INTO GAS ( name ) VALUES ( 'Il Mio GAS' )" );
-	query_and_check ( $query, "Impossibile inizializzare tabella users" );
+	query_and_check ( $query, "Impossibile inizializzare tabella GAS" );
 
 	/*
 		=======================================================================================
@@ -65,6 +65,7 @@ function install_main_db () {
 					login varchar ( 100 ) default '',
 					firstname varchar ( 100 ) default '',
 					surname varchar ( 100 ) default '',
+					birthday date,
 					join_date date,
 					card_number varchar ( 100 ) default '',
 					phone varchar ( 100 ) default '',
@@ -75,6 +76,7 @@ function install_main_db () {
 					paying date,
 					privileges int default 1,
 					lastlogin date,
+					leaving_date date,
 					primary key ( id )
 				)"
 	);

@@ -22,10 +22,18 @@ public class FromServerFormCallbacks {
 		return form.getObject ().getString ( "name" );
 	}
 
+	/*
+		Invocata quando viene richiesto di salvare il contenuto del form, *prima* che i
+		valori editati nei campi siano effettivamente assegnati all'oggetto: in questo
+		modo si possono verificare e modificare al volo
+	*/
 	public void onSave ( FromServerForm form ) {
 		/* dummy */
 	}
 
+	/*
+		Invocata alla conferma di salvataggio dell'oggetto gestito dal form
+	*/
 	public void onSaved ( FromServerForm form ) {
 		/* dummy */
 	}

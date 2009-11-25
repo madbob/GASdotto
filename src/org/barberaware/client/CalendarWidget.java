@@ -1,7 +1,6 @@
 /*
 Simple Calendar Widget for GWT
 Copyright (C) 2006 Alexei Sokolov http://gwt.components.googlepages.com/
-Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

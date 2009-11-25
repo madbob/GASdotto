@@ -23,73 +23,65 @@ import com.google.gwt.user.client.*;
 
 public class UsersPanel extends GenericPanel {
 	private FormCluster		main;
+	private boolean			handlePayments;
 
 	public UsersPanel () {
 		super ();
 
 		FormClusterFilter filter;
 
+		/*
+			Da notare che se il settaggio sulla gestione dei pagamenti viene cambiato
+			l'applicazione si riavvia, dunque non c'e' bisogno di operare un
+			controllo a realtime sulla sua correzione
+		*/
+		handlePayments = ( Session.getGAS ().getBool ( "payments" ) == true );
+
 		main = new FormCluster ( "User", "Nuovo Utente", true, true ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
 					final FromServerForm ver;
-					HorizontalPanel hor;
-					CustomCaptionPanel frame;
-					boolean handle_payments;
 					User user;
-					CyclicToggle privileges;
-
-					handle_payments = ( Session.getGAS ().getBool ( "payments" ) == true );
 
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
 
-					hor = new HorizontalPanel ();
-					hor.setWidth ( "100%" );
-					ver.add ( hor );
-
-					/* prima colonna */
-
-					frame = new CustomCaptionPanel ( "Anagrafica" );
-					hor.add ( frame );
-
-					frame.addPair ( "Login Accesso", ver.getWidget ( "login" ) );
-					ver.setValidation ( "login", checkLoginNameCallback () );
-
-					frame.addPair ( "Nome", ver.getWidget ( "firstname" ) );
-					frame.addPair ( "Cognome", ver.getWidget ( "surname" ) );
-
-					frame.addPair ( "Telefono", ver.getWidget ( "phone" ) );
-					ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-					frame.addPair ( "Cellulare", ver.getWidget ( "mobile" ) );
-					ver.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
-
-					frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
-					ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
-
-					frame.addPair ( "Mail 2", ver.getWidget ( "mail2" ) );
-					ver.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
-
-					frame.addPair ( "Indirizzo", ver.getWidget ( "address" ) );
-
-					/* seconda colonna */
-
-					frame = new CustomCaptionPanel ( "Nel GAS" );
-					hor.add ( frame );
-
-					frame.addPair ( "Iscritto da", ver.getWidget ( "join_date" ) );
-
-					frame.addPair ( "Numero Tessera", ver.getWidget ( "card_number" ) );
-					ver.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
-
 					/*
-						Se il settaggio sul pagamento delle quote viene modificato
-						l'applicazione viene riavviata, pertanto non c'e' bisogno di
-						correggere questo pannello ma semplicemente attendere che sia
-						ricaricato
+						Il form vero e proprio viene popolate in asyncLoad(), all'atto
+						dell'apertura dell'utente selezionato. Questo per evitare di eseguire
+						la procedura sempre per tutti gli utenti in arrivo dal server, con il
+						risultato di bloccare completamente l'applicazione se gli utenti sono
+						numerosi
 					*/
-					if ( handle_payments == true ) {
-						frame.addPair ( "Quota pagata", ver.getWidget ( "paying" ) );
+
+					ver.setCallback ( new FromServerFormCallbacks () {
+						public void onSave ( FromServerForm form ) {
+							CyclicToggle role;
+							DateSelector leave;
+							Date leavedate;
+
+							role = ( CyclicToggle ) form.retriveInternalWidget ( "privileges" );
+							leave = ( DateSelector ) form.retriveInternalWidget ( "leaving_date" );
+							leavedate = leave.getValue ();
+
+							/*
+								Questo e' per accertarsi che la data di cessazione
+								della partecipazione del membro sia settata
+							*/
+							if ( role.getVal () == User.USER_LEAVED ) {
+								if ( leavedate == null )
+									leave.setValue ( new Date ( System.currentTimeMillis () ) );
+							}
+
+							/*
+								Se l'utente viene riabilitato viene annullata la data
+								di cessazione
+							*/
+							else if ( leavedate != null )
+								leave.setValue ( null );
+						}
+					} );
+
+					if ( handlePayments == true ) {
 						user.checkUserPaying ( ver );
 					}
 					else {
@@ -103,51 +95,117 @@ public class UsersPanel extends GenericPanel {
 							user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
 					}
 
-					privileges = new CyclicToggle ();
-					privileges.addState ( "images/user_role_standard.png" );
-					privileges.addState ( "images/user_role_reference.png" );
-					privileges.addState ( "images/user_role_admin.png" );
-					frame.addPair ( "Ruolo", ver.getPersonalizedWidget ( "privileges", privileges ) );
-
-					frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
-
-					/*
-						Se si sta definendo un nuovo utente si controlla
-						che la password sia effettivamente settata
-					*/
-					if ( u.isValid () == false ) {
-						ver.setValidation ( "password", new FromServerValidateCallback () {
-							public boolean check ( FromServer object, String attribute, Widget widget ) {
-								String text;
-
-								text = ( ( StringWidget ) widget ).getValue ();
-								if ( text.equals ( "" ) ) {
-									Utils.showNotification ( "La password non è stata definita" );
-									return false;
-								}
-
-								/*
-									Se il controllo e' andato a buon fine,
-									elimino questa callback di validazione.
-									L'oggetto viene salvato, ed il form
-									resettato, ed il campo password torna ad
-									essere vuoto pur essendo stata la password
-									settata
-								*/
-								ver.setValidation ( "password", null );
-								return true;
-							}
-						} );
-					}
-
-					frame.addPair ( "Ultimo Login", ver.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
-
 					setRoleIcon ( ver, user );
 					return ver;
 				}
 
 				protected FromServerForm doNewEditableRow () {
-					return doEditableRow ( new User () );
+					final FromServerForm ret;
+
+					ret = doEditableRow ( new User () );
+					asyncLoad ( ret );
+
+					ret.setValidation ( "password", new FromServerValidateCallback () {
+						public boolean check ( FromServer object, String attribute, Widget widget ) {
+							String text;
+
+							text = ( ( StringWidget ) widget ).getValue ();
+							if ( text.equals ( "" ) ) {
+								Utils.showNotification ( "La password non è stata definita" );
+								return false;
+							}
+
+							/*
+								Se il controllo e' andato a buon fine,
+								elimino questa callback di validazione.
+								L'oggetto viene salvato, ed il form
+								resettato, ed il campo password torna ad
+								essere vuoto pur essendo stata la password
+								settata
+							*/
+							ret.setValidation ( "password", null );
+							return true;
+						}
+					} );
+
+					return ret;
+				}
+
+				protected void asyncLoad ( FromServerForm form ) {
+					HorizontalPanel hor;
+					User user;
+					CustomCaptionPanel frame;
+					CyclicToggle privileges;
+
+					/*
+						Questa funzione viene invocata ogni volta che un form viene aperto,
+						dunque devo accertarmi che non sia gia' stato popolato
+					*/
+					if ( form.retriveInternalWidget ( "login" ) != null )
+						return;
+
+					user = ( User ) form.getObject ();
+
+					hor = new HorizontalPanel ();
+					hor.setWidth ( "100%" );
+					form.add ( hor );
+
+					/* prima colonna */
+
+					frame = new CustomCaptionPanel ( "Anagrafica" );
+					hor.add ( frame );
+
+					frame.addPair ( "Login Accesso", form.getWidget ( "login" ) );
+					form.setValidation ( "login", checkLoginNameCallback () );
+
+					frame.addPair ( "Nome", form.getWidget ( "firstname" ) );
+					frame.addPair ( "Cognome", form.getWidget ( "surname" ) );
+
+					frame.addPair ( "Telefono", form.getWidget ( "phone" ) );
+					form.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+					frame.addPair ( "Cellulare", form.getWidget ( "mobile" ) );
+					form.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
+
+					frame.addPair ( "Mail", form.getWidget ( "mail" ) );
+					form.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+
+					frame.addPair ( "Mail 2", form.getWidget ( "mail2" ) );
+					form.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
+
+					frame.addPair ( "Indirizzo", form.getWidget ( "address" ) );
+
+					frame.addPair ( "Data di Nascita", form.getWidget ( "birthday" ) );
+
+					/* seconda colonna */
+
+					frame = new CustomCaptionPanel ( "Nel GAS" );
+					hor.add ( frame );
+
+					frame.addPair ( "Iscritto da", form.getWidget ( "join_date" ) );
+					frame.addPair ( "Data di Cessazione", form.getWidget ( "leaving_date" ) );
+
+					frame.addPair ( "Numero Tessera", form.getWidget ( "card_number" ) );
+					form.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
+
+					/*
+						Se il settaggio sul pagamento delle quote viene modificato
+						l'applicazione viene riavviata, pertanto non c'e' bisogno di
+						correggere questo pannello ma semplicemente attendere che sia
+						ricaricato
+					*/
+					if ( handlePayments == true )
+						frame.addPair ( "Quota pagata", form.getWidget ( "paying" ) );
+
+					privileges = new CyclicToggle ();
+					privileges.addState ( "images/user_role_standard.png" );
+					privileges.addState ( "images/user_role_reference.png" );
+					privileges.addState ( "images/user_role_admin.png" );
+					privileges.addState ( "images/user_role_leaved.png" );
+					frame.addPair ( "Ruolo", form.getPersonalizedWidget ( "privileges", privileges ) );
+
+					frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
+					frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 				}
 
 				protected void customModify ( FromServerForm form ) {
@@ -155,7 +213,7 @@ public class UsersPanel extends GenericPanel {
 
 					user = ( User ) form.getObject ();
 
-					if ( Session.getGAS ().getBool ( "payments" ) == true )
+					if ( handlePayments == true )
 						user.checkUserPaying ( form );
 
 					setRoleIcon ( form, user );
