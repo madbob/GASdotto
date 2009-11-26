@@ -106,7 +106,7 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		outer = new DockPanel ();
 		navbar = new NavBar ( this );
 
-		grid = new Grid ( 6, 7 ) {
+		grid = new Grid ( 7, 7 ) {
 			public boolean clearCell ( int row, int column ) {
 				boolean retValue = super.clearCell ( row, column );
 				Element td = getCellFormatter ().getElement ( row, column );
@@ -166,11 +166,18 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		int sameDay = now.getDate();
 		int today = (now.getMonth() == month && now.getYear()+1900 == year) ? sameDay : 0;
 
-		int firstDay = new Date(year - 1900, month, 1).getDay();
+		/*
+			Date.getDay() ritorna 0 per domenica, ma devo far iniziare la settimana
+			da lunedi
+		*/
+		int firstDay = new Date(year - 1900, month, 1).getDay() - 1;
+		if ( firstDay < 0 )
+			firstDay = 6;
+
 		int numOfDays = getDaysInMonth(year, month);
 
 		int j = 0;
-		for (int i = 1; i < 6; i++) {
+		for (int i = 1; i < 7; i++) {
 			for (int k = 0; k < 7; k++, j++) {
 				int displayNum = (j - firstDay + 1);
 				if (j < firstDay || displayNum > numOfDays) {
@@ -204,12 +211,10 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 					return 29; // leap year
 				else
 					return 28;
+
 			case 3:
-				return 30;
 			case 5:
-				return 30;
 			case 8:
-				return 30;
 			case 10:
 				return 30;
 			default:

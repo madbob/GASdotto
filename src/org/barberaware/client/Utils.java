@@ -170,9 +170,7 @@ public class Utils {
 		"Luglio", "Agosto", "Settembre",
 		"Ottobre", "Novembre", "Dicembre" };
 
-	public static String[] days = new String[] {
-		"Domenica", "Lunedi", "Martedi",
-		"Mercoledi", "Giovedi", "Venerdi", "Sabato" };
+	public static String [] days = new String [] { "Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato", "Domenica" };
 
 	public static String encodeDate ( Date d ) {
 		int y;

@@ -123,7 +123,7 @@ for ( $i = 0; $i < count ( $products ); $i++ )
     $products_sums [] = 0;
 
 $request = new stdClass ();
-$request->order = $id;
+$request->baseorder = $id;
 $order_user_proxy = new OrderUser ();
 $contents = $order_user_proxy->get ( $request );
 usort ( $contents, "sort_orders_by_user" );
