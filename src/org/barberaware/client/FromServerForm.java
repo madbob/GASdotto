@@ -22,6 +22,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class FromServerForm extends Composite {
 	private FromServer		object;
 	private DisclosurePanel		main;
@@ -61,6 +63,8 @@ public class FromServerForm extends Composite {
 			public void onClose ( DisclosureEvent event ) {
 				if ( object == null )
 					return;
+
+				onClosingCb ();
 
 				if ( object.isValid () == false ) {
 					if ( Window.confirm ( "Vuoi salvare il nuovo oggetto?" ) == true )
@@ -261,6 +265,11 @@ public class FromServerForm extends Composite {
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onOpen ( this );
 	}
 
+	private void onClosingCb () {
+		for ( int i = 0; i < callbacks.size (); i++ )
+			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClosing ( this );
+	}
+
 	private void onCloseCb () {
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClose ( this );
@@ -345,6 +354,8 @@ public class FromServerForm extends Composite {
 			iter = ( FromServerWidget ) wids [ i ];
 			iter.set ( obj );
 		}
+
+		summary.setText ( retrieveNameInCallbacks () );
 	}
 
 	public void addAddictionalData ( Object data ) {

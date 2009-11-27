@@ -166,6 +166,11 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		int sameDay = now.getDate();
 		int today = (now.getMonth() == month && now.getYear()+1900 == year) ? sameDay : 0;
 
+		/**
+			TODO	L'inizio della settimana (domenica o lunedi) potrebbe essere
+				settato in funzione della localizzazione dell'applicazione
+		*/
+
 		/*
 			Date.getDay() ritorna 0 per domenica, ma devo far iniziare la settimana
 			da lunedi

@@ -369,7 +369,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		ProductUser prod;
 		Hidden id;
 
-		list = new ArrayList ();
+		list = null;
 		num_rows = main.getRowCount () - 2;
 
 		for ( int i = 0; i < num_rows; i += 2 ) {
@@ -377,6 +377,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			prod = ( ProductUser ) selector.getValue ();
 
 			if ( prod.getFloat ( "quantity" ) > 0 ) {
+				if ( list == null )
+					list = new ArrayList ();
+
 				/*
 					Onde evitare di impazzire troppo in OrderPrivilegedPanel,
 					in cui lo stesso OrderUser viene riusato e sovrascritto,

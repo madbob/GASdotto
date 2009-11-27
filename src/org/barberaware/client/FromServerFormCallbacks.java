@@ -50,6 +50,19 @@ public class FromServerFormCallbacks {
 		/* dummy */
 	}
 
+	/*
+		Invocata quando viene richiesto di chiudere il pannello, permette di intervenire
+		sui contenuti del form prima che questi vengano analizzati e sia eventualmente
+		proposto il salvataggio
+	*/
+	public void onClosing ( FromServerForm form ) {
+		/* dummy */
+	}
+
+	/*
+		Invocata quando il form e' stato completamente chiuso, particolarmente indicata
+		per re-inizializzarlo
+	*/
 	public void onClose ( FromServerForm form ) {
 		/* dummy */
 	}

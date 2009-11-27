@@ -202,6 +202,22 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				ord = ( Order ) form.getObject ().getObject ( "baseorder" );
 				ord.asyncLoadUsersOrders ();
 			}
+
+			/*
+				Questo e' per forzare l'utente assegnatario dell'ordine prima che provveda il
+				FromServerForm. Cio' e' dovuto alla volonta' di evitare che il form proponga il
+				salvataggio dei dati (vedendo modificato lo user, che di default e' null mentre in
+				fase di riassemblamento dell'oggetto sarebbe sempre valorizzato) se esso viene
+				annullato, mentre qui interessa salvare il tutto solo se son stati modificati i
+				prodotti ordinati
+			*/
+			public void onClosing ( FromServerForm form ) {
+				UserSelector selector;
+
+				selector = ( UserSelector ) form.retriveInternalWidget ( "baseuser" );
+				if ( selector != null )
+					form.getObject ().setObject ( "baseuser", selector.getValue () );
+			}
 		} );
 
 		if ( editable == true ) {
@@ -250,6 +266,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
 				}
 			} );
+
 			pan.add ( ver.getPersonalizedWidget ( "baseuser", users ) );
 			ver.add ( pan );
 

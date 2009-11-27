@@ -43,14 +43,15 @@ class Order extends FromServer {
 			La data su cui viene confrontato l'ordine per la chiusura e' "oggi + 1",
 			per far quadrare i conti sui timestamp calcolati sulle ore
 		*/
-		$query = sprintf ( "UPDATE %s SET status = 1 WHERE enddate < %s", $this->tablename, db_now_plus_one () );
+		$query = sprintf ( "UPDATE %s SET status = 1 WHERE status = 0 AND enddate %s < NOW()", $this->tablename, db_date_plus_one () );
 		query_and_check ( $query, "Impossibile chiudere vecchi ordini" );
 
 		/*
 			Questo e' per aprire gli ordini che sono stati creati con data di inizio
 			nel futuro
 		*/
-		$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 2 AND startdate < NOW() AND enddate > NOW()", $this->tablename );
+		$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 2 AND startdate %s < NOW() AND enddate %s > NOW()",
+		                    $this->tablename, db_date_plus_one (), db_date_plus_one () );
 		query_and_check ( $query, "Impossibile aprire ordini sospesi" );
 
 		/**

@@ -84,6 +84,17 @@ class OrderUser extends FromServer {
 
 		return $ret;
 	}
+
+	public function save ( $obj ) {
+		/*
+			Questo e' per evitare di salvare nel DB ordini vuoti, per cui non e'
+			stata settata alcuna quantita' di prodotti
+		*/
+		if ( count ( $obj->products ) == 0 )
+			return -1;
+		else
+			return parent::save ( $obj );
+	}
 }
 
 ?>
