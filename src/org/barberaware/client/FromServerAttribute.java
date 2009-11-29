@@ -24,7 +24,7 @@ import com.google.gwt.json.client.*;
 public class FromServerAttribute {
 	public String			name;
 	public int			type;
-	public Class			object_type	= null;
+	public Class			objectType	= null;
 
 	private StringFromObjectClosure	fakeString	= null;
 	private String			string		= "";
@@ -35,10 +35,10 @@ public class FromServerAttribute {
 	private Address			addr		= null;
 
 	/*
-		Questi due sono sempre condizionati da object_type
+		Questi due sono sempre condizionati da objectType
 	*/
 	private ArrayList		array		= null;
-	private FromServer		object		= null;
+	private int			objectId	= -1;
 
 	private void buildCommon ( String name, int type ) {
 		this.name = name;
@@ -47,7 +47,7 @@ public class FromServerAttribute {
 
 	public FromServerAttribute ( String name, int type, Class reference ) {
 		buildCommon ( name, type );
-		this.object_type = reference;
+		this.objectType = reference;
 	}
 
 	public FromServerAttribute ( String name, int type, StringFromObjectClosure reference ) {
@@ -72,7 +72,7 @@ public class FromServerAttribute {
 	}
 
 	public void setObject ( FromServer value ) {
-		object = value;
+		objectId = value.getLocalID ();
 	}
 
 	public void setDate ( Date value ) {
@@ -101,7 +101,7 @@ public class FromServerAttribute {
 			array = Utils.dupliacateFromServerArray ( cpy.array );
 
 		else if ( type == FromServer.OBJECT )
-			object = cpy.object.duplicate ();
+			objectId = cpy.objectId;
 
 		else if ( type == FromServer.DATE )
 			date = cpy.date;
@@ -133,7 +133,7 @@ public class FromServerAttribute {
 	}
 
 	public FromServer getObject () {
-		return object;
+		return Utils.getServer ().getObjectFromCache ( getClassName (), objectId );
 	}
 
 	public Date getDate () {
@@ -149,7 +149,7 @@ public class FromServerAttribute {
 	}
 
 	public String getClassName () {
-		return Utils.classFinalName ( object_type.getName () );
+		return Utils.classFinalName ( objectType.getName () );
 	}
 
 	public JSONValue getJSON () {
@@ -184,9 +184,12 @@ public class FromServerAttribute {
 
 		else if ( type == FromServer.OBJECT ) {
 			JSONValue ret;
+			FromServer real_object;
 
-			if ( object == null )
-				object = FromServerFactory.create ( object_type.getName () );
+			if ( objectId == -1 )
+				real_object = FromServerFactory.create ( objectType.getName () );
+			else
+				real_object = this.getObject ();
 
 			/**
 				TODO	Ottimizzazione: qui si potrebbe usare solo l'ID dell'oggetto anziche' il
@@ -196,7 +199,7 @@ public class FromServerAttribute {
 					funzioni setNNN()
 			*/
 
-			ret = object.toJSONObject ();
+			ret = real_object.toJSONObject ();
 			return ret;
 		}
 

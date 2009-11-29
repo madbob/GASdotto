@@ -56,7 +56,7 @@ public class ServerHook {
 
 	private int		CurrentRequests		= 0;
 	private DialogBox	loadingDialog		= null;
-	private ArrayList	monitors;
+	private HashMap		monitors		= null;
 	private int		executingMonitor;
 	private ArrayList	monitorSchedulingQueue;
 
@@ -69,9 +69,21 @@ public class ServerHook {
 	*/
 	private static int	MAXIMUM_CONCURRENT_REQUESTS	= 1;
 
-	public ServerHook () {
-		monitors = new ArrayList ();
+	private void initMonitors () {
+		String type;
+		ArrayList classes;
 
+		monitors = new HashMap ();
+		classes = FromServerFactory.getClasses ();
+
+		for ( int i = 0; i < classes.size (); i++ ) {
+			type = ( String ) classes.get ( i );
+			monitors.put ( type, new ServerMonitor ( type ) );
+		}
+	}
+
+	public ServerHook () {
+		initMonitors ();
 		executingMonitor = 0;
 		monitorSchedulingQueue = new ArrayList ();
 	}
@@ -230,24 +242,11 @@ public class ServerHook {
 		ServerMonitor tmp;
 
 		tmp = getMonitor ( params.getType () );
-		if ( tmp != null )
-			executeMonitor ( tmp, params );
+		executeMonitor ( tmp, params );
 	}
 
 	private ServerMonitor getMonitor ( String type ) {
-		int num;
-		ServerMonitor tmp;
-
-		num = monitors.size ();
-
-		for ( int i = 0; i < num; i++ ) {
-			tmp = ( ServerMonitor ) monitors.get ( i );
-
-			if ( tmp.type.equals ( type ) )
-				return tmp;
-		}
-
-		return null;
+		return ( ServerMonitor ) monitors.get ( type );
 	}
 
 	private void executeReceivingCallbacks ( ServerMonitor monitor, FromServer object ) {
@@ -268,20 +267,12 @@ public class ServerHook {
 		FromServer obj;
 
 		tmp = getMonitor ( type );
+		tmp.callbacks.add ( callback );
+		num = tmp.objects.size ();
 
-		if ( tmp != null ) {
-			tmp.callbacks.add ( callback );
-			num = tmp.objects.size ();
-
-			for ( int i = 0; i < num; i++ ) {
-				obj = ( FromServer ) tmp.objects.get ( i );
-				callback.onReceive ( obj );
-			}
-		}
-		else {
-			tmp = new ServerMonitor ( type );
-			tmp.callbacks.add ( callback );
-			monitors.add ( tmp );
+		for ( int i = 0; i < num; i++ ) {
+			obj = ( FromServer ) tmp.objects.get ( i );
+			callback.onReceive ( obj );
 		}
 	}
 
@@ -313,10 +304,8 @@ public class ServerHook {
 				continue;
 
 			monitor = getMonitor ( subtype );
-			if ( monitor != null ) {
-				params.put ( "has_" + subtype, monitor.comparingObjects );
-				loadWithCachedObjects ( subtype, params );
-			}
+			params.put ( "has_" + subtype, monitor.comparingObjects );
+			loadWithCachedObjects ( subtype, params );
 		}
 	}
 
@@ -335,10 +324,8 @@ public class ServerHook {
 		ServerMonitor tmp;
 
 		tmp = getMonitor ( object.getType () );
-		if ( tmp != null ) {
-			if ( addObjectIntoMonitorCache ( tmp, object ) == true )
-				executeReceivingCallbacks ( tmp, object );
-		}
+		if ( addObjectIntoMonitorCache ( tmp, object ) == true )
+			executeReceivingCallbacks ( tmp, object );
 	}
 
 	public void triggerObjectBlockCreation ( FromServer object, boolean mode ) {
@@ -347,17 +334,15 @@ public class ServerHook {
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
-		if ( tmp != null ) {
-			num = tmp.callbacks.size ();
+		num = tmp.callbacks.size ();
 
-			for ( int i = 0; i < num; i++ ) {
-				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+		for ( int i = 0; i < num; i++ ) {
+			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 
-				if ( mode == true )
-					callback.onBlockBegin ();
-				else
-					callback.onBlockEnd ();
-			}
+			if ( mode == true )
+				callback.onBlockBegin ();
+			else
+				callback.onBlockEnd ();
 		}
 	}
 
@@ -367,14 +352,12 @@ public class ServerHook {
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
-		if ( tmp != null ) {
-			updateObjecInMonitorCache (tmp, object);
-			num = tmp.callbacks.size ();
+		updateObjecInMonitorCache (tmp, object);
+		num = tmp.callbacks.size ();
 
-			for ( int i = 0; i < num; i++ ) {
-				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
-				callback.onModify ( object );
-			}
+		for ( int i = 0; i < num; i++ ) {
+			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+			callback.onModify ( object );
 		}
 	}
 
@@ -384,26 +367,22 @@ public class ServerHook {
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
-		if ( tmp != null ) {
-			num = tmp.callbacks.size ();
+		num = tmp.callbacks.size ();
 
-			for ( int i = 0; i < num; i++ ) {
-				callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
-				callback.onDestroy ( object );
-			}
-
-			deleteObjectFromMonitorCache ( tmp, object );
+		for ( int i = 0; i < num; i++ ) {
+			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+			callback.onDestroy ( object );
 		}
+
+		deleteObjectFromMonitorCache ( tmp, object );
 	}
 
 	public void addToCache ( FromServer object ) {
 		ServerMonitor tmp;
 
 		tmp = getMonitor ( object.getType () );
-		if ( tmp != null ) {
-			if ( addObjectIntoMonitorCache ( tmp, object ) == true )
-				executeReceivingCallbacks ( tmp, object );
-		}
+		if ( addObjectIntoMonitorCache ( tmp, object ) == true )
+			executeReceivingCallbacks ( tmp, object );
 	}
 
 	/*
@@ -434,9 +413,6 @@ public class ServerHook {
 		ArrayList ret;
 
 		tmp = getMonitor ( type );
-		if ( tmp == null )
-			return null;
-
 		num = tmp.objects.size ();
 		ret = new ArrayList ();
 
@@ -458,8 +434,10 @@ public class ServerHook {
 
 		for ( int i = 0; i < len; i++ ) {
 			obj = ( FromServer ) objects.get ( i );
+
 			if ( req.matches ( obj ) ) {
 				triggerObjectDeletion ( obj );
+				break;
 			}
 		}
 

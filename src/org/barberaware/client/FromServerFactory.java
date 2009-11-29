@@ -17,8 +17,15 @@
 
 package org.barberaware.client;
 
+import java.util.*;
+
 public class FromServerFactory {
 	public static FromServer create ( String name ) {
+		/**
+			TODO	Questa funzione (e le relative invocazioni) e' da correggere in modo che prenda il
+				nome gia' "normalizzato" della class che si desidera. In questo modo si puo' usare
+				sempre solo tale formato anziche' due diversi (normalizzato ed esteso)
+		*/
 		name = Utils.classFinalName ( name );
 
 		if ( name.equals ( "Category" ) )
@@ -49,5 +56,25 @@ public class FromServerFactory {
 			return new Probe ();
 		else
 			return null;
+	}
+
+	public static ArrayList getClasses () {
+		ArrayList names;
+
+		names = new ArrayList ();
+		names.add ( "Category" );
+		names.add ( "GAS" );
+		names.add ( "Measure" );
+		names.add ( "Order" );
+		names.add ( "OrderUser" );
+		names.add ( "Product" );
+		names.add ( "ProductUser" );
+		names.add ( "Supplier" );
+		names.add ( "User" );
+		names.add ( "CustomFile" );
+		names.add ( "Notification" );
+		names.add ( "SystemConf" );
+		names.add ( "Probe" );
+		return names;
 	}
 }

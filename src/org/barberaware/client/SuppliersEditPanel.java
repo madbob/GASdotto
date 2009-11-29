@@ -286,10 +286,13 @@ public class SuppliersEditPanel extends GenericPanel {
 	}
 
 	private ProductsEditPanel retrieveProductsPanel ( Product product ) {
-		Supplier supplier;
+		FromServer supplier;
 		FromServerForm supplier_form;
 
-		supplier = ( Supplier ) product.getObject ( "supplier" );
+		supplier = product.getObject ( "supplier" );
+		if ( supplier == null )
+			return null;
+
 		supplier_form = main.retrieveForm ( supplier );
 
 		if ( supplier_form != null )

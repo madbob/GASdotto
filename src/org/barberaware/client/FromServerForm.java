@@ -212,8 +212,8 @@ public class FromServerForm extends Composite {
 								( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onDelete ( myself );
 
 							object.destroy ( null );
-							main.setOpen ( false );
 							invalidate ();
+							main.setOpen ( false );
 						}
 					}
 				}
@@ -347,6 +347,9 @@ public class FromServerForm extends Composite {
 	public void refreshContents ( FromServer obj ) {
 		Object [] wids;
 		FromServerWidget iter;
+
+		if ( obj == null )
+			obj = getObject ();
 
 		wids = widgets.values ().toArray ();
 

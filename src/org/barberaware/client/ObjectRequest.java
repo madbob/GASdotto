@@ -21,6 +21,8 @@ import java.lang.*;
 import java.util.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class ObjectRequest {
 	private String			type;
 	private ArrayList		attributes;
@@ -54,12 +56,12 @@ public class ObjectRequest {
 		attributes.add ( attr );
 	}
 
-	public void add ( String key, FromServer value ) {
+	public void add ( String key, FromServer value, Class classref ) {
 		FromServerAttribute attr;
 		Class useless;
 
 		useless = null;
-		attr = new FromServerAttribute ( key, FromServer.OBJECT, useless );
+		attr = new FromServerAttribute ( key, FromServer.OBJECT, classref );
 		attr.setObject ( value );
 		attributes.add ( attr );
 	}
@@ -77,14 +79,31 @@ public class ObjectRequest {
 			attr = ( FromServerAttribute ) attributes.get ( i );
 			type = attr.type;
 
-			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE )
+			if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
 				good = ( compare.getString ( attr.name ).equals ( attr.getString ( null ) ) );
+			}
 
-			else if ( type == FromServer.INTEGER )
-				good = ( compare.getInt ( attr.name ) == attr.getInt () );
+			else if ( type == FromServer.INTEGER ) {
+				/*
+					Questo e' per trattare anche il parametro speciale "id" come se fosse un
+					comune intero, sebbene negli oggetti FromServer sia gestito in modo
+					particolare e sia accessibile non in forma di attributo ma con l'apposita
+					funzione
+				*/
+				if ( attr.name == "id" )
+					good = ( compare.getLocalID () == attr.getInt () );
+				else
+					good = ( compare.getInt ( attr.name ) == attr.getInt () );
+			}
 
-			else if ( type == FromServer.OBJECT )
-				good = ( compare.getObject ( attr.name ).equals ( attr.getObject () ) );
+			else if ( type == FromServer.OBJECT ) {
+				FromServer mine;
+				FromServer his;
+
+				mine = attr.getObject ();
+				his = compare.getObject ( attr.name );
+				good = ( his.equals ( mine ) );
+			}
 		}
 
 		return good;

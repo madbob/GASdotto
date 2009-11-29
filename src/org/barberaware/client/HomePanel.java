@@ -240,14 +240,12 @@ public class HomePanel extends GenericPanel {
 
 	private void modOrderRow ( PlainFillBox orders, Order order ) {
 		int index;
-		String name;
 		Label label;
 
 		index = retrieveOrderRow ( orders, order );
 		if ( index != -1 ) {
-			name = order.getString ( "name" );
 			label = ( Label ) orders.getWidget ( index, 0 );
-			label.setText ( "name" );
+			label.setText ( order.getString ( "name" ) );
 		}
 	}
 

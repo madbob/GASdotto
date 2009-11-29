@@ -59,8 +59,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-
 				index = retrieveOrderForm ( ord );
+
 				if ( index == -1 ) {
 					if ( ord.getInt ( "status" ) == Order.OPENED ) {
 						index = getSortedPosition ( object );
@@ -74,6 +74,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				int index;
 				int status;
 				Order ord;
+				FromServerForm form;
 
 				ord = ( Order ) object;
 
@@ -82,7 +83,16 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 				if ( index != -1 ) {
 					if ( status == Order.OPENED ) {
-						syncProductsInForm ( ( FromServerForm ) getWidget ( index ), ord );
+						form = ( FromServerForm ) getWidget ( index );
+
+						/*
+							Il refresh dell'ordine serve sostanzialmente a correggere
+							l'intestazione del form qualora vengano cambiate le date
+							dell'ordine di riferimento
+						*/
+						form.refreshContents ( null );
+
+						syncProductsInForm ( form, ord );
 					}
 					else {
 						remove ( index );

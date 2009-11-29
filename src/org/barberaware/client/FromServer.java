@@ -354,14 +354,8 @@ public abstract class FromServer implements Comparator {
 		child = value.isObject ();
 
 		if ( child != null ) {
-			ret = FromServerFactory.create ( attr.object_type.getName () );
+			ret = FromServerFactory.create ( attr.objectType.getName () );
 			ret.fromJSONObject ( child );
-
-			/*
-				Metto subito in cache gli oggetti che mi arrivano insieme ad altri,
-				cosi' non scarico cento volte la stessa roba
-			*/
-			server.addToCache ( ret );
 		}
 		else {
 			child_id = value.isString ();
@@ -414,7 +408,7 @@ public abstract class FromServer implements Comparator {
 					attr.setArray ( new ArrayList () );
 
 				else if ( attr.type == FromServer.OBJECT )
-					attr.setObject ( FromServerFactory.create ( attr.object_type.getName () ) );
+					attr.setObject ( FromServerFactory.create ( attr.objectType.getName () ) );
 
 				else if ( attr.type == FromServer.ADDRESS )
 					attr.setAddress ( new Address () );
@@ -472,6 +466,8 @@ public abstract class FromServer implements Comparator {
 				}
 			}
 		}
+
+		Utils.getServer ().addToCache ( this );
 	}
 
 	/****************************************************************** Comparator */

@@ -352,7 +352,7 @@ public class OrdersEditPanel extends GenericPanel {
 		ObjectRequest req;
 
 		req = new ObjectRequest ( "Order" );
-		req.add ( "supplier", supplier );
+		req.add ( "supplier", supplier, Supplier.class );
 		req.add ( "status", Order.OPENED );
 		Utils.getServer ().invalidateCacheByCondition ( req );
 	}
@@ -432,23 +432,20 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 		buttons.add ( button, "Annulla" );
 
-		/**
-			TODO	Eliminare il pulsante di salvataggio della sola tabellina, fare
-				riferimento al tasto di salvataggio unico per l'ordine onde
-				evitare di duplicare tasti a casaccio
-		*/
 		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
 				Order order;
+				ArrayList products;
 				ObjectRequest req;
 				OrderSummary summary;
 
 				order = ( Order ) form.getObject ();
 				table.saveChanges ();
-				order.setArray ( "products", table.getElements () );
+				products = table.getElements ();
+				order.setArray ( "products", products );
 
 				req = new ObjectRequest ( "OrderUser" );
-				req.add ( "baseorder", order );
+				req.add ( "baseorder", order, Order.class );
 				Utils.getServer ().invalidateCacheByCondition ( req );
 
 				summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
