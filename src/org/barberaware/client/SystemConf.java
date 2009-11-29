@@ -24,6 +24,10 @@ public class SystemConf extends FromServer {
 	public SystemConf () {
 		super ();
 
+		/*
+			Un attributo "name" non dovrebbe servire a nulla, se non a fare arrabbiare il FromServerForm
+			che viene costruito in SystemPanel per riassumere le informazioni dell'applicazione
+		*/
 		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
 			public String retrive ( FromServer obj ) {
 				return "Informazioni Generali";

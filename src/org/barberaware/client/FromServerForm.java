@@ -129,7 +129,7 @@ public class FromServerForm extends Composite {
 		}
 		else {
 			callbacks.add ( routine );
-			summary.setText ( retrieveNameInCallbacks () );
+			summary.setText ( routine.getName ( this ) );
 		}
 	}
 

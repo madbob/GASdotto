@@ -23,6 +23,9 @@ class SystemConf extends FromServer {
 	public function __construct () {
 		parent::__construct ( "SystemConf" );
 
+		/*
+			Questi vengono opportunamente riempiti dallo script make_dist.sh
+		*/
 		$GASDOTTO_VERSION = "0";
 		$GASDOTTO_COMMIT = "0";
 		$GASDOTTO_BUILT = "1970-01-01";

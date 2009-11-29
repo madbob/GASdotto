@@ -66,6 +66,23 @@ public class OrdersEditPanel extends GenericPanel {
 					} );
 
 					frame.addPair ( "Data consegna", form.getWidget ( "shippingdate" ) );
+					form.setValidation ( "shippingdate", new FromServerValidateCallback () {
+						public boolean check ( FromServer object, String attribute, Widget widget ) {
+							DateWidget shipdate;
+							Date ship;
+
+							shipdate = ( DateWidget ) widget;
+							ship = shipdate.getValue ();
+
+							if ( ship != null && ship.compareTo ( object.getDate ( "enddate" ) ) < 0 ) {
+								Utils.showNotification ( "La data di consegna non può essere precedente la data di chiusura" );
+								return false;
+							}
+							else
+								return true;
+						}
+					} );
+
 					frame.addPair ( "Si ripete", form.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 				}
 
