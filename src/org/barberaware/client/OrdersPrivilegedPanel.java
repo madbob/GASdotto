@@ -305,7 +305,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		}
 		else {
 			uorder.setObject ( "baseuser", Session.getUser () );
-			Log.debug ( "utente corrente: " + Session.getUser ().getString ( "surname" ) );
 		}
 
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );

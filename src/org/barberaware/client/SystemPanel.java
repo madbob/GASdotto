@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class SystemPanel extends GenericPanel {
 	private FormCluster	categories;
 	private FormCluster	measures;
@@ -58,6 +60,10 @@ public class SystemPanel extends GenericPanel {
 			}
 		};
 		sframe.add ( measures );
+		add ( sframe );
+
+		sframe = new CaptionPanel ( "Configurazione GASdotto" );
+		sframe.add ( doApplicationConfForm () );
 		add ( sframe );
 	}
 
@@ -139,8 +145,29 @@ public class SystemPanel extends GenericPanel {
 		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
 		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
 
-		fields.setWidget ( 1, 2, new Label ( "Simbolo" ) );
-		fields.setWidget ( 1, 3, ver.getWidget ( "symbol" ) );
+		fields.setWidget ( 1, 0, new Label ( "Simbolo" ) );
+		fields.setWidget ( 1, 1, ver.getWidget ( "symbol" ) );
+
+		return ver;
+	}
+
+	private FromServerForm doApplicationConfForm () {
+		FromServerForm ver;
+		FlexTable fields;
+
+		ver = new FromServerForm ( Session.getSystemConf (), FromServerForm.NOT_EDITABLE );
+
+		fields = new FlexTable ();
+		ver.add ( fields );
+
+		fields.setWidget ( 0, 0, new Label ( "Versione" ) );
+		fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "gasdotto_main_version", new StringLabel () ) );
+
+		fields.setWidget ( 1, 0, new Label ( "Commit" ) );
+		fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "gasdotto_commit_version", new StringLabel () ) );
+
+		fields.setWidget ( 2, 0, new Label ( "Data Compilazione" ) );
+		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "gasdotto_build_date", new DateViewer () ) );
 
 		return ver;
 	}

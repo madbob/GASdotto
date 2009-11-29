@@ -55,9 +55,7 @@ public class FromServerForm extends Composite {
 		*/
 		addictionalData = null;
 
-		setCallback ( null );
-
-		main = new DisclosurePanel ( doSummary ( object ) );
+		main = new DisclosurePanel ( doSummary () );
 		main.setAnimationEnabled ( true );
 		main.addEventHandler ( new DisclosureHandler () {
 			public void onClose ( DisclosureEvent event ) {
@@ -131,7 +129,7 @@ public class FromServerForm extends Composite {
 		}
 		else {
 			callbacks.add ( routine );
-			summary.setText ( routine.getName ( this ) );
+			summary.setText ( retrieveNameInCallbacks () );
 		}
 	}
 
@@ -171,7 +169,7 @@ public class FromServerForm extends Composite {
 		callbacks.add ( new FromServerFormCallbacks () );
 	}
 
-	private Panel doSummary ( FromServer object ) {
+	private Panel doSummary () {
 		HorizontalPanel main;
 		String name;
 

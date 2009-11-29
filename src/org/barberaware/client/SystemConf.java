@@ -23,6 +23,16 @@ import com.google.gwt.user.client.ui.*;
 public class SystemConf extends FromServer {
 	public SystemConf () {
 		super ();
+
+		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
+			public String retrive ( FromServer obj ) {
+				return "Informazioni Generali";
+			}
+		} );
+
+		addAttribute ( "gasdotto_main_version", FromServer.STRING );
+		addAttribute ( "gasdotto_commit_version", FromServer.STRING );
+		addAttribute ( "gasdotto_build_date", FromServer.DATE );
 		addAttribute ( "has_file", FromServer.BOOLEAN );
 		addAttribute ( "has_mail", FromServer.BOOLEAN );
 	}
