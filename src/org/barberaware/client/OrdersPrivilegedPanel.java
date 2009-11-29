@@ -56,6 +56,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int index;
+				boolean multi;
 				Order ord;
 
 				ord = ( Order ) object;
@@ -64,8 +65,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( index == -1 ) {
 					if ( ord.getInt ( "status" ) == Order.OPENED ) {
 						index = getSortedPosition ( object );
-						insert ( doOrderRow ( ord, canMultiUser ( ord ) ), index );
-						alignOrdersInCache ( ord );
+						multi = canMultiUser ( ord );
+						insert ( doOrderRow ( ord, multi ), index );
+						alignOrdersInCache ( ord, multi );
 					}
 				}
 			}
@@ -106,7 +108,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					*/
 					if ( status == Order.OPENED ) {
 						onReceive ( object );
-						alignOrdersInCache ( ord );
+						alignOrdersInCache ( ord, canMultiUser ( ord ) );
 					}
 				}
 			}
@@ -127,18 +129,36 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		} );
 	}
 
-	private void alignOrdersInCache ( Order order ) {
+	private void alignOrdersInCache ( Order order, boolean multi ) {
 		int num;
 		ArrayList uorders;
+		User myself;
 		OrderUser uorder;
 
 		uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 		num = uorders.size ();
 
-		for ( int i = 0; i < num; i++ ) {
-			uorder = ( OrderUser ) uorders.get ( i );
-			if ( order.equals ( uorder.getObject ( "baseorder" ) ) )
-				findAndAlign ( uorder, 0 );
+		if ( multi == true ) {
+			for ( int i = 0; i < num; i++ ) {
+				uorder = ( OrderUser ) uorders.get ( i );
+				if ( order.equals ( uorder.getObject ( "baseorder" ) ) )
+					findAndAlign ( uorder, 0 );
+			}
+		}
+		else {
+			myself = Session.getUser ();
+
+			for ( int i = 0; i < num; i++ ) {
+				uorder = ( OrderUser ) uorders.get ( i );
+
+				/*
+					Forse questo doppio controllo e' inutile considerando che findAndAlign() gia'
+					verifica che l'ordine sia dell'utente corrente, ma la prudenza non e' mai
+					troppa
+				*/
+				if ( order.equals ( uorder.getObject ( "baseorder" ) ) && myself.equals ( uorder.getObject ( "baseuser" ) ) )
+					findAndAlign ( uorder, 0 );
+			}
 		}
 	}
 
@@ -285,6 +305,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		}
 		else {
 			uorder.setObject ( "baseuser", Session.getUser () );
+			Log.debug ( "utente corrente: " + Session.getUser ().getString ( "surname" ) );
 		}
 
 		products = new ProductsUserSelection ( order.getArray ( "products" ) );
@@ -311,10 +332,16 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				syncUserOrder ( form, uorder, action );
 			}
 			else {
-				if ( action == 2 )
-					resetProducts ( form );
-				else
-					alignOrderRow ( form, uorder );
+				/*
+					Se l'ordine puo' essere manipolato solo per l'utente corrente, delle
+					informazioni relative agli ordini altrui non me ne faccio niente
+				*/
+				if ( uorder.getObject ( "baseuser" ).equals ( Session.getUser () ) ) {
+					if ( action == 2 )
+						resetProducts ( form );
+					else
+						alignOrderRow ( form, uorder );
+				}
 			}
 		}
 	}
