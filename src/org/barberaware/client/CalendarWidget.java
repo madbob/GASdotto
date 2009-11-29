@@ -255,6 +255,13 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		drawCalendar();
 	}
 
+	public void setDate ( Date d ) {
+		if ( d == null )
+			return;
+
+		setDate ( d.getYear () + 1900, d.getMonth (), d.getDate () );
+	}
+
 	private void setYear(int year) {
 		date.setYear(year - 1900);
 	}

@@ -61,19 +61,9 @@ public class DateSelector extends Composite implements DateWidget {
 		main.setVisibleLength ( 17 );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
-				Date now;
-
 				if ( opened == false ) {
 					opened = true;
-
-					/*
-						Come richiesto da Pier
-						http://lists.barberaware.org/pipermail/gasdotto-devel/2009-November/000218.html
-						la data mostrata all'apertura del calendario e' sempre quella attuale
-					*/
-					now = new Date ( System.currentTimeMillis () );
-					cal.setDate ( now.getYear () + 1900, now.getMonth (), now.getDate () );
-
+					cal.setDate ( currentDate );
 					dialog.center ();
 					dialog.show ();
 				}
