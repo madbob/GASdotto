@@ -34,6 +34,41 @@ public class OrdersEditPanel extends GenericPanel {
 		super ();
 
 		main = new FormCluster ( "Order", "Nuovo Ordine" ) {
+				private void addDatesFrame ( FromServerForm form, HorizontalPanel hor ) {
+					CustomCaptionPanel frame;
+
+					frame = new CustomCaptionPanel ( "Date" );
+					hor.add ( frame );
+					hor.setCellWidth ( frame, "50%" );
+
+					frame.addPair ( "Data apertura", form.getWidget ( "startdate" ) );
+
+					frame.addPair ( "Data chiusura", form.getWidget ( "enddate" ) );
+					form.setValidation ( "enddate", new FromServerValidateCallback () {
+						public boolean check ( FromServer object, String attribute, Widget widget ) {
+							DateWidget enddate;
+							Date end;
+
+							enddate = ( DateWidget ) widget;
+							end = enddate.getValue ();
+
+							if ( end == null ) {
+								Utils.showNotification ( "Non hai definito una data di chiusura" );
+								return false;
+							}
+							else if ( end.compareTo ( object.getDate ( "startdate" ) ) < 0 ) {
+								Utils.showNotification ( "La data di chiusura non può essere precedente la data di apertura" );
+								return false;
+							}
+							else
+								return true;
+						}
+					} );
+
+					frame.addPair ( "Data consegna", form.getWidget ( "shippingdate" ) );
+					frame.addPair ( "Si ripete", form.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+				}
+
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					final FromServerForm ver;
 					HorizontalPanel hor;
@@ -68,17 +103,7 @@ public class OrdersEditPanel extends GenericPanel {
 					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", doOrderStatusSelector () ) );
 					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
 
-					frame = new CustomCaptionPanel ( "Date" );
-					hor.add ( frame );
-					hor.setCellWidth ( frame, "50%" );
-
-					frame.addPair ( "Data apertura", ver.getWidget ( "startdate" ) );
-					frame.addPair ( "Data chiusura", ver.getWidget ( "enddate" ) );
-					frame.addPair ( "Data consegna", ver.getWidget ( "shippingdate" ) );
-					frame.addPair ( "Si ripete", ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
-
-					/* riassunto ordine */
-
+					addDatesFrame ( ver, hor );
 					addOrderDetails ( ver );
 
 					return ver;
@@ -166,14 +191,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					/* seconda colonna */
 
-					frame = new CustomCaptionPanel ( "Date" );
-					hor.add ( frame );
-
-					frame.addPair ( "Data apertura", ver.getWidget ( "startdate" ) );
-					frame.addPair ( "Data chiusura", ver.getWidget ( "enddate" ) );
-					ver.setValidation ( "enddate", FromServerValidateCallback.defaultDateValidationCallback () );
-					frame.addPair ( "Data consegna", ver.getWidget ( "shippingdate" ) );
-					frame.addPair ( "Si ripete", ver.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+					addDatesFrame ( ver, hor );
 
 					now = new Date ( System.currentTimeMillis () );
 					date = ( DateWidget ) ver.retriveInternalWidget ( "startdate" );
