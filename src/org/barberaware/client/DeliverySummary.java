@@ -107,12 +107,13 @@ public class DeliverySummary extends Composite {
 
 	public void modOrder ( OrderUser uorder ) {
 		int index;
+		FromServerForm form;
 
 		index = retrieveOrder ( uorder );
 		if ( index != -1 ) {
-			/**
-				TODO
-			*/
+			form = ( FromServerForm ) main.getWidget ( index );
+			form.setObject ( uorder );
+			form.refreshContents ( null );
 		}
 	}
 

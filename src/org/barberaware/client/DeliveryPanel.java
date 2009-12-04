@@ -142,6 +142,7 @@ public class DeliveryPanel extends GenericPanel {
 				}
 				else {
 					form = ( FromServerForm ) getWidget ( index );
+					form.refreshContents ( null );
 				}
 
 				uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );

@@ -129,7 +129,7 @@ public class FromServerForm extends Composite {
 		}
 		else {
 			callbacks.add ( routine );
-			summary.setText ( routine.getName ( this ) );
+			summary.setText ( retrieveNameInCallbacks () );
 		}
 	}
 
@@ -403,7 +403,15 @@ public class FromServerForm extends Composite {
 	private String retrieveNameInCallbacks () {
 		String name;
 
-		for ( int i = 0; i < callbacks.size (); i++ ) {
+		/*
+			FromServerFormCallbacks.getName() di default torna il "name" dell'oggetto, anche se tale
+			funzione non viene esplicitata. Cio' vuol dire che se non si presta attenzione viene saltata
+			la propria getName().
+			Qui itero l'array di callbacks partendo dal fondo, ovvero dall'ultima FromServerFormCallbacks
+			assegnata, ma occorre ricordarsi di far tornare esplicitamente null alle funzioni immesse in
+			un punto qualunque dell'esecuzione altrimenti forzeranno sempre il "name" dell'oggetto
+		*/
+		for ( int i = callbacks.size () - 1; i > -1; i-- ) {
 			name = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).getName ( this );
 			if ( name != null && name.equals ( "" ) == false)
 				return name;

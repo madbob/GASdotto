@@ -151,8 +151,16 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		currentValues = elements;
 		price_total = 0;
 
-		for ( i = 1; i < main.getRowCount (); i++ )
+		for ( i = 0; i < main.getRowCount () - 1; i++ )
 			main.removeRow ( 1 );
+
+		/*
+			Questo e' per i casi in cui la lista dei prodotti viene aggiornata
+			(magari perche' e' cambiato l'ordine) ed il colspan della cella in cui si
+			trovava la riga che separa il totale va invalidato (per poi essere
+			ri-settato quando si ri-piazza tale riga)
+		*/
+		main.getFlexCellFormatter ().setColSpan ( 1, 0, 1 );
 
 		for ( e = 1, i = 0; i < elements.size (); i++ ) {
 			prod_user = ( ProductUser ) elements.get ( i );
