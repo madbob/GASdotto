@@ -60,8 +60,11 @@ function search_in_array ( $array, $val ) {
 	return -1;
 }
 
-function format_price ( $price ) {
-	return "€ " . number_format ( $price, 2, ',', '' );
+function format_price ( $price, $symbol = true ) {
+	if ( $symbol == true )
+		return "€ " . number_format ( $price, 2, ',', '' );
+	else
+		return number_format ( $price, 2, ',', '' );
 }
 
 /****************************************************************** db management */

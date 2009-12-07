@@ -41,15 +41,19 @@ $products_prices = array ();
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices [] = format_price ( $prod->getTotalPrice () );
+	$products_prices [] = format_price ( $prod->getTotalPrice (), false );
 }
 
 $products_names [] = "Totale";
-$output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n";
+$output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n\n";
 
 $products_sums = array ();
-for ( $i = 0; $i < count ( $products ); $i++ )
-    $products_sums [] = 0;
+$quantities_sums = array ();
+
+for ( $i = 0; $i < count ( $products ); $i++ ) {
+	$products_sums [] = 0;
+	$quantities_sums [] = 0;
+}
 
 $request = new stdClass ();
 $request->baseorder = $id;
@@ -84,6 +88,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 			$sum = $prod_user->quantity * $prod->getTotalPrice ();
 			$products_sums [ $a ] += $sum;
+			$quantities_sums [ $a ] += $prod_user->quantity;
 			$user_total += $sum;
 			$e++;
 		}
@@ -91,11 +96,22 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$output .= sprintf ( ";" );
 	}
 
-	$output .= format_price ( round ( $user_total, 2 ) ) . "\n";
+	$output .= format_price ( round ( $user_total, 2 ), false ) . "\n";
 }
 
-for ( $i = 0; $i < count ( $products_sums ); $i++ )
-    $output .= ";" . format_price ( round ( $products_sums [ $i ], 2 ) );
+$output .= "\n";
+
+$gran_total = 0;
+$output .= "Totale Prezzo";
+for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
+	$r = round ( $products_sums [ $i ], 2 );
+	$p = format_price ( $r, false );
+	$output .= ";" . $p;
+	$gran_total += $r;
+}
+$output .= ";" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
+
+$output .= "Quantita' Totali;" . join ( ";", $quantities_sums );
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
