@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------[Readme]
 
-GASdotto 0.1
+GASdotto 1.0
 Roberto -MadBob- Guido
-Settembre 2009
+Dicembre 2009
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -20,13 +20,13 @@ destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il ser
 
 Per compilare il tutto e' necessario:
 Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	testato su versione 1.5.3
+GWT-Log			http://code.google.com/p/gwt-log/		testato su versione 2.5.2
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
 PHP			http://php.net/					testato su versione 5.2.6
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
 Apache			http://apache.org/				testato su versione 2.2.11
-GWT-Log			http://code.google.com/p/gwt-log/		testato su versione 2.5.2
 
 Il database in cui verranno messi i dati puo' essere selezionato tra:
 PostgreSQL		http://www.postgresql.org/			testato su versione 8.3.7
@@ -40,22 +40,16 @@ svn checkout svn://svn.barberaware.org/svnroot/gasdotto
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH
-- creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
-nuovo utente creato ad-hoc. Tale database dovra' essere chiamato "gasdotto_" + una variabile di
-istanza a propria scelta, che dovra' essere iscritta nel file config.php: di default, il nome
-usato sara' "gasdotto_1"
-- editare il file src/org/barberaware/public/server/org.barberaware.GASdotto/server/config.php
-con le credenziali di accesso al proprio database e la variabile di istanza scelta al passaggio
-precedente
-- eseguire install.php nella cartella src/org/barberaware/public/server/ per creare il database.
-In esso viene pre-configurato un singolo account con diritti di amministrazione: username "root"
-e password "ciccio".
 - eseguire ./GASdotto-compile
 - esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione al
 server web
 - accertarsi che la cartella www/org.barberaware.GASdotto/uploads abbia permessi di scrittura per
 il server web, in modo che non si riscontrino problemi in caso di caricamento di nuovi contenuti
 allegati
+- creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
+nuovo utente creato ad-hoc
+- accedere via browser alla prima pagina dell'applicazione, per avviare la procedura di
+installazione del DB
 
 -----------------------------------------------------------------------------------------[Sviluppo]
 
