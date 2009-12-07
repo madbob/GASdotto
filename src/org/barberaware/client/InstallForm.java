@@ -101,7 +101,7 @@ public class InstallForm extends Composite {
 		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerForm form ) {
 				if ( form.getObject ().getLocalID () == 1 )
-					Window.Location.reload ();
+					installationComplete ();
 				else
 					Utils.showNotification ( "E' occorso un problema durante l'installazione" );
 			}
@@ -109,7 +109,7 @@ public class InstallForm extends Composite {
 
 		form.add ( new HTML ( "<p>Qui devi inserire le informazioni per accedere al database che conterrà le informazioni prodotte dal programma. Esso deve già essere stato creato, magari per mezzo degli strumenti offerti dal tuo servizio di hosting.</p>" ) );
 		form.add ( doDbSettingForm ( form, probe ) );
-		form.add ( new HTML ( "<p>Qui definisci alcune informazioni per l'utilizzo immediato di GASdotto. Tieni presente che l'utente amministratore, che verrà installato automaticamente, ha sempre come username \"root\".</p>" ) );
+		form.add ( new HTML ( "<p>Qui definisci alcune informazioni per l'utilizzo immediato di GASdotto, potrai sempre cambiarle in futuro dal pannello 'Configurazioni'. Tieni presente che l'utente amministratore, inizializzato automaticamente, ha sempre come username \"root\".</p>" ) );
 		form.add ( doConfigSettingForm ( form, probe ) );
 
 		return form;
@@ -130,8 +130,20 @@ public class InstallForm extends Composite {
 
 		app = new CustomCaptionPanel ( "Informazioni Generali" );
 		app.addPair ( "Nome del GAS", form.getWidget ( "gasname" ) );
-		app.addPair ( "Indirizzo Mail", form.getWidget ( "gasmail" ) );
-		app.addPair ( "Password dell'Amministratore", form.getPersonalizedWidget ( "rootpassword", new PasswordBox () ) );
+		app.addPair ( "Indirizzo Mail del Gruppo", form.getWidget ( "gasmail" ) );
+		app.addPair ( "Scegli una Password per l'Amministratore", form.getPersonalizedWidget ( "rootpassword", new PasswordBox () ) );
+		form.setValidation ( "rootpassword", FromServerValidateCallback.defaultPasswordValidationCallback () );
 		return app;
+	}
+
+	private void installationComplete () {
+		String message;
+
+		main.clear ();
+
+		message = "<p>Installazione completata con successo.</p>";
+		message += "<p>Ricaricando questa pagina ti verrà presentato il pannello di login: entra nell'applicazione usando username 'root' e la password che hai definito nel passaggio precedente.</p>";
+		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
+		main.add ( new HTML ( message ) );
 	}
 }

@@ -104,30 +104,6 @@ public class UsersPanel extends GenericPanel {
 
 					ret = doEditableRow ( new User () );
 					asyncLoad ( ret );
-
-					ret.setValidation ( "password", new FromServerValidateCallback () {
-						public boolean check ( FromServer object, String attribute, Widget widget ) {
-							String text;
-
-							text = ( ( StringWidget ) widget ).getValue ();
-							if ( text.equals ( "" ) ) {
-								Utils.showNotification ( "La password non è stata definita" );
-								return false;
-							}
-
-							/*
-								Se il controllo e' andato a buon fine,
-								elimino questa callback di validazione.
-								L'oggetto viene salvato, ed il form
-								resettato, ed il campo password torna ad
-								essere vuoto pur essendo stata la password
-								settata
-							*/
-							ret.setValidation ( "password", null );
-							return true;
-						}
-					} );
-
 					return ret;
 				}
 
@@ -205,6 +181,8 @@ public class UsersPanel extends GenericPanel {
 					frame.addPair ( "Ruolo", form.getPersonalizedWidget ( "privileges", privileges ) );
 
 					frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
+					form.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
+
 					frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 				}
 

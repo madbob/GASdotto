@@ -23,6 +23,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class FromServerResponse extends ServerResponse {
 	public static int		ACTION_CREATE	= 0;
 	public static int		ACTION_MODIFY	= 1;

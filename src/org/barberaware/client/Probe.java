@@ -31,6 +31,7 @@ public class Probe extends FromServer {
 
 		addAttribute ( "writable", FromServer.BOOLEAN );
 		addAttribute ( "dbdrivers", FromServer.STRING );
+		addAttribute ( "dbdriver", FromServer.STRING );
 		addAttribute ( "dbuser", FromServer.STRING );
 		addAttribute ( "dbpassword", FromServer.STRING );
 		addAttribute ( "dbname", FromServer.STRING );

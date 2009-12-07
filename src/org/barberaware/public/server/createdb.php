@@ -19,9 +19,30 @@
 
 require_once ( "utils.php" );
 
-function install_main_db () {
-	global $instance_identifier;
+/*
+	Questa funzione e' un duplicato di connect_to_the_database(), tranne per il fatto che non
+	esegue un controllo sull'esistenza delle tabelle. Poiche' questo script e' dedicato a
+	crearle, e' giusto che non ci siano!
+*/
+function target_connect_to_the_database () {
+	global $dbdriver;
+	global $dbhost;
+	global $dbport;
 	global $dbname;
+	global $dbuser;
+	global $dbpassword;
+	global $instance_identifier;
+	global $db;
+
+	if ( !isset ( $dbhost ) )
+		$dbhost = 'localhost';
+
+	if ( !isset ( $dbport ) ) {
+		if ( $dbdriver == 'mysql' )
+			$dbport = 3306;
+		else if ( $dbdriver == 'pgsql' )
+			$dbport = 5432;
+	}
 
 	if ( !isset ( $instance_identifier ) )
 		$instance_identifier = 1;
@@ -29,11 +50,21 @@ function install_main_db () {
 	if ( !isset ( $dbname ) )
 		$dbname = 'gasdotto_' . $instance_identifier;
 
+	try {
+		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
+		return true;
+	}
+	catch ( PDOException $e ) {
+		return false;
+	}
+}
+
+function install_main_db () {
 	/*
 		Si assume che il database sia gia' stato creato e sia vuoto
 	*/
 
-	if ( connect_to_the_database ( $dbname ) == false )
+	if ( target_connect_to_the_database () == false )
 		error_exit ( "Impossibile selezionare database primario" );
 
 	/*

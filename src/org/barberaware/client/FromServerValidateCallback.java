@@ -183,4 +183,21 @@ public abstract class FromServerValidateCallback {
 				}
 			};
 	}
+
+	public static FromServerValidateCallback defaultPasswordValidationCallback () {
+		return new FromServerValidateCallback () {
+			public boolean check ( FromServer object, String attribute, Widget widget ) {
+				String text;
+
+				text = ( ( StringWidget ) widget ).getValue ();
+
+				if ( text.equals ( "" ) ) {
+					Utils.showNotification ( "La password non è stata definita" );
+					return false;
+				}
+				else
+					return true;
+			}
+		};
+	}
 }
