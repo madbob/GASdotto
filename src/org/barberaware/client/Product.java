@@ -46,14 +46,9 @@ public class Product extends FromServer {
 
 	public float getTotalPrice () {
 		float tot;
-		float price;
 
 		tot = getFloat ( "unit_price" );
-
-		price = getFloat ( "shipping_price" );
-		if ( price != 0 )
-			tot += price;
-
+		tot += getFloat ( "shipping_price" );
 		tot = Utils.sumPercentage ( tot, getString ( "surplus" ) );
 		return tot;
 	}

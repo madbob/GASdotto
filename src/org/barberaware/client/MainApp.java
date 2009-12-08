@@ -21,12 +21,12 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class MainApp extends Composite {
-	private MainStack	stack;
+	private MainStack		stack;
+	static private Header		header;
 
 	public MainApp () {
 		VerticalPanel main;
 		HorizontalPanel hor;
-		Header header;
 		Menu menu;
 
 		main = new VerticalPanel ();
@@ -69,5 +69,9 @@ public class MainApp extends Composite {
 			stack.goTo ( link );
 			Cookies.removeCookie ( "initial_url" );
 		}
+	}
+
+	public static void jumpTop () {
+		DOM.scrollIntoView ( header.getElement () );
 	}
 }

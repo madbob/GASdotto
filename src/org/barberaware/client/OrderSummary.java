@@ -39,7 +39,8 @@ public class OrderSummary extends Composite {
 		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );
 		main.setWidget ( 0, 2, new Label ( "Quantità Ordinata" ) );
 		main.setWidget ( 0, 3, new Label ( "Prezzo Totale" ) );
-		main.setWidget ( 0, 4, new Label ( "Notifiche" ) );
+		main.setWidget ( 0, 4, new Label ( "Trasporto + Surplus" ) );
+		main.setWidget ( 0, 5, new Label ( "Notifiche" ) );
 
 		main.getRowFormatter ().setStyleName ( 0, "table-header" );
 
@@ -74,7 +75,9 @@ public class OrderSummary extends Composite {
 		int user_product_ref;
 		float [] quantities;
 		float [] prices;
+		float [] details;
 		float prod_total_price;
+		float det;
 		float total_price;
 		ArrayList cached_orders;
 		ArrayList products;
@@ -88,9 +91,12 @@ public class OrderSummary extends Composite {
 
 		quantities = new float [ products.size () ];
 		prices = new float [ products.size () ];
+		details = new float [ products.size () ];
+
 		for ( int i = 0; i < products.size (); i++ ) {
 			quantities [ i ] = 0;
 			prices [ i ] = 0;
+			details [ i ] = 0;
 		}
 
 		ordersUsers.clear ();
@@ -130,9 +136,11 @@ public class OrderSummary extends Composite {
 									reiterare una volta di troppo l'array di
 									prodotti
 								*/
-								prod_total_price = user_product.getTotalPrice ();
+								prod_total_price = user_product.getPrice ();
+								det = user_product.getExternalPrice ();
 								prices [ e ] = prices [ e ] + prod_total_price;
-								total_price += prod_total_price;
+								details [ e ] = details [ e ] + det;
+								total_price += prod_total_price + det;
 							}
 
 							break;
@@ -144,7 +152,7 @@ public class OrderSummary extends Composite {
 			}
 		}
 
-		syncTable ( products, quantities, prices );
+		syncTable ( products, quantities, prices, details );
 		totalLabel.setVal ( total_price );
 	}
 
@@ -165,7 +173,7 @@ public class OrderSummary extends Composite {
 		return -1;
 	}
 
-	private void syncTable ( ArrayList products, float [] quantities, float [] prices ) {
+	private void syncTable ( ArrayList products, float [] quantities, float [] prices, float [] prices_details ) {
 		int i;
 		int e;
 		boolean new_row;
@@ -187,7 +195,7 @@ public class OrderSummary extends Composite {
 				new_row = false;
 			}
 
-			setDataRow ( e, product, quantities [ i ], prices [ i ], new_row );
+			setDataRow ( e, product, quantities [ i ], prices [ i ], prices_details [ i ], new_row );
 		}
 	}
 
@@ -201,7 +209,7 @@ public class OrderSummary extends Composite {
 			}
 		} );
 
-		main.setWidget ( row, 4, cell );
+		main.setWidget ( row, 5, cell );
 	}
 
 	private String measureSymbol ( Product prod ) {
@@ -228,7 +236,7 @@ public class OrderSummary extends Composite {
 		return lab;
 	}
 
-	private void setDataRow ( int index, Product product, float quantity, float price, boolean new_row ) {
+	private void setDataRow ( int index, Product product, float quantity, float price, float price_details, boolean new_row ) {
 		float stock;
 		Label lab;
 
@@ -243,6 +251,9 @@ public class OrderSummary extends Composite {
 
 		lab = editableLabel ( index, 3, new_row );
 		lab.setText ( Utils.priceToString ( price ) );
+
+		lab = editableLabel ( index, 4, new_row );
+		lab.setText ( Utils.priceToString ( price_details ) );
 
 		stock = product.getFloat ( "stock_size" );
 		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) )
@@ -267,12 +278,12 @@ public class OrderSummary extends Composite {
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			setDataRow ( e, prod, 0, 0, true );
+			setDataRow ( e, prod, 0, 0, 0, true );
 			e++;
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( e, 0, 5 );
+		main.getFlexCellFormatter ().setColSpan ( e, 0, 6 );
 
 		e++;
 
@@ -284,5 +295,6 @@ public class OrderSummary extends Composite {
 			totalLabel.setVal ( 0 );
 
 		main.setWidget ( e, 3, totalLabel );
+		main.getFlexCellFormatter ().setColSpan ( e, 3, 2 );
 	}
 }

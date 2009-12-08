@@ -26,9 +26,17 @@ public class FormClusterFilter extends Composite {
 	private FilterCallback	callback;
 
 	public FormClusterFilter ( FormCluster ref, FilterCallback call ) {
+		HorizontalPanel main;
+
+		main = new HorizontalPanel ();
+		main.setStyleName ( "search-bar-wrap" );
+		initWidget ( main );
+
+		main.add ( new Label ( "Ricerca in Lista" ) );
+
 		searchBar = new TextBox ();
 		searchBar.setStyleName ( "search-bar" );
-		initWidget ( searchBar );
+		main.add ( searchBar );
 
 		searchBar.addKeyboardListener ( new KeyboardListenerAdapter () {
 			public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {

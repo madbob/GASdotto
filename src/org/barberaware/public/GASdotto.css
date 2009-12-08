@@ -293,6 +293,10 @@ body {
 .search-bar {
 	background:		#FFFFFF url('images/search_bar.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
+}
+
+.search-bar-wrap {
+	vertical-align:		bottom;
 	margin-bottom:		15px;
 }
 
