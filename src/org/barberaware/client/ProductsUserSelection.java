@@ -29,8 +29,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	private PriceViewer		totalLabel;
 
 	public ProductsUserSelection ( ArrayList products ) {
-		int i;
-		int a;
 		int num_products;
 		Product prod;
 
@@ -40,21 +38,17 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		main.setWidth ( "100%" );
 		main.setCellSpacing ( 5 );
 
-		i = 0;
-		a = 0;
-
 		addTotalRow ();
 
 		if ( products != null ) {
 			num_products = products.size ();
 
-			for ( i = 0, a = 0; i < num_products; i++ ) {
+			for ( int i = 0; i < num_products; i++ ) {
 				prod = ( Product ) products.get ( i );
 				if ( prod.getBool ( "available" ) == false )
 					continue;
 
 				addProductRow ( prod );
-				a += 2;
 			}
 		}
 	}
@@ -190,7 +184,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		sel = new ProductUserSelector ( product );
 		main.setWidget ( row, 1, sel );
-		formatter.setWidth ( row, 1, "20%" );
+		formatter.setWidth ( row, 1, "40%" );
 		sel.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				updateTotal ();
@@ -203,7 +197,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		info_str = getPriceInfo ( product );
 		main.setWidget ( row, 2, new Label ( info_str ) );
-		formatter.setWidth ( row, 2, "60%" );
+		formatter.setWidth ( row, 2, "40%" );
 
 		formatter.setHorizontalAlignment ( row, 2, HasHorizontalAlignment.ALIGN_RIGHT );
 
@@ -305,7 +299,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 			for ( int i = 0; i < rows; i += 2 ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
-				selector.setQuantity ( 0 );
+				selector.clear ();
 			}
 		}
 
@@ -350,7 +344,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				}
 
 				if ( found == false )
-					selector.setQuantity ( 0 );
+					selector.clear ();
 			}
 		}
 

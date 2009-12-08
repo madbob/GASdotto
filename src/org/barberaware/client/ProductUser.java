@@ -1,5 +1,5 @@
 /*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,13 +27,18 @@ public class ProductUser extends FromServer {
 		addAttribute ( "delivered", FromServer.FLOAT );
 	}
 
-	public float getTotalPrice () {
-		float quantity;
+	public float getTotalPrice ( float quantity ) {
 		Product product;
 
-		quantity = getFloat ( "quantity" );
 		product = ( Product ) getObject ( "product" );
 		return quantity * product.getTotalPrice ();
+	}
+
+	public float getTotalPrice () {
+		float quantity;
+
+		quantity = getFloat ( "quantity" );
+		return getTotalPrice ( quantity );
 	}
 
 	public int compare ( Object first, Object second ) {

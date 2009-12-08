@@ -346,6 +346,10 @@ body {
 	width:			50%;
 }
 
+.contents-on-right {
+	margin-left:		20px;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;

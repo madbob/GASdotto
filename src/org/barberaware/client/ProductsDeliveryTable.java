@@ -60,8 +60,9 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			input = iter.getVal ();
 
 			prod_user = ( ProductUser ) currentValues.get ( a );
+			row_sum = prod_user.getTotalPrice ( input );
+
 			prod = ( Product ) prod_user.getObject ( "product" );
-			row_sum = input * prod.getTotalPrice ();
 
 			if ( iter == box ) {
 				if ( input < 0 ) {
@@ -77,9 +78,9 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 						succedere che avanzi qualche prodotto (ordinato per arrotondamento) e
 						si distribuisca arbitrariamente
 					*/
-					if ( input > prod_user.getFloat ( "quantity" ) )
+					if ( prod.getBool ( "mutable_price" ) == false && input > prod_user.getFloat ( "quantity" ) )
 						Utils.showNotification ( "Hai immesso una quantità diversa da quella ordinata",
-									SmoothingNotify.NOTIFY_INFO );
+										SmoothingNotify.NOTIFY_INFO );
 
 					total_label = ( Label ) main.getWidget ( i, 4 );
 					total_label.setText ( Utils.priceToString ( row_sum ) );
@@ -105,7 +106,6 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				Label total_label;
 				FloatBox iter;
 				ProductUser prod_user;
-				Product prod;
 
 				total_sum = 0;
 				num_rows = currentValues.size ();
@@ -114,12 +114,12 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 					iter = ( FloatBox ) main.getWidget ( i, 3 );
 					prod_user = ( ProductUser ) currentValues.get ( a );
 
-					prod = ( Product ) prod_user.getObject ( "product" );
 					input = prod_user.getFloat ( "quantity" );
-					row_sum = input * prod.getTotalPrice ();
-					total_label = ( Label ) main.getWidget ( i, 4 );
 
+					row_sum = prod_user.getTotalPrice ( input );
+					total_label = ( Label ) main.getWidget ( i, 4 );
 					total_label.setText ( Utils.priceToString ( row_sum ) );
+
 					iter.setVal ( input );
 					total_sum = row_sum + total_sum;
 				}
@@ -190,7 +190,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				}
 			} );
 
-			price_product = delivered * prod.getTotalPrice ();
+			price_product = prod_user.getTotalPrice ( delivered );
 			main.setWidget ( e, 4, new Label ( Utils.priceToString ( price_product ) ) );
 			price_total = price_total + price_product;
 

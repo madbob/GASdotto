@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import java.lang.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
@@ -25,6 +26,7 @@ public class ProductUserSelector extends ObjectWidget {
 	private HorizontalPanel				main;
 	private FloatBox				quantity;
 	private Label					measure;
+	private Label					effectiveQuantity;
 	private SuggestionBox				constraintsDialog;
 	private ProductUser				currentValue;
 	private DelegatingChangeListenerCollection	changeListeners;
@@ -72,12 +74,21 @@ public class ProductUserSelector extends ObjectWidget {
 					undoChange ();
 					return;
 				}
+
+				val = prod.getFloat ( "unit_size" );
+				if ( val != 0 )
+					setEffectiveQuantity ( input );
 			}
 		} );
 		main.add ( quantity );
 
 		measure = new Label ();
 		main.add ( measure );
+
+		effectiveQuantity = new Label ();
+		effectiveQuantity.addStyleName ( "contents-on-right" );
+		effectiveQuantity.setVisible ( false );
+		main.add ( effectiveQuantity );
 
 		defineOnProduct ( prod );
 	}
@@ -120,11 +131,35 @@ public class ProductUserSelector extends ObjectWidget {
 	private void defineOnProduct ( Product prod ) {
 		Measure m;
 
-		m = ( Measure ) prod.getObject ( "measure" );
-		if ( m != null )
-			measure.setText ( m.getString ( "symbol" ) );
+		if ( prod.getFloat ( "unit_size" ) != 0 ) {
+			measure.setText ( "pezzi" );
+			setEffectiveQuantity ( quantity.getVal () );
+		}
+		else {
+			m = ( Measure ) prod.getObject ( "measure" );
+			if ( m != null )
+				measure.setText ( m.getString ( "symbol" ) );
+
+			effectiveQuantity.setVisible ( false );
+		}
 
 		disposeConstraints ( prod, quantity );
+	}
+
+	private void setEffectiveQuantity ( float quantity ) {
+		String ms;
+		Product prod;
+		Measure m;
+
+		prod = ( Product ) currentValue.getObject ( "product" );
+		m = ( Measure ) prod.getObject ( "measure" );
+		if ( m != null )
+			ms = m.getString ( "symbol" );
+		else
+			ms = "";
+
+		effectiveQuantity.setVisible ( true );
+		effectiveQuantity.setText ( "( " + ( quantity * prod.getFloat ( "unit_size" ) ) + " " + ms + " )" );
 	}
 
 	public void setProduct ( Product prod ) {
@@ -132,29 +167,21 @@ public class ProductUserSelector extends ObjectWidget {
 		defineOnProduct ( prod );
 	}
 
-	public void setQuantity ( float quant ) {
-		quantity.setVal ( quant );
-	}
+	public void clear () {
+		float unit;
 
-	public float getQuantity () {
-		return quantity.getVal ();
+		quantity.setVal ( 0 );
+
+		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
+		if ( unit != 0 )
+			setEffectiveQuantity ( 0 );
 	}
 
 	public float getTotalPrice () {
-		float q;
-		float tot;
-		Product p;
+		ProductUser current;
 
-		q = getQuantity ();
-
-		if ( q == 0 )
-			return 0;
-
-		else {
-			p = ( Product ) currentValue.getObject ( "product" );
-			tot = q * p.getTotalPrice ();
-			return tot;
-		}
+		current = ( ProductUser ) getValue ();
+		return current.getTotalPrice ();
 	}
 
 	public void addChangeListener ( ChangeListener listener ) {
@@ -166,16 +193,34 @@ public class ProductUserSelector extends ObjectWidget {
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
+		float q;
+		float unit;
 		Product prod;
 
 		currentValue = ( ProductUser ) element;
-		quantity.setVal ( element.getFloat ( "quantity" ) );
+
+		q = element.getFloat ( "quantity" );
+
+		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
+		if ( unit != 0 )
+			q = Math.round ( q / unit );
+
+		quantity.setVal ( q );
 		prod = ( Product ) element.getObject ( "product" );
 		defineOnProduct ( prod );
 	}
 
 	public FromServer getValue () {
-		currentValue.setFloat ( "quantity", quantity.getVal () );
+		float q;
+		float unit;
+
+		q = quantity.getVal ();
+
+		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
+		if ( unit != 0 )
+			q = q * unit;
+
+		currentValue.setFloat ( "quantity", q );
 		return currentValue;
 	}
 }

@@ -34,6 +34,7 @@ public class Product extends FromServer {
 		addAttribute ( "minimum_order", FromServer.FLOAT );
 		addAttribute ( "multiple_order", FromServer.FLOAT );
 		addAttribute ( "stock_size", FromServer.FLOAT );
+		addAttribute ( "unit_size", FromServer.FLOAT );
 		addAttribute ( "mutable_price", FromServer.BOOLEAN );
 		addAttribute ( "available", FromServer.BOOLEAN );
 		addAttribute ( "archived", FromServer.BOOLEAN );
