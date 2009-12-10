@@ -138,6 +138,7 @@ public class ProductsEditPanel extends Composite {
 					select = new FromServerSelector ( "Measure", true, true );
 					frame.addPair ( "Unità di Misura", ver.getPersonalizedWidget ( "measure", select ) );
 
+					frame.addPair ( "Pezzatura", ver.getWidget ( "unit_size" ) );
 					frame.addPair ( "Ordinabile", ver.getWidget ( "available" ) );
 
 					/* seconda colonna */
@@ -149,7 +150,6 @@ public class ProductsEditPanel extends Composite {
 					frame.addPair ( "Prezzo Unitario", ver.getWidget ( "unit_price" ) );
 					frame.addPair ( "Prezzo Trasporto", ver.getWidget ( "shipping_price" ) );
 					frame.addPair ( "Prezzo Variabile", ver.getWidget ( "mutable_price" ) );
-					frame.addPair ( "Pezzatura", ver.getWidget ( "unit_size" ) );
 
 					/**
 						TODO	Gestire in qualche modo strutturato le

@@ -203,14 +203,28 @@ public class FromServerForm extends Composite {
 		if ( editable == FULL_EDITABLE ) {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
+					boolean ret;
+					FromServerFormCallbacks callback;
+
+					ret = true;
+
+					for ( int i = 0; i < callbacks.size (); i++ ) {
+						callback = ( FromServerFormCallbacks ) callbacks.get ( i );
+						/*
+							In questo modo eseguo tutte le callback di onDelete, ma se
+							anche una sola torna false la funzione esce
+						*/
+						ret = ( ret && callback.onDelete ( myself ) );
+					}
+
+					if ( ret == false )
+						return;
+
 					if ( object.isValid () == false )
 						invalidate ();
 
 					else {
 						if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
-							for ( int i = 0; i < callbacks.size (); i++ )
-								( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onDelete ( myself );
-
 							object.destroy ( null );
 							invalidate ();
 							main.setOpen ( false );
@@ -361,12 +375,10 @@ public class FromServerForm extends Composite {
 		summary.setText ( retrieveNameInCallbacks () );
 	}
 
-	public void addAddictionalData ( Object data ) {
-		if ( addictionalData == null )
-			addictionalData = new ArrayList ();
-		addictionalData.add ( data );
-	}
-
+	/**
+		TODO	Questa funzione (ed il contorno) potrebbe essere soppressa, essendo usata
+			(pure impropriamente) in un posto solo
+	*/
 	public ArrayList getAddictionalData () {
 		if ( addictionalData == null )
 			addictionalData = new ArrayList ();

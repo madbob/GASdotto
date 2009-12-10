@@ -114,6 +114,9 @@ public class OrderSummary extends Composite {
 		for ( int i = 0; i < cached_orders.size (); i++ ) {
 			user_ord = ( OrderUser ) cached_orders.get ( i );
 
+			if ( user_ord.isValid () == false )
+				continue;
+
 			if ( user_ord.getObject ( "baseorder" ).getLocalID () == my_id ) {
 				user_products = user_ord.getArray ( "products" );
 

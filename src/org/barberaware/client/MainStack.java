@@ -58,7 +58,7 @@ public class MainStack extends Composite {
 
 		else {
 			add ( new SuppliersPanel () );
-			add ( new OrdersPanel () );
+			add ( new OrdersPrivilegedPanel () );
 		}
 
 		mainMenu = null;

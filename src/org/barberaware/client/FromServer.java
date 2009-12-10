@@ -24,6 +24,8 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public abstract class FromServer implements Comparator {
 	public static int	STRING		= 0;
 	public static int	INTEGER		= 1;
@@ -498,6 +500,6 @@ public abstract class FromServer implements Comparator {
 			return false;
 
 		other = ( FromServer ) second;
-		return getLocalID () == other.getLocalID ();
+		return ( ( getLocalID () == other.getLocalID () ) && ( getType () == other.getType () ) );
 	}
 }

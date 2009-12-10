@@ -20,12 +20,9 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
-
-/**
-	TODO	Probabilmente questo puo' sostituire in toto OrdersPanel, da verificare
-*/
 
 public class OrdersPrivilegedPanel extends GenericPanel {
 	private boolean		hasOrders;
@@ -223,7 +220,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder = new OrderUser ();
 		uorder.setObject ( "baseorder", order );
 
-		ver = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
+		ver = new FromServerForm ( uorder );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {
@@ -248,12 +245,28 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( selector != null )
 					form.getObject ().setObject ( "baseuser", selector.getValue () );
 			}
+
+			public boolean onDelete ( final FromServerForm form ) {
+				OrderUser ord;
+
+				ord = ( OrderUser ) form.getObject ();
+				if ( ord.isValid () ) {
+					ord.destroy ( new ServerResponse () {
+						public void onComplete ( JSONValue response ) {
+							cleanForm ( form, true, Session.getUser () );
+							form.open ( false );
+						}
+					} );
+				}
+
+				return false;
+			}
 		} );
 
 		if ( editable == true ) {
 			ver.setCallback ( new FromServerFormCallbacks () {
 				public void onClose ( FromServerForm form ) {
-					cleanForm ( form, true );
+					cleanForm ( form, true, null );
 				}
 
 				public void onOpen ( FromServerForm form ) {
@@ -314,7 +327,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	}
 
 	/*
-		action: gli stessi valori di syncUserOrder
+		action: gli stessi valori di syncLocalCache
 	*/
 	private void findAndAlign ( OrderUser uorder, int action ) {
 		int index;
@@ -328,7 +341,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			form = ( FromServerForm ) getWidget ( index );
 
 			if ( canMultiUser ( order ) ) {
-				syncUserOrder ( form, uorder, action );
+				syncLocalCache ( form, uorder, action );
 			}
 			else {
 				/*
@@ -336,6 +349,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					informazioni relative agli ordini altrui non me ne faccio niente
 				*/
 				if ( uorder.getObject ( "baseuser" ).equals ( Session.getUser () ) ) {
+					syncLocalCache ( form, uorder, action );
+
 					if ( action == 2 )
 						resetProducts ( form );
 					else
@@ -351,7 +366,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			1 = ordine modificato, aggiorna
 			2 = ordine eliminato
 	*/
-	private void syncUserOrder ( FromServerForm ver, OrderUser uorder, int action ) {
+	private void syncLocalCache ( FromServerForm ver, OrderUser uorder, int action ) {
 		int uorder_id;
 		ArrayList orders;
 		OrderUser iter;
@@ -372,7 +387,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( action == 0 ) {
 					return;
 				}
-				else if ( action == 1 ) {
+				else if ( action == 1 || action == 2 ) {
 					orders.remove ( i );
 
 					/*
@@ -382,9 +397,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					*/
 					i--;
 
-					continue;
-				}
-				else if ( action == 2 ) {
 					continue;
 				}
 			}
@@ -414,7 +426,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 		}
 
-		cleanForm ( form, false );
+		cleanForm ( form, false, user );
 	}
 
 	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
@@ -435,13 +447,17 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		table.setElements ( null );
 	}
 
-	private void cleanForm ( FromServerForm form, boolean complete ) {
+	private void cleanForm ( FromServerForm form, boolean complete, User user ) {
 		OrderUser uorder;
 		OrderUser original_uorder;
 
 		uorder = new OrderUser ();
 		original_uorder = ( OrderUser ) form.getObject ();
 		uorder.setObject ( "baseorder", original_uorder.getObject ( "baseorder" ) );
+
+		if ( user != null )
+			uorder.setObject ( "baseuser", user );
+
 		form.setObject ( uorder );
 
 		if ( complete == true )

@@ -42,8 +42,13 @@ public class FromServerFormCallbacks {
 		/* dummy */
 	}
 
-	public void onDelete ( FromServerForm form ) {
+	/*
+		Invocata quando viene richiesto di eliminare l'oggetto rappresentato dal form, se
+		ritorna false la procedura di eliminazione viene interrotta
+	*/
+	public boolean onDelete ( FromServerForm form ) {
 		/* dummy */
+		return true;
 	}
 
 	public void onOpen ( FromServerForm form ) {

@@ -367,14 +367,14 @@ public class ServerHook {
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
+		deleteObjectFromMonitorCache ( tmp, object );
+
 		num = tmp.callbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {
 			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 			callback.onDestroy ( object );
 		}
-
-		deleteObjectFromMonitorCache ( tmp, object );
 	}
 
 	public void addToCache ( FromServer object ) {
