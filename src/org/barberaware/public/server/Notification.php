@@ -30,7 +30,7 @@ class Notification extends FromServer {
 		parent::addAttribute ( "recipent", "ARRAY::User" );
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		global $current_user;
 
 		/*
@@ -58,7 +58,7 @@ class Notification extends FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request ) );
+			array_push ( $ret, $obj->exportable ( $request, $compress ) );
 		}
 
 		return $ret;

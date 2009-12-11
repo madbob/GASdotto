@@ -33,7 +33,7 @@ class Order extends FromServer {
 		$this->addAttribute ( "anticipated", "STRING" );
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		/*
 			Non e' particolarmente efficiente fare il check sullo stato degli ordini
 			ad ogni interrogazione, ma l'alternativa sarebbe piazzare uno script in
@@ -84,7 +84,7 @@ class Order extends FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request ) );
+			array_push ( $ret, $obj->exportable ( $request, $compress ) );
 		}
 
 		return $ret;

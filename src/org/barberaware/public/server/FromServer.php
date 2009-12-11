@@ -97,7 +97,7 @@ class FromServerAttribute {
 		return null;
 	}
 
-	private static function filter_object ( $object, $filter ) {
+	private static function filter_object ( $object, $filter, $compress ) {
 		if ( $filter != null ) {
 			$id_name = 'has_' . $object->classname;
 
@@ -109,29 +109,29 @@ class FromServerAttribute {
 			}
 		}
 
-		return $object->exportable ( $filter );
+		return $object->exportable ( $filter, $compress );
 	}
 
-	public function export_field ( $parent, $filter ) {
+	public function export_field ( $parent, $filter, $compress ) {
 		list ( $type, $objtype ) = explode ( "::", $this->type );
 
 		switch ( $type ) {
 			case "STRING":
-				if ( $avoid_defaults == true && $this->value == "" )
+				if ( $compress == true && $this->value == "" )
 					return null;
 				else
 					return $this->value . "";
 				break;
 
 			case "INTEGER":
-				if ( $avoid_defaults == true && $this->value == "0" )
+				if ( $compress == true && $this->value == "0" )
 					return null;
 				else
 					return $this->value . "";
 				break;
 
 			case "FLOAT":
-				if ( $avoid_defaults == true && $this->value == "0" )
+				if ( $compress == true && $this->value == "0" )
 					return null;
 				else
 					return $this->value . "";
@@ -151,7 +151,7 @@ class FromServerAttribute {
 				break;
 
 			case "OBJECT":
-				return self::filter_object ( $this->value, $filter );
+				return self::filter_object ( $this->value, $filter, $compress );
 				break;
 
 			case "ARRAY":
@@ -163,7 +163,7 @@ class FromServerAttribute {
 
 				for ( $i = 0; $i < $elements_num; $i++ ) {
 					$obj = $this->value [ $i ];
-					array_push ( $ret, self::filter_object ( $obj, $filter ) );
+					array_push ( $ret, self::filter_object ( $obj, $filter, $compress ) );
 				}
 
 				return $ret;
@@ -244,19 +244,6 @@ abstract class FromServer {
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
 
-			/**
-				TODO	Potrebbe essere una idea quella di saltare i valori vuoti
-					(ad esempio le stringhe), in modo da evitare di
-					trasferirli al client che gia' e' inizializzato di
-					default con essi, ma occorre verificare che eliminando
-					dei campi a questo livello il tutto continua a fungere
-					correttamente.
-					Alternativamente si potrebbe introdurre una funzione
-					"compress" che elimina la roba inutile prima di spedirla
-					dall'altra parte: dispendioso dal punto di vista
-					computazionale, ma si risparmia in traffico dati
-			*/
-
 			if ( isset ( $row [ 0 ] [ $attr->name ] ) )
 				$attr->value = $attr->traslate_field ( $this, $row [ 0 ] [ $attr->name ] );
 			else
@@ -264,7 +251,7 @@ abstract class FromServer {
 		}
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		global $current_user;
 
 		$ret = array ();
@@ -298,7 +285,7 @@ abstract class FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request ) );
+			array_push ( $ret, $obj->exportable ( $request, $compress ) );
 		}
 
 		return $ret;
@@ -575,7 +562,7 @@ abstract class FromServer {
 		return $id;
 	}
 
-	public function exportable ( $filter = null ) {
+	public function exportable ( $filter = null, $compress = false ) {
 		$obj = new stdClass ();
 
 		$obj->type = $this->classname;
@@ -584,7 +571,7 @@ abstract class FromServer {
 			$attr = $this->attributes [ $i ];
 
 			$name = $attr->name;
-			$value = $attr->export_field ( $this, $filter );
+			$value = $attr->export_field ( $this, $filter, $compress );
 
 			if ( $value != null )
 				$obj->$name = $value;

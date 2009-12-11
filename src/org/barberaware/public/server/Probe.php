@@ -33,14 +33,14 @@ class Probe extends FromServer {
 		$this->addAttribute ( "rootpassword", "STRING" );
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		$this->getAttribute ( "writable" )->value = is_writable ( "./config.php" );
 
 		$drivers = PDO::getAvailableDrivers ();
 		$this->getAttribute ( "dbdrivers" )->value = join ( ";", $drivers );
 		$this->getAttribute ( "dbdriver" )->value = $drivers [ 0 ];
 
-		return $this->exportable ( $request );
+		return $this->exportable ( $request, $compress );
 	}
 
 	public function save ( $obj ) {

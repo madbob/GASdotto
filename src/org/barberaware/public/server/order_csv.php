@@ -58,7 +58,7 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 $request = new stdClass ();
 $request->baseorder = $id;
 $order_user_proxy = new OrderUser ();
-$contents = $order_user_proxy->get ( $request );
+$contents = $order_user_proxy->get ( $request, false );
 usort ( $contents, "sort_orders_by_user" );
 
 for ( $i = 0; $i < count ( $contents ); $i++ ) {

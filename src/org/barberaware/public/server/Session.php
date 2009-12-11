@@ -23,20 +23,20 @@ class Session {
 	public $user		= null;
 	public $gas		= null;
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		global $current_user;
 
 		$user = new User ();
 		if ( $current_user != -1 )
 			$user->readFromDB ( $current_user );
-		$this->user = $user->exportable ();
+		$this->user = $user->exportable ( null, $compress );
 
 		$gas = new GAS ();
 		$gas->readFromDB ( 1 );
-		$this->gas = $gas->exportable ();
+		$this->gas = $gas->exportable ( null, $compress );
 
 		$conf = new SystemConf ();
-		$this->system = $conf->exportable ();
+		$this->system = $conf->exportable ( null, $compress );
 
 		return $this;
 	}

@@ -52,7 +52,7 @@ class SystemConf extends FromServer {
 		return posix_access ( "../uploads/", POSIX_W_OK );
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		$arr = array ();
 		$obj = new SystemConf ();
 		array_push ( $arr, $obj );

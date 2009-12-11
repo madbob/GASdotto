@@ -41,7 +41,7 @@ class Product extends FromServer {
 		$this->addAttribute ( "previous_description", "INTEGER" );
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		$ret = array ();
 
 		if ( isset ( $request->supplier ) )
@@ -65,7 +65,7 @@ class Product extends FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request ) );
+			array_push ( $ret, $obj->exportable ( $request, $compress ) );
 		}
 
 		return $ret;

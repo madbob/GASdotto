@@ -35,7 +35,7 @@ if ( $type == "Probe" ) {
 
 	switch ( $action ) {
 		case "get":
-			$ret = $ret->get ( $obj );
+			$ret = $ret->get ( $obj, false );
 			break;
 
 		case "save":
@@ -91,7 +91,7 @@ else {
 
 					case "Session":
 						$ret = new Session ();
-						$ret->get ( $obj );
+						$ret->get ( $obj, false );
 						break;
 
 					default:
@@ -115,7 +115,7 @@ else {
 						$type = escape_string ( $obj->type );
 						$class = class_name ( $type );
 						$ret = new $class;
-						$ret = $ret->get ( $obj );
+						$ret = $ret->get ( $obj, true );
 						break;
 				}
 

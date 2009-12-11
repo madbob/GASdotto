@@ -30,7 +30,7 @@ class OrderUser extends FromServer {
 		$this->enforceUserCheck ( "baseuser" );
 	}
 
-	public function get ( $request ) {
+	public function get ( $request, $compress ) {
 		global $current_user;
 
 		$ret = array ();
@@ -79,7 +79,7 @@ class OrderUser extends FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request ) );
+			array_push ( $ret, $obj->exportable ( $request, $compress ) );
 		}
 
 		return $ret;
