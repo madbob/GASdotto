@@ -41,7 +41,7 @@ $products_prices = array ();
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices [] = format_price ( $prod->getTotalPrice (), false );
+	$products_prices [] = format_price ( $prod->getAttribute ( "unit_price" )->value, false );
 }
 
 $products_names [] = "Totale";
@@ -86,7 +86,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 			$output .= ";";
 
-			$sum = $prod_user->quantity * $prod->getTotalPrice ();
+			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
 			$quantities_sums [ $a ] += $prod_user->quantity;
 			$user_total += $sum;

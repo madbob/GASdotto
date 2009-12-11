@@ -79,7 +79,7 @@ if ( check_session () == false )
 
 $order = new Order ();
 $order->readFromDB ( $id );
-$supplier = $order->getAttribute ( 'supplier' )->value;3
+$supplier = $order->getAttribute ( 'supplier' )->value;
 $supplier_name = $supplier->getAttribute ( 'name' )->value;
 $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 
@@ -95,7 +95,7 @@ $header = array ( 'Utenti' );
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$name = $prod->getAttribute ( "name" )->value;
-	$price = format_price ( $prod->getTotalPrice () );
+	$price = format_price ( $prod->getAttribute ( "unit_price" )->value );
 
 	$measure = $prod->getAttribute ( "measure" )->value;
 	if ( $measure != null )
@@ -170,7 +170,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			else
 				$row [] = sprintf ( "%d", $prod_user->quantity );
 
-			$sum = $prod_user->quantity * $prod->getTotalPrice ();
+			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 			$e++;
