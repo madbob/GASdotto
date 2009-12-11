@@ -237,6 +237,16 @@ abstract class FromServer {
 	}
 
 	public function readFromDB ( $id ) {
+		global $cache;
+
+		$token = $this->tablename . "::" . $id;
+
+		$ret = $cache [ $token ];
+		if ( isset ( $ret ) ) {
+			$this->attributes = $ret->attributes;
+			return;
+		}
+
 		$query = sprintf ( "SELECT * FROM %s WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
@@ -249,6 +259,8 @@ abstract class FromServer {
 			else
 				$attr->value = $attr->traslate_field ( $this, null );
 		}
+
+		$cache [ $token ] = $this;
 	}
 
 	public function get ( $request, $compress ) {

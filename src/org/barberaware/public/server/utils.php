@@ -200,8 +200,10 @@ function parse_session_data () {
 function check_session () {
 	global $current_user;
 	global $db;
+	global $cache;
 
 	$current_user = -1;
+	$cache = array ();
 
 	if ( connect_to_the_database () == false )
 		error_exit ( "Impossibile connettersi al database" );
