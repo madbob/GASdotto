@@ -28,22 +28,41 @@ class DeliveryReport extends TCPDF {
 		$this->SetLineWidth ( 0.3 );
 		$this->SetFont ( 'helvetica', '', 7 );
 
-		$html = '<table cellspacing="0" cellpadding="1" border="1"><tr>';
-		for ( $i = 0; $i < count ( $header ); $i++ )
-			$html .= '<td>' . ( $header [ $i ] ) . '</td>';
-		$html .= '</tr>';
+		$offset = 0;
+		$end = 0;
+		$tot = count ( $header );
 
-		foreach ( $data as $row ) {
-			$html .= '<tr>';
+		do {
+			$this->AddPage ();
 
-			foreach ( $row as $val )
-				$html .= '<td>' . $val . '</td>';
+			if ( $end + 10 > $tot )
+				$end = $tot;
+			else
+				$end = $end + 10;
 
+			$html = '<table cellspacing="0" cellpadding="1" border="1"><tr>';
+			for ( $i = $offset; $i < $end; $i++ )
+				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
 			$html .= '</tr>';
-		}
 
-		$html .= '</table>';
-		$this->writeHTML ( $html, true, false, false, false, 'C' );
+			foreach ( $data as $row ) {
+				$html .= '<tr>';
+
+				for ( $i = $offset; $i < $end; $i++ ) {
+					$val = $row [ $i ];
+					$html .= '<td>' . $val . '</td>';
+				}
+
+				$html .= '</tr>';
+			}
+
+			$html .= '</table>';
+
+			$this->writeHTML ( $html, true, false, false, false, 'C' );
+
+			$offset = $end;
+
+		} while ( $end < $tot );
 	}
 }
 
@@ -110,7 +129,6 @@ $pdf->SetFooterMargin ( 10 );
 $pdf->SetAutoPageBreak ( true, 25 );
 $pdf->setImageScale ( 1 );
 $pdf->setLanguageArray ( $l );
-$pdf->AddPage ();
 
 /*
 	Format data
