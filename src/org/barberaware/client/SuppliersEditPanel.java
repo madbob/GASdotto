@@ -339,7 +339,5 @@ public class SuppliersEditPanel extends GenericPanel {
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 		Utils.getServer ().testObjectReceive ( "Product" );
-		Utils.getServer ().testObjectReceive ( "Measure" );
-		Utils.getServer ().testObjectReceive ( "Category" );
 	}
 }

@@ -24,10 +24,6 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class OrdersEditPanel extends GenericPanel {
-	private abstract class ForeachProductListCallback {
-		public abstract void doIt ( Order order, FlexTable list, Product product );
-	}
-
 	private FormCluster		main;
 
 	public OrdersEditPanel () {
@@ -339,7 +335,7 @@ public class OrdersEditPanel extends GenericPanel {
 						already_has = false;
 
 						for ( int e = 0; e < num_products; e++ ) {
-							order_product = ( Product ) products.get ( i );
+							order_product = ( Product ) products.get ( e );
 							if ( order_product.equals ( object ) ) {
 								already_has = true;
 								break;
@@ -360,6 +356,10 @@ public class OrdersEditPanel extends GenericPanel {
 
 			public void onDestroy ( FromServer object ) {
 				reloadOrdersBySupplier ( ( Supplier ) object.getObject ( "supplier" ) );
+			}
+
+			protected String debugName () {
+				return "OrdersEditPanel";
 			}
 		} );
 
@@ -515,8 +515,6 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		Utils.getServer ().testObjectReceive ( "Supplier" );
-		Utils.getServer ().testObjectReceive ( "Product" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 	}
 }
