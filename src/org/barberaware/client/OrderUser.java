@@ -22,6 +22,10 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 
 public class OrderUser extends FromServer {
+	public static int	TO_DELIVER		= 0;
+	public static int	PARTIAL_DELIVERY	= 1;
+	public static int	COMPLETE_DELIVERY	= 2;
+
 	public OrderUser () {
 		super ();
 
@@ -34,6 +38,9 @@ public class OrderUser extends FromServer {
 		addAttribute ( "baseuser", FromServer.OBJECT, User.class );
 		addAttribute ( "baseorder", FromServer.OBJECT, Order.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
+		addAttribute ( "status", FromServer.INTEGER );
+
+		setInt ( "status", TO_DELIVER );
 	}
 
 	/*

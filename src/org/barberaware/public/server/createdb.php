@@ -369,6 +369,7 @@ function install_main_db () {
 					id serial,
 					baseorder int references orders ( id ) on delete cascade,
 					baseuser int references users ( id ) on delete cascade,
+					status int default 0,
 					primary key ( id )
 				)"
 	);

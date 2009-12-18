@@ -80,11 +80,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
 			$decimal = strlen ( strstr ( $prod_user->quantity, '.' ) );
 			if ( $decimal != 0 )
-				$output .= number_format ( $prod_user->quantity, $decimal - 1, ',', '' );
+				$q = number_format ( $prod_user->quantity, $decimal - 1, ',', '' );
 			else
-				$output .= sprintf ( "%d", $prod_user->quantity );
+				$q = sprintf ( "%d", $prod_user->quantity );
 
-			$output .= ";";
+			$output .= $q . ";";
 
 			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
@@ -103,15 +103,24 @@ $output .= "\n";
 
 $gran_total = 0;
 $output .= "Totale Prezzo";
-for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
-	$r = round ( $products_sums [ $i ], 2 );
+foreach ( $products_sums as $ps ) {
+	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
 	$output .= ";" . $p;
 	$gran_total += $r;
 }
 $output .= ";" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
 
-$output .= "Quantita' Totali;" . join ( ";", $quantities_sums );
+$output .= "Quantita' Totali";
+foreach ( $quantities_sums as $qs ) {
+	$decimal = strlen ( strstr ( $qs, '.' ) );
+	if ( $decimal != 0 )
+		$q = number_format ( $qs, $decimal - 1, ',', '' );
+	else
+		$q = sprintf ( "%d", $qs );
+
+	$output .= ";" . $q;
+}
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );

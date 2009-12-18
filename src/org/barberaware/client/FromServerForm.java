@@ -161,6 +161,13 @@ public class FromServerForm extends Composite {
 		return main.isOpen ();
 	}
 
+	public void addBottomButton ( String image, String text, ClickListener listener ) {
+		PushButton button;
+
+		button = new PushButton ( new Image ( image ), listener );
+		buttons.add ( button, text );
+	}
+
 	private void noExplicitCallbacks () {
 		callbacks.clear ();
 

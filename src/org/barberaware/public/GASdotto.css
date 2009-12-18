@@ -185,7 +185,7 @@ body {
 }
 
 .buttons-bar .icons {
-	margin-left:		5px;
+	margin-left:		10px;
 	margin-right:		5px;
 	text-align:		center;
 	cursor:			pointer;
@@ -196,7 +196,7 @@ body {
 	height:			20px;
 	margin-top:		0px;
 	margin-bottom:		0px;
-	margin-left:		5px;
+	margin-left:		10px;
 	margin-right:		5px;
 	text-align:		center;
 	font-size:		10px;

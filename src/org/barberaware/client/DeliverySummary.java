@@ -41,15 +41,22 @@ public class DeliverySummary extends Composite {
 				int index;
 				FromServerForm form;
 				User user;
+				StringLabel phone;
 
-				if ( Session.getGAS ().getBool ( "payments" ) == true ) {
-					user = ( User ) object;
-					index = retrieveUser ( user );
+				user = ( User ) object;
+				index = retrieveUser ( user );
 
-					if ( index != -1 ) {
-						form = ( FromServerForm ) main.getWidget ( index );
+				if ( index != -1 ) {
+					form = ( FromServerForm ) main.getWidget ( index );
+
+					if ( Session.getGAS ().getBool ( "payments" ) == true )
 						user.checkUserPaying ( form );
-					}
+
+					phone = ( StringLabel ) form.retriveInternalWidget ( "phone" );
+					phone.setValue ( user.getString ( "phone" ) );
+
+					phone = ( StringLabel ) form.retriveInternalWidget ( "mobile" );
+					phone.setValue ( user.getString ( "mobile" ) );
 				}
 			}
 
@@ -74,8 +81,10 @@ public class DeliverySummary extends Composite {
 
 	public void addOrder ( OrderUser uorder ) {
 		int index;
-		FromServerForm row;
+		final FromServerForm row;
 		User user;
+		CustomCaptionPanel frame;
+		StringLabel phone;
 		ProductsDeliveryTable products;
 
 		if ( numOrders == 0 )
@@ -85,7 +94,37 @@ public class DeliverySummary extends Composite {
 		if ( index != -1 )
 			return;
 
-		row = new FromServerForm ( uorder, FromServerForm.EDITABLE_UNDELETABLE );
+		user = ( User ) uorder.getObject ( "baseuser" );
+		row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
+
+		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				row.getObject ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+				row.savingObject ();
+				row.open ( false );
+			}
+		} );
+
+		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				row.getObject ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
+				row.savingObject ();
+				row.open ( false );
+			}
+		} );
+
+		frame = new CustomCaptionPanel ( "Informazioni Utente" );
+		row.add ( frame );
+
+		phone = new StringLabel ();
+		phone.setValue ( user.getString ( "phone" ) );
+		row.setExtraWidget ( "phone", phone );
+		frame.addPair ( "Telefono", phone );
+
+		phone = new StringLabel ();
+		phone.setValue ( user.getString ( "mobile" ) );
+		row.setExtraWidget ( "mobile", phone );
+		frame.addPair ( "Cellulare", phone );
 
 		products = new ProductsDeliveryTable ();
 		row.add ( row.getPersonalizedWidget ( "products", products ) );
@@ -96,13 +135,28 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
-		user = ( User ) uorder.getObject ( "baseuser" );
-
 		if ( Session.getGAS ().getBool ( "payments" ) == true )
 			user.checkUserPaying ( row );
 
+		setStatusIcon ( row, uorder );
 		main.insert ( row, getSortedIndex ( user ) );
 		numOrders += 1;
+	}
+
+	private void setStatusIcon ( FromServerForm form, OrderUser order ) {
+		int status;
+		IconsBar bar;
+
+		status = order.getInt ( "status" );
+		bar = form.getIconsBar ();
+
+		bar.delImage ( "images/notifications/order_shipped.png" );
+		bar.delImage ( "images/notifications/order_shipping.png" );
+
+		if ( status == OrderUser.COMPLETE_DELIVERY )
+			bar.addImage ( "images/notifications/order_shipped.png" );
+		else if ( status == OrderUser.PARTIAL_DELIVERY )
+			bar.addImage ( "images/notifications/order_shipping.png" );
 	}
 
 	public void modOrder ( OrderUser uorder ) {
@@ -114,6 +168,7 @@ public class DeliverySummary extends Composite {
 			form = ( FromServerForm ) main.getWidget ( index );
 			form.setObject ( uorder );
 			form.refreshContents ( null );
+			setStatusIcon ( form, uorder );
 		}
 	}
 

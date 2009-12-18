@@ -84,14 +84,13 @@ public class ButtonsBar extends Composite {
 
 	public void add ( Widget button, String help ) {
 		int col;
+		Label label;
 
 		col = main.getCellCount ( 0 );
 		main.setWidget ( 0, col, button );
 
 		if ( help != null ) {
-			Label label;
-
-			label = new Label ( help );
+			label = new HTML ( help );
 			main.setWidget ( 1, col, label );
 			label.setVisible ( false );
 		}
