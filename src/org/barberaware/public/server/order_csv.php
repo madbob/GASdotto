@@ -45,14 +45,20 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 }
 
 $products_names [] = "Totale";
+$products_names [] = "Pagato";
+$products_names [] = "Stato Consegna";
 $output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n\n";
 
 $products_sums = array ();
 $quantities_sums = array ();
+$delivery_sums = array ();
+$shipped_sums = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$products_sums [] = 0;
 	$quantities_sums [] = 0;
+	$delivery_sums [] = 0;
+	$shipped_sums [] = 0;
 }
 
 $request = new stdClass ();
@@ -71,6 +77,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$output .= sprintf ( "\"%s %s\";", $order_user->baseuser->surname, $order_user->baseuser->firstname );
 
 	$user_total = 0;
+	$shipped_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
@@ -78,27 +85,58 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$decimal = strlen ( strstr ( $prod_user->quantity, '.' ) );
-			if ( $decimal != 0 )
-				$q = number_format ( $prod_user->quantity, $decimal - 1, ',', '' );
-			else
-				$q = sprintf ( "%d", $prod_user->quantity );
+			$q = comma_format ( $prod_user->quantity );
+
+			if ( $prod_user->delivered != 0 ) {
+				$d = comma_format ( $prod_user->delivered );
+				$q .= ' ( ' . $d . ' )';
+			}
 
 			$output .= $q . ";";
 
 			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
-			$quantities_sums [ $a ] += $prod_user->quantity;
 			$user_total += $sum;
+
+			$sum = $prod_user->delivered * $prod_user->product->unit_price;
+			$shipped_sums [ $a ] += $sum;
+			$shipped_total += $sum;
+
+			$quantities_sums [ $a ] += $prod_user->quantity;
+			$delivery_sums [ $a ] += $prod_user->delivered;
+
 			$e++;
 		}
 		else
 			$output .= sprintf ( ";" );
 	}
 
-	$output .= format_price ( round ( $user_total, 2 ), false ) . "\n";
+	$output .= format_price ( round ( $user_total, 2 ), false ) . ';';
+	$output .= format_price ( round ( $shipped_total, 2 ), false ) . ';';
+
+	if ( $order_user->status == 1 )
+		$output .= 'Parzialmente Consegnato';
+	else if ( $order_user->status == 2 )
+		$output .= 'Consegnato';
+
+	$output .= "\n";
 }
 
+$output .= "\n";
+
+$output .= "Quantita' Totali";
+for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
+	$qs = $quantities_sums [ $i ];
+	$q = comma_format ( $qs );
+
+	$ds = $delivery_sums [ $i ];
+	if ( $ds != 0 ) {
+		$d = comma_format ( $ds );
+		$q .= ' ( ' . $d . ' )';
+	}
+
+	$output .= ";" . $q;
+}
 $output .= "\n";
 
 $gran_total = 0;
@@ -111,20 +149,27 @@ foreach ( $products_sums as $ps ) {
 }
 $output .= ";" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
 
-$output .= "Quantita' Totali";
-foreach ( $quantities_sums as $qs ) {
-	$decimal = strlen ( strstr ( $qs, '.' ) );
-	if ( $decimal != 0 )
-		$q = number_format ( $qs, $decimal - 1, ',', '' );
-	else
-		$q = sprintf ( "%d", $qs );
-
-	$output .= ";" . $q;
+$gran_total = 0;
+$output .= "Totale Pagato";
+foreach ( $shipped_sums as $ps ) {
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$output .= ";" . $p;
+	$gran_total += $r;
 }
+$output .= ";;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
 echo $output;
+
+function comma_format ( $a ) {
+	$decimal = strlen ( strstr ( $a, '.' ) );
+	if ( $decimal != 0 )
+		return number_format ( $a, $decimal - 1, ',', '' );
+	else
+		return sprintf ( "%d", $a );
+}
 
 function sort_product_by_name ( $first, $second ) {
 	return strcmp ( $first->getAttribute ( "name" )->value, $second->getAttribute ( "name" )->value );

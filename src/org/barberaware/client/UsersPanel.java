@@ -104,6 +104,14 @@ public class UsersPanel extends GenericPanel {
 
 					ret = doEditableRow ( new User () );
 					asyncLoad ( ret );
+
+					/*
+						Il controllo sulla password settata lo effettuo solo per i nuovi
+						utenti, permettendo dunque volontariamente di settare password vuote
+						agli utenti esistenti
+					*/
+					ret.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
+
 					return ret;
 				}
 
@@ -181,8 +189,6 @@ public class UsersPanel extends GenericPanel {
 					frame.addPair ( "Ruolo", form.getPersonalizedWidget ( "privileges", privileges ) );
 
 					frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
-					form.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
-
 					frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 				}
 
