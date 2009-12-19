@@ -281,12 +281,16 @@ public class UsersPanel extends GenericPanel {
 
 		bar.delImage ( "images/notifications/user_responsable.png" );
 		bar.delImage ( "images/notifications/user_admin.png" );
+		bar.delImage ( "images/notifications/user_leaved.png" );
 
 		if ( privileges == User.USER_RESPONSABLE ) {
 			bar.addImage ( "images/notifications/user_responsable.png" );
 		}
 		else if ( privileges == User.USER_ADMIN ) {
 			bar.addImage ( "images/notifications/user_admin.png" );
+		}
+		else if ( privileges == User.USER_LEAVED ) {
+			bar.addImage ( "images/notifications/user_leaved.png" );
 		}
 	}
 

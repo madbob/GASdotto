@@ -106,7 +106,9 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 	array_push ( $header, $name . "<br />(" . $price . $symbol . ")" );
 }
 
-array_push ( $header, 'Totale per Utente' );
+array_push ( $header, 'Totale' );
+array_push ( $header, 'Pagato' );
+array_push ( $header, 'Stato Consegna' );
 
 /*
 	Init PDF
@@ -137,8 +139,16 @@ $pdf->setLanguageArray ( $l );
 $data = array ();
 
 $products_sums = array ();
-for ( $i = 0; $i < count ( $products ); $i++ )
-    $products_sums [] = 0;
+$quantities_sums = array ();
+$delivery_sums = array ();
+$shipped_sums = array ();
+
+for ( $i = 0; $i < count ( $products ); $i++ ) {
+	$products_sums [] = 0;
+	$quantities_sums [] = 0;
+	$delivery_sums [] = 0;
+	$shipped_sums [] = 0;
+}
 
 $request = new stdClass ();
 $request->baseorder = $id;
@@ -157,6 +167,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$row [] = sprintf ( "%s", $order_user->baseuser->surname );
 
 	$user_total = 0;
+	$shipped_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
@@ -164,38 +175,80 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$decimal = strlen ( strstr ( $prod_user->quantity, '.' ) );
-			if ( $decimal != 0 )
-				$row [] = number_format ( $prod_user->quantity, $decimal - 1, ',', '' );
-			else
-				$row [] = sprintf ( "%d", $prod_user->quantity );
+			$q = comma_format ( $prod_user->quantity );
+
+			if ( $prod_user->delivered != 0 ) {
+				$d = comma_format ( $prod_user->delivered );
+				$q .= ' ( ' . $d . ' )';
+			}
+
+			$row [] = $q;
 
 			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
+
+			$sum = $prod_user->delivered * $prod_user->product->unit_price;
+			$shipped_sums [ $a ] += $sum;
+			$shipped_total += $sum;
+
+			$quantities_sums [ $a ] += $prod_user->quantity;
+			$delivery_sums [ $a ] += $prod_user->delivered;
+
 			$e++;
 		}
 		else
 			$row [] = "";
 	}
 
-	$row [] = format_price ( $user_total );
+	$row [] = format_price ( round ( $user_total, 2 ), false );
+	$row [] = format_price ( round ( $shipped_total, 2 ), false );
+
+	if ( $order_user->status == 1 )
+		$row [] = 'Parzialmente Consegnato';
+	else if ( $order_user->status == 2 )
+		$row [] = 'Consegnato';
+	else
+		$row [] = "";
 
 	$data [] = $row;
 }
 
-$gran_total = 0;
-$row = array ();
-$row [] = "Totale per Prodotto";
+$row [] = "Quantita' Totali";
+for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
+	$qs = $quantities_sums [ $i ];
+	$q = comma_format ( $qs );
 
-for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
-	$p = $products_sums [ $i ];
-	$row [] = format_price ( $p );
-	$gran_total += $p;
+	$ds = $delivery_sums [ $i ];
+	if ( $ds != 0 ) {
+		$d = comma_format ( $ds );
+		$q .= ' ( ' . $d . ' )';
+	}
+
+	$row [] = $q;
 }
+$data [] = $row;
 
-$row [] = format_price ( $gran_total );
+$gran_total = 0;
+$row [] = "Totale Prezzo";
+foreach ( $products_sums as $ps ) {
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$row [] = $p;
+	$gran_total += $r;
+}
+$row [] = format_price ( round ( $gran_total, 2 ), false );
+$data [] = $row;
 
+$gran_total = 0;
+$row [] = "Totale Pagato";
+foreach ( $shipped_sums as $ps ) {
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$row [] = $p;
+	$gran_total += $r;
+}
+$row [] = format_price ( round ( $gran_total, 2 ), false ) . "\n";
 $data [] = $row;
 
 /*
@@ -204,21 +257,5 @@ $data [] = $row;
 
 $pdf->ColoredTable ( $header, $data );
 $pdf->Output ( 'consegne_' . $supplier_name . '_' . $shipping_date . '.pdf', 'I' );
-
-/*
-	Support callbacks
-*/
-
-function sort_product_by_name ( $first, $second ) {
-	return strcmp ( $first->getAttribute ( "name" )->value, $second->getAttribute ( "name" )->value );
-}
-
-function sort_product_user_by_name ( $first, $second ) {
-	return strcmp ( $first->product->name, $second->product->name );
-}
-
-function sort_orders_by_user ( $first, $second ) {
-	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
-}
 
 ?>

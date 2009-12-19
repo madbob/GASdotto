@@ -165,6 +165,28 @@ function connect_to_the_database () {
 	}
 }
 
+/****************************************************************** formatting */
+
+function comma_format ( $a ) {
+	$decimal = strlen ( strstr ( $a, '.' ) );
+	if ( $decimal != 0 )
+		return number_format ( $a, $decimal - 1, ',', '' );
+	else
+		return sprintf ( "%d", $a );
+}
+
+function sort_product_by_name ( $first, $second ) {
+	return strcmp ( $first->getAttribute ( "name" )->value, $second->getAttribute ( "name" )->value );
+}
+
+function sort_product_user_by_name ( $first, $second ) {
+	return strcmp ( $first->product->name, $second->product->name );
+}
+
+function sort_orders_by_user ( $first, $second ) {
+	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
+}
+
 /****************************************************************** authentication */
 
 function parse_session_data () {
