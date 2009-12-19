@@ -13,7 +13,7 @@ presso i membri del gruppo, i quali potranno svolgere le proprie ordinazioni su 
 semplificare la vita dei responsabili.
 Per maggiori informazioni si consulti il sito http://gasdotto.barberaware.org
 
-------------------------------------------------------------------------------------[Requisiti]
+----------------------------------------------------------------------------------------[Requisiti]
 
 GASdotto e' strutturato come programma client/server: il client e' implementato in Java e
 destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
@@ -32,20 +32,23 @@ Il database in cui verranno messi i dati puo' essere selezionato tra:
 PostgreSQL		http://www.postgresql.org/			testato su versione 8.3.7
 MySQL			http://www.mysql.com				testato su versione 5.0.81
 
-------------------------------------------------------------------------------------[Compilazione]
+-------------------------------------------------------------------------------------[Compilazione]
 
-I seguenti passaggi sono richiesti per l'installazione dai sorgenti reperibili sul repository SVN
+I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository SVN
 raggiungibile con
 svn checkout svn://svn.barberaware.org/svnroot/gasdotto
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH
 - eseguire ./GASdotto-compile
-- esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione al
-server web
-- accertarsi che la cartella www/org.barberaware.GASdotto/uploads abbia permessi di scrittura per
-il server web, in modo che non si riscontrino problemi in caso di caricamento di nuovi contenuti
-allegati
+
+Dopodiche' si puo' procedere all'installazione vera e propria:
+
+- esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione oppure
+rinvenuta nel pacchetto binario sul server web
+- accertarsi che il file www/org.barberaware.GASdotto/server/config.php abbia permessi di
+scrittura per il server web, per permettere l'esecuzione della procedura guidata di installazione
+ed il salvataggio dei parametri
 - creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
 nuovo utente creato ad-hoc
 - accedere via browser alla prima pagina dell'applicazione, per avviare la procedura di
