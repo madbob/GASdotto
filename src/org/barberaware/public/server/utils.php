@@ -198,6 +198,18 @@ function get_product_name ( $products, $index ) {
 	return ( $prod->getAttribute ( "name" )->value ) . $code;
 }
 
+function get_product_quantity_stocks ( $products, $index, $quantity ) {
+	if ( $quantity > 0 ) {
+		$prod = $products [ $index ];
+		$stock = $prod->getAttribute ( "stock_size" )->value;
+
+		if ( $stock != 0 )
+			return ( comma_format ( round ( $quantity, 2 ), false ) ) . ' (' . ( ceil ( $quantity / $stock ) ) . ' stock da ' . $stock . ')';
+	}
+
+	return comma_format ( round ( $quantity, 2 ), false );
+}
+
 /****************************************************************** authentication */
 
 function parse_session_data () {

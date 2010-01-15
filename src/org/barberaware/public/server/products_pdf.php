@@ -182,7 +182,7 @@ $data = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$name = get_product_name ( $products, $i );
-	$q = comma_format ( round ( $quantities_sums [ $i ], 2 ), false );
+	$q = get_product_quantity_stocks ( $products, $i, $quantities_sums [ $i ] );
 	$p = format_price ( round ( $products_sums [ $i ], 2 ), false );
 	$s = format_price ( round ( $shipping_sum [ $i ], 2 ), false );
 	$row = array ( $name, $q, $p, $s );
