@@ -155,7 +155,7 @@ public class DeliverySummary extends Composite {
 			user.checkUserPaying ( row );
 
 		setStatusIcon ( row, uorder );
-		main.insert ( row, getSortedIndex ( user ) );
+		main.insert ( row, getSortedIndex ( uorder, user ) );
 		numOrders += 1;
 
 		if ( uorder.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY )
@@ -196,22 +196,34 @@ public class DeliverySummary extends Composite {
 		}
 	}
 
-	private int getSortedIndex ( User to_place ) {
+	private int getSortedIndex ( OrderUser order, User to_place ) {
 		int i;
+		int status_iter;
+		int status_to_place;
 		FromServerForm row;
 		FromServer u_iter;
+		FromServer o_iter;
 		String name_iter;
 		String name_to_place;
 
 		name_to_place = to_place.getString ( "name" );
+		status_to_place = order.getInt ( "status" );
 
 		for ( i = 0; i < main.getWidgetCount (); i++ ) {
 			row = ( FromServerForm ) main.getWidget ( i );
-			u_iter = row.getObject ().getObject ( "baseuser" );
-			name_iter = u_iter.getString ( "name" );
+			o_iter = row.getObject ();
+			status_iter = o_iter.getInt ( "status" );
 
-			if ( name_iter.compareTo ( name_to_place ) > 0 )
+			if ( status_iter > status_to_place ) {
 				return i;
+			}
+			else if ( status_iter == status_to_place ) {
+				u_iter = o_iter.getObject ( "baseuser" );
+				name_iter = u_iter.getString ( "name" );
+
+				if ( name_iter.compareTo ( name_to_place ) > 0 )
+					return i;
+			}
 		}
 
 		return i;
