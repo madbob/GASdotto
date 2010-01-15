@@ -87,6 +87,7 @@ public class Utils {
 		emblemsCache.put ( "delivery", info );
 
 		info = new EmblemsInfo ();
+		info.addSymbol ( "iamreference", "images/notifications/user_responsable.png" );
 		OpenedOrdersList.configEmblem ( info );
 		PastOrdersList.configEmblem ( info );
 		emblemsCache.put ( "supplier", info );

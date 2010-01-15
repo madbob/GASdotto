@@ -243,6 +243,20 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
+	$query = sprintf ( "CREATE TABLE Supplier_carriers (
+					id serial,
+					parent int references Supplier ( id ) on delete cascade,
+					target int references Users ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella supplier_carriers" );
+
+	/*
+		=======================================================================================
+	*/
+
 	$query = sprintf ( "CREATE TABLE Supplier_files (
 					id serial,
 					parent int references Supplier ( id ) on delete cascade,

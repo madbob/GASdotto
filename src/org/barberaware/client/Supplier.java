@@ -36,6 +36,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "paying_mode", FromServer.LONGSTRING );
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "references", FromServer.ARRAY, User.class );
+		addAttribute ( "carriers", FromServer.ARRAY, User.class );
 		addAttribute ( "files", FromServer.ARRAY, CustomFile.class );
 		addAttribute ( "orders_months", FromServer.STRING );
 
@@ -53,6 +54,30 @@ public class Supplier extends FromServer {
 
 		if ( privileges == User.USER_RESPONSABLE || privileges == User.USER_ADMIN ) {
 			references = getArray ( "references" );
+			if ( references == null )
+				return false;
+
+			for ( int i = 0; i < references.size (); i++ ) {
+				ref = ( FromServer ) references.get ( i );
+				if ( ref.equals ( myself ) )
+					return true;
+			}
+		}
+
+		return false;
+	}
+
+	public boolean iAmCarrier () {
+		User myself;
+		int privileges;
+		ArrayList references;
+		FromServer ref;
+
+		myself = Session.getUser ();
+		privileges = myself.getInt ( "privileges" );
+
+		if ( privileges == User.USER_RESPONSABLE || privileges == User.USER_ADMIN ) {
+			references = getArray ( "carriers" );
 			if ( references == null )
 				return false;
 

@@ -89,7 +89,7 @@ public class DeliveryPanel extends GenericPanel {
 				Supplier supp;
 
 				supp = ( Supplier ) object.getObject ( "supplier" );
-				if ( supp.iAmReference () == false )
+				if ( supp.iAmReference () == false && supp.iAmCarrier () == false )
 					return;
 
 				if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )

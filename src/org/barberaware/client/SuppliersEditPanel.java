@@ -103,8 +103,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		} );
 		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
 
-		frame.addPair ( "Mesi Suggeriti per Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
-
 		/*
 			Di default, l'utente che crea il fornitore ne e' anche referente.
 			Il settaggio viene settato dopo l'immissione del widget nel form per
@@ -113,6 +111,17 @@ public class SuppliersEditPanel extends GenericPanel {
 		*/
 		if ( supp.isValid () == false )
 			references.addElement ( Session.getUser () );
+
+		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
+			public boolean check ( FromServer obj, String text ) {
+				int priv;
+				priv = obj.getInt ( "privileges" );
+				return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
+			}
+		} );
+		frame.addPair ( "Addetti Consegne", ver.getPersonalizedWidget ( "carriers", references ) );
+
+		frame.addPair ( "Mesi Suggeriti per Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );
@@ -185,6 +194,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		ver = new FromServerForm ( supplier );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
+		ver.emblems ().activate ( "iamreference" );
 
 		tabs = new TabPanel ();
 		tabs.setWidth ( "100%" );

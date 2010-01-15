@@ -34,6 +34,7 @@ class Supplier extends FromServer {
 		$this->addAttribute ( "paying_mode", "STRING" );
 		$this->addAttribute ( "description", "STRING" );
 		$this->addAttribute ( "references", "ARRAY::User" );
+		$this->addAttribute ( "carriers", "ARRAY::User" );
 		$this->addAttribute ( "files", "ARRAY::CustomFile" );
 		$this->addAttribute ( "orders_months", "STRING" );
 
