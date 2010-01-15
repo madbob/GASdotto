@@ -98,4 +98,13 @@ public class LinksDialog extends Composite {
 
 		links.insert ( button, links.getWidgetCount () - 1 );
 	}
+
+	public void emptyBox () {
+		int count;
+
+		count = links.getWidgetCount ();
+
+		for ( int i = 0; i < count - 1; i++ )
+			links.remove ( 0 );
+	}
 }

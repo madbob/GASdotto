@@ -23,12 +23,13 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class DateSelector extends Composite implements DateWidget {
-	private TextBox			main;
-	private CalendarWidget		cal;
-	private Date			currentDate;
-	private DialogBox		dialog;
-	private boolean			opened;
+public class DateSelector extends Composite implements DateWidget, SourcesChangeEvents {
+	private TextBox				main;
+	private CalendarWidget			cal;
+	private Date				currentDate;
+	private DialogBox			dialog;
+	private boolean				opened;
+	private ChangeListenerCollection	changeCallbacks;
 
 	public DateSelector () {
 		opened = false;
@@ -81,6 +82,9 @@ public class DateSelector extends Composite implements DateWidget {
 	private void syncDate ( Date date ) {
 		currentDate = date;
 		main.setText ( Utils.printableDate ( date ) );
+
+		if ( changeCallbacks != null )
+			changeCallbacks.fireChange ( this );
 	}
 
 	public void setEnabled ( boolean enabled ) {
@@ -94,6 +98,19 @@ public class DateSelector extends Composite implements DateWidget {
 
 	public void yearSelectable ( boolean selectable ) {
 		cal.yearSelectable ( selectable );
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ChangeListenerCollection ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 
 	/****************************************************************** DateWidget */

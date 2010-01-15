@@ -107,6 +107,7 @@ public class ServerHook {
 		try {
 			builder.setTimeoutMillis ( 15000 );
 			builder.sendRequest ( contents, callback );
+			engageLoadingBar ();
 		}
 		catch ( RequestException e ) {
       			Utils.showNotification ( "Fallito invio richiesta: " + e.getMessage () );

@@ -374,7 +374,6 @@ $pdf->SetHeaderMargin ( 5 );
 $pdf->SetFooterMargin ( 10 );
 $pdf->SetAutoPageBreak ( true, 25 );
 $pdf->setImageScale ( 1 );
-$pdf->setLanguageArray ( $l );
 $pdf->ColoredTable ( $header, $data );
 $pdf->Output ( 'consegne_' . $supplier_name . '_' . $shipping_date . '.pdf', 'I' );
 
