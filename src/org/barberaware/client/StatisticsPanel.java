@@ -22,6 +22,8 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.visualization.client.*;
+import com.google.gwt.visualization.client.visualizations.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -30,6 +32,10 @@ public class StatisticsPanel extends GenericPanel {
 	private LinksDialog		files;
 	private DateSelector		startDate;
 	private DateSelector		endDate;
+	private PieChart		graphByOrders;
+	private PieChart		graphByPrices;
+	private PieChart.Options	graphByOrdersOptions;
+	private PieChart.Options	graphByPricesOptions;
 
 	public StatisticsPanel () {
 		super ();
@@ -37,14 +43,18 @@ public class StatisticsPanel extends GenericPanel {
 		Date now;
 		Date past;
 		ChangeListener listener;
+		HorizontalPanel hor;
 		CaptionPanel frame;
 		FlexTable input;
 
 		main = new VerticalPanel ();
 		addTop ( main );
 
+		hor = new HorizontalPanel ();
+		main.add ( hor );
+
 		frame = new CaptionPanel ( "Report per Utenti/Fornitori" );
-		main.add ( frame );
+		hor.add ( frame );
 
 		input = new FlexTable ();
 		frame.setContentWidget ( input );
@@ -75,16 +85,110 @@ public class StatisticsPanel extends GenericPanel {
 		files = new LinksDialog ( "Scarica Statistiche" );
 		input.setWidget ( 3, 0, files );
 		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
+
+		graphByOrders = new PieChart ();
+		hor.add ( graphByOrders );
+		graphByOrdersOptions = PieChart.Options.create ();
+		graphByOrdersOptions.setWidth ( 300 );
+		graphByOrdersOptions.setHeight ( 240 );
+		graphByOrdersOptions.set3D ( true );
+		graphByOrdersOptions.setLegend ( LegendPosition.NONE );
+		graphByOrdersOptions.setTitle ( "Numero Ordini dagli Utenti" );
+
+		graphByPrices = new PieChart ();
+		hor.add ( graphByPrices );
+		graphByPricesOptions = PieChart.Options.create ();
+		graphByPricesOptions.setWidth ( 300 );
+		graphByPricesOptions.setHeight ( 240 );
+		graphByPricesOptions.set3D ( true );
+		graphByPricesOptions.setLegend ( LegendPosition.NONE );
+		graphByPricesOptions.setTitle ( "Somme Totali Pagate (€)" );
+	}
+
+	private void populateGraph ( JSONArray array ) {
+		int num_items;
+		String supplier_name;
+		JSONArray row;
+		JSONString num;
+		DataTable by_orders;
+		DataTable by_price;
+
+		num_items = array.size ();
+
+		by_orders = DataTable.create ();
+		by_orders.addColumn ( AbstractDataTable.ColumnType.STRING, "Fornitore" );
+		by_orders.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Ordini ricevuti" );
+		by_orders.addRows ( num_items );
+
+		by_price = DataTable.create ();
+		by_price.addColumn ( AbstractDataTable.ColumnType.STRING, "Fornitore" );
+		by_price.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Somma totale (€)" );
+		by_price.addRows ( num_items );
+
+		for ( int i = 0; i < num_items; i++ ) {
+			row = array.get ( i ).isArray ();
+
+			supplier_name = row.get ( 0 ).isString ().stringValue ();
+
+			by_orders.setValue ( i, 0, supplier_name );
+			by_price.setValue ( i, 0, supplier_name );
+
+			num = row.get ( 1 ).isString ();
+			if ( num != null )
+				by_orders.setValue ( i, 1, Double.parseDouble ( num.stringValue () ) );
+
+			num = row.get ( 2 ).isString ();
+			if ( num != null )
+				by_price.setValue ( i, 1, Double.parseDouble ( num.stringValue () ) );
+		}
+
+		graphByOrders.draw ( by_orders, graphByOrdersOptions );
+		graphByPrices.draw ( by_price, graphByPricesOptions );
+	}
+
+	private String linkTemplate ( String document_type ) {
+		return "graph_data.php?document=" + document_type + "&graph=0&startdate=" + Utils.encodeDate ( startDate.getValue () ) + "&enddate=" + Utils.encodeDate ( endDate.getValue () );
 	}
 
 	private void updateLinks () {
 		files.emptyBox ();
-		files.addLink ( "CVS", "graph_data.php?document=csv&amp;graph=0&amp;startdate=" + Utils.encodeDate ( startDate.getValue () ) + "&amp;enddate=" + Utils.encodeDate ( endDate.getValue () ) );
-		files.addLink ( "PDF", "graph_data.php?document=pdf&amp;graph=0&amp;startdate=" + Utils.encodeDate ( startDate.getValue () ) + "&amp;enddate=" + Utils.encodeDate ( endDate.getValue () ) );
+		files.addLink ( "CVS", linkTemplate ( "csv" ) );
+		files.addLink ( "PDF", linkTemplate ( "pdf" ) );
 	}
 
 	private void performUpdate () {
+		/**
+			TODO	Fare controllo che data inizio sia antecedente data fine
+		*/
+
 		updateLinks ();
+
+		Utils.getServer ().rawGet ( linkTemplate ( "visual" ), new RequestCallback () {
+			public void onError ( Request request, Throwable exception ) {
+				if ( exception instanceof RequestTimeoutException )
+					Utils.showNotification ( "Timeout sulla connessione: accertarsi che il server sia raggiungibile" );
+				else
+					Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+
+				Utils.getServer ().dataArrived ();
+			}
+
+			public void onResponseReceived ( Request request, Response response ) {
+				JSONValue jsonObject;
+				JSONObject obj;
+
+				try {
+					jsonObject = JSONParser.parse ( response.getText () );
+					obj = jsonObject.isObject ();
+					populateGraph ( obj.get ( "data" ).isArray () );
+				}
+				catch ( com.google.gwt.json.client.JSONException e ) {
+					Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+				}
+
+				Utils.getServer ().dataArrived ();
+			}
+		} );
 	}
 
 	/****************************************************************** GenericPanel */
@@ -102,6 +206,6 @@ public class StatisticsPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		updateLinks ();
+		performUpdate ();
 	}
 }

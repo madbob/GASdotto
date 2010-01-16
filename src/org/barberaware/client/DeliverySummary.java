@@ -114,10 +114,13 @@ public class DeliverySummary extends Composite {
 
 		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				row.getObject ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+				OrderUser uorder;
+
+				uorder = ( OrderUser ) row.getObject ();
+				uorder.setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+				main.insert ( row, getSortedIndex ( uorder, ( User ) uorder.getObject ( "baseuser" ) ) );
 				row.savingObject ();
 				row.open ( false );
-				row.setVisible ( false );
 			}
 		} );
 
@@ -157,9 +160,6 @@ public class DeliverySummary extends Composite {
 		setStatusIcon ( row, uorder );
 		main.insert ( row, getSortedIndex ( uorder, user ) );
 		numOrders += 1;
-
-		if ( uorder.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY )
-			row.setVisible ( false );
 
 		uorder.addRelatedInfo ( "DeliverySummary", row );
 		user.addRelatedInfo ( "DeliverySummary" + identifier, row );
@@ -232,19 +232,5 @@ public class DeliverySummary extends Composite {
 	private void cleanUp () {
 		if ( numOrders == 0 )
 			main.add ( new Label ( "Non sono stati avanzati ordini" ) );
-	}
-
-	public void viewShippedOrders ( boolean show ) {
-		int i;
-		FromServer ord;
-		FromServerForm row;
-
-		for ( i = 0; i < main.getWidgetCount (); i++ ) {
-			row = ( FromServerForm ) main.getWidget ( i );
-			ord = row.getObject ();
-
-			if ( ord.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY )
-				row.setVisible ( show );
-		}
 	}
 }

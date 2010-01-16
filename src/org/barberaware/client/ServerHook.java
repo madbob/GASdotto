@@ -99,10 +99,10 @@ public class ServerHook {
 		return GWT.getModuleBaseURL () + "server/";
 	}
 
-	public void rawPost ( String script, String contents, RequestCallback callback ) {
+	private void rawSendReq ( RequestBuilder.Method method, String script, String contents, RequestCallback callback ) {
 		RequestBuilder builder;
 
-		builder = new RequestBuilder ( RequestBuilder.POST, getURL () + script );
+		builder = new RequestBuilder ( method, getURL () + script );
 
 		try {
 			builder.setTimeoutMillis ( 15000 );
@@ -112,6 +112,14 @@ public class ServerHook {
 		catch ( RequestException e ) {
       			Utils.showNotification ( "Fallito invio richiesta: " + e.getMessage () );
 		}
+	}
+
+	public void rawPost ( String script, String contents, RequestCallback callback ) {
+		rawSendReq ( RequestBuilder.POST, script, contents, callback );
+	}
+
+	public void rawGet ( String script, RequestCallback callback ) {
+		rawSendReq ( RequestBuilder.GET, script, "", callback );
 	}
 
 	public boolean serverGet ( ObjectRequest request, ServerResponse handler ) {

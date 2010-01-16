@@ -19,8 +19,9 @@ GASdotto e' strutturato come programma client/server: il client e' implementato 
 destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
 
 Per compilare il tutto e' necessario:
-Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/	testato su versione 1.5.3
-GWT-Log			http://code.google.com/p/gwt-log/		testato su versione 2.5.2
+Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/				v1.5.3
+GWT-Log			http://code.google.com/p/gwt-log/					v2.5.2
+GWT-Visualization	http://code.google.com/apis/visualization/interactive_charts.html	v1.0.1
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
 PHP			http://php.net/					testato su versione 5.2.6

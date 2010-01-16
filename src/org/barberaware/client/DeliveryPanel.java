@@ -178,7 +178,6 @@ public class DeliveryPanel extends GenericPanel {
 
 	private FromServerForm doOrderRow ( Order order ) {
 		CaptionPanel frame;
-		CheckBox show_closed_orders;
 		HorizontalPanel downloads;
 		final FromServerForm ver;
 		DeliverySummary summary;
@@ -231,19 +230,6 @@ public class DeliveryPanel extends GenericPanel {
 		downloads.add ( files );
 
 		frame.add ( downloads );
-
-		show_closed_orders = new CheckBox ( "Mostra Ordini Consegnati" );
-		show_closed_orders.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				DeliverySummary summary;
-				CheckBox myself;
-
-				myself = ( CheckBox ) sender;
-				summary = ( DeliverySummary ) ver.retriveInternalWidget ( "list" );
-				summary.viewShippedOrders ( myself.isChecked () );
-			}
-		} );
-		ver.add ( show_closed_orders );
 
 		ver.add ( new HTML ( "<hr>" ) );
 

@@ -22,6 +22,8 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class GASdotto implements EntryPoint {
 	public void onModuleLoad () {
 		Utils.initEnvironment ();

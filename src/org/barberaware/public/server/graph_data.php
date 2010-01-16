@@ -80,19 +80,19 @@ if ( $perm != 1 && $perm != 2 )
 
 $document = $_GET [ 'document' ];
 if ( isset ( $document ) == false )
-	error_exit ( "Richiesta non specificata" );
+	error_exit ( "Richiesta non specificata, manca tipo documento" );
 
 $graph = $_GET [ 'graph' ];
 if ( isset ( $graph ) == false )
-	error_exit ( "Richiesta non specificata" );
+	error_exit ( "Richiesta non specificata, manca tipo statistiche" );
 
 $startdate = $_GET [ 'startdate' ];
 if ( isset ( $startdate ) == false )
-	error_exit ( "Richiesta non specificata" );
+	error_exit ( "Richiesta non specificata, manca data inizio" );
 
 $enddate = $_GET [ 'enddate' ];
 if ( isset ( $enddate ) == false )
-	error_exit ( "Richiesta non specificata" );
+	error_exit ( "Richiesta non specificata, manca data fine" );
 
 if ( $graph == 0 ) {
 	$query = sprintf ( "SELECT id, name FROM Supplier ORDER BY name DESC" );
@@ -159,7 +159,7 @@ if ( $graph == 0 ) {
 		header ( 'Content-Disposition: inline; filename="' . 'statistiche_utenti_fornitori.csv' . '";' );
 		echo $ret;
 	}
-	else {
+	else if ( $document == 'pdf' ) {
 		$header = array ();
 		$header [] = "";
 
@@ -239,6 +239,46 @@ if ( $graph == 0 ) {
 		$pdf->setImageScale ( 1 );
 		$pdf->ColoredTable ( $header, $data );
 		$pdf->Output ( 'statistiche_utenti_fornitori.pdf', 'I' );
+	}
+	else if ( $document == 'visual' ) {
+		$ret = new stdClass ();
+
+		for ( $i = 0; $i < count ( $rows_suppliers ); $i++ ) {
+			$query = sprintf ( "SELECT COUNT(OrderUser.id) FROM OrderUser, Orders
+						WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+							$rows_suppliers [ $i ] [ "id" ], $startdate, $enddate );
+			$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
+			$tot = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $query );
+			unset ( $returned );
+
+			$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity) FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
+						WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND OrderUser_products.parent = OrderUser.id AND ProductUser.id = OrderUser_products.target AND Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+							$rows_suppliers [ $i ] [ "id" ], $startdate, $enddate );
+			$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
+			$price = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $query );
+			unset ( $returned );
+
+			if ( count ( $price ) == 0 )
+				$p = 0;
+			else
+				$p = $price [ 0 ] [ 0 ];
+
+			if ( count ( $tot ) == 0 )
+				$t = 0;
+			else
+				$t = $tot [ 0 ] [ 0 ];
+
+			$array [] = array ( $rows_suppliers [ $i ] [ "name" ], $t, $p );
+
+			unset ( $tot );
+			unset ( $price );
+		}
+
+		$ret->data = $array;
+		$json = new Services_JSON ();
+		echo $json->encode ( $ret ) . "\n";
 	}
 }
 
