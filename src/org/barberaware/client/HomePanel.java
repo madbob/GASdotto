@@ -66,14 +66,17 @@ public class HomePanel extends GenericPanel {
 						tab = openedOrders;
 
 					if ( index != -1 ) {
-						Label total;
-						OrderUser uorder;
+						if ( object.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY ) {
+							tab.removeRow ( index );
+						}
+						else {
+							Label total;
 
-						uorder = ( OrderUser ) object;
-						total = new Label ();
-						fillTotalText ( total, uorder );
-						total.setStyleName ( "highlight-text" );
-						tab.setWidget ( index, 3, total );
+							total = new Label ();
+							fillTotalText ( total, ( OrderUser ) object );
+							total.setStyleName ( "highlight-text" );
+							tab.setWidget ( index, 3, total );
+						}
 					}
 				}
 			}
@@ -95,16 +98,21 @@ public class HomePanel extends GenericPanel {
 						tab = openedOrders;
 
 					if ( index != -1 ) {
-						OrderUser uorder;
-						Label total;
+						if ( object.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY ) {
+							tab.removeRow ( index );
+						}
+						else {
+							OrderUser uorder;
+							Label total;
 
-						uorder = ( OrderUser ) object;
-						total = ( Label ) tab.getWidget ( index, 3 );
+							uorder = ( OrderUser ) object;
+							total = ( Label ) tab.getWidget ( index, 3 );
 
-						if ( total != null )
-							fillTotalText ( total, uorder );
-						else
-							onReceive ( object );
+							if ( total != null )
+								fillTotalText ( total, uorder );
+							else
+								onReceive ( object );
+						}
 					}
 				}
 			}
