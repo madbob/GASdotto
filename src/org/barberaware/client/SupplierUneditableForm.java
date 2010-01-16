@@ -64,7 +64,7 @@ public class SupplierUneditableForm extends FromServerForm {
 
 		past_orders = new PastOrdersList ( supplier, this );
 		setExtraWidget ( "past_orders", past_orders );
-		frame = new CaptionPanel ( "Ordini effettuati" );
+		frame = new CaptionPanel ( "Ordini effettuati da me" );
 		add ( frame );
 		frame.add ( past_orders );
 

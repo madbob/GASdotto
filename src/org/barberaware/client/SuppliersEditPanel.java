@@ -69,6 +69,111 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		};
 
+		/**
+			TODO	Questa porzione e' stata brutalmente copiata da SuppliersPanel,
+				sarebbe opportuno unificare la funzione
+		*/
+		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				FromServerForm form;
+
+				if ( object.getInt ( "status" ) != Order.OPENED )
+					return;
+
+				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					OpenedOrdersList list;
+					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
+					list.addOrder ( ( Order ) object );
+				}
+			}
+
+			public void onModify ( FromServer object ) {
+				FromServerForm form;
+
+				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					OpenedOrdersList list;
+					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
+					list.modOrder ( ( Order ) object );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				FromServerForm form;
+
+				form = main.retrieveForm ( object.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					OpenedOrdersList list;
+					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
+					list.delOrder ( ( Order ) object );
+				}
+			}
+
+			protected String debugName () {
+				return "SuppliersEditPanel";
+			}
+		} );
+
+		/**
+			TODO	Questa porzione e' stata brutalmente copiata da SuppliersPanel,
+				sarebbe opportuno unificare la funzione
+		*/
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				FromServerForm form;
+				Order ord;
+
+				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+					return;
+
+				ord = ( Order ) object.getObject ( "baseorder" );
+				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					PastOrdersList list;
+
+					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+					list.addOrder ( ord );
+				}
+			}
+
+			public void onModify ( FromServer object ) {
+				FromServerForm form;
+				Order ord;
+
+				ord = ( Order ) object.getObject ( "baseorder" );
+				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					PastOrdersList list;
+					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+					list.modOrder ( ord );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				FromServerForm form;
+				Order ord;
+
+				ord = ( Order ) object.getObject ( "baseorder" );
+				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
+
+				if ( form != null ) {
+					PastOrdersList list;
+					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+					list.delOrder ( ord );
+				}
+			}
+
+			protected String debugName () {
+				return "SuppliersEditPanel";
+			}
+		} );
+
 		addTop ( main );
 
 		Utils.getServer ().testObjectReceive ( "Supplier" );
@@ -80,6 +185,8 @@ public class SuppliersEditPanel extends GenericPanel {
 		MultiSelector references;
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
+		OpenedOrdersList orders;
+		PastOrdersList past_orders;
 
 		vertical = new VerticalPanel ();
 
@@ -159,6 +266,18 @@ public class SuppliersEditPanel extends GenericPanel {
 		sframe.add ( ver.getWidget ( "paying_mode" ) );
 		hor.add ( sframe );
 		hor.setCellWidth ( sframe, "50%" );
+
+		sframe = new CaptionPanel ( "Ordini correntemente aperti" );
+		orders = new OpenedOrdersList ( supp, ver );
+		sframe.add ( orders );
+		ver.setExtraWidget ( "orders", orders );
+		vertical.add ( sframe );
+
+		sframe = new CaptionPanel ( "Ordini effettuati da me" );
+		past_orders = new PastOrdersList ( supp, ver );
+		sframe.add ( past_orders );
+		ver.setExtraWidget ( "past_orders", past_orders );
+		vertical.add ( sframe );
 
 		return vertical;
 	}
