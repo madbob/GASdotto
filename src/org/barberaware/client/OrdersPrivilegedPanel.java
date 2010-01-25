@@ -335,8 +335,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm form;
 
 		order = ( Order ) uorder.getObject ( "baseorder" );
-
 		index = retrieveOrderForm ( order );
+
 		if ( index != -1 ) {
 			form = ( FromServerForm ) getWidget ( index );
 
@@ -468,17 +468,21 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	private int retrieveOrderForm ( Order parent ) {
 		FromServerForm form;
-		OrderUser tmp_order;
+		OrderUser tmp_order_user;
+		Order tmp_order;
 
 		if ( hasOrders == false )
 			return -1;
 
 		for ( int i = 0; i < getWidgetCount (); i++ ) {
 			form = ( FromServerForm ) getWidget ( i );
-			tmp_order = ( OrderUser ) form.getObject ();
 
-			if ( parent.getLocalID () == tmp_order.getObject ( "baseorder" ).getLocalID () )
-				return i;
+			tmp_order_user = ( OrderUser ) form.getObject ();
+			if ( tmp_order_user != null ) {
+				tmp_order = ( Order ) tmp_order_user.getObject ( "baseorder" );
+				if ( tmp_order != null && parent.getLocalID () == tmp_order.getLocalID () )
+					return i;
+			}
 		}
 
 		return -1;

@@ -311,9 +311,9 @@ body {
 	width:			100%;
 }
 
-.products-selection .description {
-	font-size:		15px;
-	padding-bottom:		20px;
+.products-selection .product-name {
+	cursor:			pointer;
+	cursor:			hand;
 }
 
 .bigger-text {

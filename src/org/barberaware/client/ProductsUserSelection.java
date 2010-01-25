@@ -25,6 +25,14 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class ProductsUserSelection extends Composite implements FromServerArray {
 	private FlexTable		main;
+
+	/*
+		Il dialog per le descrizioni dei prodotti viene creato la
+		prima volta che viene richiesto
+	*/
+	private DialogBox		descDialog			= null;
+	private Label			descDialogText;
+
 	private float			total;
 	private PriceViewer		totalLabel;
 
@@ -51,6 +59,55 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				addProductRow ( prod );
 			}
 		}
+
+		main.addTableListener ( new TableListener () {
+			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+				int total_rows;
+				ProductUserSelector selector;
+
+				total_rows = main.getRowCount ();
+				if ( row >= total_rows - 2 || cell != 0 )
+					return;
+
+				selector = ( ProductUserSelector ) main.getWidget ( row, 1 );
+				showProductDescriptionDialog ( ( Product ) selector.getValue ().getObject ( "product" ) );
+			}
+		} );
+	}
+
+	private void initDescriptionDialog () {
+		VerticalPanel pan;
+		Button but;
+
+		descDialog = new DialogBox ();
+
+		pan = new VerticalPanel ();
+		pan.setWidth ( "400px" );
+		descDialog.setWidget ( pan );
+
+		descDialogText = new Label ();
+		pan.add ( descDialogText );
+
+		but = new Button ( "OK", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				descDialog.hide ();
+			}
+		} );
+		pan.add ( but );
+	}
+
+	private void showProductDescriptionDialog ( Product product ) {
+		String desc;
+
+		if ( descDialog == null )
+			initDescriptionDialog ();
+
+		descDialog.setText ( product.getString ( "name" ) );
+		desc = product.getString ( "description" );
+		descDialogText.setText ( desc != "" ? desc : "Nessuna descrizione" );
+
+		descDialog.center ();
+		descDialog.show ();
 	}
 
 	private void addTotalRow () {
@@ -92,7 +149,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 			rows = main.getRowCount () - 2;
 
-			for ( a = 0; a < rows; a += 2 ) {
+			for ( a = 0; a < rows; a++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
 				if ( selector.getValue ().getObject ( "product" ).equals ( prod ) ) {
 					modProductRow ( a, prod );
@@ -109,7 +166,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				migliorato...
 		*/
 
-		for ( a = 0; a < original_rows; a += 2 ) {
+		for ( a = 0; a < original_rows; a++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
 			to_remove = true;
 
@@ -125,8 +182,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 			if ( to_remove ) {
 				main.removeRow ( a );
-				main.removeRow ( a + 1 );
-				a = a - 2;
+				a--;
 				original_rows--;
 			}
 		}
@@ -171,6 +227,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	private void addProductRow ( Product product ) {
 		int row;
 		String info_str;
+		Label pname;
 		FlexTable.FlexCellFormatter formatter;
 		ProductUserSelector sel;
 
@@ -179,7 +236,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		formatter = main.getFlexCellFormatter ();
 
-		main.setWidget ( row, 0, new Label ( product.getString ( "name" ) ) );
+		pname = new Label ( product.getString ( "name" ) );
+		pname.setStyleName ( "product-name" );
+		main.setWidget ( row, 0, pname );
 		formatter.setWidth ( row, 0, "20%" );
 
 		sel = new ProductUserSelector ( product );
@@ -200,16 +259,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		formatter.setWidth ( row, 2, "40%" );
 
 		formatter.setHorizontalAlignment ( row, 2, HasHorizontalAlignment.ALIGN_RIGHT );
-
-		/*
-			Informazioni aggiuntive
-		*/
-
-		main.insertRow ( row + 1 );
-		info_str = product.getString ( "description" );
-		main.setWidget ( row + 1, 0, new Label ( info_str ) );
-		formatter.setColSpan ( row + 1, 0, 3 );
-		formatter.setStyleName ( row + 1, 0, "description" );
 	}
 
 	private int getProductAddingPosition ( Product prod ) {
@@ -221,7 +270,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		name = prod.getString ( "name" );
 		tot = main.getRowCount () - 2;
 
-		for ( i = 0; i < tot; i += 2 ) {
+		for ( i = 0; i < tot; i++ ) {
 			existing_name = ( Label ) main.getWidget ( i, 0 );
 			if ( name.compareTo ( existing_name.getText () ) <= 0 )
 				break;
@@ -269,7 +318,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		rows = main.getRowCount () - 2;
 		price = 0;
 
-		for ( int i = 0; i < rows; i += 2 ) {
+		for ( int i = 0; i < rows; i++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 			price += selector.getTotalPrice ();
 		}
@@ -297,7 +346,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		if ( elements == null ) {
 			rows = main.getRowCount () - 2;
 
-			for ( int i = 0; i < rows; i += 2 ) {
+			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 				selector.clear ();
 			}
@@ -313,7 +362,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 			rows = main.getRowCount () - 2;
 
-			for ( int i = 0; i < rows; i += 2 ) {
+			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 
 				sel_prod = ( Product ) selector.getValue ().getObject ( "product" );
@@ -366,7 +415,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		list = null;
 		num_rows = main.getRowCount () - 2;
 
-		for ( int i = 0; i < num_rows; i += 2 ) {
+		for ( int i = 0; i < num_rows; i++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 			prod = ( ProductUser ) selector.getValue ();
 

@@ -44,9 +44,14 @@ public class DeliveryPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int index;
+				Order ord;
 				FromServerForm form;
 
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
+				ord = ( Order ) object.getObject ( "baseorder" );
+				if ( ord == null )
+					return;
+
+				index = retrieveOrderForm ( ord );
 				if ( index != -1 ) {
 					form = ( FromServerForm ) getWidget ( index );
 					syncUserOrder ( form, ( OrderUser ) object, 0 );
