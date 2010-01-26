@@ -375,7 +375,7 @@ public class OrdersEditPanel extends GenericPanel {
 				for ( int i = 0; i < num_orders; i++ ) {
 					order = ( Order ) orders.get ( i );
 
-					if ( order.getObject ( "supplier" ).equals ( prod_supplier ) ) {
+					if ( order.getInt ( "status" ) == Order.OPENED && order.getObject ( "supplier" ).equals ( prod_supplier ) ) {
 						products = order.getArray ( "products" );
 						num_products = products.size ();
 						already_has = false;

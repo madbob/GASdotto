@@ -40,7 +40,7 @@ class DeliveryReport extends TCPDF {
 			else
 				$end = $end + 10;
 
-			$html = '<table cellspacing="0" cellpadding="1" border="1"><tr>';
+			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . ( 10 * ( $end - $offset ) ) . '%"><tr>';
 			for ( $i = $offset; $i < $end; $i++ )
 				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
 			$html .= '</tr>';
@@ -214,6 +214,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$data [] = $row;
 }
 
+$row = array ();
 $row [] = "Quantita' Totali";
 for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 	$qs = $quantities_sums [ $i ];
@@ -230,6 +231,7 @@ for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 $data [] = $row;
 
 $gran_total = 0;
+$row = array ();
 $row [] = "Totale Prezzo";
 foreach ( $products_sums as $ps ) {
 	$r = round ( $ps, 2 );
@@ -241,6 +243,7 @@ $row [] = format_price ( round ( $gran_total, 2 ), false );
 $data [] = $row;
 
 $gran_total = 0;
+$row = array ();
 $row [] = "Totale Pagato";
 foreach ( $shipped_sums as $ps ) {
 	$r = round ( $ps, 2 );
