@@ -41,6 +41,8 @@ public class OrderUser extends FromServer {
 		addAttribute ( "status", FromServer.INTEGER );
 
 		setInt ( "status", TO_DELIVER );
+
+		alwaysReload ( true );
 	}
 
 	/*

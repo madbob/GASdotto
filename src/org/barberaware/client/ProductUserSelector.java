@@ -172,6 +172,14 @@ public class ProductUserSelector extends ObjectWidget {
 
 		quantity.setVal ( 0 );
 
+		/*
+			Ennesima misura per evitare sovrascrittura dei dati: ogni volta l'ID del
+			ProductUser locale viene messo a -1, per evitare che sia rimasto qualcosa
+			di vecchio e quando si va a salvare l'elemento si vada in realta' a
+			sovrascrivere l'ID precedentemente appeso
+		*/
+		currentValue.setLocalID ( -1 );
+
 		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
 		if ( unit != 0 )
 			setEffectiveQuantity ( 0 );
