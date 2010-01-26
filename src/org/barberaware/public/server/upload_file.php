@@ -1,7 +1,7 @@
 <?
 
-/*  GASdotto 0.1
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  GASdotto
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ if ( !isset ( $name ) || $name == "" ) {
 }
 else {
 	$target_path = "/uploads/";
-	$target_path = $target_path . basename ( $name ); 
+	$target_path = $target_path . basename ( $name );
 	move_uploaded_file ( $_FILES [ 'uploadedfile' ] [ 'tmp_name' ], "../" . $target_path );
 	echo $target_path;
 }

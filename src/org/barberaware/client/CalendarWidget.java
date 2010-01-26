@@ -20,8 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 
 /*
 	Modified by:
-		GASdotto 0.1
-		Copyright (C) 2008/2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+		GASdotto
+		Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
 */
 
 package org.barberaware.client;

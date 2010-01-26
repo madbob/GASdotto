@@ -1,5 +1,5 @@
-/*  GASdotto 0.1
- *  Copyright (C) 2009 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  GASdotto
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -229,8 +229,9 @@ public class DeliveryPanel extends GenericPanel {
 
 		downloads = new HorizontalPanel ();
 		downloads.setStyleName ( "bottom-buttons" );
-		downloads.add ( Utils.getServer ().fileLink ( "Scarica file CSV", "", "order_csv.php?id=" + order.getLocalID () ) );
-		downloads.add ( Utils.getServer ().fileLink ( "Scarica file PDF", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
+		downloads.add ( Utils.getServer ().fileLink ( "CSV delle Consegne", "", "order_csv.php?id=" + order.getLocalID () ) );
+		downloads.add ( Utils.getServer ().fileLink ( "PDF delle Consegne", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
+		downloads.add ( Utils.getServer ().fileLink ( "CVS dei Prodotti", "", "products_cvs.php?id=" + order.getLocalID () ) );
 		ver.add ( downloads );
 
 		ver.add ( new HTML ( "<hr>" ) );

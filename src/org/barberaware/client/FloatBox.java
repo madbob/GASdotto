@@ -1,5 +1,5 @@
-/*  GASdotto 0.1
- *  Copyright (C) 2008 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+/*  GASdotto
+ *  Copyright (C) 2008/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
