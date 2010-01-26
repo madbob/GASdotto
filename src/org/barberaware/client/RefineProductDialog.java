@@ -65,6 +65,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		HorizontalPanel buttons;
 
 		buttons = new HorizontalPanel ();
+		buttons.setWidth ( "100%" );
 
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
@@ -135,11 +136,25 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 	private void doDialog () {
 		VerticalPanel container;
+		Label info;
 
 		dialog = new DialogBox ();
 		dialog.setText ( "Sistema Ordine Manualmente" );
 
 		container = new VerticalPanel ();
+
+		info = new Label ( "Dimensione Stock: " + targetProduct.getFloat ( "stock_size" ) );
+		info.setStyleName ( "smaller-text" );
+		container.add ( info );
+
+		info = new Label ( "Minimo Utente: " + targetProduct.getFloat ( "minimum_order" ) );
+		info.setStyleName ( "smaller-text" );
+		container.add ( info );
+
+		info = new Label ( "Multiplo Utente: " + targetProduct.getFloat ( "multiple_order" ) );
+		info.setStyleName ( "smaller-text" );
+		container.add ( info );
+
 		container.add ( doChooses () );
 		container.add ( doButtons () );
 
