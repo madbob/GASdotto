@@ -129,7 +129,6 @@ public class OrdersEditPanel extends GenericPanel {
 					CaptionPanel sframe;
 					Order order;
 					Supplier supplier;
-					OrderSummary complete_list;
 
 					order = ( Order ) ord;
 
@@ -313,6 +312,13 @@ public class OrdersEditPanel extends GenericPanel {
 			public void onReceive ( FromServer object ) {
 				if ( lock == false )
 					syncOrder ( ( OrderUser ) object );
+
+				/**
+					TODO	Qui sarebbe il caso di tenere traccia almeno gli
+						ordini cui sono assegnati gli OrderUser in
+						arrivo, in modo di syncare in onBlockEnd() solo i
+						pannelli che ne necessitano
+				*/
 			}
 
 			public void onBlockBegin () {

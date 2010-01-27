@@ -22,6 +22,14 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
+/**
+	TODO	Aggiungere funzione per ricaricare lista di ordini, in modo da poter usare sempre
+		le stesse istanze di RefineProductDialog in OrderSummary ed aggiornarle alla
+		bisogna
+*/
+
 public class RefineProductDialog extends Composite implements SourcesChangeEvents {
 	private Product				targetProduct;
 	private ArrayList			userOrders;

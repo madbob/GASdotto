@@ -54,7 +54,6 @@ public class OrderSummary extends Composite {
 		ordersUsers = new ArrayList ();
 
 		fillList ();
-		syncOrders ();
 	}
 
 	public void reFill ( Order order ) {
@@ -215,6 +214,10 @@ public class OrderSummary extends Composite {
 		main.setWidget ( row, 5, cell );
 	}
 
+	private void removeManualAdjustIcon ( int row ) {
+		main.setWidget ( row, 5, new Label () );
+	}
+
 	private String measureSymbol ( Product prod ) {
 		Measure measure;
 
@@ -259,8 +262,11 @@ public class OrderSummary extends Composite {
 		lab.setText ( Utils.priceToString ( price_details ) );
 
 		stock = product.getFloat ( "stock_size" );
+
 		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) )
 			addManualAdjustIcon ( index, product );
+		else
+			removeManualAdjustIcon ( index );
 	}
 
 	private void fillList () {
