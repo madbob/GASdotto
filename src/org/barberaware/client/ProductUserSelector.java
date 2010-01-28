@@ -24,65 +24,80 @@ import com.google.gwt.user.client.ui.*;
 
 public class ProductUserSelector extends ObjectWidget {
 	private HorizontalPanel				main;
-	private FloatBox				quantity;
+	private boolean					editable;
+	private FloatWidget				quantity;
 	private Label					measure;
 	private Label					effectiveQuantity;
 	private SuggestionBox				constraintsDialog;
 	private ProductUser				currentValue;
 	private DelegatingChangeListenerCollection	changeListeners;
 
-	public ProductUserSelector ( Product prod ) {
+	public ProductUserSelector ( Product prod, boolean edit ) {
+		FloatBox qb;
+		FloatViewer qv;
+
 		currentValue = new ProductUser ();
 		currentValue.setObject ( "product", prod );
 
+		editable = edit;
 		constraintsDialog = null;
 
 		main = new HorizontalPanel ();
 		initWidget ( main );
 
-		quantity = new FloatBox ();
-		quantity.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
-				if ( constraintsDialog != null )
-					constraintsDialog.show ();
-			}
-
-			public void onLostFocus ( Widget sender ) {
-				float val;
-				float input;
-				Product prod;
-
-				if ( constraintsDialog != null )
-					constraintsDialog.hide ();
-
-				input = quantity.getVal ();
-				if ( input == 0 )
-					return;
-
-				prod = ( Product ) currentValue.getObject ( "product" );
-
-				val = prod.getFloat ( "minimum_order" );
-				if ( val != 0 && input < val ) {
-					Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
-					undoChange ();
-					return;
+		if ( edit == true ) {
+			qb = new FloatBox ();
+			qb.addFocusListener ( new FocusListener () {
+				public void onFocus ( Widget sender ) {
+					if ( constraintsDialog != null )
+						constraintsDialog.show ();
 				}
 
-				val = prod.getFloat ( "multiple_order" );
-				if ( ( val != 0 ) && ( input % val ) != 0 ) {
-					Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
-					undoChange ();
-					return;
-				}
+				public void onLostFocus ( Widget sender ) {
+					float val;
+					float input;
+					Product prod;
 
-				val = prod.getFloat ( "unit_size" );
-				if ( val != 0 )
-					setEffectiveQuantity ( input );
-			}
-		} );
-		main.add ( quantity );
+					if ( constraintsDialog != null )
+						constraintsDialog.hide ();
+
+					input = quantity.getVal ();
+					if ( input == 0 )
+						return;
+
+					prod = ( Product ) currentValue.getObject ( "product" );
+
+					val = prod.getFloat ( "minimum_order" );
+					if ( val != 0 && input < val ) {
+						Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
+						undoChange ();
+						return;
+					}
+
+					val = prod.getFloat ( "multiple_order" );
+					if ( ( val != 0 ) && ( input % val ) != 0 ) {
+						Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
+						undoChange ();
+						return;
+					}
+
+					val = prod.getFloat ( "unit_size" );
+					if ( val != 0 )
+						setEffectiveQuantity ( input );
+				}
+			} );
+
+			main.add ( qb );
+			quantity = qb;
+		}
+		else {
+			qv = new FloatViewer ();
+			main.add ( qv );
+			quantity = qv;
+		}
 
 		measure = new Label ();
+		measure.addStyleName ( "contents-on-right" );
 		main.add ( measure );
 
 		effectiveQuantity = new Label ();
@@ -124,8 +139,10 @@ public class ProductUserSelector extends ObjectWidget {
 	}
 
 	private void undoChange () {
-		quantity.setVal ( 0 );
-		changeListeners.fireChange ( quantity );
+		if ( editable == true ) {
+			quantity.setVal ( 0 );
+			changeListeners.fireChange ( ( FloatBox ) quantity );
+		}
 	}
 
 	private void defineOnProduct ( Product prod ) {
@@ -143,7 +160,8 @@ public class ProductUserSelector extends ObjectWidget {
 			effectiveQuantity.setVisible ( false );
 		}
 
-		disposeConstraints ( prod, quantity );
+		if ( editable == true )
+			disposeConstraints ( prod, ( FloatBox ) quantity );
 	}
 
 	private void setEffectiveQuantity ( float quantity ) {
@@ -193,9 +211,11 @@ public class ProductUserSelector extends ObjectWidget {
 	}
 
 	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeListeners == null )
-			changeListeners = new DelegatingChangeListenerCollection ( this, quantity );
-		changeListeners.add ( listener );
+		if ( editable == true ) {
+			if ( changeListeners == null )
+				changeListeners = new DelegatingChangeListenerCollection ( this, ( FloatBox ) quantity );
+			changeListeners.add ( listener );
+		}
 	}
 
 	/****************************************************************** ObjectWidget */

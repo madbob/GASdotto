@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class ProductsUserSelection extends Composite implements FromServerArray {
 	private FlexTable		main;
+	private boolean			editable;
 
 	/*
 		Il dialog per le descrizioni dei prodotti viene creato la
@@ -36,7 +37,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	private float			total;
 	private PriceViewer		totalLabel;
 
-	public ProductsUserSelection ( ArrayList products ) {
+	public ProductsUserSelection ( ArrayList products, boolean edit ) {
 		int num_products;
 		Product prod;
 
@@ -45,6 +46,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		initWidget ( main );
 		main.setWidth ( "100%" );
 		main.setCellSpacing ( 5 );
+
+		editable = edit;
 
 		addTotalRow ();
 
@@ -239,16 +242,19 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		pname = new Label ( product.getString ( "name" ) );
 		pname.setStyleName ( "product-name" );
 		main.setWidget ( row, 0, pname );
-		formatter.setWidth ( row, 0, "20%" );
+		formatter.setWidth ( row, 0, "30%" );
 
-		sel = new ProductUserSelector ( product );
+		sel = new ProductUserSelector ( product, editable );
 		main.setWidget ( row, 1, sel );
-		formatter.setWidth ( row, 1, "40%" );
-		sel.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				updateTotal ();
-			}
-		} );
+		formatter.setWidth ( row, 1, "30%" );
+
+		if ( editable == true ) {
+			sel.addChangeListener ( new ChangeListener () {
+				public void onChange ( Widget sender ) {
+					updateTotal ();
+				}
+			} );
+		}
 
 		/*
 			Prezzo

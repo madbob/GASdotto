@@ -53,6 +53,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int index;
+				int status;
 				boolean multi;
 				Order ord;
 
@@ -60,11 +61,29 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				index = retrieveOrderForm ( ord );
 
 				if ( index == -1 ) {
-					if ( ord.getInt ( "status" ) == Order.OPENED ) {
+					status = ord.getInt ( "status" );
+
+					if ( status == Order.OPENED ) {
 						index = getSortedPosition ( object );
 						multi = canMultiUser ( ord );
-						insert ( doOrderRow ( ord, multi ), index );
+						insert ( doOrderRow ( ord, multi, null ), index );
 						alignOrdersInCache ( ord, multi );
+					}
+					else if ( status == Order.CLOSED ) {
+						index = getSortedPosition ( object );
+						multi = canMultiUser ( ord );
+
+						if ( multi == true )
+							insert ( doOrderRow ( ord, multi, closedOrderAlert () ), index );
+
+						alignOrdersInCache ( ord, multi );
+
+						/*
+							Se l'ordine e' chiuso e l'utente corrente non e' abilitato a
+							ritoccare le altrui quantita', il pannello puo' comunque
+							essere aggiunto all'arrivo del relativo OrderUser in
+							findAndAlign()
+						*/
 					}
 				}
 			}
@@ -124,6 +143,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return "OrdersPrivilegedPanel";
 			}
 		} );
+	}
+
+	private Widget closedOrderAlert () {
+		return new HTML ( "<p>Quest'ordine è stato chiuso, ma puoi comunque modificare le quantità ordinate dagli utenti.</p>" );
 	}
 
 	private void alignOrdersInCache ( Order order, boolean multi ) {
@@ -204,7 +227,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		return supplier.iAmReference ();
 	}
 
-	private Widget doOrderRow ( Order order, boolean editable ) {
+	private Widget doOrderRow ( Order order, boolean editable, Widget header ) {
 		final FromServerForm ver;
 		HorizontalPanel pan;
 		OrderUser uorder;
@@ -221,6 +244,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", order );
 
 		ver = new FromServerForm ( uorder );
+
+		if ( header != null )
+			ver.add ( header );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {
@@ -320,7 +346,30 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			uorder.setObject ( "baseuser", Session.getUser () );
 		}
 
-		products = new ProductsUserSelection ( order.getArray ( "products" ) );
+		products = new ProductsUserSelection ( order.getArray ( "products" ), true );
+		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
+
+		return ver;
+	}
+
+	private FromServerForm doUneditableOrderRow ( Order order ) {
+		FromServerForm ver;
+		OrderUser uorder;
+		ProductsUserSelection products;
+
+		if ( hasOrders == false ) {
+			hasOrders = true;
+			remove ( 0 );
+		}
+
+		uorder = new OrderUser ();
+		uorder.setObject ( "baseorder", order );
+
+		ver = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
+
+		uorder.setObject ( "baseuser", Session.getUser () );
+
+		products = new ProductsUserSelection ( order.getArray ( "products" ), false );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
 		return ver;
@@ -356,6 +405,20 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					else
 						alignOrderRow ( form, uorder );
 				}
+			}
+		}
+		else {
+			/*
+				In questo punto dovrei arrivarci solo quando sono un utente
+				normale e voglio contemplare il mio ordine (senza poterlo
+				editare). Ma un controllino extra male non fa'...
+			*/
+
+			if ( uorder.getObject ( "baseuser" ).equals ( Session.getUser () ) ) {
+				index = getSortedPosition ( order );
+				form = doUneditableOrderRow ( order );
+				insert ( form, index );
+				alignOrderRow ( form, uorder );
 			}
 		}
 	}
