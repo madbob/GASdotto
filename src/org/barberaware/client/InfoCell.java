@@ -18,11 +18,19 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.ui.*;
 
-public interface FromServerArray {
-	public void addElement ( FromServer element );
-	public void setElements ( ArrayList elements );
-	public void removeElement ( FromServer element );
-	public ArrayList getElements ();
-	public void refreshElement ( FromServer element );
+public class InfoCell extends Composite {
+	public InfoCell ( String text ) {
+		HorizontalPanel main;
+
+		main = new HorizontalPanel ();
+		main.setStyleName ( "info-cell" );
+		main.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		initWidget ( main );
+
+		main.add ( new Image ( "images/notify-info.png" ) );
+		main.add ( new HTML ( text ) );
+	}
 }

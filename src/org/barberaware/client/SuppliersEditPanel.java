@@ -34,13 +34,21 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		main = new FormCluster ( "Supplier", "Nuovo Fornitore" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
+				Supplier supplier;
 				FromServerForm ver;
-				ver = commonFormBuilder ( supp );
+
+				supplier = ( Supplier ) supp;
+
+				if ( supp.isValid () == false || supplier.iAmReference () == true )
+					ver = commonFormBuilder ( supp );
+				else
+					ver = new SupplierUneditableForm ( supplier );
+
 				return ver;
 			}
 
 			protected FromServerForm doNewEditableRow () {
-				return doEditableRow ( new Supplier () );
+				return commonFormBuilder ( new Supplier () );
 			}
 
 			protected void customNew ( FromServer object, boolean true_new ) {
@@ -70,24 +78,24 @@ public class SuppliersEditPanel extends GenericPanel {
 
 			public void onModify ( FromServer object ) {
 				Product product;
-				ProductsEditPanel panel;
+				FromServerArray panel;
 
 				product = ( Product ) object;
 
 				panel = retrieveProductsPanel ( product );
 				if ( panel != null )
-					panel.refreshProduct ( product );
+					panel.refreshElement ( product );
 			}
 
 			public void onDestroy ( FromServer object ) {
 				Product product;
-				ProductsEditPanel panel;
+				FromServerArray panel;
 
 				product = ( Product ) object;
 
 				panel = retrieveProductsPanel ( product );
 				if ( panel != null ) {
-					panel.deleteProduct ( product );
+					panel.removeElement ( product );
 				}
 			}
 
@@ -100,7 +108,7 @@ public class SuppliersEditPanel extends GenericPanel {
 	}
 
 	private boolean insertProduct ( Product product ) {
-		ProductsEditPanel panel;
+		FromServerArray panel;
 
 		panel = retrieveProductsPanel ( product );
 
@@ -119,7 +127,7 @@ public class SuppliersEditPanel extends GenericPanel {
 			if ( icons.hasImage ( "images/notifications/supplier_no_products.png" ) )
 				icons.delImage ( "images/notifications/supplier_no_products.png" );
 
-			panel.addProduct ( product );
+			panel.addElement ( product );
 			return true;
 		}
 		else
@@ -235,9 +243,6 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		supplier = ( Supplier ) supp;
 
-		if ( supp.isValid () == true && supplier.iAmReference () == false )
-			return null;
-
 		ver = new FromServerForm ( supplier );
 
 		tabs = new TabPanel ();
@@ -285,7 +290,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		}
 	}
 
-	private ProductsEditPanel retrieveProductsPanel ( Product product ) {
+	private FromServerArray retrieveProductsPanel ( Product product ) {
 		FromServer supplier;
 		FromServerForm supplier_form;
 
@@ -296,7 +301,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		supplier_form = main.retrieveForm ( supplier );
 
 		if ( supplier_form != null )
-			return ( ProductsEditPanel ) supplier_form.retriveInternalWidget ( "products" );
+			return ( FromServerArray ) supplier_form.retriveInternalWidget ( "products" );
 		else
 			return null;
 	}

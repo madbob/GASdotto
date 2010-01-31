@@ -55,6 +55,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				int index;
 				int status;
 				boolean multi;
+				FromServerForm form;
 				Order ord;
 
 				ord = ( Order ) object;
@@ -66,15 +67,19 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					if ( status == Order.OPENED ) {
 						index = getSortedPosition ( object );
 						multi = canMultiUser ( ord );
-						insert ( doOrderRow ( ord, multi, null ), index );
+						form = doOrderRow ( ord, multi, false );
+						insert ( form, index );
 						alignOrdersInCache ( ord, multi );
 					}
 					else if ( status == Order.CLOSED ) {
 						index = getSortedPosition ( object );
 						multi = canMultiUser ( ord );
 
-						if ( multi == true )
-							insert ( doOrderRow ( ord, multi, closedOrderAlert () ), index );
+						if ( multi == true ) {
+							form = doOrderRow ( ord, multi, true );
+							closedOrderAlert ( form, true );
+							insert ( form, index );
+						}
 
 						alignOrdersInCache ( ord, multi );
 
@@ -102,6 +107,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( index != -1 ) {
 					if ( status == Order.OPENED ) {
 						form = ( FromServerForm ) getWidget ( index );
+						closedOrderAlert ( form, false );
 
 						/*
 							Il refresh dell'ordine serve sostanzialmente a correggere
@@ -111,6 +117,24 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						form.refreshContents ( null );
 
 						syncProductsInForm ( form, ord );
+					}
+					else if ( status == Order.CLOSED ) {
+						if ( canMultiUser ( ord ) == true ) {
+							form = ( FromServerForm ) getWidget ( index );
+							closedOrderAlert ( form, true );
+						}
+						else {
+							/**
+								TODO	Questo non e' corretto: se l'ordine viene
+									chiuso repentinamente, e sono un utente
+									normale, non dovrebbe sparire dal pannello ma
+									diventare non editabile. Considerando che la
+									situazione e' ben rara al momento lo lascio
+									cosi', ma sarebbe da correggere prima o dopo
+							*/
+							remove ( index );
+							checkNoAvailableOrders ();
+						}
 					}
 					else {
 						remove ( index );
@@ -145,8 +169,17 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		} );
 	}
 
-	private Widget closedOrderAlert () {
-		return new HTML ( "<p>Quest'ordine è stato chiuso, ma puoi comunque modificare le quantità ordinate dagli utenti.</p>" );
+	private void closedOrderAlert ( FromServerForm form, boolean doit ) {
+		InfoCell alert;
+
+		if ( doit == true ) {
+			alert = new InfoCell ( "Quest'ordine è stato chiuso, ma puoi comunque modificare le quantità ordinate dagli utenti." );
+			form.setExtraWidget ( "alert", alert );
+			form.insert ( alert, 0 );
+		}
+		else {
+			form.removeWidget ( "alert" );
+		}
 	}
 
 	private void alignOrdersInCache ( Order order, boolean multi ) {
@@ -227,7 +260,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		return supplier.iAmReference ();
 	}
 
-	private Widget doOrderRow ( Order order, boolean editable, Widget header ) {
+	private FromServerForm doOrderRow ( Order order, boolean editable, boolean freeedit ) {
 		final FromServerForm ver;
 		HorizontalPanel pan;
 		OrderUser uorder;
@@ -244,9 +277,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", order );
 
 		ver = new FromServerForm ( uorder );
-
-		if ( header != null )
-			ver.add ( header );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {
@@ -346,7 +376,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			uorder.setObject ( "baseuser", Session.getUser () );
 		}
 
-		products = new ProductsUserSelection ( order.getArray ( "products" ), true );
+		products = new ProductsUserSelection ( order.getArray ( "products" ), true, freeedit );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
 		return ver;
@@ -369,7 +399,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		uorder.setObject ( "baseuser", Session.getUser () );
 
-		products = new ProductsUserSelection ( order.getArray ( "products" ), false );
+		products = new ProductsUserSelection ( order.getArray ( "products" ), false, false );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
 		return ver;

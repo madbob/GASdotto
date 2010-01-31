@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsPresentationList extends Composite {
+public class ProductsPresentationList extends Composite implements FromServerArray {
 	private FormCluster		list;
 	private Supplier		supplier;
 
@@ -35,18 +35,6 @@ public class ProductsPresentationList extends Composite {
 		container = new VerticalPanel ();
 		container.setWidth ( "100%" );
 		initWidget ( doListView () );
-	}
-
-	public void addProduct ( Product product ) {
-		list.addElement ( product );
-	}
-
-	public void refreshProduct ( Product product ) {
-		list.refreshElement ( product );
-	}
-
-	public void deleteProduct ( Product product ) {
-		list.deleteElement ( product );
 	}
 
 	public int numProducts () {
@@ -113,5 +101,28 @@ public class ProductsPresentationList extends Composite {
 		};
 
 		return list;
+	}
+
+	/****************************************************************** FromServerArray */
+
+	public void addElement ( FromServer element ) {
+		list.addElement ( element );
+	}
+
+	public void setElements ( ArrayList elements ) {
+		for ( int i = 0; i < elements.size (); i++ )
+			addElement ( ( FromServer ) elements.get ( i ) );
+	}
+
+	public void removeElement ( FromServer element ) {
+		list.deleteElement ( element );
+	}
+
+	public ArrayList getElements () {
+		return list.collectContents ();
+	}
+
+	public void refreshElement ( FromServer element ) {
+		list.refreshElement ( element );
 	}
 }

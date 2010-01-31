@@ -26,6 +26,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class ProductsUserSelection extends Composite implements FromServerArray {
 	private FlexTable		main;
 	private boolean			editable;
+	private boolean			freeEditable;
 
 	/*
 		Il dialog per le descrizioni dei prodotti viene creato la
@@ -37,7 +38,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	private float			total;
 	private PriceViewer		totalLabel;
 
-	public ProductsUserSelection ( ArrayList products, boolean edit ) {
+	public ProductsUserSelection ( ArrayList products, boolean edit, boolean freeedit ) {
 		int num_products;
 		Product prod;
 
@@ -48,6 +49,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		main.setCellSpacing ( 5 );
 
 		editable = edit;
+		freeEditable = freeedit;
 
 		addTotalRow ();
 
@@ -129,12 +131,27 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		main.setWidget ( 1, 1, totalLabel );
 	}
 
+	private int retrieveRowByProduct ( Product prod ) {
+		int a;
+		int rows;
+		ProductUserSelector selector;
+
+		rows = main.getRowCount () - 2;
+
+		for ( a = 0; a < rows; a++ ) {
+			selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
+			if ( selector.getValue ().getObject ( "product" ).equals ( prod ) )
+				return a;
+		}
+
+		return -1;
+	}
+
 	public void upgradeProductsList ( ArrayList products ) {
 		int i;
 		int a;
 		int num_products;
 		int original_rows;
-		int rows;
 		int index;
 		boolean to_remove;
 		ArrayList track_existing;
@@ -150,17 +167,10 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			rows = main.getRowCount () - 2;
-
-			for ( a = 0; a < rows; a++ ) {
-				selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
-				if ( selector.getValue ().getObject ( "product" ).equals ( prod ) ) {
-					modProductRow ( a, prod );
-					break;
-				}
-			}
-
-			if ( a == rows )
+			a = retrieveRowByProduct ( prod );
+			if ( a != -1 )
+				modProductRow ( a, prod );
+			else
 				addProductRow ( prod );
 		}
 
@@ -244,7 +254,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		main.setWidget ( row, 0, pname );
 		formatter.setWidth ( row, 0, "30%" );
 
-		sel = new ProductUserSelector ( product, editable );
+		sel = new ProductUserSelector ( product, editable, freeEditable );
 		main.setWidget ( row, 1, sel );
 		formatter.setWidth ( row, 1, "30%" );
 
@@ -440,5 +450,22 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		}
 
 		return list;
+	}
+
+	/*
+		Questa funzione non e' particolarmente completa, provvedere a
+		sistemarla qualora servisse davvero
+	*/
+	public void refreshElement ( FromServer element ) {
+		int a;
+		Product prod;
+		ProductUser prod_user;
+
+		prod_user = ( ProductUser ) element;
+		prod = ( Product ) prod_user.getObject ( "product" );
+
+		a = retrieveRowByProduct ( prod );
+		if ( a != -1 )
+			modProductRow ( a, prod );
 	}
 }

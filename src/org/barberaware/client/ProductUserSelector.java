@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.*;
 public class ProductUserSelector extends ObjectWidget {
 	private HorizontalPanel				main;
 	private boolean					editable;
+	private boolean					freeEditable;
 	private FloatWidget				quantity;
 	private Label					measure;
 	private Label					effectiveQuantity;
@@ -32,7 +33,7 @@ public class ProductUserSelector extends ObjectWidget {
 	private ProductUser				currentValue;
 	private DelegatingChangeListenerCollection	changeListeners;
 
-	public ProductUserSelector ( Product prod, boolean edit ) {
+	public ProductUserSelector ( Product prod, boolean edit, boolean freeedit ) {
 		FloatBox qb;
 		FloatViewer qv;
 
@@ -40,6 +41,7 @@ public class ProductUserSelector extends ObjectWidget {
 		currentValue.setObject ( "product", prod );
 
 		editable = edit;
+		freeEditable = freeedit;
 		constraintsDialog = null;
 
 		main = new HorizontalPanel ();
@@ -67,18 +69,20 @@ public class ProductUserSelector extends ObjectWidget {
 
 					prod = ( Product ) currentValue.getObject ( "product" );
 
-					val = prod.getFloat ( "minimum_order" );
-					if ( val != 0 && input < val ) {
-						Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
-						undoChange ();
-						return;
-					}
+					if ( freeEditable == false ) {
+						val = prod.getFloat ( "minimum_order" );
+						if ( val != 0 && input < val ) {
+							Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
+							undoChange ();
+							return;
+						}
 
-					val = prod.getFloat ( "multiple_order" );
-					if ( ( val != 0 ) && ( input % val ) != 0 ) {
-						Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
-						undoChange ();
-						return;
+						val = prod.getFloat ( "multiple_order" );
+						if ( ( val != 0 ) && ( input % val ) != 0 ) {
+							Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
+							undoChange ();
+							return;
+						}
 					}
 
 					val = prod.getFloat ( "unit_size" );

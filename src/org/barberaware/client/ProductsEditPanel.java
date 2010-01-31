@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsEditPanel extends Composite {
+public class ProductsEditPanel extends Composite implements FromServerArray {
 	private DeckPanel		main;
 
 	private FormCluster		list;
@@ -81,21 +81,6 @@ public class ProductsEditPanel extends Composite {
 			main.showWidget ( 0 );
 			switchable.setVisible ( true );
 		}
-	}
-
-	public void addProduct ( Product product ) {
-		list.addElement ( product );
-		table.addElement ( product );
-	}
-
-	public void refreshProduct ( Product product ) {
-		list.refreshElement ( product );
-		table.refreshElement ( product );
-	}
-
-	public void deleteProduct ( Product product ) {
-		list.deleteElement ( product );
-		table.removeElement ( product );
 	}
 
 	public int numProducts () {
@@ -289,5 +274,31 @@ public class ProductsEditPanel extends Composite {
 		buttons.add ( button, "Salva" );
 
 		return container;
+	}
+
+	/****************************************************************** FromServerArray */
+
+	public void addElement ( FromServer element ) {
+		list.addElement ( element );
+		table.addElement ( element );
+	}
+
+	public void setElements ( ArrayList elements ) {
+		for ( int i = 0; i < elements.size (); i++ )
+			addElement ( ( FromServer ) elements.get ( i ) );
+	}
+
+	public void removeElement ( FromServer element ) {
+		list.deleteElement ( element );
+		table.removeElement ( element );
+	}
+
+	public ArrayList getElements () {
+		return list.collectContents ();
+	}
+
+	public void refreshElement ( FromServer element ) {
+		list.refreshElement ( element );
+		table.refreshElement ( element );
 	}
 }

@@ -83,4 +83,8 @@ public class FilesStaticList extends Composite implements FromServerArray {
 	public ArrayList getElements () {
 		return currentFiles;
 	}
+
+	public void refreshElement ( FromServer element ) {
+		/* dummy */
+	}
 }

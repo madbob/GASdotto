@@ -108,6 +108,10 @@ public class FromServerForm extends Composite {
 		contents.insert ( wid, contents.getWidgetCount () - 1 );
 	}
 
+	public void insert ( Widget wid, int index ) {
+		contents.insert ( wid, index );
+	}
+
 	public void open ( boolean open ) {
 		main.setOpen ( open );
 
@@ -357,6 +361,16 @@ public class FromServerForm extends Composite {
 	*/
 	public void setExtraWidget ( String name, Widget extra ) {
 		widgets.put ( name, new FromServerWidget ( name, extra ) );
+	}
+
+	public void removeWidget ( String name ) {
+		FromServerWidget tmp;
+
+		tmp = retriveWidgetFromList ( name );
+		if ( tmp != null ) {
+			if ( contents.remove ( tmp ) == false )
+				contents.remove ( tmp.wid );
+		}
 	}
 
 	public IconsBar getIconsBar () {

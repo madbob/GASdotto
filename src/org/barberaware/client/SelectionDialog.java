@@ -105,28 +105,6 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 			loadedObjects.remove ( a );
 	}
 
-	/*
-		Questa funzione cerca l'oggetto nella lista, se lo trova ne aggiorna il nome
-		altrimenti lo aggiunge
-	*/
-	public void updateElementInList ( FromServer object ) {
-		int a;
-		Label name;
-
-		a = retrieveObjIndex ( object );
-		if ( a != -1 ) {
-			name = ( Label ) itemsTable.getWidget ( a, 2 );
-			name.setText ( object.getString ( "name" ) );
-
-			a = retrieveObjectIndexById ( object.getLocalID () );
-			if ( a != -1 )
-				loadedObjects.remove ( a );
-			loadedObjects.add ( object );
-		}
-		else
-			addElementInList ( object );
-	}
-
 	public void show () {
 		syncToDialog ();
 		super.show ();
@@ -403,6 +381,28 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 			ret.add ( selectedObjects.get ( i ) );
 
 		return ret;
+	}
+
+	/*
+		Questa funzione cerca l'oggetto nella lista, se lo trova ne aggiorna il nome
+		altrimenti lo aggiunge
+	*/
+	public void refreshElement ( FromServer object ) {
+		int a;
+		Label name;
+
+		a = retrieveObjIndex ( object );
+		if ( a != -1 ) {
+			name = ( Label ) itemsTable.getWidget ( a, 2 );
+			name.setText ( object.getString ( "name" ) );
+
+			a = retrieveObjectIndexById ( object.getLocalID () );
+			if ( a != -1 )
+				loadedObjects.remove ( a );
+			loadedObjects.add ( object );
+		}
+		else
+			addElementInList ( object );
 	}
 
 	/****************************************************************** SavingDialog */

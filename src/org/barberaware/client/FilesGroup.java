@@ -84,4 +84,8 @@ public class FilesGroup extends Composite implements FromServerArray {
 	public ArrayList getElements () {
 		return main.collectContents ();
 	}
+
+	public void refreshElement ( FromServer element ) {
+		main.refreshElement ( element );
+	}
 }

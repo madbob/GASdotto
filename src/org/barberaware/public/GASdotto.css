@@ -354,6 +354,16 @@ body {
 	margin-left:		20px;
 }
 
+.info-cell {
+	width:			80%;
+	margin-left:		auto;
+	margin-right:		auto;
+	margin-top:		5px;
+	margin-bottom:		5px;
+	border:			2px solid #AAFFAA;
+	padding:		5px;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;

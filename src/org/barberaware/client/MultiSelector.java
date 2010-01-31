@@ -67,7 +67,7 @@ public class MultiSelector extends Composite implements FromServerArray {
 
 				public void onModify ( FromServer object ) {
 					if ( checkValidity ( object ) == true )
-						dialog.updateElementInList ( object );
+						dialog.refreshElement ( object );
 					else
 						dialog.removeElementInList ( object );
 				}
@@ -147,5 +147,9 @@ public class MultiSelector extends Composite implements FromServerArray {
 
 	public ArrayList getElements () {
 		return dialog.getElements ();
+	}
+
+	public void refreshElement ( FromServer element ) {
+		dialog.refreshElement ( element );
 	}
 }

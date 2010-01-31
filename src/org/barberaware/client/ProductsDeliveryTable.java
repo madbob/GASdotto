@@ -229,4 +229,8 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 
 		return currentValues;
 	}
+
+	public void refreshElement ( FromServer element ) {
+		/* dummy */
+	}
 }
