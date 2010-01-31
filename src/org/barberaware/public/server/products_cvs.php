@@ -75,12 +75,19 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$sum = $prod_user->quantity * $prod_user->product->unit_price;
+			$unit = $prod_user->product->unit_size;
+
+			if ( $unit <= 0.0 )
+				$q = $prod_user->quantity;
+			else
+				$q = ( $prod_user->quantity / $unit );
+
+			$quantities_sums [ $a ] += $q;
+
+			$sum = $q * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
 
-			$quantities_sums [ $a ] += $prod_user->quantity;
-
-			$sum = $prod_user->quantity * $prod_user->product->shipping_price;
+			$sum = $q * $prod_user->product->shipping_price;
 			$shipping_sum [ $a ] += $sum;
 
 			$e++;
@@ -92,7 +99,7 @@ $output = "Prodotto;Quantità;Prezzo Totale;Prezzo Trasporto\n";
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
-	$q = format_price ( round ( $quantities_sums [ $i ], 2 ), false );
+	$q = comma_format ( round ( $quantities_sums [ $i ], 2 ), false );
 	$p = format_price ( round ( $products_sums [ $i ], 2 ), false );
 	$s = format_price ( round ( $shipping_sum [ $i ], 2 ), false );
 	$output .= ( $prod->getAttribute ( "name" )->value ) . ';' . $q . ';' . $p . ';' . $s . "\n";
