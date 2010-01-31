@@ -44,6 +44,8 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$products_prices [] = format_price ( $prod->getAttribute ( "unit_price" )->value, false );
 }
 
+$products_names [] = "Totale Prezzo Prodotti";
+$products_names [] = "Totale Prezzo Trasporto";
 $products_names [] = "Totale";
 $products_names [] = "Pagato";
 $products_names [] = "Stato Consegna";
@@ -53,12 +55,14 @@ $products_sums = array ();
 $quantities_sums = array ();
 $delivery_sums = array ();
 $shipped_sums = array ();
+$shipping_price = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$products_sums [] = 0;
 	$quantities_sums [] = 0;
 	$delivery_sums [] = 0;
 	$shipped_sums [] = 0;
+	$shipping_price [] = 0;
 }
 
 $request = new stdClass ();
@@ -77,6 +81,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$output .= sprintf ( "\"%s %s\";", $order_user->baseuser->surname, $order_user->baseuser->firstname );
 
 	$user_total = 0;
+	$user_total_ship = 0;
 	$shipped_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );
 
@@ -98,6 +103,18 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 
+			/*
+				Per i prodotti con pezzatura, il prezzo di trasporto viene
+				calcolato in funzione dei numeri di pezzi
+			*/
+			$unit = $prod_user->product->unit_size;
+			if ( $unit <= 0 )
+				$sum = ( $prod_user->quantity * $prod_user->product->shipping_price );
+			else
+				$sum = ( ( $prod_user->quantity / $unit ) * $prod_user->product->shipping_price );
+			$shipping_price [ $a ] += $sum;
+			$user_total_ship += $sum;
+
 			$sum = $prod_user->delivered * $prod_user->product->unit_price;
 			$shipped_sums [ $a ] += $sum;
 			$shipped_total += $sum;
@@ -112,6 +129,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	}
 
 	$output .= format_price ( round ( $user_total, 2 ), false ) . ';';
+	$output .= format_price ( round ( $user_total_ship, 2 ), false ) . ';';
+	$output .= format_price ( round ( $user_total + $user_total_ship, 2 ), false ) . ';';
 	$output .= format_price ( round ( $shipped_total, 2 ), false ) . ';';
 
 	if ( $order_user->status == 1 )
@@ -140,7 +159,7 @@ for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 $output .= "\n";
 
 $gran_total = 0;
-$output .= "Totale Prezzo";
+$output .= "Totale Prezzo Prodotti";
 foreach ( $products_sums as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
@@ -150,6 +169,27 @@ foreach ( $products_sums as $ps ) {
 $output .= ";" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
 
 $gran_total = 0;
+$output .= "Totale Prezzo Trasporto";
+foreach ( $shipping_price as $ps ) {
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$output .= ";" . $p;
+	$gran_total += $r;
+}
+$output .= ";;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
+
+$gran_total = 0;
+$output .= "Totale Prodotti + Trasporto";
+for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
+	$ps = $products_sums [ $i ] + $shipping_price [ $i ];
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$output .= ";" . $p;
+	$gran_total += $r;
+}
+$output .= ";;;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
+
+$gran_total = 0;
 $output .= "Totale Pagato";
 foreach ( $shipped_sums as $ps ) {
 	$r = round ( $ps, 2 );
@@ -157,7 +197,7 @@ foreach ( $shipped_sums as $ps ) {
 	$output .= ";" . $p;
 	$gran_total += $r;
 }
-$output .= ";;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
+$output .= ";;;;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );

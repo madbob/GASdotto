@@ -40,7 +40,12 @@ class DeliveryReport extends TCPDF {
 			else
 				$end = $end + 10;
 
-			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . ( 10 * ( $end - $offset ) ) . '%"><tr>';
+			if ( $tot <= 10 )
+				$width = 100;
+			else
+				$width = 10 * ( $end - $offset );
+
+			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . $width . '%"><tr>';
 			for ( $i = $offset; $i < $end; $i++ )
 				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
 			$html .= '</tr>';
@@ -106,6 +111,8 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 	array_push ( $header, $name . "<br />(" . $price . $symbol . ")" );
 }
 
+array_push ( $header, 'Totale Prezzo Prodotti' );
+array_push ( $header, 'Totale Prezzo Trasporto' );
 array_push ( $header, 'Totale' );
 array_push ( $header, 'Pagato' );
 array_push ( $header, 'Stato Consegna' );
@@ -142,12 +149,14 @@ $products_sums = array ();
 $quantities_sums = array ();
 $delivery_sums = array ();
 $shipped_sums = array ();
+$shipping_price = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$products_sums [] = 0;
 	$quantities_sums [] = 0;
 	$delivery_sums [] = 0;
 	$shipped_sums [] = 0;
+	$shipping_price [] = 0;
 }
 
 $request = new stdClass ();
@@ -167,6 +176,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$row [] = sprintf ( "%s", $order_user->baseuser->surname );
 
 	$user_total = 0;
+	$user_total_ship = 0;
 	$shipped_total = 0;
 	usort ( $user_products, "sort_product_user_by_name" );
 
@@ -183,6 +193,18 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			}
 
 			$row [] = $q;
+
+			/*
+				Per i prodotti con pezzatura, il prezzo di trasporto viene
+				calcolato in funzione dei numeri di pezzi
+			*/
+			$unit = $prod_user->product->unit_size;
+			if ( $unit <= 0 )
+				$sum = ( $prod_user->quantity * $prod_user->product->shipping_price );
+			else
+				$sum = ( ( $prod_user->quantity / $unit ) * $prod_user->product->shipping_price );
+			$shipping_price [ $a ] += $sum;
+			$user_total_ship += $sum;
 
 			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
@@ -202,6 +224,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	}
 
 	$row [] = format_price ( round ( $user_total, 2 ), false );
+	$row [] = format_price ( round ( $user_total_ship, 2 ), false );
+	$row [] = format_price ( round ( $user_total + $user_total_ship, 2 ), false );
 	$row [] = format_price ( round ( $shipped_total, 2 ), false );
 
 	if ( $order_user->status == 1 )
@@ -232,13 +256,41 @@ $data [] = $row;
 
 $gran_total = 0;
 $row = array ();
-$row [] = "Totale Prezzo";
+$row [] = "Totale Prezzo Prodotti";
 foreach ( $products_sums as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
 	$row [] = $p;
 	$gran_total += $r;
 }
+$row [] = format_price ( round ( $gran_total, 2 ), false );
+$data [] = $row;
+
+$gran_total = 0;
+$row = array ();
+$row [] = "Totale Prezzo Trasporto";
+foreach ( $shipping_price as $ps ) {
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$row [] = $p;
+	$gran_total += $r;
+}
+$row [] = '';
+$row [] = format_price ( round ( $gran_total, 2 ), false );
+$data [] = $row;
+
+$gran_total = 0;
+$row = array ();
+$row [] = "Totale";
+for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
+	$ps = $products_sums [ $i ] + $shipping_price [ $i ];
+	$r = round ( $ps, 2 );
+	$p = format_price ( $r, false );
+	$row [] = $p;
+	$gran_total += $r;
+}
+$row [] = '';
+$row [] = '';
 $row [] = format_price ( round ( $gran_total, 2 ), false );
 $data [] = $row;
 
@@ -251,6 +303,9 @@ foreach ( $shipped_sums as $ps ) {
 	$row [] = $p;
 	$gran_total += $r;
 }
+$row [] = '';
+$row [] = '';
+$row [] = '';
 $row [] = format_price ( round ( $gran_total, 2 ), false ) . "\n";
 $data [] = $row;
 
