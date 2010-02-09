@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class HomePanel extends GenericPanel {
 	private NotificationsBox	notifications;
 	private PlainFillBox		openedOrders;
@@ -54,8 +56,8 @@ public class HomePanel extends GenericPanel {
 					PlainFillBox tab;
 
 					ord = ( Order ) object.getObject ( "baseorder" );
-
 					index = retrieveOrderRow ( openedOrders, ord );
+
 					if ( index == -1 ) {
 						index = retrieveOrderRow ( closedOrders, ord );
 						tab = closedOrders;
@@ -127,6 +129,10 @@ public class HomePanel extends GenericPanel {
 						tab.setWidget ( index, 3, new Label ( "" ) );
 				}
 			}
+
+			protected String debugName () {
+				return "OrderUser in HomePanel";
+			}
 		} );
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
@@ -191,6 +197,10 @@ public class HomePanel extends GenericPanel {
 				index = retrieveOrderRow ( closedOrders, object );
 				if ( index != -1 )
 					closedOrders.removeRow ( index );
+			}
+
+			protected String debugName () {
+				return "Order in HomePanel";
 			}
 		} );
 	}
@@ -257,7 +267,6 @@ public class HomePanel extends GenericPanel {
 
 		for ( int i = 1; i < table.getRowCount (); i++ ) {
 			id = ( Hidden ) table.getWidget ( i, 1 );
-
 			if ( target_id_str.equals ( id.getValue () ) )
 				return i;
 		}

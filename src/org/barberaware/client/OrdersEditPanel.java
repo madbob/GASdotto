@@ -25,49 +25,9 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrdersEditPanel extends GenericPanel {
 	private FormCluster		main;
-	private boolean			lockProductAddictions = false;
 
 	public OrdersEditPanel () {
 		super ();
-
-		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				/* dummy */
-			}
-
-			/*
-				Quando si caricano tutti gli ordini, e per un qualche caso ci sono due ordini per uno
-				stesso fornitore ma con diversi prodotti, succede un guaio: si parsa un ordine,
-				vengono identificati i prodotti che esso contiene, vengono immessi in cache, si
-				triggera la callback sulla creazione dei prodotti, i prodotti vengono piazzati in
-				funzione del fornitore, nell'ordine non si trova quel prodotto e parte la procedura
-				per il ricaricamento dal server, che pero' genera un qualche errore non essendo
-				l'ordine stesso ancora stato piazzato in cache (essendo nuovo ed in fase di
-				costruzione locale).
-				Pertanto quando arriva il blocco di ordini inibisco le callback sui prodotti,
-				settando la variabile lockProductAddictions che viene testata piu' sotto appunto in
-				tali casi, per evitare di chiamare la funzione di posizionamento dei prodotti.
-			*/
-			public void onBlockBegin () {
-				lockProductAddictions = true;
-			}
-
-			public void onBlockEnd () {
-				lockProductAddictions = false;
-			}
-
-			public void onModify ( FromServer object ) {
-				/* dummy */
-			}
-
-			public void onDestroy ( FromServer object ) {
-				/* dummy */
-			}
-
-			protected String debugName () {
-				return "OrdersEditPanel per Order";
-			}
-		} );
 
 		main = new FormCluster ( "Order", "Nuovo Ordine" ) {
 				private void addDatesFrame ( FromServerForm form, HorizontalPanel hor ) {
@@ -349,69 +309,6 @@ public class OrdersEditPanel extends GenericPanel {
 
 			protected String debugName () {
 				return "OrdersEditPanel per OrderUser";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				int num_orders;
-				int num_products;
-				boolean already_has;
-				ArrayList orders;
-				ArrayList products;
-				Order order;
-				Supplier prod_supplier;
-				Product order_product;
-
-				if ( lockProductAddictions == true )
-					return;
-
-				/*
-					Tutto questo gran giro per controllare che il prodotto ricevuto non sia gia'
-					negli ordini immessi nel pannello. Se cio' non accadesse gli ordini
-					verrebbero invalidati e ricaricati ad ogni prodotto che arriva, soprattutto
-					in fase di startup dell'applicazione, generando un traffico immenso e
-					possibili inconsistenze
-				*/
-
-				prod_supplier = ( Supplier ) object.getObject ( "supplier" );
-				orders = main.collectContents ();
-				num_orders = orders.size ();
-
-				for ( int i = 0; i < num_orders; i++ ) {
-					order = ( Order ) orders.get ( i );
-
-					if ( order.getInt ( "status" ) == Order.OPENED && order.getObject ( "supplier" ).equals ( prod_supplier ) ) {
-						products = order.getArray ( "products" );
-						num_products = products.size ();
-						already_has = false;
-
-						for ( int e = 0; e < num_products; e++ ) {
-							order_product = ( Product ) products.get ( e );
-							if ( order_product.equals ( object ) ) {
-								already_has = true;
-								break;
-							}
-						}
-
-						if ( already_has == false ) {
-							reloadOrdersBySupplier ( prod_supplier );
-							break;
-						}
-					}
-				}
-			}
-
-			public void onModify ( FromServer object ) {
-				/* dummy */
-			}
-
-			public void onDestroy ( FromServer object ) {
-				reloadOrdersBySupplier ( ( Supplier ) object.getObject ( "supplier" ) );
-			}
-
-			protected String debugName () {
-				return "OrdersEditPanel per Product";
 			}
 		} );
 

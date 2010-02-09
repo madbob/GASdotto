@@ -314,8 +314,12 @@ abstract class FromServer {
 
 			$val = $fields [ $keys [ $i ] ];
 
-			if ( strncmp ( $attr->type, "OBJECT", strlen ( "OBJECT" ) ) == 0 )
-				$attr->value = $val->id . "";
+			if ( strncmp ( $attr->type, "OBJECT", strlen ( "OBJECT" ) ) == 0 ) {
+				if ( is_object ( $val ) )
+					$attr->value = $val->id . "";
+				else
+					$attr->value = $val . "";
+			}
 
 			else if ( strcmp ( $attr->type, "ADDRESS" ) == 0 ) {
 				$final = "";

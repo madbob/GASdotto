@@ -199,7 +199,11 @@ public class FromServerAttribute {
 					funzioni setNNN()
 			*/
 
-			ret = real_object.toJSONObject ();
+			if ( real_object.getLocalID () == -1 )
+				ret = real_object.toJSONObject ();
+			else
+				ret = new JSONString ( Integer.toString ( real_object.getLocalID () ) );
+
 			return ret;
 		}
 
