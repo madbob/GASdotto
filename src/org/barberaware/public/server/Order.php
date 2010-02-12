@@ -105,7 +105,7 @@ class Order extends FromServer {
 						AND available = true
 						AND archived = false
 						ORDER BY id",
-							$prod->tablename, $obj->supplier->id );
+							$prod->tablename, $obj->supplier );
 		else
 			$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY id",
 						$this->tablename, "products", $obj->id );

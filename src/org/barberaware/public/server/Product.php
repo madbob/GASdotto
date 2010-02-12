@@ -135,11 +135,18 @@ class Product extends FromServer {
 
 		if ( $align_existing_orders == true ) {
 			$query = sprintf ( "SELECT id FROM Orders WHERE supplier = %d AND status = 0",
-			                   $obj->supplier->id, date ( "Y-m-d" ) );
+			                   $obj->supplier, date ( "Y-m-d" ) );
 			$returned = query_and_check ( $query, "Impossibile verificare lista oggetti " . $this->classname );
 			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
 			if ( $obj->available == "true" ) {
+				/**
+					TODO	Chiarire se i nuovi prodotti devono finire
+						davvero negli ordini aperti o no, e risistemare
+						questa roba!
+				*/
+
+				/*
 				foreach ( $rows as $row ) {
 					$query = sprintf ( "FROM Orders_products WHERE parent = %d AND target = %d", $row [ "id" ], $id );
 					if ( db_row_count ( $query ) == 0 ) {
@@ -148,6 +155,7 @@ class Product extends FromServer {
 						query_and_check ( $query, "Impossibile aggiungere prodotto ora ordinabile" );
 					}
 				}
+				*/
 			}
 			else {
 				foreach ( $rows as $row ) {
@@ -157,11 +165,6 @@ class Product extends FromServer {
 				}
 			}
 		}
-
-		/*
-		$query = sprintf ( "UPDATE %s SET archived = false WHERE id = %d", $this->tablename, $id );
-		$returned = query_and_check ( $query, "Impossibile sincronizzare " . $this->classname );
-		*/
 
 		return $id;
 	}
