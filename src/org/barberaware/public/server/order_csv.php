@@ -90,7 +90,14 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$q = comma_format ( $prod_user->quantity );
+			$unit = $prod_user->product->unit_size;
+
+			if ( $unit <= 0.0 )
+				$q = $prod_user->quantity;
+			else
+				$q = ( $prod_user->quantity / $unit );
+
+			$q = comma_format ( $q );
 
 			if ( $prod_user->delivered != 0 ) {
 				$d = comma_format ( $prod_user->delivered );
@@ -103,19 +110,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 
-			/*
-				Per i prodotti con pezzatura, il prezzo di trasporto viene
-				calcolato in funzione dei numeri di pezzi
-			*/
-			$unit = $prod_user->product->unit_size;
-			if ( $unit <= 0 )
-				$sum = ( $prod_user->quantity * $prod_user->product->shipping_price );
-			else
-				$sum = ( ( $prod_user->quantity / $unit ) * $prod_user->product->shipping_price );
+			$sum = ( $prod_user->quantity * $prod_user->product->shipping_price );
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
-			$sum = $prod_user->delivered * $prod_user->product->unit_price;
+			$sum = ( $prod_user->delivered * $prod_user->product->unit_price ) + ( $prod_user->delivered * $prod_user->product->shipping_price );
 			$shipped_sums [ $a ] += $sum;
 			$shipped_total += $sum;
 

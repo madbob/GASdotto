@@ -191,14 +191,6 @@ public class FromServerAttribute {
 			else
 				real_object = this.getObject ();
 
-			/**
-				TODO	Ottimizzazione: qui si potrebbe usare solo l'ID dell'oggetto anziche' il
-					blocco completo, per risparmiare sia il tempo di conversione in JSON che di
-					trasmissione del dato. Devo pero' essere sicuro che l'oggetto stesso non sia
-					variato nel tempo: eventualmente si puo' agganciare un qualche flag nelle
-					funzioni setNNN()
-			*/
-
 			if ( real_object.getLocalID () == -1 )
 				ret = real_object.toJSONObject ();
 			else

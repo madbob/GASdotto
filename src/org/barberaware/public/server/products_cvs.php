@@ -84,10 +84,10 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 			$quantities_sums [ $a ] += $q;
 
-			$sum = $q * $prod_user->product->unit_price;
+			$sum = $prod_user->quantity * $prod_user->product->unit_price;
 			$products_sums [ $a ] += $sum;
 
-			$sum = $q * $prod_user->product->shipping_price;
+			$sum = $prod_user->quantity * $prod_user->product->shipping_price;
 			$shipping_sum [ $a ] += $sum;
 
 			$e++;

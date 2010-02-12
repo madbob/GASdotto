@@ -231,7 +231,7 @@ public class DeliveryPanel extends GenericPanel {
 		downloads.setStyleName ( "bottom-buttons" );
 		downloads.add ( Utils.getServer ().fileLink ( "CSV delle Consegne", "", "order_csv.php?id=" + order.getLocalID () ) );
 		downloads.add ( Utils.getServer ().fileLink ( "PDF delle Consegne", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
-		downloads.add ( Utils.getServer ().fileLink ( "CVS dei Prodotti", "", "products_cvs.php?id=" + order.getLocalID () ) );
+		downloads.add ( Utils.getServer ().fileLink ( "CSV dei Prodotti", "", "products_cvs.php?id=" + order.getLocalID () ) );
 		ver.add ( downloads );
 
 		ver.add ( new HTML ( "<hr>" ) );
