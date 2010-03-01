@@ -95,13 +95,45 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$user_total = 0;
 	$user_total_ship = 0;
 	$shipped_total = 0;
-	usort ( $user_products, "sort_product_user_by_name" );
+
+	/*
+		Devo ordinare l'array di ProductUser per nome del prodotto, in modo da essere
+		allineato all'array di Products, ma i ProductUser non contengono il nome. Percui
+		mi tocca ordinarlo prendendo come traccia l'array di Products, e ricostruirlo da
+		un'altra parte
+	*/
+
+	$proxy = array ();
+
+	for ( $e = 0; $e < count ( $products ); $e++ ) {
+		$prod = $products [ $e ];
+
+		for ( $a = 0; $a < count ( $user_products ); $a++ ) {
+			$prod_user = $user_products [ $a ];
+
+			if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+				$proxy [] = $prod_user;
+				break;
+			}
+		}
+	}
+
+	unset ( $user_products );
+	$user_products = $proxy;
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+			/*
+				Se l'ordine e' stato solo salvato e non consegnato per davvero (status == 3) ignoro
+				le quantita' marcate come consegnate. Semplicemente azzero qui la variabile relativa
+				onde evitare di piazzara if() qua e la'
+			*/
+			if ( $order_user->status == 3 )
+				$prod_user->delivered = 0;
+
 			$unit = $prod->getAttribute ( "unit_size" )->value;
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;

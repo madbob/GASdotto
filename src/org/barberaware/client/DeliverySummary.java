@@ -97,6 +97,21 @@ public class DeliverySummary extends Composite {
 		user = ( User ) uorder.getObject ( "baseuser" );
 		row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
 
+		/**
+			TODO	Sarebbe assai meglio avere due modalita' per il pannello consegne, selezionabili in
+				cima: una per la fase di "prezzatura" (quando si compilano i form e si salvano
+				semplicemente) ed una per la fase di "consegna" vera e propria. Questo per mostrare
+				solo i tasti funzione utili in quel dato contesto, anziche' la sfilza presente adesso
+		*/
+
+		row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				row.getObject ().setInt ( "status", OrderUser.SAVED );
+				row.savingObject ();
+				row.open ( false );
+			}
+		} );
+
 		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				row.getObject ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
@@ -150,6 +165,7 @@ public class DeliverySummary extends Composite {
 		status = order.getInt ( "status" );
 		bar = form.getIconsBar ();
 
+		bar.delImage ( "images/notifications/order_saved.png" );
 		bar.delImage ( "images/notifications/order_shipped.png" );
 		bar.delImage ( "images/notifications/order_shipping.png" );
 
@@ -157,6 +173,8 @@ public class DeliverySummary extends Composite {
 			bar.addImage ( "images/notifications/order_shipped.png" );
 		else if ( status == OrderUser.PARTIAL_DELIVERY )
 			bar.addImage ( "images/notifications/order_shipping.png" );
+		else if ( status == OrderUser.SAVED )
+			bar.addImage ( "images/notifications/order_saved.png" );
 	}
 
 	public void modOrder ( OrderUser uorder ) {
