@@ -81,7 +81,7 @@ public class Login extends Composite {
 		Image image;
 
 		container = new VerticalPanel ();
-		
+
 		desc = gas.getString ( "image" );
 		if ( desc.equals ( "" ) == false ) {
 			image = new Image ( Utils.getServer ().getDomain () + desc );
@@ -123,7 +123,7 @@ public class Login extends Composite {
 	private void executeLogin () {
 		String user;
 		String pwd;
-		ServerRequest params;
+		ObjectRequest params;
 
 		user = username.getText ();
 		if ( user.equals ( "" ) ) {
@@ -134,7 +134,7 @@ public class Login extends Composite {
 
 		pwd = password.getText ();
 
-		params = new ServerRequest ( "Login" );
+		params = new ObjectRequest ( "Login" );
 		params.add ( "username", user );
 		params.add ( "password", pwd );
 

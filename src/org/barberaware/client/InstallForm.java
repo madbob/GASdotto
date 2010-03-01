@@ -55,9 +55,9 @@ public class InstallForm extends Composite {
 	}
 
 	private void doProbe () {
-		ServerRequest params;
+		ObjectRequest params;
 
-		params = new ServerRequest ( "Probe" );
+		params = new ObjectRequest ( "Probe" );
 
 		Utils.getServer ().serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {

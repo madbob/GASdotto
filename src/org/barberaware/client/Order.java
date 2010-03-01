@@ -83,9 +83,9 @@ public class Order extends FromServer {
 	}
 
 	public void asyncLoadUsersOrders () {
-		ServerRequest params;
+		ObjectRequest params;
 
-		params = new ServerRequest ( "OrderUser" );
+		params = new ObjectRequest ( "OrderUser" );
 		params.add ( "baseorder", getLocalID () );
 		Utils.getServer ().testObjectReceive ( params );
 	}

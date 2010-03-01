@@ -83,20 +83,35 @@ public class ProductsEditPanel extends Composite implements FromServerArray {
 		}
 	}
 
+	public void unlock () {
+		list.unlock ();
+	}
+
 	public int numProducts () {
 		return list.latestIterableIndex ();
 	}
 
 	/****************************************************************** lista */
 
+	private FromServerValidateCallback filterSupplier () {
+		return new FromServerValidateCallback () {
+			public boolean checkObject ( FromServer object ) {
+				return supplier.equals ( object.getObject ( "supplier" ) );
+			}
+		};
+	}
+
 	private Widget doListView () {
-		list = new FormCluster ( "Product", "Nuovo Prodotto", false ) {
+		list = new FormCluster ( "Product", "Nuovo Prodotto", filterSupplier (), true ) {
 				protected FromServerForm doEditableRow ( FromServer product ) {
 					FromServerForm ver;
 					HorizontalPanel hor;
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
 					FromServerSelector select;
+
+					if ( product.getBool ( "archived" ) == true )
+						return null;
 
 					ver = new FromServerForm ( product );
 
@@ -150,12 +165,6 @@ public class ProductsEditPanel extends Composite implements FromServerArray {
 					sframe.add ( ver.getWidget ( "description" ) );
 					ver.add ( sframe );
 
-					if ( product.getBool ( "archived" ) == true ) {
-						IconsBar icons;
-						icons = ver.getIconsBar ();
-						icons.addImage ( "images/notifications/product_archived.png" );
-					}
-
 					return ver;
 				}
 
@@ -171,8 +180,21 @@ public class ProductsEditPanel extends Composite implements FromServerArray {
 					FromServer obj;
 
 					obj = form.getObject ();
-					if ( obj.getBool ( "archived" ) == true )
+					if ( obj.getBool ( "archived" ) == true ) {
 						deleteElement ( obj );
+						table.removeElement ( obj );
+					}
+					else {
+						table.refreshElement ( obj );
+					}
+				}
+
+				protected void customNew ( FromServer object, boolean true_new ) {
+					table.addElement ( object );
+				}
+
+				protected void customDelete ( FromServer object ) {
+					table.removeElement ( object );
 				}
 		};
 

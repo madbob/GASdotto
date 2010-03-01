@@ -112,7 +112,7 @@ public class ServerHook {
 		}
 	}
 
-	public boolean serverGet ( ServerRequest request, ServerResponse handler ) {
+	public boolean serverGet ( ObjectRequest request, ServerResponse handler ) {
 		RequestBuilder builder;
 		Request response;
 
@@ -196,7 +196,7 @@ public class ServerHook {
 		monitor.objects.add ( obj );
 	}
 
-	private void executeMonitor ( final ServerMonitor monitor, ServerRequest params ) {
+	private void executeMonitor ( final ServerMonitor monitor, ObjectRequest params ) {
 		params.put ( "has", monitor.comparingObjects );
 		executingMonitor++;
 
@@ -230,15 +230,15 @@ public class ServerHook {
 				executingMonitor--;
 
 				if ( monitorSchedulingQueue.size () != 0 ) {
-					ServerRequest next;
-					next = ( ServerRequest ) monitorSchedulingQueue.remove ( 0 );
+					ObjectRequest next;
+					next = ( ObjectRequest ) monitorSchedulingQueue.remove ( 0 );
 					testObjectReceiveImpl ( next );
 				}
 			}
 		} );
 	}
 
-	private void testObjectReceiveImpl ( ServerRequest params ) {
+	private void testObjectReceiveImpl ( ObjectRequest params ) {
 		ServerMonitor tmp;
 
 		tmp = getMonitor ( params.getType () );
@@ -281,13 +281,13 @@ public class ServerHook {
 		presso il server per recuperare la lista di oggetti che mi mancano
 	*/
 	public void testObjectReceive ( String type ) {
-		ServerRequest params;
+		ObjectRequest params;
 
-		params = new ServerRequest ( type );
+		params = new ObjectRequest ( type );
 		testObjectReceive ( params );
 	}
 
-	private void loadWithCachedObjects ( String type, ServerRequest params ) {
+	private void loadWithCachedObjects ( String type, ObjectRequest params ) {
 		int num;
 		String subtype;
 		ArrayList subclasses;
@@ -309,7 +309,7 @@ public class ServerHook {
 		}
 	}
 
-	public void testObjectReceive ( ServerRequest params ) {
+	public void testObjectReceive ( ObjectRequest params ) {
 		loadWithCachedObjects ( params.getType (), params );
 
 		if ( executingMonitor >= MAXIMUM_CONCURRENT_REQUESTS ) {
@@ -424,24 +424,19 @@ public class ServerHook {
 
 	public void invalidateCacheByCondition ( ObjectRequest req ) {
 		int len;
-		String type;
 		ArrayList objects;
 		FromServer obj;
 
-		type = req.getType ();
-		objects = getObjectsFromCache ( type );
+		objects = getObjectsFromCache ( req.getType () );
 		len = objects.size ();
 
 		for ( int i = 0; i < len; i++ ) {
 			obj = ( FromServer ) objects.get ( i );
-
-			if ( req.matches ( obj ) ) {
+			if ( req.matches ( obj ) )
 				triggerObjectDeletion ( obj );
-				break;
-			}
 		}
 
-		testObjectReceive ( type );
+		testObjectReceive ( req );
 	}
 
 	/****************************************************************** loading */

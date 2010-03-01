@@ -622,9 +622,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		ServerRequest params;
+		ObjectRequest params;
 
-		params = new ServerRequest ( "Order" );
+		params = new ObjectRequest ( "Order" );
 		params.add ( "status", Order.OPENED );
 		Utils.getServer ().testObjectReceive ( params );
 	}

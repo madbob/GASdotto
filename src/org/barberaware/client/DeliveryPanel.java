@@ -321,9 +321,9 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		ServerRequest params;
+		ObjectRequest params;
 
-		params = new ServerRequest ( "Order" );
+		params = new ObjectRequest ( "Order" );
 
 		/* RI-CORREGGERE QUESTO */
 		/*

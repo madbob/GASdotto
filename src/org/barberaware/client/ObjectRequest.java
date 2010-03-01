@@ -23,13 +23,14 @@ import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ObjectRequest {
+public class ObjectRequest extends JSONObject {
 	private String			type;
 	private ArrayList		attributes;
 
 	public ObjectRequest ( String t ) {
 		type = t;
 		attributes = new ArrayList ();
+		put ( "type", new JSONString ( type ) );
 	}
 
 	public String getType () {
@@ -44,6 +45,8 @@ public class ObjectRequest {
 		attr = new FromServerAttribute ( key, FromServer.STRING, useless );
 		attr.setString ( value );
 		attributes.add ( attr );
+
+		put ( key, new JSONString ( value ) );
 	}
 
 	public void add ( String key, int value ) {
@@ -54,6 +57,8 @@ public class ObjectRequest {
 		attr = new FromServerAttribute ( key, FromServer.INTEGER, useless );
 		attr.setInt ( value );
 		attributes.add ( attr );
+
+		put ( key, new JSONNumber ( value ) );
 	}
 
 	public void add ( String key, FromServer value, Class classref ) {
@@ -64,6 +69,8 @@ public class ObjectRequest {
 		attr = new FromServerAttribute ( key, FromServer.OBJECT, classref );
 		attr.setObject ( value );
 		attributes.add ( attr );
+
+		put ( key, new JSONNumber ( value.getLocalID () ) );
 	}
 
 	public boolean matches ( FromServer compare ) {

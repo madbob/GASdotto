@@ -25,12 +25,9 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class SuppliersEditPanel extends GenericPanel {
 	private FormCluster		main;
-	private ArrayList		scheduledProducts;
 
 	public SuppliersEditPanel () {
 		super ();
-
-		scheduledProducts = new ArrayList ();
 
 		main = new FormCluster ( "Supplier", "Nuovo Fornitore" ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
@@ -60,78 +57,18 @@ public class SuppliersEditPanel extends GenericPanel {
 					products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
 					products.enable ( true );
 				}
+			}
 
-				checkProductsSchedule ();
+			protected void asyncLoad ( FromServerForm form ) {
+				ProductsEditPanel products;
+
+				products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
+				products.unlock ();
 			}
 		};
 
 		addTop ( main );
-
-		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				Product product;
-
-				product = ( Product ) object;
-				if ( insertProduct ( product ) == false )
-					scheduledProducts.add ( product );
-			}
-
-			public void onModify ( FromServer object ) {
-				Product product;
-				FromServerArray panel;
-
-				product = ( Product ) object;
-
-				panel = retrieveProductsPanel ( product );
-				if ( panel != null )
-					panel.refreshElement ( product );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				Product product;
-				FromServerArray panel;
-
-				product = ( Product ) object;
-
-				panel = retrieveProductsPanel ( product );
-				if ( panel != null ) {
-					panel.removeElement ( product );
-				}
-			}
-
-			protected String debugName () {
-				return "SuppliersEditPanel";
-			}
-		} );
-
 		Utils.getServer ().testObjectReceive ( "Supplier" );
-	}
-
-	private boolean insertProduct ( Product product ) {
-		FromServerArray panel;
-
-		panel = retrieveProductsPanel ( product );
-
-		if ( panel != null ) {
-			IconsBar icons;
-			FromServerForm supplier_form;
-
-			/*
-				Se prima la lista era vuota ed ora non lo e'
-				piu', rimuovo l'icona messa "sulla fiducia" al
-				momento della creazione
-			*/
-			supplier_form = main.retrieveForm ( product.getObject ( "supplier" ) );
-			icons = supplier_form.getIconsBar ();
-
-			if ( icons.hasImage ( "images/notifications/supplier_no_products.png" ) )
-				icons.delImage ( "images/notifications/supplier_no_products.png" );
-
-			panel.addElement ( product );
-			return true;
-		}
-		else
-			return false;
 	}
 
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
@@ -239,7 +176,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		final FromServerForm ver;
 		Supplier supplier;
 		TabPanel tabs;
-		IconsBar icons;
 
 		supplier = ( Supplier ) supp;
 
@@ -265,29 +201,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		tabs.selectTab ( 0 );
 
-		/*
-			Sulla fiducia assegno a tutti i fornitori l'icona per cui non ci sono
-			prodotti caricati per esso, utile all'utente per identificare la
-			situazione anomala. Quando poi arriveranno (nel trattamento degli oggetti
-			"Product") provvedo a rimuoverla
-		*/
-		icons = ver.getIconsBar ();
-		icons.addImage ( "images/notifications/supplier_no_products.png" );
-
 		return ver;
-	}
-
-	private void checkProductsSchedule () {
-		Product product;
-
-		for ( int i = 0; i < scheduledProducts.size (); i++ ) {
-			product = ( Product ) scheduledProducts.get ( i );
-
-			if ( insertProduct ( product ) == true ) {
-				scheduledProducts.remove ( i );
-				i--;
-			}
-		}
 	}
 
 	private FromServerArray retrieveProductsPanel ( Product product ) {

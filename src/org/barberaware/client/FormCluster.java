@@ -24,14 +24,19 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FormCluster extends FormGroup {
 	private String				objType;
-	private boolean				automatic;
-	private boolean				addable;
-	private boolean				locked;
+	private boolean				automatic		= true;
+	private boolean				locked			= false;
+	private FromServerValidateCallback	filterCallback		= null;
 
 	private void registerCallbacks () {
 		Utils.getServer ().onObjectEvent ( objType, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int add;
+
+				if ( filterCallback != null ) {
+					if ( filterCallback.checkObject ( object ) == false )
+						return;
+				}
 
 				add = 0;
 
@@ -77,6 +82,16 @@ public abstract class FormCluster extends FormGroup {
 			registerCallbacks ();
 	}
 
+	public FormCluster ( String type, String adding_text, FromServerValidateCallback filter, boolean lock ) {
+		super ( adding_text );
+		objType = type;
+		locked = lock;
+		filterCallback = filter;
+
+		if ( lock == false )
+			registerCallbacks ();
+	}
+
 	/*
 		Il parametro "auto" permette di definire l'automatismo di popolamento del
 		FormCluster: se == true esso viene automaticamente caricato con tutti gli oggetti
@@ -87,15 +102,12 @@ public abstract class FormCluster extends FormGroup {
 		super ( adding_text );
 		automatic = auto;
 		objType = type;
-		locked = false;
 		registerCallbacks ();
 	}
 
 	public FormCluster ( String type, String adding_text ) {
 		super ( adding_text );
-		automatic = true;
 		objType = type;
-		locked = false;
 		registerCallbacks ();
 	}
 

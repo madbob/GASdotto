@@ -99,16 +99,18 @@ class Order extends FromServer {
 			ordinabili presso il fornitore di riferimento, e li scrivo nell'apposita
 			tabella
 		*/
-		if ( $obj->id == -1 )
+		if ( $obj->id == -1 ) {
 			$query = sprintf ( "SELECT id FROM %s
 						WHERE supplier = %d
 						AND available = true
 						AND archived = false
 						ORDER BY id",
 							$prod->tablename, $obj->supplier );
-		else
+		}
+		else {
 			$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY id",
 						$this->tablename, "products", $obj->id );
+		}
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $prod->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_NUM );
@@ -116,6 +118,44 @@ class Order extends FromServer {
 		foreach ( $rows as $row ) {
 			$product = new $prod->classname;
 			$product->readFromDB ( $row [ 0 ] );
+
+			/*
+				Se sto creando un nuovo ordine, duplico tutti i prodotti
+				affinche' essi siano disponibili per futuri riferimenti ma quelli
+				attuali restino comunque indipendenti. Questo per permettere di
+				cambiare i prezzi dei singoli elementi sul singolo ordine, e
+				tenere traccia dello storico
+			*/
+			if ( $obj->id == -1 ) {
+				/*
+					Questo e' per risolvere un vecchio bug di GASdotto, per cui i prodotti non
+					venivano effettivamente duplicati alla creazione di un nuovo ordine.
+					Ma si decide comunque di lasciare qui questo codice, affinche' intervenga
+					qualora per qualche stravagante motivo ci si trovi nella situazione di non
+					aver archiviato un prodotto incluso in un ordine e per evitare che due ordini
+					puntino dunque allo stesso elemento
+				*/
+				$query = sprintf ( "FROM Orders_products WHERE target = %d", $product->getAttribute ( 'id' )->value );
+				if ( db_row_count ( $query ) != 0 ) {
+					$buggy_prod = $product->exportable ();
+					$buggy_prod->previous_description = $product->getAttribute ( 'id' )->value;
+					$buggy_prod->id = -1;
+					$buggy_id = $prod->save ( $buggy_prod );
+
+					$product = new $prod->classname;
+					$product->readFromDB ( $buggy_id );
+				}
+
+				$dup_prod = $product->exportable ();
+				$dup_prod->previous_description = $product->getAttribute ( 'id' )->value;
+				$dup_prod->id = -1;
+				$prod->save ( $dup_prod );
+
+				$original_prod = $product->exportable ();
+				$original_prod->archived = "true";
+				$prod->save ( $original_prod );
+			}
+
 			array_push ( $obj->products, $product->exportable () );
 		}
 

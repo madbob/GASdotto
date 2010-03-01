@@ -51,6 +51,9 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 					PriceViewer price;
 					StringLabel desc;
 
+					if ( product.getBool ( "archived" ) == true )
+						return null;
+
 					ver = new FromServerForm ( product, FromServerForm.NOT_EDITABLE );
 
 					hor = new HorizontalPanel ();

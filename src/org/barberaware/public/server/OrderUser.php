@@ -91,10 +91,15 @@ class OrderUser extends FromServer {
 			Questo e' per evitare di salvare nel DB ordini vuoti, per cui non e'
 			stata settata alcuna quantita' di prodotti
 		*/
-		if ( count ( $obj->products ) == 0 )
-			return -1;
-		else
+		if ( count ( $obj->products ) == 0 ) {
+			if ( $obj->id == -1 )
+				return -1;
+			else if ( $obj->id != -1 )
+				return parent::destroy ( $obj );
+		}
+		else {
 			return parent::save ( $obj );
+		}
 	}
 }
 

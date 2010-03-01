@@ -28,9 +28,9 @@ public class Session {
 	private static SystemConf	currentSystem	= null;
 
 	public static void initSession ( final ServerResponse on_finish ) {
-		ServerRequest params;
+		ObjectRequest params;
 
-		params = new ServerRequest ( "Session" );
+		params = new ObjectRequest ( "Session" );
 
 		Utils.getServer ().serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {

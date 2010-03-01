@@ -87,11 +87,11 @@ public class NotificationPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		ServerRequest params;
+		ObjectRequest params;
 
 		Utils.getServer ().testObjectReceive ( "User" );
 
-		params = new ServerRequest ( "Notification" );
+		params = new ObjectRequest ( "Notification" );
 		params.add ( "all", 1 );
 		Utils.getServer ().testObjectReceive ( params );
 	}
