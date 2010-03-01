@@ -67,6 +67,18 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 
 $request = new stdClass ();
 $request->baseorder = $id;
+
+/*
+	Questo e' per evitare che lo script ricarichi per intero l'ordine di riferimento e tutti
+	i prodotti per ogni singolo OrderUser
+*/
+$request->has_Order = array ( $id );
+$request->has_Product = array ();
+for ( $i = 0; $i < count ( $products ); $i++ ) {
+	$prod = $products [ $i ];
+	$request->has_Product [] = $prod->getAttribute ( "id" )->value;
+}
+
 $order_user_proxy = new OrderUser ();
 $contents = $order_user_proxy->get ( $request, false );
 usort ( $contents, "sort_orders_by_user" );
@@ -89,8 +101,10 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
-		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$unit = $prod_user->product->unit_size;
+		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+			$unit = $prod->getAttribute ( "unit_size" )->value;
+			$uprice = $prod->getAttribute ( "unit_price" )->value;
+			$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
 			if ( $unit <= 0.0 )
 				$q = $prod_user->quantity;
@@ -106,15 +120,15 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 			$output .= $q . ";";
 
-			$sum = $prod_user->quantity * $prod_user->product->unit_price;
+			$sum = $prod_user->quantity * $uprice;
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 
-			$sum = ( $prod_user->quantity * $prod_user->product->shipping_price );
+			$sum = ( $prod_user->quantity * $sprice );
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
-			$sum = ( $prod_user->delivered * $prod_user->product->unit_price ) + ( $prod_user->delivered * $prod_user->product->shipping_price );
+			$sum = ( $prod_user->delivered * $uprice ) + ( $prod_user->delivered * $sprice );
 			$shipped_sums [ $a ] += $sum;
 			$shipped_total += $sum;
 

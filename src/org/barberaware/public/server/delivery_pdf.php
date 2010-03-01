@@ -118,28 +118,6 @@ array_push ( $header, 'Pagato' );
 array_push ( $header, 'Stato Consegna' );
 
 /*
-	Init PDF
-*/
-
-$pdf = new DeliveryReport ( 'P', 'mm', 'A4', true, 'UTF-8', false );
-
-$pdf->SetCreator ( 'TCPDF' );
-$pdf->SetAuthor ( 'GASdotto' );
-$pdf->SetTitle ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
-$pdf->SetSubject ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
-$pdf->SetKeywords ( 'consegne, ordini, GASdotto, GAS, ' . $supplier_name );
-$pdf->SetHeaderData ( '', 0, 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date, '' );
-$pdf->setHeaderFont ( Array ( 'helvetica', '', 10 ) );
-$pdf->setFooterFont ( Array ( 'helvetica', '', 8 ) );
-$pdf->SetDefaultMonospacedFont ( 'courier' );
-$pdf->SetMargins ( 15, 27, 25, 15 );
-$pdf->SetHeaderMargin ( 5 );
-$pdf->SetFooterMargin ( 10 );
-$pdf->SetAutoPageBreak ( true, 25 );
-$pdf->setImageScale ( 1 );
-$pdf->setLanguageArray ( $l );
-
-/*
 	Format data
 */
 
@@ -161,8 +139,20 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 
 $request = new stdClass ();
 $request->baseorder = $id;
+
+/*
+	Questo e' per evitare che lo script ricarichi per intero l'ordine di riferimento e tutti
+	i prodotti per ogni singolo OrderUser
+*/
+$request->has_Order = array ( $id );
+$request->has_Product = array ();
+for ( $i = 0; $i < count ( $products ); $i++ ) {
+	$prod = $products [ $i ];
+	$request->has_Product [] = $prod->getAttribute ( "id" )->value;
+}
+
 $order_user_proxy = new OrderUser ();
-$contents = $order_user_proxy->get ( $request, false );
+$contents = $order_user_proxy->get ( $request, true );
 usort ( $contents, "sort_orders_by_user" );
 
 for ( $i = 0; $i < count ( $contents ); $i++ ) {
@@ -184,8 +174,10 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
-		if ( $prod->getAttribute ( "id" )->value == $prod_user->product->id ) {
-			$unit = $prod_user->product->unit_size;
+		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+			$unit = $prod->getAttribute ( "unit_size" )->value;
+			$uprice = $prod->getAttribute ( "unit_price" )->value;
+			$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
 			if ( $unit <= 0.0 )
 				$q = $prod_user->quantity;
@@ -205,19 +197,18 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				Per i prodotti con pezzatura, il prezzo di trasporto viene
 				calcolato in funzione dei numeri di pezzi
 			*/
-			$unit = $prod_user->product->unit_size;
 			if ( $unit <= 0 )
-				$sum = ( $prod_user->quantity * $prod_user->product->shipping_price );
+				$sum = ( $prod_user->quantity * $sprice );
 			else
-				$sum = ( ( $prod_user->quantity / $unit ) * $prod_user->product->shipping_price );
+				$sum = ( ( $prod_user->quantity / $unit ) * $sprice );
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
-			$sum = $prod_user->quantity * $prod_user->product->unit_price;
+			$sum = $prod_user->quantity * $uprice;
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 
-			$sum = ( $prod_user->delivered * $prod_user->product->unit_price ) + ( $prod_user->delivered * $prod_user->product->shipping_price );
+			$sum = ( $prod_user->delivered * $uprice ) + ( $prod_user->delivered * $sprice );
 			$shipped_sums [ $a ] += $sum;
 			$shipped_total += $sum;
 
@@ -228,6 +219,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		}
 		else
 			$row [] = "";
+
+		unset ( $prod_user );
 	}
 
 	$row [] = format_price ( round ( $user_total, 2 ), false );
@@ -243,7 +236,13 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$row [] = "";
 
 	$data [] = $row;
+
+	unset ( $user_products );
+	unset ( $order_user );
 }
+
+unset ( $contents );
+unset ( $products );
 
 $row = array ();
 $row [] = "Quantita' Totali";
@@ -320,6 +319,22 @@ $data [] = $row;
 	Output
 */
 
+$pdf = new DeliveryReport ( 'P', 'mm', 'A4', true, 'UTF-8', false );
+$pdf->SetCreator ( 'TCPDF' );
+$pdf->SetAuthor ( 'GASdotto' );
+$pdf->SetTitle ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
+$pdf->SetSubject ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
+$pdf->SetKeywords ( 'consegne, ordini, GASdotto, GAS, ' . $supplier_name );
+$pdf->SetHeaderData ( '', 0, 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date, '' );
+$pdf->setHeaderFont ( Array ( 'helvetica', '', 10 ) );
+$pdf->setFooterFont ( Array ( 'helvetica', '', 8 ) );
+$pdf->SetDefaultMonospacedFont ( 'courier' );
+$pdf->SetMargins ( 15, 27, 25, 15 );
+$pdf->SetHeaderMargin ( 5 );
+$pdf->SetFooterMargin ( 10 );
+$pdf->SetAutoPageBreak ( true, 25 );
+$pdf->setImageScale ( 1 );
+$pdf->setLanguageArray ( $l );
 $pdf->ColoredTable ( $header, $data );
 $pdf->Output ( 'consegne_' . $supplier_name . '_' . $shipping_date . '.pdf', 'I' );
 
