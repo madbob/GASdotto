@@ -18,6 +18,58 @@
  */
 
 require_once ( "utils.php" );
+require_once ( "tcpdf/tcpdf.php" );
+
+class DeliveryReport extends TCPDF {
+	public function ColoredTable ( $header, $data ) {
+		$this->SetFillColor ( 224, 235, 255 );
+		$this->SetTextColor ( 0 );
+		$this->SetDrawColor ( 128, 0, 0 );
+		$this->SetLineWidth ( 0.3 );
+		$this->SetFont ( 'helvetica', '', 7 );
+
+		$offset = 0;
+		$end = 0;
+		$tot = count ( $header );
+
+		do {
+			$this->AddPage ();
+
+			if ( $end + 10 > $tot )
+				$end = $tot;
+			else
+				$end = $end + 10;
+
+			if ( $tot <= 10 )
+				$width = 100;
+			else
+				$width = 10 * ( $end - $offset );
+
+			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . $width . '%"><tr>';
+			for ( $i = $offset; $i < $end; $i++ )
+				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
+			$html .= '</tr>';
+
+			foreach ( $data as $row ) {
+				$html .= '<tr>';
+
+				for ( $i = $offset; $i < $end; $i++ ) {
+					$val = $row [ $i ];
+					$html .= '<td>' . $val . '</td>';
+				}
+
+				$html .= '</tr>';
+			}
+
+			$html .= '</table>';
+
+			$this->writeHTML ( $html, true, false, false, false, 'C' );
+
+			$offset = $end;
+
+		} while ( $end < $tot );
+	}
+}
 
 $id = $_GET [ 'id' ];
 if ( isset ( $id ) == false )
@@ -28,7 +80,6 @@ if ( check_session () == false )
 
 $order = new Order ();
 $order->readFromDB ( $id );
-
 $supplier = $order->getAttribute ( 'supplier' )->value;
 $supplier_name = $supplier->getAttribute ( 'name' )->value;
 $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
@@ -36,13 +87,7 @@ $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
-$products_names = array ();
-$products_prices = array ();
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$prod = $products [ $i ];
-	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices [] = format_price ( $prod->getAttribute ( "unit_price" )->value, false );
-}
+$header = array ( 'Prodotto', 'Quantità', 'Prezzo Totale', 'Prezzo Trasporto' );
 
 $products_sums = array ();
 $quantities_sums = array ();
@@ -133,18 +178,34 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	}
 }
 
-$output = "Prodotto;Quantità;Prezzo Totale;Prezzo Trasporto\n";
+$data = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$q = comma_format ( round ( $quantities_sums [ $i ], 2 ), false );
 	$p = format_price ( round ( $products_sums [ $i ], 2 ), false );
 	$s = format_price ( round ( $shipping_sum [ $i ], 2 ), false );
-	$output .= ( $prod->getAttribute ( "name" )->value ) . ';' . $q . ';' . $p . ';' . $s . "\n";
+	$row = array ( ( $prod->getAttribute ( "name" )->value ), $q, $p, $s );
+	$data [] = $row;
 }
 
-header ( "Content-Type: plain/text" );
-header ( 'Content-Disposition: inline; filename="' . 'ordinazioni_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
-echo $output;
+$pdf = new DeliveryReport ( 'P', 'mm', 'A4', true, 'UTF-8', false );
+$pdf->SetCreator ( 'TCPDF' );
+$pdf->SetAuthor ( 'GASdotto' );
+$pdf->SetTitle ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
+$pdf->SetSubject ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
+$pdf->SetKeywords ( 'consegne, ordini, GASdotto, GAS, ' . $supplier_name );
+$pdf->SetHeaderData ( '', 0, 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date, '' );
+$pdf->setHeaderFont ( Array ( 'helvetica', '', 10 ) );
+$pdf->setFooterFont ( Array ( 'helvetica', '', 8 ) );
+$pdf->SetDefaultMonospacedFont ( 'courier' );
+$pdf->SetMargins ( 15, 27, 25, 15 );
+$pdf->SetHeaderMargin ( 5 );
+$pdf->SetFooterMargin ( 10 );
+$pdf->SetAutoPageBreak ( true, 25 );
+$pdf->setImageScale ( 1 );
+$pdf->setLanguageArray ( $l );
+$pdf->ColoredTable ( $header, $data );
+$pdf->Output ( 'ordinazioni_' . $supplier_name . '_' . $shipping_date . '.pdf', 'I' );
 
 ?>

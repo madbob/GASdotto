@@ -21,8 +21,6 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-import com.allen_sauer.gwt.log.client.Log;
-
 /**
 	TODO	Per motivi di semplicita' e' stato deciso di trattare in questo pannello sia gli ordini chiusi che
 		quelli aperti, per mettere sempre a disposizione strumenti di analisi globale (CSV e PDF) per
@@ -210,6 +208,7 @@ public class DeliveryPanel extends GenericPanel {
 		HorizontalPanel downloads;
 		final FromServerForm ver;
 		DeliverySummary summary;
+		LinksDialog files;
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
@@ -229,9 +228,22 @@ public class DeliveryPanel extends GenericPanel {
 
 		downloads = new HorizontalPanel ();
 		downloads.setStyleName ( "bottom-buttons" );
-		downloads.add ( Utils.getServer ().fileLink ( "CSV delle Consegne", "", "order_csv.php?id=" + order.getLocalID () ) );
-		downloads.add ( Utils.getServer ().fileLink ( "PDF delle Consegne", "", "delivery_pdf.php?id=" + order.getLocalID () ) );
-		downloads.add ( Utils.getServer ().fileLink ( "CSV dei Prodotti", "", "products_cvs.php?id=" + order.getLocalID () ) );
+
+		files = new LinksDialog ( "Ordini Prezzati" );
+		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=saved" );
+		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=saved" );
+		downloads.add ( files );
+
+		files = new LinksDialog ( "Ordini Consegnati" );
+		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=shipped" );
+		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=shipped" );
+		downloads.add ( files );
+
+		files = new LinksDialog ( "Riassunto Prodotti" );
+		files.addLink ( "CSV", "products_cvs.php?id=" + order.getLocalID () );
+		files.addLink ( "PDF", "products_pdf.php?id=" + order.getLocalID () );
+		downloads.add ( files );
+
 		ver.add ( downloads );
 
 		ver.add ( new HTML ( "<hr>" ) );

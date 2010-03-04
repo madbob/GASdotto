@@ -294,7 +294,7 @@ public class ServerHook {
 		FromServer obj;
 		ServerMonitor monitor;
 
-		obj = FromServerFactory.create ( type );
+		obj = FromServerFactory.dummyInstance ( type );
 		subclasses = obj.getContainedObjectsClasses ();
 		num = subclasses.size ();
 

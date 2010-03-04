@@ -126,12 +126,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
-			/*
-				Se l'ordine e' stato solo salvato e non consegnato per davvero (status == 3) ignoro
-				le quantita' marcate come consegnate. Semplicemente azzero qui la variabile relativa
-				onde evitare di piazzara if() qua e la'
-			*/
-			if ( $order_user->status == 3 )
+			if ( ( $_GET [ 'type' ] == 'shipped' && $order_user->status == 3 ) ||
+					( $_GET [ 'type' ] == 'saved' && $order_user->status != 3 ) )
 				$prod_user->delivered = 0;
 
 			$unit = $prod->getAttribute ( "unit_size" )->value;

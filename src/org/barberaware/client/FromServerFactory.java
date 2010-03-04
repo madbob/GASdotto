@@ -20,6 +20,8 @@ package org.barberaware.client;
 import java.util.*;
 
 public class FromServerFactory {
+	private static HashMap		dummyInstances		= null;
+
 	public static FromServer create ( String name ) {
 		/**
 			TODO	Questa funzione (e le relative invocazioni) e' da correggere in modo che prenda il
@@ -56,6 +58,21 @@ public class FromServerFactory {
 			return new Probe ();
 		else
 			return null;
+	}
+
+	public static FromServer dummyInstance ( String name ) {
+		FromServer ret;
+
+		if ( dummyInstances == null )
+			dummyInstances = new HashMap ();
+
+		ret = ( FromServer ) dummyInstances.get ( name );
+		if ( ret == null ) {
+			ret = create ( name );
+			dummyInstances.put ( name, ret );
+		}
+
+		return ret;
 	}
 
 	public static ArrayList getClasses () {

@@ -330,8 +330,11 @@ body {
 }
 
 .file-link {
+	cursor:			pointer;
+	cursor:			hand;
 	background:		#FFFFFF url('images/download.png') no-repeat scroll 0pt 50%;
         padding-left:		22px;
+	margin:			5px;
 }
 
 .suggestion-box .gwt-HTML {
