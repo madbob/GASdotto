@@ -229,14 +229,14 @@ public class DeliveryPanel extends GenericPanel {
 		downloads = new HorizontalPanel ();
 		downloads.setStyleName ( "bottom-buttons" );
 
-		files = new LinksDialog ( "Ordini Prezzati" );
-		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=saved" );
-		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=saved" );
-		downloads.add ( files );
-
 		files = new LinksDialog ( "Ordini Consegnati" );
 		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=shipped" );
 		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=shipped" );
+		downloads.add ( files );
+
+		files = new LinksDialog ( "Ordini Prezzati" );
+		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=saved" );
+		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=saved" );
 		downloads.add ( files );
 
 		files = new LinksDialog ( "Riassunto Prodotti" );

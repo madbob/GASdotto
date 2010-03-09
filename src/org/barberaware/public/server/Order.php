@@ -137,6 +137,20 @@ class Order extends FromServer {
 				*/
 				$query = sprintf ( "FROM Orders_products WHERE target = %d", $product->getAttribute ( 'id' )->value );
 				if ( db_row_count ( $query ) != 0 ) {
+					/*
+						Archivio il prodotto originale, linkato dagli
+						ordini precedentemente aperti. Presumibilmente e'
+						gia' archiviato, ma non si sa mai
+					*/
+					$old_prod = $product->exportable ();
+					$old_prod->archived = "true";
+					$prod->save ( $old_prod );
+
+					/*
+						Creo una copia, che e' quella che sara' inclusa
+						nell'ordine aperto adesso. Sara' marcata come
+						archiviata alla fine
+					*/
 					$buggy_prod = $product->exportable ();
 					$buggy_prod->previous_description = $product->getAttribute ( 'id' )->value;
 					$buggy_prod->id = -1;
@@ -146,11 +160,20 @@ class Order extends FromServer {
 					$product->readFromDB ( $buggy_id );
 				}
 
+				/*
+					Creo una copia, non assegnata a nessun ordine, che
+					restera' in attesa per il prossimo giro
+				*/
 				$dup_prod = $product->exportable ();
 				$dup_prod->previous_description = $product->getAttribute ( 'id' )->value;
 				$dup_prod->id = -1;
 				$prod->save ( $dup_prod );
 
+				/*
+					Il prodotto che finisce in quest'ordine viene marcato
+					come archiviato: e' accessibile solo se esplicitamente
+					chiesto dal pannello degli ordini
+				*/
 				$original_prod = $product->exportable ();
 				$original_prod->archived = "true";
 				$prod->save ( $original_prod );
