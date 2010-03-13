@@ -91,12 +91,20 @@ class Product extends FromServer {
 					una richiesta di salvataggio per un prodotto che per qualche motivo e'
 					contemplato in un ordine ma non e' ancora stato archiviato (e/o il cui
 					aggiornamento sullo stato di archiviazione non sia giunto al client, che
-					dunque vuole salvarlo con uno stato sbagliato)
+					dunque vuole salvarlo con uno stato sbagliato).
+					Da notare che comunque viene fatto pure un check sul fatto che esista davvero
+					un prodotto successivo a quello or ora modificato, onde evitare di archiviare
+					un prodotto che non deve essere archiviato. Se si avvera, la situazione e'
+					quantomeno imbarazzante in quanto non dovrebbe mai verificarsi, ma cerchiamo
+					di salvare il salvabile
 				*/
 				if ( $obj->archived == "false" ) {
 					$query = sprintf ( "FROM Orders_products WHERE target = %d", $obj->id );
-					if ( db_row_count ( $query ) != 0 )
-						$obj->archived = "true";
+					if ( db_row_count ( $query ) != 0 ) {
+						$query = sprintf ( "FROM %s WHERE previous_description = %d", $this->tablename, $obj->id );
+						if ( db_row_count ( $query ) != 0 )
+							$obj->archived = "true";
+					}
 				}
 			}
 		}

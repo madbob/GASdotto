@@ -178,6 +178,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$output .= 'Parzialmente Consegnato';
 	else if ( $order_user->status == 2 )
 		$output .= 'Consegnato';
+	else if ( $order_user->status == 3 )
+		$row [] = 'Prezzato';
 
 	$output .= "\n";
 }

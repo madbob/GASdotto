@@ -165,7 +165,12 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$row [] = sprintf ( "%s", $order_user->baseuser->surname );
+	$n = sprintf ( "%s", $order_user->baseuser->surname );
+	if ( strlen ( $n ) > 12 ) {
+		$n = substr ( $n, 0, 10 );
+		$n .= '...';
+	}
+	$row [] = $n;
 
 	$user_total = 0;
 	$user_total_ship = 0;
@@ -262,6 +267,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$row [] = 'Parzialmente Consegnato';
 	else if ( $order_user->status == 2 )
 		$row [] = 'Consegnato';
+	else if ( $order_user->status == 3 )
+		$row [] = 'Prezzato';
 	else
 		$row [] = "";
 
