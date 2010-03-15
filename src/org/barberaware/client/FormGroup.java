@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import java.lang.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
@@ -25,6 +26,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FormGroup extends Composite {
 	private VerticalPanel			main			= null;
+	private String				identifier		= "";
 	private Panel				addButtons		= null;
 	private boolean				addable			= false;
 
@@ -34,6 +36,7 @@ public abstract class FormGroup extends Composite {
 		initWidget ( main );
 
 		addable = false;
+		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
 
 		if ( adding_text != null ) {
 			addButtons = doAddButtonsBar ();
@@ -73,7 +76,7 @@ public abstract class FormGroup extends Composite {
 	}
 
 	public FromServerForm retrieveForm ( FromServer obj ) {
-		return retrieveFormById ( obj.getLocalID () );
+		return ( FromServerForm ) obj.getRelatedInfo ( identifier );
 	}
 
 	/*
@@ -110,7 +113,7 @@ public abstract class FormGroup extends Composite {
 			Occorre dunque fare un controllino...
 		*/
 
-		iter = retrieveForm ( object );
+		iter = retrieveFormById ( object.getLocalID () );
 
 		if ( iter == null ) {
 			iter = doEditableRow ( object );
@@ -125,6 +128,7 @@ public abstract class FormGroup extends Composite {
 
 				pos = getPosition ( object );
 				main.insert ( iter, pos );
+				object.addRelatedInfo ( identifier, iter );
 
 				ret = 1;
 			}
@@ -148,21 +152,12 @@ public abstract class FormGroup extends Composite {
 	}
 
 	public void deleteElement ( FromServer object ) {
-		int i;
-		int tot;
-		FromServer obj;
 		FromServerForm iter;
 
-		tot = latestIterableIndex ();
-
-		for ( i = 0; i < tot; i++ ) {
-			iter = ( FromServerForm ) main.getWidget ( i );
-			obj = iter.getObject ();
-
-			if ( obj != null && obj.equals ( object ) == true ) {
-				main.remove ( i );
-				break;
-			}
+		iter = ( FromServerForm ) object.getRelatedInfo ( identifier );
+		if ( iter != null ) {
+			iter.invalidate ();
+			object.delRelatedInfo ( identifier );
 		}
 	}
 

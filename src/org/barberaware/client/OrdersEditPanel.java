@@ -224,7 +224,7 @@ public class OrdersEditPanel extends GenericPanel {
 					*/
 					FromServerForm form;
 
-					form = main.retrieveForm ( object );
+					form = main.retrieveFormById ( object.getLocalID () );
 					if ( form != null ) {
 						form.setObject ( object );
 						addOrderDetails ( form );
@@ -250,6 +250,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			private boolean		lock		= false;
+			private ArrayList	orders		= null;
 
 			private void syncOrder ( OrderUser user ) {
 				Order order;
@@ -272,31 +273,38 @@ public class OrdersEditPanel extends GenericPanel {
 			public void onReceive ( FromServer object ) {
 				if ( lock == false )
 					syncOrder ( ( OrderUser ) object );
-
-				/**
-					TODO	Qui sarebbe il caso di tenere traccia almeno gli
-						ordini cui sono assegnati gli OrderUser in
-						arrivo, in modo di syncare in onBlockEnd() solo i
-						pannelli che ne necessitano
-				*/
+				else
+					orders.add ( object.getObject ( "baseorder" ) );
 			}
 
 			public void onBlockBegin () {
 				lock = true;
+
+				if ( orders == null )
+					orders = new ArrayList ();
 			}
 
 			public void onBlockEnd () {
 				FromServerForm form;
+				Order ord;
 				OrderSummary summary;
 
-				for ( int i = 0; i < main.latestIterableIndex (); i++ ) {
-					form = main.retrieveForm ( i );
-					summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
-					if ( summary != null )
-						summary.syncOrders ();
+				for ( int a = 0; a < orders.size (); a++ ) {
+					ord = ( Order ) orders.get ( a );
+
+					for ( int i = 0; i < main.latestIterableIndex (); i++ ) {
+						form = main.retrieveForm ( i );
+
+						if ( ord.equals ( form.getObject () ) ) {
+							summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+							if ( summary != null )
+								summary.syncOrders ();
+						}
+					}
 				}
 
 				lock = false;
+				orders.clear ();
 			}
 
 			public void onModify ( FromServer object ) {

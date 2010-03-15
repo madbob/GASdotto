@@ -87,7 +87,15 @@ public class LinksDialog extends Composite {
 	}
 
 	public void addLink ( String name, String link ) {
-		links.insert ( Utils.getServer ().fileLink ( mainText + " - " + name, "", link ), links.getWidgetCount () - 1 );
+		HTML button;
+
+		button = Utils.getServer ().fileLink ( mainText + " - " + name, "", link );
+		button.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				dialog.hide ();
+			}
+		} );
+
+		links.insert ( button, links.getWidgetCount () - 1 );
 	}
 }
-

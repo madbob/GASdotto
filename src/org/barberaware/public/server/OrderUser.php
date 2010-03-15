@@ -37,34 +37,39 @@ class OrderUser extends FromServer {
 		$ret = array ();
 		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
 
-		/*
-			Al momento questo viene usato solo per order_csv.php, dunque non viene
-			contemplato il parametro "has" come nelle altre ricerche
-		*/
-		if ( isset ( $request->baseorder ) ) {
-			$query .= sprintf ( "baseorder = %d ", $request->baseorder );
+		if ( isset ( $request->id ) ) {
+			$query .= sprintf ( "id = %d ", $request->id );
 		}
 		else {
-			$ord = new Order ();
-
-			if ( !isset ( $request->all ) ) {
-				/*
-					Per le richieste generiche, vengono scartati i dati per ordini
-					che sono gia' stati consegnati (status = 3)
-				*/
-				$query .= sprintf ( "baseorder NOT IN (SELECT id FROM %s WHERE status = %d) ", $ord->tablename, 3 );
+			/*
+				Al momento questo viene usato solo per order_csv.php, dunque non viene
+				contemplato il parametro "has" come nelle altre ricerche
+			*/
+			if ( isset ( $request->baseorder ) ) {
+				$query .= sprintf ( "baseorder = %d ", $request->baseorder );
 			}
 			else {
-				/*
-					Riempitivo...
-				*/
-				$query .= sprintf ( "id > -1 " );
-			}
-		}
+				$ord = new Order ();
 
-		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-			$ids = join ( ',', $request->has );
-			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+				if ( !isset ( $request->all ) ) {
+					/*
+						Per le richieste generiche, vengono scartati i dati per ordini
+						che sono gia' stati consegnati (status = 3)
+					*/
+					$query .= sprintf ( "baseorder NOT IN (SELECT id FROM %s WHERE status = %d) ", $ord->tablename, 3 );
+				}
+				else {
+					/*
+						Riempitivo...
+					*/
+					$query .= sprintf ( "id > -1 " );
+				}
+			}
+
+			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+				$ids = join ( ',', $request->has );
+				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+			}
 		}
 
 		if ( current_permissions () == 0 )

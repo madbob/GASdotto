@@ -59,9 +59,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				Order ord;
 
 				ord = ( Order ) object;
-				index = retrieveOrderForm ( ord );
+				form = ( FromServerForm ) ord.getRelatedInfo ( "OrdersPrivilegedPanel" );
 
-				if ( index == -1 ) {
+				if ( form == null ) {
 					status = ord.getInt ( "status" );
 
 					if ( status == Order.OPENED ) {
@@ -101,12 +101,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 				ord = ( Order ) object;
 
-				index = retrieveOrderForm ( ord );
+				form = ( FromServerForm ) ord.getRelatedInfo ( "OrdersPrivilegedPanel" );
 				status = object.getInt ( "status" );
 
-				if ( index != -1 ) {
+				if ( form != null ) {
 					if ( status == Order.OPENED ) {
-						form = ( FromServerForm ) getWidget ( index );
 						closedOrderAlert ( form, false );
 
 						/*
@@ -120,7 +119,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					}
 					else if ( status == Order.CLOSED ) {
 						if ( canMultiUser ( ord ) == true ) {
-							form = ( FromServerForm ) getWidget ( index );
 							closedOrderAlert ( form, true );
 						}
 						else {
@@ -132,12 +130,14 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 									situazione e' ben rara al momento lo lascio
 									cosi', ma sarebbe da correggere prima o dopo
 							*/
-							remove ( index );
+							form.invalidate ();
+							ord.delRelatedInfo ( "OrdersPrivilegedPanel" );
 							checkNoAvailableOrders ();
 						}
 					}
 					else {
-						remove ( index );
+						form.invalidate ();
+						ord.delRelatedInfo ( "OrdersPrivilegedPanel" );
 						checkNoAvailableOrders ();
 					}
 				}
@@ -154,11 +154,12 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			public void onDestroy ( FromServer object ) {
-				int index;
+				FromServerForm form;
 
-				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 ) {
-					remove ( index );
+				form = ( FromServerForm ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+				if ( form != null ) {
+					form.invalidate ();
+					object.delRelatedInfo ( "OrdersPrivilegedPanel" );
 					checkNoAvailableOrders ();
 				}
 			}
@@ -379,6 +380,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		products = new ProductsUserSelection ( order.getArray ( "products" ), true, freeedit );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
+		order.addRelatedInfo ( "OrdersPrivilegedPanel", ver );
 		return ver;
 	}
 
@@ -414,11 +416,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm form;
 
 		order = ( Order ) uorder.getObject ( "baseorder" );
-		index = retrieveOrderForm ( order );
+		form = ( FromServerForm ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
 
-		if ( index != -1 ) {
-			form = ( FromServerForm ) getWidget ( index );
-
+		if ( form != null ) {
 			if ( canMultiUser ( order ) ) {
 				syncLocalCache ( form, uorder, action );
 			}
@@ -557,28 +557,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			form.refreshContents ( uorder );
 		else
 			resetProducts ( form );
-	}
-
-	private int retrieveOrderForm ( Order parent ) {
-		FromServerForm form;
-		OrderUser tmp_order_user;
-		Order tmp_order;
-
-		if ( hasOrders == false )
-			return -1;
-
-		for ( int i = 0; i < getWidgetCount (); i++ ) {
-			form = ( FromServerForm ) getWidget ( i );
-
-			tmp_order_user = ( OrderUser ) form.getObject ();
-			if ( tmp_order_user != null ) {
-				tmp_order = ( Order ) tmp_order_user.getObject ( "baseorder" );
-				if ( tmp_order != null && parent.getLocalID () == tmp_order.getLocalID () )
-					return i;
-			}
-		}
-
-		return -1;
 	}
 
 	private void syncProductsInForm ( FromServerForm form, Order order ) {

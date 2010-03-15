@@ -280,7 +280,7 @@ public class FromServerForm extends Composite {
 		return panel;
 	}
 
-	private void invalidate () {
+	public void invalidate () {
 		object = null;
 		main.setVisible ( false );
 	}

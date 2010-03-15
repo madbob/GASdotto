@@ -47,7 +47,12 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 $products_names [] = "Totale Prezzo Prodotti";
 $products_names [] = "Totale Prezzo Trasporto";
 $products_names [] = "Totale";
-$products_names [] = "Pagato";
+
+if ( $_GET [ 'type' ] == 'saved' )
+	$products_names [] = "Prezzato";
+else
+	$products_names [] = "Pagato";
+
 $products_names [] = "Stato Consegna";
 $output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n\n";
 
@@ -126,10 +131,6 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
-			if ( ( $_GET [ 'type' ] == 'shipped' && $order_user->status == 3 ) ||
-					( $_GET [ 'type' ] == 'saved' && $order_user->status != 3 ) )
-				$prod_user->delivered = 0;
-
 			$unit = $prod->getAttribute ( "unit_size" )->value;
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;
@@ -156,9 +157,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
-			$sum = ( $prod_user->delivered * $uprice ) + ( $prod_user->delivered * $sprice );
-			$shipped_sums [ $a ] += $sum;
-			$shipped_total += $sum;
+			if ( ( $_GET [ 'type' ] == 'saved' && $order_user->status == 3 ) || ( $_GET [ 'type' ] != 'saved' && $order_user->status != 3 ) ) {
+				$sum = ( $prod_user->delivered * $uprice ) + ( $prod_user->delivered * $sprice );
+				$shipped_sums [ $a ] += $sum;
+				$shipped_total += $sum;
+			}
 
 			$quantities_sums [ $a ] += $prod_user->quantity;
 			$delivery_sums [ $a ] += $prod_user->delivered;

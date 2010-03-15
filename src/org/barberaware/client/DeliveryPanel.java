@@ -40,43 +40,27 @@ public class DeliveryPanel extends GenericPanel {
 		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				int index;
-				Order ord;
+			private void findAndDo ( Order ord, OrderUser uord, int action ) {
 				FromServerForm form;
 
-				ord = ( Order ) object.getObject ( "baseorder" );
 				if ( ord == null )
 					return;
 
-				index = retrieveOrderForm ( ord );
-				if ( index != -1 ) {
-					form = ( FromServerForm ) getWidget ( index );
-					syncUserOrder ( form, ( OrderUser ) object, 0 );
-				}
+				form = ( FromServerForm ) ord.getRelatedInfo ( "DeliveryPanel" );
+				if ( form != null )
+					syncUserOrder ( form, uord, action );
+			}
+
+			public void onReceive ( FromServer object ) {
+				findAndDo ( ( Order ) object.getObject ( "baseorder" ), ( OrderUser ) object, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				int index;
-				FromServerForm form;
-
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
-				if ( index != -1 ) {
-					form = ( FromServerForm ) getWidget ( index );
-					syncUserOrder ( form, ( OrderUser ) object, 1 );
-				}
+				findAndDo ( ( Order ) object.getObject ( "baseorder" ), ( OrderUser ) object, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				int index;
-				FromServerForm form;
-
-				index = retrieveOrderForm ( ( Order ) object.getObject ( "baseorder" ) );
-
-				if ( index != -1 ) {
-					form = ( FromServerForm ) getWidget ( index );
-					syncUserOrder ( form, ( OrderUser ) object, 2 );
-				}
+				findAndDo ( ( Order ) object.getObject ( "baseorder" ), ( OrderUser ) object, 2 );
 			}
 
 			protected String debugName () {
@@ -88,6 +72,7 @@ public class DeliveryPanel extends GenericPanel {
 			public void onReceive ( FromServer object ) {
 				int index;
 				Order ord;
+				FromServerForm form;
 
 				ord = ( Order ) object;
 
@@ -97,8 +82,8 @@ public class DeliveryPanel extends GenericPanel {
 					addTop ( doOrderRow ( ord ) );
 				*/
 
-				index = retrieveOrderForm ( ord );
-				if ( index == -1 ) {
+				form = ( FromServerForm ) ord.getRelatedInfo ( "DeliveryPanel" );
+				if ( form == null ) {
 					index = getSortedPosition ( object );
 					insert ( doOrderRow ( ord ), index );
 				}
@@ -108,11 +93,12 @@ public class DeliveryPanel extends GenericPanel {
 				int status;
 				int index;
 				Order ord;
+				FromServerForm form;
 
 				ord = ( Order ) object;
 
 				status = ord.getInt ( "status" );
-				index = retrieveOrderForm ( ord );
+				form = ( FromServerForm ) ord.getRelatedInfo ( "DeliveryPanel" );
 
 				/* RI-CORREGGERE QUESTO */
 				/*
@@ -135,16 +121,15 @@ public class DeliveryPanel extends GenericPanel {
 					}
 				}
 				*/
-				FromServerForm form;
+
 				ArrayList uorders;
 				OrderUser uord;
 
-				if ( index == -1 ) {
+				if ( form == null ) {
 					form = ( FromServerForm ) doOrderRow ( ord );
 					addTop ( form );
 				}
 				else {
-					form = ( FromServerForm ) getWidget ( index );
 					form.refreshContents ( null );
 				}
 
@@ -158,11 +143,14 @@ public class DeliveryPanel extends GenericPanel {
 			}
 
 			public void onDestroy ( FromServer object ) {
-				int index;
+				FromServerForm form;
 
-				index = retrieveOrderForm ( ( Order ) object );
-				if ( index != -1 )
-					remove ( index );
+				form = ( FromServerForm ) object.getRelatedInfo ( "DeliveryPanel" );
+
+				if ( form != null ) {
+					form.invalidate ();
+					object.delRelatedInfo ( "DeliveryPanel" );
+				}
 			}
 
 			protected String debugName () {
@@ -252,6 +240,7 @@ public class DeliveryPanel extends GenericPanel {
 		ver.setExtraWidget ( "list", summary );
 		ver.add ( summary );
 
+		order.addRelatedInfo ( "DeliveryPanel", ver );
 		return ver;
 	}
 
@@ -279,26 +268,6 @@ public class DeliveryPanel extends GenericPanel {
 			default:
 				break;
 		}
-	}
-
-	private int retrieveOrderForm ( Order parent ) {
-		int index;
-		FromServerForm form;
-		Order tmp_order;
-
-		if ( hasOrders == true ) {
-			index = parent.getLocalID ();
-
-			for ( int i = 0; i < getWidgetCount (); i++ ) {
-				form = ( FromServerForm ) getWidget ( i );
-				tmp_order = ( Order ) form.getObject ();
-
-				if ( index == tmp_order.getLocalID () )
-					return i;
-			}
-		}
-
-		return -1;
 	}
 
 	/****************************************************************** GenericPanel */

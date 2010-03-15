@@ -25,12 +25,15 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
+	private String			identifier;
 	private int			numOrders;
 
 	public DeliverySummary () {
 		main = new VerticalPanel ();
 		initWidget ( main );
 		main.setWidth ( "100%" );
+
+		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
 
 		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -44,11 +47,9 @@ public class DeliverySummary extends Composite {
 				StringLabel phone;
 
 				user = ( User ) object;
-				index = retrieveUser ( user );
+				form = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
 
-				if ( index != -1 ) {
-					form = ( FromServerForm ) main.getWidget ( index );
-
+				if ( form != null ) {
 					if ( Session.getGAS ().getBool ( "payments" ) == true )
 						user.checkUserPaying ( form );
 
@@ -61,13 +62,13 @@ public class DeliverySummary extends Composite {
 			}
 
 			public void onDestroy ( FromServer object ) {
-				int index;
-				User user;
+				FromServerForm form;
 
-				user = ( User ) object;
-				index = retrieveUser ( user );
-				if ( index != -1 )
-					main.remove ( index );
+				form = ( FromServerForm ) object.getRelatedInfo ( "DeliverySummary" + identifier );
+				if ( form != null ) {
+					form.invalidate ();
+					object.delRelatedInfo ( "DeliverySummary" + identifier );
+				}
 			}
 
 			protected String debugName () {
@@ -80,7 +81,6 @@ public class DeliverySummary extends Composite {
 	}
 
 	public void addOrder ( OrderUser uorder ) {
-		int index;
 		final FromServerForm row;
 		User user;
 		CustomCaptionPanel frame;
@@ -90,8 +90,7 @@ public class DeliverySummary extends Composite {
 		if ( numOrders == 0 )
 			main.remove ( 0 );
 
-		index = retrieveOrder ( uorder );
-		if ( index != -1 )
+		if ( uorder.getRelatedInfo ( "DeliverySummary" ) != null )
 			return;
 
 		user = ( User ) uorder.getObject ( "baseuser" );
@@ -156,6 +155,9 @@ public class DeliverySummary extends Composite {
 		setStatusIcon ( row, uorder );
 		main.insert ( row, getSortedIndex ( user ) );
 		numOrders += 1;
+
+		uorder.addRelatedInfo ( "DeliverySummary", row );
+		user.addRelatedInfo ( "DeliverySummary" + identifier, row );
 	}
 
 	private void setStatusIcon ( FromServerForm form, OrderUser order ) {
@@ -178,12 +180,10 @@ public class DeliverySummary extends Composite {
 	}
 
 	public void modOrder ( OrderUser uorder ) {
-		int index;
 		FromServerForm form;
 
-		index = retrieveOrder ( uorder );
-		if ( index != -1 ) {
-			form = ( FromServerForm ) main.getWidget ( index );
+		form = ( FromServerForm ) uorder.getRelatedInfo ( "DeliverySummary" );
+		if ( form != null ) {
 			form.setObject ( uorder );
 			form.refreshContents ( null );
 			setStatusIcon ( form, uorder );
@@ -191,57 +191,16 @@ public class DeliverySummary extends Composite {
 	}
 
 	public void delOrder ( OrderUser uorder ) {
-		int index;
+		FromServerForm form;
 
-		index = retrieveOrder ( uorder );
+		form = ( FromServerForm ) uorder.getRelatedInfo ( "DeliverySummary" );
 
-		if ( index != -1 ) {
-			main.remove ( index );
+		if ( form != null ) {
+			form.invalidate ();
+			uorder.delRelatedInfo ( "DeliverySummary" );
 			numOrders -= 1;
 			cleanUp ();
 		}
-	}
-
-	private int retrieveOrder ( OrderUser uorder ) {
-		int index;
-		FromServerForm row;
-
-		if ( numOrders != 0 ) {
-			index = uorder.getLocalID ();
-
-			for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-				row = ( FromServerForm ) main.getWidget ( i );
-				if ( row.getObject ().getLocalID () == index )
-					return i;
-			}
-		}
-
-		return -1;
-	}
-
-	private int retrieveUser ( User user ) {
-		int index;
-		FromServerForm row;
-		User test;
-		OrderUser uorder;
-
-		if ( numOrders == 0 )
-			return -1;
-
-		index = user.getLocalID ();
-
-		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-			row = ( FromServerForm ) main.getWidget ( i );
-			uorder = ( OrderUser ) row.getObject ();
-
-			if ( uorder != null ) {
-				test = ( User ) uorder.getObject ( "baseuser" );
-				if ( test != null && test.getLocalID () == index )
-					return i;
-			}
-		}
-
-		return -1;
 	}
 
 	private int getSortedIndex ( User to_place ) {

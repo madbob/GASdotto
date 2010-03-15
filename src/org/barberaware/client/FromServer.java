@@ -43,6 +43,7 @@ public abstract class FromServer implements Comparator {
 	private int		localID;
 	private String		type;
 	private HashMap		attributes;
+	private HashMap		relatedInfo;
 
 	/*
 		Internamente questo attributo, settato in fase di costruzione di una delle classi
@@ -470,6 +471,23 @@ public abstract class FromServer implements Comparator {
 		}
 
 		Utils.getServer ().addToCache ( this );
+	}
+
+	public void addRelatedInfo ( String identifier, Object object ) {
+		if ( relatedInfo == null )
+			relatedInfo = new HashMap ();
+		relatedInfo.put ( identifier, object );
+	}
+
+	public Object getRelatedInfo ( String identifier ) {
+		if ( relatedInfo == null )
+			return null;
+		else
+			return relatedInfo.get ( identifier );
+	}
+
+	public void delRelatedInfo ( String identifier ) {
+		relatedInfo.remove ( identifier );
 	}
 
 	/****************************************************************** Comparator */
