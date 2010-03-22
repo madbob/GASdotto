@@ -218,13 +218,13 @@ public class DeliveryPanel extends GenericPanel {
 		downloads.setStyleName ( "bottom-buttons" );
 
 		files = new LinksDialog ( "Ordinati e Consegnati" );
-		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=shipped" );
-		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=shipped" );
+		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "&amp;type=shipped" );
+		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "&amp;type=shipped" );
 		downloads.add ( files );
 
 		files = new LinksDialog ( "Prodotti Prezzati" );
-		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "?type=saved" );
-		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "?type=saved" );
+		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "&amp;type=saved" );
+		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "&amp;type=saved" );
 		downloads.add ( files );
 
 		files = new LinksDialog ( "Riassunto Prodotti" );
