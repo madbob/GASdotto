@@ -19,14 +19,29 @@ package org.barberaware.client;
 
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class Footer extends Composite {
 	public Footer () {
-		HorizontalPanel main;
+		HTML label;
+		VerticalPanel main;
 
-		main = new HorizontalPanel ();
+		main = new VerticalPanel ();
 		main.setStyleName ( "main-footer" );
 		initWidget ( main );
 
-		main.add ( new Label ( "GASdotto è software libero, rilasciato in licenza GPLv3. Puoi scaricare il codice sorgente da http://gasdotto.barberaware.org" ) );
+		if ( getUserAgent ().contains ( "firefox" ) == false ) {
+			label = new HTML ( "<p><img src=\"images/firefox.jpg\" alt=\"Firefox\">Il team GASdotto consiglia di usare <a href=\"http://getfirefox.com\">Firefox</a>.</p>" );
+			main.add ( label );
+			main.setCellVerticalAlignment ( label, HasVerticalAlignment.ALIGN_MIDDLE );
+		}
+
+		label = new HTML ( "<p><a href=\"http://gasdotto.barberaware.org\">GASdotto</a> è software libero, rilasciato in licenza GPLv3.</p>" );
+		main.add ( label );
+		main.setCellVerticalAlignment ( label, HasVerticalAlignment.ALIGN_MIDDLE );
 	}
+
+	private static native String getUserAgent () /*-{
+		return navigator.userAgent.toLowerCase();
+	}-*/;
 }
