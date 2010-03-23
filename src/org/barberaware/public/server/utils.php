@@ -151,7 +151,7 @@ function connect_to_the_database () {
 	try {
 		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
 
-		$query = sprintf ( "SELECT * FROM Gas" );
+		$query = sprintf ( "SELECT * FROM GAS" );
 		if ( $db->query ( $query ) == false )
 			throw new PDOException ();
 

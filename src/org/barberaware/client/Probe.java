@@ -35,8 +35,11 @@ public class Probe extends FromServer {
 		addAttribute ( "dbuser", FromServer.STRING );
 		addAttribute ( "dbpassword", FromServer.STRING );
 		addAttribute ( "dbname", FromServer.STRING );
+		addAttribute ( "dbhost", FromServer.STRING );
 		addAttribute ( "gasname", FromServer.STRING );
 		addAttribute ( "gasmail", FromServer.STRING );
 		addAttribute ( "rootpassword", FromServer.STRING );
+
+		setString ( "dbhost", "localhost" );
 	}
 }

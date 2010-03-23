@@ -68,6 +68,10 @@ public class ProfilePanel extends GenericPanel {
 
 		frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 
+		/**
+			TODO	Feedback quando si salvano i dati
+		*/
+
 		addTop ( ver );
 	}
 

@@ -30,6 +30,7 @@ class Probe extends FromServer {
 		$this->addAttribute ( "dbuser", "STRING" );
 		$this->addAttribute ( "dbpassword", "STRING" );
 		$this->addAttribute ( "dbname", "STRING" );
+		$this->addAttribute ( "dbhost", "STRING" );
 		$this->addAttribute ( "rootpassword", "STRING" );
 	}
 
@@ -54,6 +55,7 @@ class Probe extends FromServer {
 		fwrite ( $f, sprintf ( "\$dbuser = \"%s\";\n", $obj->dbuser ) );
 		fwrite ( $f, sprintf ( "\$dbpassword = \"%s\";\n", $obj->dbpassword ) );
 		fwrite ( $f, sprintf ( "\$dbname = \"%s\";\n", $obj->dbname ) );
+		fwrite ( $f, sprintf ( "\$dbhost = \"%s\";\n", $obj->dbhost ) );
 		fwrite ( $f, "?>\n" );
 
 		fclose ( $f );
@@ -64,7 +66,7 @@ class Probe extends FromServer {
 					md5 ( $obj->rootpassword ) );
 		query_and_check ( $query, "Impossibile salvare password per utente root" );
 
-		$query = sprintf ( "UPDATE Gas SET name = '%s', mail = '%s'", $obj->gasname, $obj->gasmail );
+		$query = sprintf ( "UPDATE GAS SET name = '%s', mail = '%s'", $obj->gasname, $obj->gasmail );
 		query_and_check ( $query, "Impossibile salvare dati del GAS" );
 
 		return "1";

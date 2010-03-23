@@ -79,7 +79,7 @@ public class InstallForm extends Composite {
 		if ( probe.getBool ( "writable" ) == false ) {
 			message = "<p>Sembra che il file server/config.php non sia scrivibile da questa applicazione, e non è possibile modificare questa impostazione automaticamente.</p>";
 			message += "<p>Per favore: provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervieni direttamente sul server.</p>";
-			message += "<p>Quando hai fatto, torna su questa pagina per procedere nell'installazione.</p>";
+			message += "<p>Quando hai fatto, torna su <a href=\"GASdotto.html\">questa pagina</a> per procedere nell'installazione.</p>";
 			main.add ( new HTML ( message ) );
 		}
 		else if ( probe.getString ( "dbdrivers" ).equals ( "" ) == true ) {
@@ -120,6 +120,7 @@ public class InstallForm extends Composite {
 
 		db = new CustomCaptionPanel ( "Impostazione del Database" );
 		db.addPair ( "Nome del Database", form.getWidget ( "dbname" ) );
+		db.addPair ( "Host del Database", form.getWidget ( "dbhost" ) );
 		db.addPair ( "Username", form.getWidget ( "dbuser" ) );
 		db.addPair ( "Password", form.getPersonalizedWidget ( "dbpassword", new PasswordBox () ) );
 		return db;
@@ -142,7 +143,7 @@ public class InstallForm extends Composite {
 		main.clear ();
 
 		message = "<p>Installazione completata con successo.</p>";
-		message += "<p>Ricaricando questa pagina ti verrà presentato il pannello di login: entra nell'applicazione usando username 'root' e la password che hai definito nel passaggio precedente.</p>";
+		message += "<p>Ricaricando <a href=\"GASdotto.html\">questa pagina</a> ti verrà presentato il pannello di login: entra nell'applicazione usando username 'root' e la password che hai definito nel passaggio precedente.</p>";
 		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
 		main.add ( new HTML ( message ) );
 	}
