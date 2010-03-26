@@ -40,8 +40,11 @@ $products_names = array ();
 $products_prices = array ();
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
-	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices [] = format_price ( $prod->getAttribute ( "unit_price" )->value, false );
+
+	$name = get_product_name ( $products, $i );
+	$products_names [] = sprintf ( "\"%s\"", $name );
+
+	$products_prices [] = ( format_price ( $prod->getAttribute ( "unit_price" )->value, false ) );
 }
 
 $products_sums = array ();

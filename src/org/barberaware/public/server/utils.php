@@ -183,6 +183,11 @@ function sort_orders_by_user ( $first, $second ) {
 	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 }
 
+function get_product_name ( $products, $index ) {
+	$prod = $products [ $index ];
+	return $prod->getAttribute ( "name" )->value;
+}
+
 /****************************************************************** authentication */
 
 function parse_session_data () {

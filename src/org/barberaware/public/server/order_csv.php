@@ -41,7 +41,14 @@ $products_prices = array ();
 for ( $i = 0; $i < count ( $products ); $i++ ) {
 	$prod = $products [ $i ];
 	$products_names [] = sprintf ( "\"%s\"", $prod->getAttribute ( "name" )->value );
-	$products_prices [] = format_price ( $prod->getAttribute ( "unit_price" )->value, false );
+
+	$measure = $prod->getAttribute ( "measure" )->value;
+	if ( $measure != null )
+		$symbol = " / " . $measure->getAttribute ( "symbol" )->value;
+	else
+		$symbol = "";
+
+	$products_prices [] = ( format_price ( $prod->getAttribute ( "unit_price" )->value, false ) ) . $symbol;
 }
 
 $products_names [] = "Totale Prezzo Prodotti";

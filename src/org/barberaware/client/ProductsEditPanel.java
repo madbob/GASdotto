@@ -126,6 +126,34 @@ public class ProductsEditPanel extends Composite implements FromServerArray {
 					hor.setCellWidth ( frame, "50%" );
 
 					frame.addPair ( "Nome", ver.getWidget ( "name" ) );
+					ver.setValidation ( "name", new FromServerValidateCallback () {
+						public boolean check ( FromServer object, String attribute, Widget widget ) {
+							String text;
+							FromServer iter;
+							ArrayList existing;
+
+							text = ( ( StringWidget ) widget ).getValue ();
+							if ( text.equals ( "" ) ) {
+								Utils.showNotification ( "Nome non specificato" );
+								return false;
+							}
+
+							existing = list.collectContents ();
+
+							for ( int i = 0; i < existing.size (); i++ ) {
+								iter = ( FromServer ) existing.get ( i );
+
+								if ( ( iter.equals ( object ) == false ) &&
+										( iter.getString ( attribute ).equals ( text ) ) ) {
+
+									Utils.showNotification ( "Nome non univoco" );
+									return false;
+								}
+							}
+
+							return true;
+						}
+					} );
 
 					/**
 						TODO	Raffinatezza: laddove possibile, al cambio della categoria

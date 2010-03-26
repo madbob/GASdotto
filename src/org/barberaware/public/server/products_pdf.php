@@ -181,11 +181,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 $data = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$prod = $products [ $i ];
+	$name = get_product_name ( $products, $i );
 	$q = comma_format ( round ( $quantities_sums [ $i ], 2 ), false );
 	$p = format_price ( round ( $products_sums [ $i ], 2 ), false );
 	$s = format_price ( round ( $shipping_sum [ $i ], 2 ), false );
-	$row = array ( ( $prod->getAttribute ( "name" )->value ), $q, $p, $s );
+	$row = array ( $name, $q, $p, $s );
 	$data [] = $row;
 }
 

@@ -121,7 +121,7 @@ function install_main_db () {
 	*/
 
 	$query = sprintf ( "CREATE TABLE accounts (
-					username int references users ( id ),
+					username int references Users ( id ),
 					password varchar ( 100 ) default ''
 				)"
 	);
@@ -139,7 +139,7 @@ function install_main_db () {
 					id serial,
 					session_id varchar ( 100 ),
 					init date,
-					username int references users ( id ) on delete cascade,
+					username int references Users ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
@@ -153,7 +153,7 @@ function install_main_db () {
 					id serial,
 					session_id varchar ( 100 ),
 					init date,
-					username int references users ( id ) on delete cascade,
+					username int references Users ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
@@ -180,8 +180,8 @@ function install_main_db () {
 
 	$query = sprintf ( "CREATE TABLE Notification_recipent (
 					id serial,
-					parent int references notification ( id ) on delete cascade,
-					target int references users ( id ) on delete cascade,
+					parent int references Notification ( id ) on delete cascade,
+					target int references Users ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
@@ -195,7 +195,7 @@ function install_main_db () {
 					id serial,
 					name varchar ( 100 ) default '',
 					server_path varchar ( 100 ) default '',
-					by_user int references users ( id ) on delete cascade,
+					by_user int references Users ( id ) on delete cascade,
 					upload_date date,
 					primary key ( id )
 				)"
@@ -229,8 +229,8 @@ function install_main_db () {
 
 	$query = sprintf ( "CREATE TABLE Supplier_references (
 					id serial,
-					parent int references supplier ( id ) on delete cascade,
-					target int references users ( id ) on delete cascade,
+					parent int references Supplier ( id ) on delete cascade,
+					target int references Users ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
@@ -243,8 +243,8 @@ function install_main_db () {
 
 	$query = sprintf ( "CREATE TABLE Supplier_files (
 					id serial,
-					parent int references supplier ( id ) on delete cascade,
-					target int references customfile ( id ) on delete cascade,
+					parent int references Supplier ( id ) on delete cascade,
+					target int references Customfile ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
@@ -308,13 +308,13 @@ function install_main_db () {
 	$query = sprintf ( "CREATE TABLE Product (
 					id serial,
 					name varchar ( 100 ) default '',
-					category int references category ( id ),
-					supplier int references supplier ( id ) on delete cascade,
+					category int references Category ( id ),
+					supplier int references Supplier ( id ) on delete cascade,
 					description varchar ( 500 ) default '',
 					shipping_price float default 0,
 					unit_price float default 0,
 					surplus varchar ( 100 ) default '0',
-					measure int references measure ( id ),
+					measure int references Measure ( id ),
 					minimum_order int default 0,
 					multiple_order int default 0,
 					stock_size float default 0,
@@ -334,7 +334,7 @@ function install_main_db () {
 
 	$query = sprintf ( "CREATE TABLE Orders (
 					id serial,
-					supplier int references supplier ( id ) on delete cascade,
+					supplier int references Supplier ( id ) on delete cascade,
 					startdate date,
 					enddate date,
 					status int default 0,
@@ -353,8 +353,8 @@ function install_main_db () {
 
         $query = sprintf ( "CREATE TABLE Orders_products (
 					id serial,
-					parent int references orders ( id ) on delete cascade,
-					target int references product ( id ) on delete cascade,
+					parent int references Orders ( id ) on delete cascade,
+					target int references Product ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
@@ -367,8 +367,8 @@ function install_main_db () {
 
         $query = sprintf ( "CREATE TABLE OrderUser (
 					id serial,
-					baseorder int references orders ( id ) on delete cascade,
-					baseuser int references users ( id ) on delete cascade,
+					baseorder int references Orders ( id ) on delete cascade,
+					baseuser int references Users ( id ) on delete cascade,
 					status int default 0,
 					primary key ( id )
 				)"
@@ -382,7 +382,7 @@ function install_main_db () {
 
         $query = sprintf ( "CREATE TABLE ProductUser (
 					id serial,
-					product int references product ( id ) on delete cascade,
+					product int references Product ( id ) on delete cascade,
 					quantity float,
 					delivered float,
 					primary key ( id )
@@ -397,8 +397,8 @@ function install_main_db () {
 
         $query = sprintf ( "CREATE TABLE OrderUser_products (
 					id serial,
-					parent int references orderuser ( id ) on delete cascade,
-					target int references productuser ( id ) on delete cascade,
+					parent int references Orderuser ( id ) on delete cascade,
+					target int references Productuser ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
