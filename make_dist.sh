@@ -12,6 +12,5 @@ date=`date +"%Y-%m-%d"`
 sed "s/\(^.*\$GASDOTTO_BUILT.*=\).*$/\1 \"$date\";/g" server/SystemConf.php -i
 
 cd ..
-tar -cvf gasdotto-${version}.tar gasdotto-${version}
-gzip gasdotto-${version}.tar
+tar chof - gasdotto-${version} | GZIP=--best gzip -c > gasdotto-${version}.tar.gz
 rm -rf gasdotto-${version}
