@@ -92,6 +92,10 @@ public class DateSelector extends Composite implements DateWidget {
 		currentDate = null;
 	}
 
+	public void yearSelectable ( boolean selectable ) {
+		cal.yearSelectable ( selectable );
+	}
+
 	/****************************************************************** DateWidget */
 
 	public void setValue ( Date date ) {

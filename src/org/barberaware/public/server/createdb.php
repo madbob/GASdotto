@@ -106,6 +106,7 @@ function install_main_db () {
 					address varchar ( 100 ) default '',
 					paying date,
 					privileges int default 1,
+					family int default 1,
 					lastlogin date,
 					leaving_date date,
 					primary key ( id )

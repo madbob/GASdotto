@@ -37,6 +37,7 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		public DockPanel	bar = new DockPanel ();
 		public Button		prevMonth = new Button ( "&lt;", this );
 		public Button		nextMonth = new Button ( "&gt;", this );
+		public NumberBox	year = null;
 		public HTML		title = new HTML ();
 
 		private CalendarWidget calendar;
@@ -70,6 +71,54 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 				calendar.prevMonth ();
 			else if ( sender == nextMonth )
 				calendar.nextMonth ();
+		}
+
+		public void yearSelectable ( boolean selectable ) {
+			HorizontalPanel head;
+
+			if ( selectable == true ) {
+				year = new NumberBox ();
+				year.setVal ( calendar.getYear () );
+
+				head = new HorizontalPanel ();
+				head.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+				head.setWidth ( "100%" );
+				bar.remove ( title );
+				head.add ( title );
+				head.add ( year );
+
+				bar.add ( head, DockPanel.CENTER );
+				bar.setCellHorizontalAlignment ( head, HasAlignment.ALIGN_CENTER );
+				bar.setCellVerticalAlignment ( head, HasAlignment.ALIGN_MIDDLE );
+				bar.setCellWidth ( head, "100%" );
+
+				year.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+						/* dummy */
+					}
+
+					public void onLostFocus ( Widget sender ) {
+						calendar.forceYear ( year.getVal () );
+					}
+				} );
+			}
+			else {
+				year = null;
+				bar.add ( title, DockPanel.CENTER );
+				bar.setCellHorizontalAlignment ( title, HasAlignment.ALIGN_CENTER );
+				bar.setCellVerticalAlignment ( title, HasAlignment.ALIGN_MIDDLE );
+				bar.setCellWidth ( title, "100%" );
+			}
+		}
+
+		public void setTitle ( int month, int year ) {
+			if ( this.year == null ) {
+				title.setText ( Utils.months [ month ] + " " + year );
+			}
+			else {
+				title.setText ( Utils.months [ month ] );
+				this.year.setVal ( year );
+			}
 		}
 	}
 
@@ -155,7 +204,7 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		int year = getYear();
 		int month = getMonth();
 		int day = getDay();
-		setHeaderText(year, month);
+		navbar.setTitle ( month, year );
 		grid.getRowFormatter().setStyleName(0, "weekheader");
 		for (int i = 0; i < Utils.days.length; i++) {
 			grid.getCellFormatter().setStyleName(0, i, "days");
@@ -205,10 +254,6 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		}
 	}
 
-	protected void setHeaderText(int year, int month) {
-		navbar.title.setText(Utils.months[month] + " " + year);
-	}
-
 	private int getDaysInMonth(int year, int month) {
 		switch (month) {
 			case 1:
@@ -228,25 +273,31 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 	}
 
 	public void prevMonth() {
-		int month = getMonth() - 1;
+		int month = getMonth () - 1;
 
-		if (month < 0)
-			setDate(getYear() - 1, 11, getDay());
-		else
-			setMonth(month);
-
-		drawCalendar();
+		if ( month < 0 ) {
+			setDate ( getYear () - 1, 11, getDay () );
+		}
+		else {
+			setMonth ( month );
+			drawCalendar ();
+		}
 	}
 
 	public void nextMonth() {
-		int month = getMonth() + 1;
+		int month = getMonth () + 1;
 
-		if (month > 11)
-			setDate(getYear() + 1, 0, getDay());
-		else
-			setMonth(month);
+		if ( month > 11 ) {
+			setDate ( getYear () + 1, 0, getDay () );
+		}
+		else {
+			setMonth ( month );
+			drawCalendar ();
+		}
+	}
 
-		drawCalendar();
+	public void forceYear ( int year ) {
+		setDate ( year, getMonth (), getDay () );
 	}
 
 	public void setDate(int year, int month, int day) {
@@ -303,5 +354,10 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		if ( callbacks == null )
 			return;
 		callbacks.remove ( callback );
+	}
+
+	public void yearSelectable ( boolean selectable ) {
+		navbar.yearSelectable ( selectable );
+		navbar.setTitle ( getMonth (), getYear () );
 	}
 }

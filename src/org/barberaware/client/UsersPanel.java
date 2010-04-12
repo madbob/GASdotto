@@ -120,6 +120,7 @@ public class UsersPanel extends GenericPanel {
 					User user;
 					CustomCaptionPanel frame;
 					CyclicToggle privileges;
+					DateSelector birth;
 
 					/*
 						Questa funzione viene invocata ogni volta che un form viene aperto,
@@ -159,7 +160,11 @@ public class UsersPanel extends GenericPanel {
 
 					frame.addPair ( "Indirizzo", form.getWidget ( "address" ) );
 
-					frame.addPair ( "Data di Nascita", form.getWidget ( "birthday" ) );
+					birth = new DateSelector ();
+					birth.yearSelectable ( true );
+					frame.addPair ( "Data di Nascita", form.getPersonalizedWidget ( "birthday", birth ) );
+
+					frame.addPair ( "Persone in Famiglia", form.getWidget ( "family" ) );
 
 					/* seconda colonna */
 

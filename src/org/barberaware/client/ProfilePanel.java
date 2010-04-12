@@ -29,6 +29,7 @@ public class ProfilePanel extends GenericPanel {
 		FromServerForm ver;
 		HorizontalPanel hor;
 		CustomCaptionPanel frame;
+		DateSelector birth;
 
 		user = Session.getUser ();
 		ver = new FromServerForm ( user, FromServerForm.EDITABLE_UNDELETABLE );
@@ -62,6 +63,12 @@ public class ProfilePanel extends GenericPanel {
 		ver.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
 
 		frame.addPair ( "Indirizzo", ver.getWidget ( "address" ) );
+
+		birth = new DateSelector ();
+		birth.yearSelectable ( true );
+		frame.addPair ( "Data di Nascita", ver.getPersonalizedWidget ( "birthday", birth ) );
+
+		frame.addPair ( "Persone in Famiglia", ver.getWidget ( "family" ) );
 
 		frame = new CustomCaptionPanel ( "Nel GAS" );
 		hor.add ( frame );
