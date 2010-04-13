@@ -95,6 +95,7 @@ public class DeliverySummary extends Composite {
 
 		user = ( User ) uorder.getObject ( "baseuser" );
 		row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
+		row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
 
 		/**
 			TODO	Sarebbe assai meglio avere due modalita' per il pannello consegne, selezionabili in
@@ -161,22 +162,10 @@ public class DeliverySummary extends Composite {
 	}
 
 	private void setStatusIcon ( FromServerForm form, OrderUser order ) {
-		int status;
-		IconsBar bar;
+		EmblemsBar bar;
 
-		status = order.getInt ( "status" );
-		bar = form.getIconsBar ();
-
-		bar.delImage ( "images/notifications/order_saved.png" );
-		bar.delImage ( "images/notifications/order_shipped.png" );
-		bar.delImage ( "images/notifications/order_shipping.png" );
-
-		if ( status == OrderUser.COMPLETE_DELIVERY )
-			bar.addImage ( "images/notifications/order_shipped.png" );
-		else if ( status == OrderUser.PARTIAL_DELIVERY )
-			bar.addImage ( "images/notifications/order_shipping.png" );
-		else if ( status == OrderUser.SAVED )
-			bar.addImage ( "images/notifications/order_saved.png" );
+		bar = form.emblems ();
+		bar.activate ( "status", order.getInt ( "status" ) );
 	}
 
 	public void modOrder ( OrderUser uorder ) {

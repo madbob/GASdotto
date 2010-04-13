@@ -33,6 +33,8 @@ public class SupplierUneditableForm extends FromServerForm {
 		OpenedOrdersList orders;
 		PastOrdersList past_orders;
 
+		emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
+
 		desc = supplier.getString ( "description" );
 		if ( desc == "" )
 			desc = "Nessuna descrizione disponibile per questo fornitore";

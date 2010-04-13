@@ -168,6 +168,17 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return "OrdersPrivilegedPanel";
 			}
 		} );
+
+		initEmblems ();
+	}
+
+	private void initEmblems () {
+		ArrayList paths;
+		EmblemsInfo info;
+
+		info = new EmblemsInfo ();
+		info.addSymbol ( "multiuser", "images/notifications/multiuser_order.png" );
+		Utils.setEmblemsCache ( "orders", info );
 	}
 
 	private void closedOrderAlert ( FromServerForm form, boolean doit ) {
@@ -267,7 +278,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		OrderUser uorder;
 		UserSelector users;
 		ProductsUserSelection products;
-		IconsBar bar;
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
@@ -278,6 +288,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", order );
 
 		ver = new FromServerForm ( uorder );
+		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {
@@ -370,8 +381,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			pan.add ( ver.getPersonalizedWidget ( "baseuser", users ) );
 			ver.add ( pan );
 
-			bar = ver.getIconsBar ();
-			bar.addImage ( "images/notifications/multiuser_order.png" );
+			ver.emblems ().activate ( "multiuser" );
 		}
 		else {
 			uorder.setObject ( "baseuser", Session.getUser () );

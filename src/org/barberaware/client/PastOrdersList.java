@@ -30,8 +30,12 @@ public class PastOrdersList extends OrdersList {
 		return "Non sono mai stati eseguiti ordini per questo fornitore";
 	}
 
+	public static void configEmblem ( EmblemsInfo info ) {
+		info.addSymbol ( "past_orders", "images/notifications/supplier_having_past_orders.png" );
+	}
+
 	protected String getMainIcon () {
-		return "images/notifications/supplier_having_past_orders.png";
+		return "past_orders";
 	}
 
 	protected void checkExistingOrders ( FromServer supplier ) {

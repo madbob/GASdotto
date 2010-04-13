@@ -32,12 +32,14 @@ public class Utils {
 	private static ServerHook	server;
 	private static NumberFormat	floatFormatter;
 	private static NumberFormat	priceFormatter;
+	private static HashMap		emblemsCache;
 
 	public static void initEnvironment () {
 		notifies = new SmoothingNotify ();
 		server = new ServerHook ();
 		floatFormatter = NumberFormat.getDecimalFormat ();
 		priceFormatter = NumberFormat.getCurrencyFormat ();
+		emblemsCache = new HashMap ();
 	}
 
 	/****************************************************** notifiche */
@@ -56,6 +58,16 @@ public class Utils {
 
 	public static void showNotification ( String text, int type ) {
 		notifies.show ( text, type );
+	}
+
+	/****************************************************** emblemi */
+
+	public static void setEmblemsCache ( String name, EmblemsInfo info ) {
+		emblemsCache.put ( name, info );
+	}
+
+	public static EmblemsInfo getEmblemsCache ( String name ) {
+		return ( EmblemsInfo ) emblemsCache.get ( name );
 	}
 
 	/****************************************************** server */

@@ -27,7 +27,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class FromServerForm extends Composite {
 	private FromServer		object;
 	private DisclosurePanel		main;
-	private IconsBar		icons;
+	private EmblemsBar		icons;
 	private Label			summary;
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
@@ -94,6 +94,11 @@ public class FromServerForm extends Composite {
 		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
 
 		alwaysShow = false;
+
+		/*
+			Le icone vengono inizializzate solo quando richiesto
+		*/
+		icons = null;
 	}
 
 	public FromServerForm ( FromServer obj ) {
@@ -192,16 +197,7 @@ public class FromServerForm extends Composite {
 		summary = new Label ( retrieveNameInCallbacks () );
 		main.add ( summary );
 
-		icons = doIconsBar ();
-		main.add ( icons );
-
 		return main;
-	}
-
-	private IconsBar doIconsBar () {
-		IconsBar bar;
-		bar = new IconsBar ();
-		return bar;
 	}
 
 	private ButtonsBar doButtons ( int editable ) {
@@ -300,6 +296,23 @@ public class FromServerForm extends Composite {
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClose ( this );
 	}
 
+	public void emblemsAttach ( EmblemsInfo info ) {
+		HorizontalPanel panel;
+
+		if ( icons != null ) {
+			Window.alert ( "Emblemi già assegnati a questo form" );
+		}
+		else {
+			icons = new EmblemsBar ( info );
+			panel = ( HorizontalPanel ) summary.getParent ();
+			panel.insert ( icons, 0 );
+		}
+	}
+
+	public EmblemsBar emblems () {
+		return icons;
+	}
+
 	/****************************************************************** build */
 
 	private FromServerWidget retriveWidgetFromList ( String attribute ) {
@@ -371,10 +384,6 @@ public class FromServerForm extends Composite {
 			if ( contents.remove ( tmp ) == false )
 				contents.remove ( tmp.wid );
 		}
-	}
-
-	public IconsBar getIconsBar () {
-		return icons;
 	}
 
 	/****************************************************************** handling */

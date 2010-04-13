@@ -45,22 +45,22 @@ public abstract class OrdersList extends Composite {
 	}
 
 	private void clean () {
-		IconsBar icons;
+		EmblemsBar icons;
 
 		main.setWidget ( 0, 0, new Label ( getEmptyNotification () ) );
 		num = 0;
 
-		icons = mainForm.getIconsBar ();
-		icons.delImage ( getMainIcon () );
+		icons = mainForm.emblems ();
+		icons.deactivate ( getMainIcon () );
 	}
 
 	public void addOrder ( Order order ) {
 		if ( num == 0 ) {
-			IconsBar icons;
+			EmblemsBar icons;
 
 			main.removeRow ( 0 );
-			icons = mainForm.getIconsBar ();
-			icons.addImage ( getMainIcon () );
+			icons = mainForm.emblems ();
+			icons.activate ( getMainIcon () );
 		}
 		else {
 			if ( retrieveOrder ( order ) != -1 )
@@ -123,4 +123,8 @@ public abstract class OrdersList extends Composite {
 	protected abstract String getEmptyNotification ();
 	protected abstract String getMainIcon ();
 	protected abstract void checkExistingOrders ( FromServer supplier );
+
+	protected static void configEmblem ( EmblemsInfo info ) {
+		/* Non so perche' non posso dichiarare un metodo abstract static... */
+	}
 }

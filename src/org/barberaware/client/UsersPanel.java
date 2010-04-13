@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class UsersPanel extends GenericPanel {
 	private FormCluster		main;
 	private boolean			handlePayments;
@@ -44,6 +46,7 @@ public class UsersPanel extends GenericPanel {
 
 					user = ( User ) u;
 					ver = new FromServerForm ( user );
+					ver.emblemsAttach ( Utils.getEmblemsCache ( "users" ) );
 
 					/*
 						Il form vero e proprio viene popolate in asyncLoad(), all'atto
@@ -235,6 +238,24 @@ public class UsersPanel extends GenericPanel {
 			}
 		} );
 		addTop ( filter );
+
+		initEmblems ();
+	}
+
+	private void initEmblems () {
+		ArrayList paths;
+		EmblemsInfo info;
+
+		paths = new ArrayList ();
+		paths.add ( "" );
+		paths.add ( "images/notifications/user_responsable.png" );
+		paths.add ( "images/notifications/user_admin.png" );
+		paths.add ( "images/notifications/user_leaved.png" );
+
+		info = new EmblemsInfo ();
+		info.addSymbol ( "privileges", paths );
+		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
+		Utils.setEmblemsCache ( "users", info );
 	}
 
 	private FromServerValidateCallback checkLoginNameCallback () {
@@ -278,25 +299,10 @@ public class UsersPanel extends GenericPanel {
 	}
 
 	private void setRoleIcon ( FromServerForm form, User user ) {
-		int privileges;
-		IconsBar bar;
+		EmblemsBar bar;
 
-		privileges = user.getInt ( "privileges" );
-		bar = form.getIconsBar ();
-
-		bar.delImage ( "images/notifications/user_responsable.png" );
-		bar.delImage ( "images/notifications/user_admin.png" );
-		bar.delImage ( "images/notifications/user_leaved.png" );
-
-		if ( privileges == User.USER_RESPONSABLE ) {
-			bar.addImage ( "images/notifications/user_responsable.png" );
-		}
-		else if ( privileges == User.USER_ADMIN ) {
-			bar.addImage ( "images/notifications/user_admin.png" );
-		}
-		else if ( privileges == User.USER_LEAVED ) {
-			bar.addImage ( "images/notifications/user_leaved.png" );
-		}
+		bar = form.emblems ();
+		bar.activate ( "privileges", user.getInt ( "privileges" ) );
 	}
 
 	/****************************************************************** GenericPanel */

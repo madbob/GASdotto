@@ -30,8 +30,12 @@ public class OpenedOrdersList extends OrdersList {
 		return "Non ci sono ordini aperti per questo fornitore";
 	}
 
+	public static void configEmblem ( EmblemsInfo info ) {
+		info.addSymbol ( "has_orders", "images/notifications/supplier_having_orders.png" );
+	}
+
 	protected String getMainIcon () {
-		return "images/notifications/supplier_having_orders.png";
+		return "has_orders";
 	}
 
 	protected void checkExistingOrders ( FromServer supplier ) {

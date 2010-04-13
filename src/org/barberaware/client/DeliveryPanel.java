@@ -157,6 +157,24 @@ public class DeliveryPanel extends GenericPanel {
 				return "DeliveryPanel";
 			}
 		} );
+
+		initEmblems ();
+	}
+
+	private void initEmblems () {
+		ArrayList paths;
+		EmblemsInfo info;
+
+		paths = new ArrayList ();
+		paths.add ( "" );
+		paths.add ( "images/notifications/order_shipping.png" );
+		paths.add ( "images/notifications/order_shipped.png" );
+		paths.add ( "images/notifications/order_saved.png" );
+
+		info = new EmblemsInfo ();
+		info.addSymbol ( "status", paths );
+		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
+		Utils.setEmblemsCache ( "delivery", info );
 	}
 
 	private int getSortedPosition ( FromServer object ) {

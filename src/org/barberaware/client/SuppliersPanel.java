@@ -189,7 +189,17 @@ public class SuppliersPanel extends GenericPanel {
 			}
 		} );
 
+		initEmblems ();
 		Utils.getServer ().testObjectReceive ( "Supplier" );
+	}
+
+	private void initEmblems () {
+		EmblemsInfo info;
+
+		info = new EmblemsInfo ();
+		OpenedOrdersList.configEmblem ( info );
+		PastOrdersList.configEmblem ( info );
+		Utils.setEmblemsCache ( "supplier", info );
 	}
 
 	private ProductsPresentationList retrieveProductsPanel ( Product product ) {

@@ -76,14 +76,14 @@ public class User extends FromServer {
 	public void checkUserPaying ( FromServerForm form ) {
 		Date last_pay;
 		Date now;
-		IconsBar bar;
+		EmblemsBar bar;
 
-		bar = form.getIconsBar ();
+		bar = form.emblems ();
 		last_pay = this.getDate ( "paying" );
 
 		if ( last_pay == null || ( ( ( System.currentTimeMillis () - last_pay.getTime () ) / 1000 ) > ( 60 * 60 * 24 * 365 ) ) )
-			bar.addImage ( "images/notifications/user_not_paying.png" );
+			bar.activate ( "paying" );
 		else
-			bar.delImage ( "images/notifications/user_not_paying.png" );
+			bar.deactivate ( "paying" );
 	}
 }
