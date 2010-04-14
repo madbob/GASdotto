@@ -43,6 +43,31 @@ class User extends FromServer {
 		$this->setSorting ( "surname" );
 	}
 
+	public function get ( $request, $compress ) {
+		global $current_user;
+
+		$ret = array ();
+		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
+
+		if ( !isset ( $request->privileges ) )
+			$query .= sprintf ( "privileges != 3 " );
+		else
+			$query .= sprintf ( "privileges = %d ", $request->privileges );
+
+		$query .= sprintf ( "ORDER BY %s", $this->sorting );
+
+		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+
+		foreach ( $rows as $row ) {
+			$obj = new $this->classname;
+			$obj->readFromDB ( $row [ 'id' ] );
+			array_push ( $ret, $obj->exportable ( $request, $compress ) );
+		}
+
+		return $ret;
+	}
+
 	public function save ( $obj ) {
 		$newly_created = ( $obj->id == -1 );
 		$id = parent::save ( $obj );

@@ -26,11 +26,10 @@ import com.allen_sauer.gwt.log.client.Log;
 public class UsersPanel extends GenericPanel {
 	private FormCluster		main;
 	private boolean			handlePayments;
+	private CheckBox		toggleLeavedView;
 
 	public UsersPanel () {
 		super ();
-
-		FormClusterFilter filter;
 
 		/*
 			Da notare che se il settaggio sulla gestione dei pagamenti viene cambiato
@@ -45,6 +44,10 @@ public class UsersPanel extends GenericPanel {
 					User user;
 
 					user = ( User ) u;
+
+					if ( user.getInt ( "privileges" ) == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
+						return null;
+
 					ver = new FromServerForm ( user );
 					ver.emblemsAttach ( Utils.getEmblemsCache ( "users" ) );
 
@@ -219,6 +222,20 @@ public class UsersPanel extends GenericPanel {
 		*/
 		addTop ( main );
 
+		doFilterOptions ();
+		initEmblems ();
+	}
+
+	private void doFilterOptions () {
+		HorizontalPanel pan;
+		FormClusterFilter filter;
+
+		pan = new HorizontalPanel ();
+		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
+		pan.setStyleName ( "panel-up" );
+		addTop ( pan );
+
 		filter = new FormClusterFilter ( main, new FilterCallback () {
 			public boolean check ( FromServer obj, String text ) {
 				int len;
@@ -237,9 +254,35 @@ public class UsersPanel extends GenericPanel {
 				return false;
 			}
 		} );
-		addTop ( filter );
+		pan.add ( filter );
 
-		initEmblems ();
+		toggleLeavedView = new CheckBox ( "Mostra Utenti Cessati" );
+		toggleLeavedView.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				boolean show;
+				ArrayList forms;
+				CheckBox myself;
+				FromServerForm form;
+
+				myself = ( CheckBox ) sender;
+				forms = main.collectForms ();
+				show = myself.isChecked ();
+
+				if ( show == true ) {
+					ObjectRequest params;
+					params = new ObjectRequest ( "User" );
+					params.add ( "privileges", User.USER_LEAVED );
+					Utils.getServer ().testObjectReceive ( params );
+				}
+
+				for ( int i = 0; i < forms.size (); i++ ) {
+					form = ( FromServerForm ) forms.get ( i );
+					if ( form.getObject ().getInt ( "privileges" ) == User.USER_LEAVED )
+						form.setVisible ( show );
+				}
+			}
+		} );
+		pan.add ( toggleLeavedView );
 	}
 
 	private void initEmblems () {
@@ -299,10 +342,15 @@ public class UsersPanel extends GenericPanel {
 	}
 
 	private void setRoleIcon ( FromServerForm form, User user ) {
+		int priv;
 		EmblemsBar bar;
 
+		priv = user.getInt ( "privileges" );
 		bar = form.emblems ();
-		bar.activate ( "privileges", user.getInt ( "privileges" ) );
+		bar.activate ( "privileges", priv );
+
+		if ( priv == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
+			form.setVisible ( false );
 	}
 
 	/****************************************************************** GenericPanel */

@@ -296,8 +296,11 @@ body {
 }
 
 .search-bar-wrap {
-	vertical-align:		bottom;
-	margin-bottom:		15px;
+}
+
+.panel-up {
+	width:			80%;
+	margin-bottom:		10px;
 }
 
 .user-selector {
@@ -367,6 +370,15 @@ body {
 	padding:		5px;
 }
 
+.filter-button {
+	margin-left:		10px;
+	margin-right:		10px;
+	padding:		5px;
+	border:			2px solid #000000;
+	cursor:			pointer;
+	cursor:			hand;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;
@@ -386,7 +398,7 @@ fieldset legend {
 	-moz-border-radius:	3px;
 }
 
-label {
+fieldset label {
 	width:			110px;
 	padding-left:		5px;
 	margin:			3px;
@@ -497,6 +509,10 @@ br {
 	padding:		6px;
 	-moz-border-radius:	7px;
 	z-index:		100;
+}
+
+.gwt-CheckBox {
+	width:			100%;
 }
 
 .CalendarWidget {

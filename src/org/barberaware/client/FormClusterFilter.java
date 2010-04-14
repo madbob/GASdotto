@@ -30,6 +30,7 @@ public class FormClusterFilter extends Composite {
 
 		main = new HorizontalPanel ();
 		main.setStyleName ( "search-bar-wrap" );
+		main.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 		initWidget ( main );
 
 		main.add ( new Label ( "Ricerca in Lista" ) );

@@ -202,6 +202,28 @@ public abstract class FormGroup extends Composite {
 		return array;
 	}
 
+	public ArrayList collectForms () {
+		int i;
+		int tot;
+		FromServerForm iter;
+		FromServer cmp;
+		ArrayList array;
+
+		array = new ArrayList ();
+		iter = null;
+		tot = latestIterableIndex ();
+
+		for ( i = 0; i < tot; i++ ) {
+			iter = ( FromServerForm ) main.getWidget ( i );
+
+			cmp = iter.getObject ();
+			if ( cmp != null )
+				array.add ( iter );
+		}
+
+		return array;
+	}
+
 	private void closeOtherForms ( FromServerForm target ) {
 		int tot;
 		FromServerForm iter;
