@@ -21,23 +21,37 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-/**
-	TODO	Per motivi di semplicita' e' stato deciso di trattare in questo pannello sia gli ordini chiusi che
-		quelli aperti, per mettere sempre a disposizione strumenti di analisi globale (CSV e PDF) per
-		compiere operazioni di revisione. Presto o tardi tali funzionalita' dovrebbero essere integrate
-		nell'applicazione vera e propria, ma fino a tal momento ci si accontenta di questa soluzione
-		provvisoria. Quando il tutto sara' sistemato, correggere le parti sotto marcate come "RI-CORREGGERE
-		QUESTO" decommentando i punti critici ed eliminando il codice temporaneo
-*/
-
 public class DeliveryPanel extends GenericPanel {
 	private boolean		hasOrders;
+	private FormGroup	main;
 
 	public DeliveryPanel () {
 		super ();
 
-		hasOrders = false;
-		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
+		main = new FormGroup ( null ) {
+			protected FromServerForm doEditableRow ( FromServer obj ) {
+				return doOrderRow ( ( Order ) obj );
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				return null;
+			}
+
+			protected int sorting ( FromServer first, FromServer second ) {
+				Date fdate;
+				Date sdate;
+
+				fdate = first.getDate ( "shippingdate" );
+				if ( fdate == null )
+					return 1;
+
+				sdate = second.getDate ( "shippingdate" );
+				if ( sdate == null )
+					return -1;
+
+				return sdate.compareTo ( fdate );
+			}
+		};
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			private void findAndDo ( Order ord, OrderUser uord, int action ) {
@@ -46,7 +60,7 @@ public class DeliveryPanel extends GenericPanel {
 				if ( ord == null )
 					return;
 
-				form = ( FromServerForm ) ord.getRelatedInfo ( "DeliveryPanel" );
+				form = main.retrieveForm ( ord );
 				if ( form != null )
 					syncUserOrder ( form, uord, action );
 			}
@@ -70,64 +84,37 @@ public class DeliveryPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				int index;
 				Order ord;
-				FromServerForm form;
+				Supplier supp;
 
 				ord = ( Order ) object;
 
-				/* RI-CORREGGERE QUESTO */
-				/*
-				if ( ord.getInt ( "status" ) == Order.CLOSED )
-					addTop ( doOrderRow ( ord ) );
-				*/
+				if ( ord.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
+					return;
 
-				form = ( FromServerForm ) ord.getRelatedInfo ( "DeliveryPanel" );
-				if ( form == null ) {
-					index = getSortedPosition ( object );
-					insert ( doOrderRow ( ord ), index );
-				}
+				supp = ( Supplier ) ord.getObject ( "supplier" );
+				if ( supp.iAmReference () == false )
+					return;
+
+				main.addElement ( object );
 			}
 
 			public void onModify ( FromServer object ) {
 				int status;
 				int index;
 				Order ord;
+				OrderUser uord;
+				ArrayList uorders;
 				FromServerForm form;
 
 				ord = ( Order ) object;
 
 				status = ord.getInt ( "status" );
-				form = ( FromServerForm ) ord.getRelatedInfo ( "DeliveryPanel" );
-
-				/* RI-CORREGGERE QUESTO */
-				/*
-				if ( index != -1 && status == Order.OPENED )
-					remove ( index );
-
-				else if ( index == -1 && status == Order.CLOSED ) {
-					FromServerForm form;
-					ArrayList uorders;
-					OrderUser uord;
-
-					form = ( FromServerForm ) doOrderRow ( ord );
-					addTop ( form );
-					uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
-
-					for ( int i = 0; i < uorders.size (); i++ ) {
-						uord = ( OrderUser ) uorders.get ( i );
-						if ( uord.getObject ( "baseorder" ).equals ( object ) )
-							syncUserOrder ( form, uord, 0 );
-					}
-				}
-				*/
-
-				ArrayList uorders;
-				OrderUser uord;
+				form = main.retrieveForm ( object );
 
 				if ( form == null ) {
-					form = ( FromServerForm ) doOrderRow ( ord );
-					addTop ( form );
+					main.addElement ( object );
+					form = main.retrieveForm ( object );
 				}
 				else {
 					form.refreshContents ( null );
@@ -143,14 +130,7 @@ public class DeliveryPanel extends GenericPanel {
 			}
 
 			public void onDestroy ( FromServer object ) {
-				FromServerForm form;
-
-				form = ( FromServerForm ) object.getRelatedInfo ( "DeliveryPanel" );
-
-				if ( form != null ) {
-					form.invalidate ();
-					object.delRelatedInfo ( "DeliveryPanel" );
-				}
+				main.deleteElement ( object );
 			}
 
 			protected String debugName () {
@@ -158,7 +138,46 @@ public class DeliveryPanel extends GenericPanel {
 			}
 		} );
 
+		addTop ( main );
+
+		hasOrders = false;
+		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
+
+		doFilterOptions ();
 		initEmblems ();
+	}
+
+	private void doFilterOptions () {
+		HorizontalPanel pan;
+		CheckBox toggle_view;
+
+		pan = new HorizontalPanel ();
+		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
+		pan.setStyleName ( "panel-up" );
+		addTop ( pan );
+
+		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
+		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
+			public void onClick ( Widget sender ) {
+				boolean show;
+				ArrayList forms;
+				CheckBox myself;
+				FromServerForm form;
+
+				myself = ( CheckBox ) sender;
+				forms = main.collectForms ();
+				show = myself.isChecked ();
+				OrdersHub.toggleShippedOrdersStatus ( show );
+
+				for ( int i = 0; i < forms.size (); i++ ) {
+					form = ( FromServerForm ) forms.get ( i );
+					if ( form.getObject ().getInt ( "status" ) == Order.SHIPPED )
+						form.setVisible ( show );
+				}
+			}
+		} );
+		pan.add ( toggle_view );
 	}
 
 	private void initEmblems () {
@@ -177,40 +196,7 @@ public class DeliveryPanel extends GenericPanel {
 		Utils.setEmblemsCache ( "delivery", info );
 	}
 
-	private int getSortedPosition ( FromServer object ) {
-		int i;
-		int num;
-		Date cdate;
-		Date tdate;
-		FromServer object_2;
-		FromServerForm iter;
-
-		if ( hasOrders == false )
-			return 0;
-
-		tdate = object.getDate ( "shippingdate" );
-		if ( tdate == null )
-			return 0;
-
-		num = getWidgetCount ();
-		if ( object == null )
-			return num;
-
-		for ( i = 0; i < num; i++ ) {
-			iter = ( FromServerForm ) getWidget ( i );
-			object_2 = iter.getObject ();
-
-			if ( object_2 != null ) {
-				cdate = object_2.getDate ( "shippingdate" );
-				if ( cdate != null && cdate.compareTo ( tdate ) > 0 )
-					break;
-			}
-		}
-
-		return i;
-	}
-
-	private Widget doOrderRow ( Order order ) {
+	private FromServerForm doOrderRow ( Order order ) {
 		HorizontalPanel downloads;
 		final FromServerForm ver;
 		DeliverySummary summary;
@@ -218,7 +204,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 0 );
+			remove ( 1 );
 		}
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
@@ -258,7 +244,6 @@ public class DeliveryPanel extends GenericPanel {
 		ver.setExtraWidget ( "list", summary );
 		ver.add ( summary );
 
-		order.addRelatedInfo ( "DeliveryPanel", ver );
 		return ver;
 	}
 
@@ -299,20 +284,7 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	public String getCurrentInternalReference () {
-		int index;
-		FromServerForm iter;
-
-		index = -1;
-
-		for ( int i = ( hasOrders == true ? 0 : 1 ); i < getWidgetCount (); i++ ) {
-			iter = ( FromServerForm ) getWidget ( i );
-			if ( iter.isOpen () == true ) {
-				index = iter.getObject ().getLocalID ();
-				break;
-			}
-		}
-
-		return Integer.toString ( index );
+		return Integer.toString ( main.getCurrentlyOpened () );
 	}
 
 	public Image getIcon () {
@@ -323,12 +295,6 @@ public class DeliveryPanel extends GenericPanel {
 		ObjectRequest params;
 
 		params = new ObjectRequest ( "Order" );
-
-		/* RI-CORREGGERE QUESTO */
-		/*
-			params.add ( "status", Order.CLOSED );
-		*/
-
 		Utils.getServer ().testObjectReceive ( params );
 	}
 }

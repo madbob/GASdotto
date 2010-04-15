@@ -30,7 +30,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	public OrdersPrivilegedPanel () {
 		super ();
 
+		doFilterOptions ();
 		checkNoAvailableOrders ();
+
+		/**
+			TODO	Sarebbe cosa buona usare un FormGroup, ma c'e' da badare al fatto
+				che i form per i vari ordini sono di due tipi: editabile e non
+		*/
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -71,7 +77,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						insert ( form, index );
 						alignOrdersInCache ( ord, multi );
 					}
-					else if ( status == Order.CLOSED ) {
+					else if ( status == Order.CLOSED ||
+							( status == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == true ) ) {
+
 						index = getSortedPosition ( object );
 						multi = canMultiUser ( ord );
 
@@ -172,6 +180,44 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		initEmblems ();
 	}
 
+	private void doFilterOptions () {
+		HorizontalPanel pan;
+		CheckBox toggle_view;
+
+		pan = new HorizontalPanel ();
+		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
+		pan.setStyleName ( "panel-up" );
+		insert ( pan, 0 );
+
+		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
+		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
+			public void onClick ( Widget sender ) {
+				int num;
+				boolean show;
+				ArrayList forms;
+				CheckBox myself;
+				FromServerForm form;
+
+				myself = ( CheckBox ) sender;
+				show = myself.isChecked ();
+				OrdersHub.toggleShippedOrdersStatus ( show );
+
+				if ( hasOrders == false )
+					return;
+
+				num = getWidgetCount ();
+
+				for ( int i = 1; i < num; i++ ) {
+					form = ( FromServerForm ) getWidget ( i );
+					if ( form.getObject ().getObject ( "baseorder" ).getInt ( "status" ) == Order.SHIPPED )
+						form.setVisible ( show );
+				}
+			}
+		} );
+		pan.add ( toggle_view );
+	}
+
 	private void initEmblems () {
 		ArrayList paths;
 		EmblemsInfo info;
@@ -236,7 +282,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm iter;
 
 		if ( hasOrders == false )
-			return 0;
+			return 1;
 
 		num = getWidgetCount ();
 		if ( object == null )
@@ -244,7 +290,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		tdate = object.getDate ( "enddate" );
 
-		for ( i = 0; i < num; i++ ) {
+		for ( i = 1; i < num; i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			object_2 = iter.getObject ();
 
@@ -259,9 +305,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	}
 
 	private void checkNoAvailableOrders () {
-		if ( getWidgetCount () == 0 ) {
+		if ( getWidgetCount () == 1 ) {
 			hasOrders = false;
-			addTop ( new Label ( "Non ci sono ordini aperti" ) );
+			insert ( new Label ( "Non ci sono ordini aperti" ), 1 );
 		}
 	}
 
@@ -281,7 +327,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 0 );
+			remove ( 1 );
 		}
 
 		uorder = new OrderUser ();
@@ -401,7 +447,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 0 );
+			remove ( 1 );
 		}
 
 		uorder = new OrderUser ();
@@ -597,7 +643,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		index = -1;
 
 		if ( hasOrders == true ) {
-			for ( int i = 0; i < getWidgetCount (); i++ ) {
+			for ( int i = 1; i < getWidgetCount (); i++ ) {
 				iter = ( FromServerForm ) getWidget ( i );
 				if ( iter.isOpen () == true ) {
 					index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();

@@ -92,7 +92,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					order = ( Order ) ord;
 
-					if ( order.getInt ( "status" ) == Order.SHIPPED )
+					if ( order.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
 						return null;
 
 					supplier = ( Supplier ) order.getObject ( "supplier" );
@@ -142,7 +142,8 @@ public class OrdersEditPanel extends GenericPanel {
 					ver.setCallback ( new FromServerFormCallbacks () {
 						public void onSaved ( FromServerForm form ) {
 							if ( form.getObject ().getInt ( "status" ) == Order.OPENED )
-								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'", SmoothingNotify.NOTIFY_INFO );
+								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'",
+												SmoothingNotify.NOTIFY_INFO );
 						}
 					} );
 
@@ -321,6 +322,41 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 
 		addTop ( main );
+
+		doFilterOptions ();
+	}
+
+	private void doFilterOptions () {
+		HorizontalPanel pan;
+		CheckBox toggle_view;
+
+		pan = new HorizontalPanel ();
+		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
+		pan.setStyleName ( "panel-up" );
+		addTop ( pan );
+
+		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
+		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
+			public void onClick ( Widget sender ) {
+				boolean show;
+				ArrayList forms;
+				CheckBox myself;
+				FromServerForm form;
+
+				myself = ( CheckBox ) sender;
+				forms = main.collectForms ();
+				show = myself.isChecked ();
+				OrdersHub.toggleShippedOrdersStatus ( show );
+
+				for ( int i = 0; i < forms.size (); i++ ) {
+					form = ( FromServerForm ) forms.get ( i );
+					if ( form.getObject ().getInt ( "status" ) == Order.SHIPPED )
+						form.setVisible ( show );
+				}
+			}
+		} );
+		pan.add ( toggle_view );
 	}
 
 	private Widget doOrderStatusSelector () {
