@@ -25,12 +25,9 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class SuppliersPanel extends GenericPanel {
 	private FormCluster		main;
-	private ArrayList		scheduledProducts;
 
 	public SuppliersPanel () {
 		super ();
-
-		scheduledProducts = new ArrayList ();
 
 		main = new FormCluster ( "Supplier", null ) {
 			protected FromServerForm doEditableRow ( FromServer supp ) {
@@ -46,8 +43,10 @@ public class SuppliersPanel extends GenericPanel {
 				return null;
 			}
 
-			protected void customNew ( FromServer object, boolean true_new ) {
-				checkProductsSchedule ();
+			protected void asyncLoad ( FromServerForm form ) {
+				Lockable products;
+				products = ( Lockable ) form.retriveInternalWidget ( "products" );
+				products.unlock ();
 			}
 		};
 
@@ -155,40 +154,6 @@ public class SuppliersPanel extends GenericPanel {
 			}
 		} );
 
-		Utils.getServer ().onObjectEvent ( "Product", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				Product prod;
-
-				prod = ( Product ) object;
-				if ( insertProduct ( prod ) == false )
-					scheduledProducts.add ( prod );
-			}
-
-			public void onModify ( FromServer object ) {
-				Product prod;
-				ProductsPresentationList panel;
-
-				prod = ( Product ) object;
-				panel = retrieveProductsPanel ( prod );
-				if ( panel == null )
-					panel.refreshElement ( prod );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				Product prod;
-				ProductsPresentationList panel;
-
-				prod = ( Product ) object;
-				panel = retrieveProductsPanel ( prod );
-				if ( panel == null )
-					panel.removeElement ( prod );
-			}
-
-			protected String debugName () {
-				return "SuppliersPanel";
-			}
-		} );
-
 		initEmblems ();
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 	}
@@ -200,44 +165,6 @@ public class SuppliersPanel extends GenericPanel {
 		OpenedOrdersList.configEmblem ( info );
 		PastOrdersList.configEmblem ( info );
 		Utils.setEmblemsCache ( "supplier", info );
-	}
-
-	private ProductsPresentationList retrieveProductsPanel ( Product product ) {
-		Supplier supplier;
-		FromServerForm supplier_form;
-
-		supplier = ( Supplier ) product.getObject ( "supplier" );
-		supplier_form = main.retrieveForm ( supplier );
-
-		if ( supplier_form != null )
-			return ( ProductsPresentationList ) supplier_form.retriveInternalWidget ( "products" );
-		else
-			return null;
-	}
-
-	private boolean insertProduct ( Product product ) {
-		ProductsPresentationList panel;
-
-		panel = retrieveProductsPanel ( product );
-		if ( panel != null ) {
-			panel.addElement ( product );
-			return true;
-		}
-		else
-			return false;
-	}
-
-	private void checkProductsSchedule () {
-		Product product;
-
-		for ( int i = 0; i < scheduledProducts.size (); i++ ) {
-			product = ( Product ) scheduledProducts.get ( i );
-
-			if ( insertProduct ( product ) == true ) {
-				scheduledProducts.remove ( i );
-				i--;
-			}
-		}
 	}
 
 	/****************************************************************** GenericPanel */

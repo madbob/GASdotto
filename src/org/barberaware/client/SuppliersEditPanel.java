@@ -60,15 +60,25 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 
 			protected void asyncLoad ( FromServerForm form ) {
-				ProductsEditPanel products;
-
-				products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
+				Lockable products;
+				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
 			}
 		};
 
 		addTop ( main );
+
+		initEmblems ();
 		Utils.getServer ().testObjectReceive ( "Supplier" );
+	}
+
+	private void initEmblems () {
+		EmblemsInfo info;
+
+		info = new EmblemsInfo ();
+		OpenedOrdersList.configEmblem ( info );
+		PastOrdersList.configEmblem ( info );
+		Utils.setEmblemsCache ( "supplier", info );
 	}
 
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
@@ -180,6 +190,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		supplier = ( Supplier ) supp;
 
 		ver = new FromServerForm ( supplier );
+		ver.emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
 
 		tabs = new TabPanel ();
 		tabs.setWidth ( "100%" );

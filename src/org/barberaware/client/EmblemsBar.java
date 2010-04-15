@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class EmblemsBar extends Composite {
 	private HorizontalPanel		main;
 	private EmblemsInfo		infos;
@@ -39,6 +41,7 @@ public class EmblemsBar extends Composite {
 			placeholder = new Image ();
 			main.add ( placeholder );
 			main.setCellWidth ( placeholder, "22px" );
+			placeholder.setVisible ( false );
 		}
 	}
 

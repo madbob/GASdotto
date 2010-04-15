@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsEditPanel extends Composite implements FromServerArray {
+public class ProductsEditPanel extends Composite implements FromServerArray, Lockable {
 	private DeckPanel		main;
 
 	private FormCluster		list;
@@ -81,10 +81,6 @@ public class ProductsEditPanel extends Composite implements FromServerArray {
 			main.showWidget ( 0 );
 			switchable.setVisible ( true );
 		}
-	}
-
-	public void unlock () {
-		list.unlock ();
 	}
 
 	public int numProducts () {
@@ -324,6 +320,12 @@ public class ProductsEditPanel extends Composite implements FromServerArray {
 		buttons.add ( button, "Salva" );
 
 		return container;
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		list.unlock ();
 	}
 
 	/****************************************************************** FromServerArray */

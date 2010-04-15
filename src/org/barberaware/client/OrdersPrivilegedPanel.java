@@ -454,6 +454,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		uorder.setObject ( "baseorder", order );
 
 		ver = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
+		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 
 		uorder.setObject ( "baseuser", Session.getUser () );
 

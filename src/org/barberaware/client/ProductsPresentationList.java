@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsPresentationList extends Composite implements FromServerArray {
+public class ProductsPresentationList extends Composite implements FromServerArray, Lockable {
 	private FormCluster		list;
 	private Supplier		supplier;
 
@@ -41,8 +41,16 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 		return list.latestIterableIndex ();
 	}
 
+	private FromServerValidateCallback filterSupplier () {
+		return new FromServerValidateCallback () {
+			public boolean checkObject ( FromServer object ) {
+				return supplier.equals ( object.getObject ( "supplier" ) );
+			}
+		};
+	}
+
 	private Widget doListView () {
-		list = new FormCluster ( "Product", null, false ) {
+		list = new FormCluster ( "Product", null, filterSupplier (), true ) {
 				protected FromServerForm doEditableRow ( FromServer product ) {
 					FromServerForm ver;
 					HorizontalPanel hor;
@@ -104,6 +112,12 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 		};
 
 		return list;
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		list.unlock ();
 	}
 
 	/****************************************************************** FromServerArray */

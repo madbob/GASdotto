@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public abstract class FormCluster extends FormGroup {
+public abstract class FormCluster extends FormGroup implements Lockable {
 	private String				objType;
 	private boolean				automatic		= true;
 	private boolean				locked			= false;
@@ -111,13 +111,6 @@ public abstract class FormCluster extends FormGroup {
 		registerCallbacks ();
 	}
 
-	public void unlock () {
-		if ( locked ) {
-			registerCallbacks ();
-			locked = false;
-		}
-	}
-
 	/*
 		Questa funzione puo' essere sovrascritta per personalizzare il comportamento in
 		caso di modifica di uno degli elementi della lista
@@ -144,5 +137,14 @@ public abstract class FormCluster extends FormGroup {
 	*/
 	protected void customDelete ( FromServer object ) {
 		/* dummy */
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		if ( locked ) {
+			registerCallbacks ();
+			locked = false;
+		}
 	}
 }
