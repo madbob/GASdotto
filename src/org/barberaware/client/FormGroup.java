@@ -135,8 +135,9 @@ public abstract class FormGroup extends Composite {
 			else
 				ret = 2;
 		}
-		else
+		else {
 			ret = 0;
+		}
 
 		return ret;
 	}

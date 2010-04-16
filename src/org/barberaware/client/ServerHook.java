@@ -30,25 +30,26 @@ public class ServerHook {
 	private class ServerMonitor {
 		public String		type;
 		public ArrayList	callbacks;
-		public ArrayList	objects;
+		public HashMap		objects;
 		public JSONArray	comparingObjects;
 
 		public ServerMonitor ( String t ) {
 			type = t;
 			callbacks = new ArrayList ();
-			objects = new ArrayList ();
+			objects = new HashMap ();
 			comparingObjects = new JSONArray ();
 		}
 
 		public void rebuildComparisons () {
 			int num;
+			Object [] collected;
 			FromServer obj;
 
 			comparingObjects = new JSONArray ();
-			num = objects.size ();
+			collected = objects.values ().toArray ();
 
-			for ( int i = 0; i < num; i++ ) {
-				obj = ( FromServer ) objects.get ( i );
+			for ( int i = 0; i < collected.length; i++ ) {
+				obj = ( FromServer ) collected [ i ];
 				comparingObjects.set ( i, new JSONNumber ( obj.getLocalID () ) );
 			}
 		}
@@ -137,37 +138,26 @@ public class ServerHook {
 	/****************************************************************** monitors */
 
 	private boolean addObjectIntoMonitorCache ( ServerMonitor monitor, FromServer obj ) {
-		int num;
-		FromServer iter;
+		String id;
 
-		num = monitor.objects.size ();
+		id = Integer.toString ( obj.getLocalID () );
 
-		for ( int i = 0; i < num; i++ ) {
-			iter = ( FromServer ) monitor.objects.get ( i );
-			if ( obj.equals ( iter ) )
-				return false;
+		if ( monitor.objects.get ( id ) == null ) {
+			monitor.objects.put ( id, obj );
+			monitor.comparingObjects.set ( monitor.comparingObjects.size (), new JSONNumber ( obj.getLocalID () ) );
+			return true;
 		}
-
-		monitor.objects.add ( obj );
-		monitor.comparingObjects.set ( monitor.comparingObjects.size (), new JSONNumber ( obj.getLocalID () ) );
-		return true;
+		else {
+			return false;
+		}
 	}
 
 	private void deleteObjectFromMonitorCache ( ServerMonitor monitor, FromServer obj ) {
-		int num;
-		FromServer iter;
+		String id;
 
-		num = monitor.objects.size ();
-
-		for ( int i = 0; i < num; i++ ) {
-			iter = ( FromServer ) monitor.objects.get ( i );
-			if ( iter.equals ( obj ) ) {
-				monitor.objects.remove ( i );
-				break;
-			}
-		}
-
-		monitor.rebuildComparisons ();
+		id = Integer.toString ( obj.getLocalID () );
+		if ( monitor.objects.remove ( id ) != null )
+			monitor.rebuildComparisons ();
 	}
 
 	/*
@@ -179,21 +169,12 @@ public class ServerHook {
 		ma si salta il controllo dei duplicati in addObjectIntoMonitorCache() e si evita
 		di ricostruire piu' volte l'elenco in monitor.comparingObjects
 	*/
-	private void updateObjecInMonitorCache ( ServerMonitor monitor, FromServer obj ) {
-		int num;
-		FromServer iter;
+	private void updateObjectInMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+		String id;
 
-		num = monitor.objects.size ();
-
-		for ( int i = 0; i < num; i++ ) {
-			iter = ( FromServer ) monitor.objects.get ( i );
-			if ( iter.equals ( obj ) ) {
-				monitor.objects.remove ( i );
-				break;
-			}
-		}
-
-		monitor.objects.add ( obj );
+		id = Integer.toString ( obj.getLocalID () );
+		monitor.objects.remove ( id );
+		monitor.objects.put ( id, obj );
 	}
 
 	private void executeMonitor ( final ServerMonitor monitor, ObjectRequest params ) {
@@ -263,15 +244,17 @@ public class ServerHook {
 
 	public void onObjectEvent ( String type, ServerObjectReceive callback ) {
 		int num;
-		ServerMonitor tmp;
+		ServerMonitor monitor;
+		Object [] collected;
 		FromServer obj;
 
-		tmp = getMonitor ( type );
-		tmp.callbacks.add ( callback );
-		num = tmp.objects.size ();
+		monitor = getMonitor ( type );
+		monitor.callbacks.add ( callback );
 
-		for ( int i = 0; i < num; i++ ) {
-			obj = ( FromServer ) tmp.objects.get ( i );
+		collected = monitor.objects.values ().toArray ();
+
+		for ( int i = 0; i < collected.length; i++ ) {
+			obj = ( FromServer ) collected [ i ];
 			callback.onReceive ( obj );
 		}
 	}
@@ -352,7 +335,7 @@ public class ServerHook {
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
-		updateObjecInMonitorCache (tmp, object);
+		updateObjectInMonitorCache (tmp, object);
 		num = tmp.callbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {
@@ -378,11 +361,11 @@ public class ServerHook {
 	}
 
 	public void addToCache ( FromServer object ) {
-		ServerMonitor tmp;
+		ServerMonitor monitor;
 
-		tmp = getMonitor ( object.getType () );
-		if ( addObjectIntoMonitorCache ( tmp, object ) == true )
-			executeReceivingCallbacks ( tmp, object );
+		monitor = getMonitor ( object.getType () );
+		if ( addObjectIntoMonitorCache ( monitor, object ) == true )
+			executeReceivingCallbacks ( monitor, object );
 	}
 
 	/*
@@ -391,35 +374,17 @@ public class ServerHook {
 		che si e' sicuri essere gia' stati scaricati da un monitor
 	*/
 	public FromServer getObjectFromCache ( String type, int id ) {
-		int num;
-		ServerMonitor tmp;
-		FromServer candidate;
+		ServerMonitor monitor;
 
-		tmp = getMonitor ( type );
-		num = tmp.objects.size ();
-
-		for ( int i = 0; i < num; i++ ) {
-			candidate = ( FromServer ) tmp.objects.get ( i );
-			if ( candidate.getLocalID () == id )
-				return candidate;
-		}
-
-		return null;
+		monitor = getMonitor ( type );
+		return ( FromServer ) monitor.objects.get ( Integer.toString ( id ) );
 	}
 
 	public ArrayList getObjectsFromCache ( String type ) {
-		int num;
-		ServerMonitor tmp;
-		ArrayList ret;
+		ServerMonitor monitor;
 
-		tmp = getMonitor ( type );
-		num = tmp.objects.size ();
-		ret = new ArrayList ();
-
-		for ( int i = 0; i < num; i++ )
-			ret.add ( tmp.objects.get ( i ) );
-
-		return ret;
+		monitor = getMonitor ( type );
+		return new ArrayList ( monitor.objects.values () );
 	}
 
 	public void invalidateCacheByCondition ( ObjectRequest req ) {

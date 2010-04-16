@@ -23,7 +23,8 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderSummary extends Composite {
+public class OrderSummary extends Composite implements Lockable {
+	private boolean			locked;
 	private Order			currentOrder;
 	private FlexTable		main;
 	private PriceViewer		totalLabel;
@@ -32,6 +33,7 @@ public class OrderSummary extends Composite {
 
 	public OrderSummary ( Order order ) {
 		currentOrder = order;
+		locked = true;
 
 		main = new FlexTable ();
 		main.setStyleName ( "elements-table" );
@@ -59,8 +61,6 @@ public class OrderSummary extends Composite {
 		totalLabel = null;
 		totalshipLabel = null;
 		ordersUsers = new ArrayList ();
-
-		fillList ();
 	}
 
 	public void reFill ( Order order ) {
@@ -93,6 +93,9 @@ public class OrderSummary extends Composite {
 		OrderUser user_ord;
 		Product order_product;
 		ProductUser user_product;
+
+		if ( locked == true )
+			return;
 
 		my_id = currentOrder.getLocalID ();
 		products = currentOrder.getArray ( "products" );
@@ -442,5 +445,15 @@ public class OrderSummary extends Composite {
 
 		main.setWidget ( e, 7, totalLabel );
 		main.setWidget ( e, 8, totalshipLabel );
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		if ( locked == true ) {
+			locked = false;
+			fillList ();
+			syncOrders ();
+		}
 	}
 }

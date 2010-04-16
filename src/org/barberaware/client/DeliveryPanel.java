@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class DeliveryPanel extends GenericPanel {
 	private boolean		hasOrders;
 	private FormGroup	main;

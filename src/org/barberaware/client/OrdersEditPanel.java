@@ -257,6 +257,11 @@ public class OrdersEditPanel extends GenericPanel {
 
 				protected void asyncLoad ( FromServerForm form ) {
 					Order ord;
+					OrderSummary complete_list;
+
+					complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+					if ( complete_list != null )
+						complete_list.unlock ();
 
 					ord = ( Order ) form.getObject ();
 					ord.asyncLoadUsersOrders ();
@@ -264,9 +269,6 @@ public class OrdersEditPanel extends GenericPanel {
 		};
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			private boolean		lock		= false;
-			private ArrayList	orders		= null;
-
 			private void syncOrder ( OrderUser user ) {
 				Order order;
 				FromServerForm form;
@@ -286,40 +288,7 @@ public class OrdersEditPanel extends GenericPanel {
 			}
 
 			public void onReceive ( FromServer object ) {
-				if ( lock == false )
-					syncOrder ( ( OrderUser ) object );
-				else
-					orders.add ( object.getObject ( "baseorder" ) );
-			}
-
-			public void onBlockBegin () {
-				lock = true;
-
-				if ( orders == null )
-					orders = new ArrayList ();
-			}
-
-			public void onBlockEnd () {
-				FromServerForm form;
-				Order ord;
-				OrderSummary summary;
-
-				for ( int a = 0; a < orders.size (); a++ ) {
-					ord = ( Order ) orders.get ( a );
-
-					for ( int i = 0; i < main.latestIterableIndex (); i++ ) {
-						form = main.retrieveForm ( i );
-
-						if ( ord.equals ( form.getObject () ) ) {
-							summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
-							if ( summary != null )
-								summary.syncOrders ();
-						}
-					}
-				}
-
-				lock = false;
-				orders.clear ();
+				syncOrder ( ( OrderUser ) object );
 			}
 
 			public void onModify ( FromServer object ) {
