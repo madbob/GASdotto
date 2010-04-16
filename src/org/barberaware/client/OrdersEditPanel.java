@@ -82,6 +82,18 @@ public class OrdersEditPanel extends GenericPanel {
 					frame.addPair ( "Si ripete", form.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 				}
 
+				private void addSaveProducts ( FromServerForm form ) {
+					form.setCallback ( new FromServerFormCallbacks () {
+						public void onClose ( FromServerForm form ) {
+							OrderSummary complete_list;
+
+							complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+							if ( complete_list != null )
+								complete_list.saveContents ();
+						}
+					} );
+				}
+
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					final FromServerForm ver;
 					HorizontalPanel hor;
@@ -100,6 +112,7 @@ public class OrdersEditPanel extends GenericPanel {
 						return null;
 
 					ver = new FromServerForm ( order );
+					addSaveProducts ( ver );
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
@@ -229,6 +242,7 @@ public class OrdersEditPanel extends GenericPanel {
 					if ( form != null ) {
 						form.setObject ( object );
 						addOrderDetails ( form );
+						addSaveProducts ( form );
 					}
 				}
 
@@ -386,25 +400,11 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	private void addOrderDetails ( FromServerForm form ) {
-		HorizontalPanel pan;
 		CaptionPanel p_summary;
-		CaptionPanel p_products;
 
 		p_summary = addOrderSummary ( form );
-		p_products = addProductsHandler ( form );
-
-		if ( p_summary != null && p_products != null ) {
-			pan = new HorizontalPanel ();
-			pan.setWidth ( "100%" );
-
-			pan.add ( p_summary );
-			pan.setCellWidth ( p_summary, "50%" );
-
-			pan.add ( p_products );
-			pan.setCellWidth ( p_products, "50%" );
-
-			form.add ( pan );
-		}
+		if ( p_summary != null )
+			form.add ( p_summary );
 	}
 
 	private CaptionPanel addOrderSummary ( FromServerForm form ) {
@@ -425,67 +425,6 @@ public class OrdersEditPanel extends GenericPanel {
 		complete_list = new OrderSummary ( order );
 		form.setExtraWidget ( "summary", complete_list );
 		sframe.add ( complete_list );
-		return sframe;
-	}
-
-	private CaptionPanel addProductsHandler ( final FromServerForm form ) {
-		final FromServerTable table;
-		VerticalPanel container;
-		CaptionPanel sframe;
-		ButtonsBar buttons;
-		PushButton button;
-
-		if ( ( FromServerTable ) form.retriveInternalWidget ( "products" ) != null )
-			return null;
-
-		container = new VerticalPanel ();
-
-		table = new FromServerTable ();
-		table.addColumn ( "Nome", "name", false );
-		table.addColumn ( "Ordinabile", "available", true );
-		table.addColumn ( "Prezzo Unitario", "unit_price", true );
-		table.addColumn ( "Prezzo Trasporto", "shipping_price", true );
-		container.add ( form.getPersonalizedWidget ( "products", table ) );
-
-		buttons = new ButtonsBar ();
-		container.add ( buttons );
-
-		/**
-			TODO	Visualizzare il tasto di reset solo se si apportano modifiche
-		*/
-		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				table.revertChanges ();
-			}
-		} );
-		buttons.add ( button, "Annulla" );
-
-		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				Order order;
-				ArrayList products;
-				ObjectRequest req;
-				OrderSummary summary;
-
-				order = ( Order ) form.getObject ();
-				table.saveChanges ();
-				products = table.getElements ();
-				order.setArray ( "products", products );
-
-				req = new ObjectRequest ( "OrderUser" );
-				req.add ( "baseorder", order, Order.class );
-				Utils.getServer ().invalidateCacheByCondition ( req );
-
-				summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
-				summary.reFill ( order );
-
-				Utils.getServer ().triggerObjectModification ( order );
-			}
-		} );
-		buttons.add ( button, "Salva" );
-
-		sframe = new CaptionPanel ( "Prodotti" );
-		sframe.add ( container );
 		return sframe;
 	}
 

@@ -48,6 +48,13 @@ public class ProductUser extends FromServer {
 		return quantity * getObject ( "product" ).getFloat ( "unit_price" );
 	}
 
+	public float getTransportPrice () {
+		float quantity;
+
+		quantity = getFloat ( "quantity" );
+		return quantity * getObject ( "product" ).getFloat ( "shipping_price" );
+	}
+
 	public float getExternalPrice () {
 		float quantity;
 		float tot;
