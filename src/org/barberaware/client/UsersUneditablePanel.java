@@ -25,7 +25,6 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class UsersUneditablePanel extends GenericPanel {
 	private FormCluster		main;
-	private CheckBox		toggleLeavedView;
 
 	public UsersUneditablePanel () {
 		super ();
@@ -43,7 +42,7 @@ public class UsersUneditablePanel extends GenericPanel {
 				FromServerForm form;
 				FlexTable frame;
 
-				if ( u.getInt ( "privileges" ) == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
+				if ( u.getInt ( "privileges" ) == User.USER_LEAVED )
 					return null;
 
 				form = new FromServerForm ( u, FromServerForm.NOT_EDITABLE );
@@ -107,34 +106,6 @@ public class UsersUneditablePanel extends GenericPanel {
 			}
 		} );
 		pan.add ( filter );
-
-		toggleLeavedView = new CheckBox ( "Mostra Utenti Cessati" );
-		toggleLeavedView.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				boolean show;
-				ArrayList forms;
-				CheckBox myself;
-				FromServerForm form;
-
-				myself = ( CheckBox ) sender;
-				forms = main.collectForms ();
-				show = myself.isChecked ();
-
-				if ( show == true ) {
-					ObjectRequest params;
-					params = new ObjectRequest ( "User" );
-					params.add ( "privileges", User.USER_LEAVED );
-					Utils.getServer ().testObjectReceive ( params );
-				}
-
-				for ( int i = 0; i < forms.size (); i++ ) {
-					form = ( FromServerForm ) forms.get ( i );
-					if ( form.getObject ().getInt ( "privileges" ) == User.USER_LEAVED )
-						form.setVisible ( show );
-				}
-			}
-		} );
-		pan.add ( toggleLeavedView );
 	}
 
 	private void setRoleIcon ( FromServerForm form, User user ) {
@@ -144,9 +115,6 @@ public class UsersUneditablePanel extends GenericPanel {
 		priv = user.getInt ( "privileges" );
 		bar = form.emblems ();
 		bar.activate ( "privileges", priv );
-
-		if ( priv == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
-			form.setVisible ( false );
 	}
 
 	/****************************************************************** GenericPanel */
