@@ -58,10 +58,10 @@ public class ProductUser extends FromServer {
 	public float getExternalPrice () {
 		float quantity;
 		float tot;
-		Product product;
+		FromServer product;
 
 		quantity = getFloat ( "quantity" );
-		product = ( Product ) getObject ( "product" );
+		product = getObject ( "product" );
 
 		tot = product.getFloat ( "shipping_price" );
 		tot = Utils.sumPercentage ( tot, product.getString ( "surplus" ) );
@@ -74,13 +74,13 @@ public class ProductUser extends FromServer {
 		ret = super.compare ( first, second );
 
 		if ( ret == 0 ) {
-			ProductUser f;
-			ProductUser s;
+			FromServer f;
+			FromServer s;
 			float quant_first;
 			float quant_second;
 
-			f = ( ProductUser ) first;
-			s = ( ProductUser ) second;
+			f = ( FromServer ) first;
+			s = ( FromServer ) second;
 
 			quant_first = f.getFloat ( "quantity" );
 			quant_second = s.getFloat ( "quantity" );

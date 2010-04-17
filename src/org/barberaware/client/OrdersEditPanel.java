@@ -99,19 +99,16 @@ public class OrdersEditPanel extends GenericPanel {
 					HorizontalPanel hor;
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
-					Order order;
 					Supplier supplier;
 
-					order = ( Order ) ord;
-
-					if ( order.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
+					if ( ord.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
 						return null;
 
-					supplier = ( Supplier ) order.getObject ( "supplier" );
+					supplier = ( Supplier ) ord.getObject ( "supplier" );
 					if ( supplier.iAmReference () == false )
 						return null;
 
-					ver = new FromServerForm ( order );
+					ver = new FromServerForm ( ord );
 					ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 					addSaveProducts ( ver );
 
@@ -139,7 +136,7 @@ public class OrdersEditPanel extends GenericPanel {
 					addDatesFrame ( ver, hor );
 					addOrderDetails ( ver );
 
-					ver.emblems ().activate ( "status", order.getInt ( "status" ) );
+					ver.emblems ().activate ( "status", ord.getInt ( "status" ) );
 					return ver;
 				}
 
@@ -194,19 +191,19 @@ public class OrdersEditPanel extends GenericPanel {
 							boolean found;
 							ArrayList products;
 							FromServerSelector supps;
-							Supplier selected;
-							Product prod;
+							FromServer selected;
+							FromServer prod;
 
 							found = false;
 
 							supps = ( FromServerSelector ) sender;
-							selected = ( Supplier ) supps.getValue ();
+							selected = supps.getValue ();
 
 							products = Utils.getServer ().getObjectsFromCache ( "Product" );
 							num_products = products.size ();
 
 							for ( int i = 0; i < num_products; i++ ) {
-								prod = ( Product ) products.get ( i );
+								prod = ( FromServer ) products.get ( i );
 
 								if ( prod.getObject ( "supplier" ).equals ( selected ) ) {
 									found = true;
@@ -290,11 +287,11 @@ public class OrdersEditPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			private void syncOrder ( OrderUser user ) {
-				Order order;
+				FromServer order;
 				FromServerForm form;
 				OrderSummary summary;
 
-				order = ( Order ) user.getObject ( "baseorder" );
+				order = user.getObject ( "baseorder" );
 				if ( order == null )
 					return;
 

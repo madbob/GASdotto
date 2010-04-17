@@ -53,10 +53,13 @@ public class NotificationsBox extends Composite {
 
 			public void onModify ( FromServer object ) {
 				int index;
+				Notification notify;
 
-				index = retrieveExisting ( ( Notification ) object );
+				notify = ( Notification ) object;
+
+				index = retrieveExisting ( notify );
 				if ( index != -1 )
-					setNotification ( ( Notification ) object, index );
+					setNotification ( notify, index );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -76,13 +79,13 @@ public class NotificationsBox extends Composite {
 	private boolean isForMe ( Notification notify ) {
 		ArrayList dests;
 		User myself;
-		User iter;
+		FromServer iter;
 
 		dests = notify.getArray ( "recipent" );
 		myself = Session.getUser ();
 
 		for ( int i = 0; i < dests.size (); i++ ) {
-			iter = ( User ) dests.get ( i );
+			iter = ( FromServer ) dests.get ( i );
 			if ( myself.equals ( iter ) )
 				return true;
 		}
@@ -103,7 +106,7 @@ public class NotificationsBox extends Composite {
 
 		tot = main.getRowCount ();
 		search_id = Integer.toString ( notify.getLocalID () );
-		
+
 		for ( int i = 0; i < tot; i++ ) {
 			iter_id = ( ( Hidden ) main.getWidget ( i, 0 ) ).getValue ();
 			if ( iter_id.equals ( search_id ) )

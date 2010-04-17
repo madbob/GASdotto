@@ -42,13 +42,13 @@ public class Order extends FromServer {
 		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
 			public String retrive ( FromServer obj ) {
 				Date ship;
-				Supplier supplier;
+				FromServer supplier;
 				String sup;
 				String start;
 				String end;
 				String shipping;
 
-				supplier = ( Supplier ) obj.getObject ( "supplier" );
+				supplier = obj.getObject ( "supplier" );
 				if ( supplier == null )
 					return "Nuovo Ordine";
 

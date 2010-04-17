@@ -52,7 +52,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		float total_sum;
 		FloatBox iter;
 		ProductUser prod_user;
-		Product prod;
+		FromServer prod;
 
 		total_sum = 0;
 		num_rows = currentValues.size ();
@@ -64,7 +64,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			prod_user = ( ProductUser ) currentValues.get ( a );
 			row_sum = prod_user.getTotalPrice ( input );
 
-			prod = ( Product ) prod_user.getObject ( "product" );
+			prod = prod_user.getObject ( "product" );
 
 			if ( iter == box ) {
 				if ( input < 0 ) {
@@ -143,8 +143,8 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		int i;
 		int e;
 		ProductUser prod_user;
-		Product prod;
-		Measure measure;
+		FromServer prod;
+		FromServer measure;
 		FloatBox del;
 		float delivered;
 		float price_product;
@@ -167,11 +167,11 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		for ( e = 1, i = 0; i < elements.size (); i++ ) {
 			prod_user = ( ProductUser ) elements.get ( i );
 
-			prod = ( Product ) prod_user.getObject ( "product" );
+			prod = prod_user.getObject ( "product" );
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			measure = ( Measure ) prod.getObject ( "measure" );
+			measure = prod.getObject ( "measure" );
 
 			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
 			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
@@ -221,11 +221,11 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 
 	public ArrayList getElements () {
 		FloatBox del;
-		ProductUser produser;
+		FromServer produser;
 
 		for ( int i = 0; i < currentValues.size (); i++ ) {
 			del = ( FloatBox ) main.getWidget ( i + 1, 3 );
-			produser = ( ProductUser ) currentValues.get ( i );
+			produser = ( FromServer ) currentValues.get ( i );
 			produser.setFloat ( "delivered", del.getVal () );
 		}
 

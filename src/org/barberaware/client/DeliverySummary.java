@@ -195,7 +195,7 @@ public class DeliverySummary extends Composite {
 	private int getSortedIndex ( User to_place ) {
 		int i;
 		FromServerForm row;
-		User u_iter;
+		FromServer u_iter;
 		String name_iter;
 		String name_to_place;
 
@@ -203,7 +203,7 @@ public class DeliverySummary extends Composite {
 
 		for ( i = 0; i < main.getWidgetCount (); i++ ) {
 			row = ( FromServerForm ) main.getWidget ( i );
-			u_iter = ( User ) row.getObject ().getObject ( "baseuser" );
+			u_iter = row.getObject ().getObject ( "baseuser" );
 			name_iter = u_iter.getString ( "name" );
 
 			if ( name_iter.compareTo ( name_to_place ) > 0 )

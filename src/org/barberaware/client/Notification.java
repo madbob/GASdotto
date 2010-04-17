@@ -41,7 +41,7 @@ public class Notification extends FromServer {
 					return "Nuova Notifica";
 
 				len = recipents.size ();
-				
+
 				if ( len == 0 ) {
 					ret = "A: Tutti";
 				}
@@ -49,7 +49,7 @@ public class Notification extends FromServer {
 					int i;
 					int str_len;
 					boolean closed;
-					User iter;
+					FromServer iter;
 					String name;
 
 					ret = "A: ";
@@ -58,7 +58,7 @@ public class Notification extends FromServer {
 					closed = false;
 
 					for ( i = 0; i < len; i++ ) {
-						iter = ( User ) recipents.get ( i );
+						iter = ( FromServer ) recipents.get ( i );
 						name = iter.getString ( "name" );
 						ret += name + ", ";
 
@@ -71,7 +71,7 @@ public class Notification extends FromServer {
 					}
 
 					if ( closed == false ) {
-						iter = ( User ) recipents.get ( i );
+						iter = ( FromServer ) recipents.get ( i );
 						name = iter.getString ( "name" );
 						ret += name;
 					}

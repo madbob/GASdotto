@@ -27,13 +27,11 @@ public class FilesGroup extends Composite implements FromServerArray {
 	public FilesGroup () {
 		main = new FormGroup ( "Nuovo File" ) {
 			protected FromServerForm doEditableRow ( FromServer n ) {
-				CustomFile file;
 				FlexTable fields;
 				FromServerForm form;
 				FileUploadDialog uploader;
 
 				form = new FromServerForm ( n );
-				file = ( CustomFile ) n;
 
 				fields = new FlexTable ();
 				form.add ( fields );

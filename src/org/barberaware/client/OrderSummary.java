@@ -90,8 +90,8 @@ public class OrderSummary extends Composite implements Lockable {
 		ArrayList cached_orders;
 		ArrayList products;
 		ArrayList user_products;
-		OrderUser user_ord;
-		Product order_product;
+		FromServer user_ord;
+		FromServer order_product;
 		ProductUser user_product;
 
 		if ( locked == true )
@@ -126,7 +126,7 @@ public class OrderSummary extends Composite implements Lockable {
 		total_ship_price = 0;
 
 		for ( int i = 0; i < cached_orders.size (); i++ ) {
-			user_ord = ( OrderUser ) cached_orders.get ( i );
+			user_ord = ( FromServer ) cached_orders.get ( i );
 
 			if ( user_ord.isValid () == false )
 				continue;
@@ -136,11 +136,11 @@ public class OrderSummary extends Composite implements Lockable {
 
 				for ( int a = 0; a < user_products.size (); a++ ) {
 					user_product = ( ProductUser ) user_products.get ( a );
-					order_product = ( Product ) user_product.getObject ( "product" );
+					order_product = user_product.getObject ( "product" );
 					user_product_ref = order_product.getLocalID ();
 
 					for ( int e = 0; e < products.size (); e++ ) {
-						order_product = ( Product ) products.get ( e );
+						order_product = ( FromServer ) products.get ( e );
 
 						if ( user_product_ref == order_product.getLocalID () ) {
 							if ( order_product.getBool ( "available" ) == true ) {
@@ -265,9 +265,9 @@ public class OrderSummary extends Composite implements Lockable {
 	}
 
 	private String measureSymbol ( Product prod ) {
-		Measure measure;
+		FromServer measure;
 
-		measure = ( Measure ) prod.getObject ( "measure" );
+		measure = prod.getObject ( "measure" );
 		if ( measure != null )
 			return measure.getString ( "symbol" );
 		else

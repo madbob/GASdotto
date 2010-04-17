@@ -352,11 +352,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			public boolean onDelete ( final FromServerForm form ) {
-				OrderUser ord;
+				FromServer uord;
 
-				ord = ( OrderUser ) form.getObject ();
-				if ( ord.isValid () ) {
-					ord.destroy ( new ServerResponse () {
+				uord = form.getObject ();
+				if ( uord.isValid () ) {
+					uord.destroy ( new ServerResponse () {
 						public void onComplete ( JSONValue response ) {
 							cleanForm ( form, true, Session.getUser () );
 							form.open ( false );
@@ -511,13 +511,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	private void syncLocalCache ( FromServerForm ver, OrderUser uorder, int action ) {
 		int uorder_id;
 		ArrayList orders;
-		OrderUser iter;
+		FromServer iter;
 
 		uorder_id = uorder.getLocalID ();
 		orders = ver.getAddictionalData ();
 
 		for ( int i = 0; i < orders.size (); i++ ) {
-			iter = ( OrderUser ) orders.get ( i );
+			iter = ( FromServer ) orders.get ( i );
 
 			/*
 				Forse inefficiente, ma qui faccio insieme il controllo
@@ -552,14 +552,14 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		int user_id;
 		ArrayList orders;
 		OrderUser iter;
-		User existing_user;
+		FromServer existing_user;
 
 		user_id = user.getLocalID ();
 		orders = form.getAddictionalData ();
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			iter = ( OrderUser ) orders.get ( i );
-			existing_user = ( User ) iter.getObject ( "baseuser" );
+			existing_user = iter.getObject ( "baseuser" );
 
 			if ( existing_user.getLocalID () == user_id ) {
 				alignOrderRow ( form, iter );
@@ -591,10 +591,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	private void cleanForm ( FromServerForm form, boolean complete, User user ) {
 		OrderUser uorder;
-		OrderUser original_uorder;
+		FromServer original_uorder;
 
 		uorder = new OrderUser ();
-		original_uorder = ( OrderUser ) form.getObject ();
+		original_uorder = form.getObject ();
 		uorder.setObject ( "baseorder", original_uorder.getObject ( "baseorder" ) );
 
 		if ( user != null )

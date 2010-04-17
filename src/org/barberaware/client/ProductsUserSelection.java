@@ -210,9 +210,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		String plus_str;
 		float plus;
 		boolean raw;
-		Measure measure;
+		FromServer measure;
 
-		measure = ( Measure ) product.getObject ( "measure" );
+		measure = product.getObject ( "measure" );
 
 		plus = product.getFloat ( "unit_price" );
 		info_str = plus + " € / " + measure.getString ( "symbol" );
@@ -352,12 +352,12 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	public void setElements ( ArrayList elements ) {
 		int num_elements;
 		int rows;
-		ProductUser prod;
-		Product prod_internal;
+		FromServer prod_internal;
 		String id_target;
 		boolean found;
 		ProductUserSelector selector;
-		Product sel_prod;
+		FromServer prod;
+		FromServer sel_prod;
 
 		if ( elements == null ) {
 			rows = main.getRowCount () - 2;
@@ -381,15 +381,15 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 
-				sel_prod = ( Product ) selector.getValue ().getObject ( "product" );
+				sel_prod = selector.getValue ().getObject ( "product" );
 				if ( sel_prod.getBool ( "available" ) == false )
 					continue;
 
 				found = false;
 
 				for ( int a = 0; a < num_elements; a++ ) {
-					prod = ( ProductUser ) elements.get ( a );
-					prod_internal = ( Product ) prod.getObject ( "product" );
+					prod = ( FromServer ) elements.get ( a );
+					prod_internal = prod.getObject ( "product" );
 					id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
 
 					/**
@@ -425,7 +425,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		ArrayList list;
 		ProductUserSelector selector;
 		Float quant;
-		ProductUser prod;
+		FromServer prod;
 		Hidden id;
 
 		list = null;
@@ -433,7 +433,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		for ( int i = 0; i < num_rows; i++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
-			prod = ( ProductUser ) selector.getValue ();
+			prod = selector.getValue ();
 
 			if ( prod.getFloat ( "quantity" ) > 0 ) {
 				if ( list == null )
@@ -459,10 +459,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	public void refreshElement ( FromServer element ) {
 		int a;
 		Product prod;
-		ProductUser prod_user;
 
-		prod_user = ( ProductUser ) element;
-		prod = ( Product ) prod_user.getObject ( "product" );
+		prod = ( Product ) element.getObject ( "product" );
 
 		a = retrieveRowByProduct ( prod );
 		if ( a != -1 )

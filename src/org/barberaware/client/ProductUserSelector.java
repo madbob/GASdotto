@@ -58,7 +58,7 @@ public class ProductUserSelector extends ObjectWidget {
 				public void onLostFocus ( Widget sender ) {
 					float val;
 					float input;
-					Product prod;
+					FromServer prod;
 
 					if ( constraintsDialog != null )
 						constraintsDialog.hide ();
@@ -67,7 +67,7 @@ public class ProductUserSelector extends ObjectWidget {
 					if ( input == 0 )
 						return;
 
-					prod = ( Product ) currentValue.getObject ( "product" );
+					prod = currentValue.getObject ( "product" );
 
 					if ( freeEditable == false ) {
 						val = prod.getFloat ( "minimum_order" );
@@ -150,14 +150,14 @@ public class ProductUserSelector extends ObjectWidget {
 	}
 
 	private void defineOnProduct ( Product prod ) {
-		Measure m;
+		FromServer m;
 
 		if ( prod.getFloat ( "unit_size" ) != 0 ) {
 			measure.setText ( "pezzi" );
 			setEffectiveQuantity ( quantity.getVal () );
 		}
 		else {
-			m = ( Measure ) prod.getObject ( "measure" );
+			m = prod.getObject ( "measure" );
 			if ( m != null )
 				measure.setText ( m.getString ( "symbol" ) );
 
@@ -170,11 +170,11 @@ public class ProductUserSelector extends ObjectWidget {
 
 	private void setEffectiveQuantity ( float quantity ) {
 		String ms;
-		Product prod;
-		Measure m;
+		FromServer prod;
+		FromServer m;
 
-		prod = ( Product ) currentValue.getObject ( "product" );
-		m = ( Measure ) prod.getObject ( "measure" );
+		prod = currentValue.getObject ( "product" );
+		m = prod.getObject ( "measure" );
 		if ( m != null )
 			ms = m.getString ( "symbol" );
 		else

@@ -32,12 +32,10 @@ public class NotificationPanel extends GenericPanel {
 					FromServerForm ver;
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
-					Notification notify;
 					EnumSelector type_sel;
 					MultiSelector users;
 
-					notify = ( Notification ) n;
-					ver = new FromServerForm ( notify );
+					ver = new FromServerForm ( n );
 
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );

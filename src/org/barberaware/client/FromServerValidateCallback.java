@@ -188,6 +188,7 @@ public abstract class FromServerValidateCallback {
 		return new FromServerValidateCallback () {
 			public boolean check ( FromServer object, String attribute, Widget widget ) {
 				String text;
+				String username;
 
 				text = ( ( StringWidget ) widget ).getValue ();
 
@@ -195,8 +196,17 @@ public abstract class FromServerValidateCallback {
 					Utils.showNotification ( "La password non è stata definita" );
 					return false;
 				}
-				else
-					return true;
+				else {
+					username = object.getString ( "login" );
+
+					if ( text.equals ( username ) ) {
+						Utils.showNotification ( "La password non può essere uguale al login" );
+						return false;
+					}
+					else {
+						return true;
+					}
+				}
 			}
 		};
 	}

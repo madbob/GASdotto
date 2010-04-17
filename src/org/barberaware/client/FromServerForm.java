@@ -381,8 +381,16 @@ public class FromServerForm extends Composite {
 
 		tmp = retriveWidgetFromList ( name );
 		if ( tmp != null ) {
-			if ( contents.remove ( tmp ) == false && tmp.wid != null )
-				contents.remove ( tmp.wid );
+			/*
+				Attenzione: in taluni casi, quando indicizzo un elemento nel form con
+				setExtraWidget(), il FromServerWidget che maneggio qui non e' un vero widget ma solo
+				un wrapper per l'elemento grafico vero. Dunque se provo a passarlo alla funzione
+				remove() del pannello ottengo un errore, in quanto mancano le informazioni
+				necessarie. Pertanto qui provo prima ad agire sul widget vero e proprio, che esiste
+				per certo, ed eventualmente sul wrapper (che e' il comportamento piu' comune)
+			*/
+			if ( contents.remove ( tmp.wid ) == false )
+				contents.remove ( tmp );
 		}
 	}
 
