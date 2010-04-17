@@ -112,7 +112,15 @@ public class OrdersEditPanel extends GenericPanel {
 						return null;
 
 					ver = new FromServerForm ( order );
+					ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 					addSaveProducts ( ver );
+
+					/*
+						L'icona di editing la aggiungo sempre sebbene sia sottinteso che
+						l'ordine e' editabile (altrimenti manco apparirebbe nella lista), per
+						coerenza con gli altri pannelli
+					*/
+					ver.emblems ().activate ( "multiuser" );
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
@@ -131,6 +139,7 @@ public class OrdersEditPanel extends GenericPanel {
 					addDatesFrame ( ver, hor );
 					addOrderDetails ( ver );
 
+					ver.emblems ().activate ( "status", order.getInt ( "status" ) );
 					return ver;
 				}
 
@@ -147,6 +156,7 @@ public class OrdersEditPanel extends GenericPanel {
 					order = new Order ();
 
 					ver = new FromServerForm ( order );
+					ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 
 					/**
 						TODO	Questa callback e' valida solo per i nuovi ordini, una volta
@@ -243,7 +253,17 @@ public class OrdersEditPanel extends GenericPanel {
 						form.setObject ( object );
 						addOrderDetails ( form );
 						addSaveProducts ( form );
+
+						form.emblems ().activate ( "status", object.getInt ( "status" ) );
+						form.emblems ().activate ( "multiuser" );
 					}
+				}
+
+				protected void customModify ( FromServerForm form ) {
+					FromServer obj;
+
+					obj = form.getObject ();
+					form.emblems ().activate ( "status", obj.getInt ( "status" ) );
 				}
 
 				protected int sorting ( FromServer first, FromServer second ) {

@@ -123,10 +123,12 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						*/
 						form.refreshContents ( null );
 
+						form.emblems ().activate ( "status", status );
 						syncProductsInForm ( form, ord );
 					}
 					else if ( status == Order.CLOSED ) {
 						if ( canMultiUser ( ord ) == true ) {
+							form.emblems ().activate ( "status", status );
 							closedOrderAlert ( form, true );
 						}
 						else {
@@ -176,8 +178,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return "OrdersPrivilegedPanel";
 			}
 		} );
-
-		initEmblems ();
 	}
 
 	private void doFilterOptions () {
@@ -216,15 +216,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 		} );
 		pan.add ( toggle_view );
-	}
-
-	private void initEmblems () {
-		ArrayList paths;
-		EmblemsInfo info;
-
-		info = new EmblemsInfo ();
-		info.addSymbol ( "multiuser", "images/notifications/multiuser_order.png" );
-		Utils.setEmblemsCache ( "orders", info );
 	}
 
 	private void closedOrderAlert ( FromServerForm form, boolean doit ) {
@@ -436,6 +427,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		products = new ProductsUserSelection ( order.getArray ( "products" ), true, freeedit );
 		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
 
+		ver.emblems ().activate ( "status", order.getInt ( "status" ) );
 		order.addRelatedInfo ( "OrdersPrivilegedPanel", ver );
 		return ver;
 	}

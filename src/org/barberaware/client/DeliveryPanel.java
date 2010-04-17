@@ -86,16 +86,13 @@ public class DeliveryPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				Order ord;
 				Supplier supp;
 
-				ord = ( Order ) object;
-
-				if ( ord.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
+				supp = ( Supplier ) object.getObject ( "supplier" );
+				if ( supp.iAmReference () == false )
 					return;
 
-				supp = ( Supplier ) ord.getObject ( "supplier" );
-				if ( supp.iAmReference () == false )
+				if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
 					return;
 
 				main.addElement ( object );
@@ -122,8 +119,9 @@ public class DeliveryPanel extends GenericPanel {
 					form.refreshContents ( null );
 				}
 
-				uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+				form.emblems ().activate ( "status", object.getInt ( "status" ) );
 
+				uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 				for ( int i = 0; i < uorders.size (); i++ ) {
 					uord = ( OrderUser ) uorders.get ( i );
 					if ( uord.getObject ( "baseorder" ).equals ( object ) )
@@ -146,7 +144,6 @@ public class DeliveryPanel extends GenericPanel {
 		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
 
 		doFilterOptions ();
-		initEmblems ();
 	}
 
 	private void doFilterOptions () {
@@ -182,22 +179,6 @@ public class DeliveryPanel extends GenericPanel {
 		pan.add ( toggle_view );
 	}
 
-	private void initEmblems () {
-		ArrayList paths;
-		EmblemsInfo info;
-
-		paths = new ArrayList ();
-		paths.add ( "" );
-		paths.add ( "images/notifications/order_shipping.png" );
-		paths.add ( "images/notifications/order_shipped.png" );
-		paths.add ( "images/notifications/order_saved.png" );
-
-		info = new EmblemsInfo ();
-		info.addSymbol ( "status", paths );
-		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
-		Utils.setEmblemsCache ( "delivery", info );
-	}
-
 	private FromServerForm doOrderRow ( Order order ) {
 		HorizontalPanel downloads;
 		final FromServerForm ver;
@@ -210,6 +191,8 @@ public class DeliveryPanel extends GenericPanel {
 		}
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
+		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
+		ver.emblems ().activate ( "status", order.getInt ( "status" ) );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {

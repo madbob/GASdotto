@@ -62,6 +62,46 @@ public class Utils {
 
 	/****************************************************** emblemi */
 
+	public static void initEmblems () {
+		ArrayList paths;
+		EmblemsInfo info;
+
+		info = new EmblemsInfo ();
+		paths = new ArrayList ();
+		paths.add ( "images/notifications/order_open.png" );
+		paths.add ( "images/notifications/order_closed.png" );
+		paths.add ( "images/notifications/order_suspended.png" );
+		paths.add ( "images/notifications/order_completed.png" );
+		info.addSymbol ( "status", paths );
+		info.addSymbol ( "multiuser", "images/notifications/multiuser_order.png" );
+		emblemsCache.put ( "orders", info );
+
+		info = new EmblemsInfo ();
+		paths = new ArrayList ();
+		paths.add ( "" );
+		paths.add ( "images/notifications/order_shipping.png" );
+		paths.add ( "images/notifications/order_shipped.png" );
+		paths.add ( "images/notifications/order_saved.png" );
+		info.addSymbol ( "status", paths );
+		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
+		emblemsCache.put ( "delivery", info );
+
+		info = new EmblemsInfo ();
+		OpenedOrdersList.configEmblem ( info );
+		PastOrdersList.configEmblem ( info );
+		emblemsCache.put ( "supplier", info );
+
+		info = new EmblemsInfo ();
+		paths = new ArrayList ();
+		paths.add ( "" );
+		paths.add ( "images/notifications/user_responsable.png" );
+		paths.add ( "images/notifications/user_admin.png" );
+		paths.add ( "images/notifications/user_leaved.png" );
+		info.addSymbol ( "privileges", paths );
+		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
+		emblemsCache.put ( "users", info );
+	}
+
 	public static void setEmblemsCache ( String name, EmblemsInfo info ) {
 		emblemsCache.put ( name, info );
 	}

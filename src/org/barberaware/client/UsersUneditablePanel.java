@@ -30,8 +30,6 @@ public class UsersUneditablePanel extends GenericPanel {
 	public UsersUneditablePanel () {
 		super ();
 
-		initEmblems ();
-
 		main = new FormCluster ( "User", null, true ) {
 			private Widget doString () {
 				StringLabel s;
@@ -137,21 +135,6 @@ public class UsersUneditablePanel extends GenericPanel {
 			}
 		} );
 		pan.add ( toggleLeavedView );
-	}
-
-	private void initEmblems () {
-		ArrayList paths;
-		EmblemsInfo info;
-
-		paths = new ArrayList ();
-		paths.add ( "" );
-		paths.add ( "images/notifications/user_responsable.png" );
-		paths.add ( "images/notifications/user_admin.png" );
-		paths.add ( "images/notifications/user_leaved.png" );
-
-		info = new EmblemsInfo ();
-		info.addSymbol ( "privileges", paths );
-		Utils.setEmblemsCache ( "users", info );
 	}
 
 	private void setRoleIcon ( FromServerForm form, User user ) {

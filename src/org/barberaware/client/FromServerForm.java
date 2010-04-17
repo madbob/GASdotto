@@ -381,7 +381,7 @@ public class FromServerForm extends Composite {
 
 		tmp = retriveWidgetFromList ( name );
 		if ( tmp != null ) {
-			if ( contents.remove ( tmp ) == false )
+			if ( contents.remove ( tmp ) == false && tmp.wid != null )
 				contents.remove ( tmp.wid );
 		}
 	}

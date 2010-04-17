@@ -68,17 +68,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		addTop ( main );
 
-		initEmblems ();
 		Utils.getServer ().testObjectReceive ( "Supplier" );
-	}
-
-	private void initEmblems () {
-		EmblemsInfo info;
-
-		info = new EmblemsInfo ();
-		OpenedOrdersList.configEmblem ( info );
-		PastOrdersList.configEmblem ( info );
-		Utils.setEmblemsCache ( "supplier", info );
 	}
 
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {

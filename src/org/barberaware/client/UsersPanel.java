@@ -223,7 +223,6 @@ public class UsersPanel extends GenericPanel {
 		addTop ( main );
 
 		doFilterOptions ();
-		initEmblems ();
 	}
 
 	private void doFilterOptions () {
@@ -283,22 +282,6 @@ public class UsersPanel extends GenericPanel {
 			}
 		} );
 		pan.add ( toggleLeavedView );
-	}
-
-	private void initEmblems () {
-		ArrayList paths;
-		EmblemsInfo info;
-
-		paths = new ArrayList ();
-		paths.add ( "" );
-		paths.add ( "images/notifications/user_responsable.png" );
-		paths.add ( "images/notifications/user_admin.png" );
-		paths.add ( "images/notifications/user_leaved.png" );
-
-		info = new EmblemsInfo ();
-		info.addSymbol ( "privileges", paths );
-		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
-		Utils.setEmblemsCache ( "users", info );
 	}
 
 	private FromServerValidateCallback checkLoginNameCallback () {

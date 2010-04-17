@@ -35,6 +35,8 @@ public class MainStack extends Composite {
 		main.setStyleName ( "main-stack" );
 		initWidget ( main );
 
+		Utils.initEmblems ();
+
 		privileges = Session.getPrivileges ();
 
 		/*
