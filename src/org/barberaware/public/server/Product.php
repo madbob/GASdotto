@@ -24,6 +24,7 @@ class Product extends FromServer {
 		parent::__construct ( "Product" );
 
 		$this->addAttribute ( "name", "STRING" );
+		$this->addAttribute ( "code", "STRING" );
 		$this->addAttribute ( "category", "OBJECT::Category" );
 		$this->addAttribute ( "supplier", "OBJECT::Supplier" );
 		$this->addAttribute ( "description", "STRING" );

@@ -36,17 +36,6 @@ $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
-$products_names = array ();
-$products_prices = array ();
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$prod = $products [ $i ];
-
-	$name = get_product_name ( $products, $i );
-	$products_names [] = sprintf ( "\"%s\"", $name );
-
-	$products_prices [] = ( format_price ( $prod->getAttribute ( "unit_price" )->value, false ) );
-}
-
 $products_sums = array ();
 $quantities_sums = array ();
 $shipping_sum = array ();
@@ -139,11 +128,10 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 $output = "Prodotto;Quantità;Prezzo Totale;Prezzo Trasporto\n";
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$prod = $products [ $i ];
 	$q = comma_format ( round ( $quantities_sums [ $i ], 2 ), false );
 	$p = format_price ( round ( $products_sums [ $i ], 2 ), false );
 	$s = format_price ( round ( $shipping_sum [ $i ], 2 ), false );
-	$output .= ( $prod->getAttribute ( "name" )->value ) . ';' . $q . ';' . $p . ';' . $s . "\n";
+	$output .= ( get_product_name ( $products, $i ) ) . ';' . $q . ';' . $p . ';' . $s . "\n";
 }
 
 header ( "Content-Type: plain/text" );

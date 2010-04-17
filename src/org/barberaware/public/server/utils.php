@@ -185,7 +185,12 @@ function sort_orders_by_user ( $first, $second ) {
 
 function get_product_name ( $products, $index ) {
 	$prod = $products [ $index ];
-	return $prod->getAttribute ( "name" )->value;
+
+	$code = $prod->getAttribute ( "code" )->value;
+	if ( $code != '' )
+		$code = ' - ' . $code;
+
+	return ( $prod->getAttribute ( "name" )->value ) . $code;
 }
 
 /****************************************************************** authentication */

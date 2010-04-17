@@ -24,6 +24,7 @@ public class Product extends FromServer {
 		super ();
 
 		addAttribute ( "name", FromServer.STRING );
+		addAttribute ( "code", FromServer.STRING );
 		addAttribute ( "category", FromServer.OBJECT, Category.class );
 		addAttribute ( "supplier", FromServer.OBJECT, Supplier.class );
 		addAttribute ( "description", FromServer.LONGSTRING );

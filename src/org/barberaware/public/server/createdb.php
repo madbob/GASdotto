@@ -309,6 +309,7 @@ function install_main_db () {
 	$query = sprintf ( "CREATE TABLE Product (
 					id serial,
 					name varchar ( 100 ) default '',
+					code varchar ( 100 ) default '',
 					category int references Category ( id ),
 					supplier int references Supplier ( id ) on delete cascade,
 					description varchar ( 500 ) default '',

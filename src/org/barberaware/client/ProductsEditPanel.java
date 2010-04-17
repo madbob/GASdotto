@@ -151,6 +151,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 						}
 					} );
 
+					frame.addPair ( "Codice Fornitore", ver.getWidget ( "code" ) );
+
 					/**
 						TODO	Raffinatezza: laddove possibile, al cambio della categoria
 							selezionare automaticamente l'unita' di misura piu' adeguata
