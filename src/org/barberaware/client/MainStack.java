@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class MainStack extends Composite {
 	private DeckPanel		main;
 	private Menu			mainMenu;
@@ -58,6 +60,7 @@ public class MainStack extends Composite {
 		}
 
 		else if ( privileges == User.USER_RESPONSABLE ) {
+			add ( new UsersUneditablePanel () );
 			add ( new SuppliersEditPanel () );
 			add ( new OrdersEditPanel () );
 			add ( new OrdersPrivilegedPanel () );
@@ -66,6 +69,7 @@ public class MainStack extends Composite {
 		}
 
 		else {
+			add ( new UsersUneditablePanel () );
 			add ( new SuppliersPanel () );
 			add ( new OrdersPrivilegedPanel () );
 		}
