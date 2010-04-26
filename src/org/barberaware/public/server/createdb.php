@@ -219,6 +219,7 @@ function install_main_db () {
 					order_mode varchar ( 500 ) default '',
 					paying_mode varchar ( 500 ) default '',
 					description varchar ( 500 ) default '',
+					orders_months varchar ( 20 ) default '',
 					primary key ( id )
 				)"
 	);

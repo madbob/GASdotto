@@ -35,6 +35,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "references", FromServer.ARRAY, User.class );
 		addAttribute ( "files", FromServer.ARRAY, CustomFile.class );
+		addAttribute ( "orders_months", FromServer.STRING );
 
 		setString ( "name", "Nuovo Fornitore" );
 	}

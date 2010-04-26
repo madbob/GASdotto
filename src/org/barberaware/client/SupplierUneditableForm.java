@@ -42,6 +42,13 @@ public class SupplierUneditableForm extends FromServerForm {
 		add ( frame );
 		frame.add ( new Label ( desc ) );
 
+		desc = supplier.getString ( "orders_months" );
+		if ( desc != "" ) {
+			frame = new CaptionPanel ( "Mesi Consigliati" );
+			add ( frame );
+			frame.add ( getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
+		}
+
 		products = new ProductsPresentationList ( supplier );
 		setExtraWidget ( "products", products );
 		frame = new CaptionPanel ( "Prodotti" );

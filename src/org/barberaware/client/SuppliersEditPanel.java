@@ -98,8 +98,9 @@ public class SuppliersEditPanel extends GenericPanel {
 				return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
 			}
 		} );
-
 		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
+
+		frame.addPair ( "Mesi Suggeriti per Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 
 		/*
 			Di default, l'utente che crea il fornitore ne e' anche referente.
