@@ -30,7 +30,8 @@ public class FilesStaticList extends Composite implements FromServerArray {
 		initWidget ( main );
 
 		currentFiles = null;
-		clear ();
+
+		main.add ( new Label ( "Non ci sono files" ) );
 	}
 
 	private Widget doCell ( CustomFile file ) {
@@ -39,11 +40,6 @@ public class FilesStaticList extends Composite implements FromServerArray {
 			stato interno dell'applicazione AJAX
 		*/
 		return new HTML ( "<a target=\"_blank\" href=\"" + ( Utils.getServer ().getDomain () + file.getString ( "server_path" ) ) + "\">" + file.getString ( "name" ) + "</a>" );
-	}
-
-	private void clear () {
-		main.clear ();
-		main.add ( new Label ( "Non ci sono files" ) );
 	}
 
 	/****************************************************************** FromServerArray */
@@ -59,14 +55,16 @@ public class FilesStaticList extends Composite implements FromServerArray {
 		int tot;
 		Widget cell;
 
-		clear ();
+		main.clear ();
 
-		if ( elements == null )
+		if ( elements == null || elements.size () == 0 ) {
+			main.add ( new Label ( "Non ci sono files" ) );
 			return;
-
-		currentFiles = elements;
+		}
 
 		tot = elements.size ();
+		currentFiles = elements;
+
 		for ( int i = 0; i < tot; i++ ) {
 			cell = doCell ( ( CustomFile ) elements.get ( i ) );
 			main.add ( cell );
