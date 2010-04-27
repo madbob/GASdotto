@@ -274,6 +274,7 @@ public abstract class FormGroup extends Composite {
 					}
 				} );
 
+				new_form.getObject ().addRelatedInfo ( identifier, new_form );
 				new_form.open ( true );
 				main.insert ( new_form, latestIterableIndex () );
 			}

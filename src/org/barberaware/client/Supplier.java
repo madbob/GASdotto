@@ -19,6 +19,8 @@ package org.barberaware.client;
 
 import java.util.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class Supplier extends FromServer {
 	public Supplier () {
 		super ();
@@ -49,9 +51,9 @@ public class Supplier extends FromServer {
 		myself = Session.getUser ();
 		privileges = myself.getInt ( "privileges" );
 
-		if ( privileges == User.USER_ADMIN )
+		if ( privileges == User.USER_ADMIN ) {
 			return true;
-
+		}
 		else if ( privileges == User.USER_RESPONSABLE ) {
 			references = getArray ( "references" );
 			if ( references == null )

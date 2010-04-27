@@ -54,8 +54,11 @@ public class SuppliersEditPanel extends GenericPanel {
 					ProductsEditPanel products;
 
 					form = main.retrieveForm ( object );
-					products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
-					products.enable ( true );
+
+					if ( form != null ) {
+						products = ( ProductsEditPanel ) form.retriveInternalWidget ( "products" );
+						products.enable ( true );
+					}
 				}
 			}
 
@@ -202,7 +205,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		}
 
 		tabs.selectTab ( 0 );
-
 		return ver;
 	}
 

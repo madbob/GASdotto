@@ -32,6 +32,11 @@ public class MonthsSelector extends Composite implements StringWidget {
 		main.addStyleName ( "static-value" );
 		initWidget ( main );
 
+		/*
+			Questa funzione la invoco anche se l'elemento non e' editabile, perche'
+			dall'array di CheckBoxes dipendono poi le funzioni di assegnamento ed
+			aggregazione dei valori
+		*/
 		doDialog ();
 
 		if ( editable == true ) {
