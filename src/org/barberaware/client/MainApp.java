@@ -21,8 +21,8 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class MainApp extends Composite {
-	private MainStack		stack;
-	static private Header		header;
+	private MainStack		stack		= null;
+	static private Header		header		= null;
 
 	public MainApp () {
 		VerticalPanel main;
@@ -72,6 +72,7 @@ public class MainApp extends Composite {
 	}
 
 	public static void jumpTop () {
-		DOM.scrollIntoView ( header.getElement () );
+		if ( header != null )
+			DOM.scrollIntoView ( header.getElement () );
 	}
 }

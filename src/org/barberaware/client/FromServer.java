@@ -193,8 +193,12 @@ public abstract class FromServer implements Comparator {
 
 	public int getAttributeType ( String type ) {
 		FromServerAttribute attr;
+
 		attr = getInternalAttribute ( type );
-		return attr.type;
+		if ( attr != null )
+			return attr.type;
+		else
+			return -1;
 	}
 
 	public String getString ( String name ) {

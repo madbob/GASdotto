@@ -197,7 +197,17 @@ public abstract class FromServerValidateCallback {
 					return false;
 				}
 				else {
+					/*
+						Questa callback di validazione viene usata anche nel pannello di
+						installazione, dove l'oggetto assegnato al form e' un Probe anziche'
+						uno User e non ha il parametro "login"
+					*/
+					if ( object == null || object.getAttributeType ( "login" ) == -1 )
+						return true;
+
 					username = object.getString ( "login" );
+					if ( username == null )
+						return true;
 
 					if ( text.equals ( username ) ) {
 						Utils.showNotification ( "La password non può essere uguale al login" );
