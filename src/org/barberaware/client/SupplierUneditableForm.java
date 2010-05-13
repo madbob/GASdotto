@@ -32,6 +32,7 @@ public class SupplierUneditableForm extends FromServerForm {
 		ProductsPresentationList products;
 		OpenedOrdersList orders;
 		PastOrdersList past_orders;
+		FromServerTable references;
 
 		emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
 
@@ -66,6 +67,14 @@ public class SupplierUneditableForm extends FromServerForm {
 		frame = new CaptionPanel ( "Ordini effettuati" );
 		add ( frame );
 		frame.add ( past_orders );
+
+		frame = new CaptionPanel ( "Referenti" );
+		add ( frame );
+		references = new FromServerTable ();
+		references.addColumn ( "Nome", "name", false );
+		references.addColumn ( "Telefono", "phone", false );
+		references.addColumn ( "Mail", "mail", false );
+		frame.add ( getPersonalizedWidget ( "references", references ) );
 
 		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
 			FilesStaticList files;

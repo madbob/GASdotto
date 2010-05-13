@@ -31,6 +31,18 @@ public class OrderSummary extends Composite implements Lockable {
 	private PriceViewer		totalshipLabel;
 	private ArrayList		ordersUsers;
 
+	private int			PRODUCT_NAME_COLUMN		= 1;
+	private int			PRODUCT_PRICE_COLUMN		= 2;
+	private int			PRODUCT_TRANSPORT_COLUMN	= 3;
+	private int			PRODUCT_OVERPRICE_COLUMN	= 4;
+	private int			PRODUCT_MEASURE_COLUMN		= 5;
+	private int			PRODUCT_STOCK_COLUMN		= 6;
+	private int			PRODUCT_ORDQUANT_COLUMN		= 7;
+	private int			PRODUCT_TOTALPRICE_COLUMN	= 8;
+	private int			PRODUCT_TOTALTRANSPORT_COLUMN	= 9;
+	private int			PRODUCT_SHIPQUANT_COLUMN	= 10;
+	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 11;
+
 	public OrderSummary ( Order order ) {
 		currentOrder = order;
 		locked = true;
@@ -39,16 +51,17 @@ public class OrderSummary extends Composite implements Lockable {
 		main.setStyleName ( "elements-table" );
 		initWidget ( main );
 
-		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );
-		main.setWidget ( 0, 2, new Label ( "Prezzo Unitario" ) );
-		main.setWidget ( 0, 3, new Label ( "Trasporto Unitario" ) );
-		main.setWidget ( 0, 4, new Label ( "Unità Misura" ) );
-		main.setWidget ( 0, 5, new Label ( "Stock" ) );
-		main.setWidget ( 0, 6, new Label ( "Quantità Ordinata" ) );
-		main.setWidget ( 0, 7, new Label ( "Prezzo Totale" ) );
-		main.setWidget ( 0, 8, new Label ( "Prezzo Trasporto" ) );
-		main.setWidget ( 0, 9, new Label ( "Quantità Consegnata" ) );
-		main.setWidget ( 0, 10, new Label ( "Notifiche" ) );
+		main.setWidget ( 0, PRODUCT_NAME_COLUMN, new Label ( "Prodotto" ) );
+		main.setWidget ( 0, PRODUCT_PRICE_COLUMN, new Label ( "Prezzo Unitario" ) );
+		main.setWidget ( 0, PRODUCT_TRANSPORT_COLUMN, new Label ( "Trasporto Unitario" ) );
+		main.setWidget ( 0, PRODUCT_OVERPRICE_COLUMN, new Label ( "Sovrapprezzo Unitario" ) );
+		main.setWidget ( 0, PRODUCT_MEASURE_COLUMN, new Label ( "Unità Misura" ) );
+		main.setWidget ( 0, PRODUCT_STOCK_COLUMN, new Label ( "Stock" ) );
+		main.setWidget ( 0, PRODUCT_ORDQUANT_COLUMN, new Label ( "Quantità Ordinata" ) );
+		main.setWidget ( 0, PRODUCT_TOTALPRICE_COLUMN, new Label ( "Prezzo Totale" ) );
+		main.setWidget ( 0, PRODUCT_TOTALTRANSPORT_COLUMN, new Label ( "Prezzo Trasporto" ) );
+		main.setWidget ( 0, PRODUCT_SHIPQUANT_COLUMN, new Label ( "Quantità Consegnata" ) );
+		main.setWidget ( 0, PRODUCT_NOTIFICATIONS_COLUMN, new Label ( "Notifiche" ) );
 
 		main.getRowFormatter ().setStyleName ( 0, "table-header" );
 
@@ -191,8 +204,8 @@ public class OrderSummary extends Composite implements Lockable {
 			index = searchProduct ( prod );
 
 			if ( index != -1 ) {
-				price_unit = ( PriceBox ) main.getWidget ( index, 2 );
-				price_transport = ( PriceBox ) main.getWidget ( index, 3 );
+				price_unit = ( PriceBox ) main.getWidget ( index, PRODUCT_PRICE_COLUMN );
+				price_transport = ( PriceBox ) main.getWidget ( index, PRODUCT_TRANSPORT_COLUMN );
 
 				if ( prod.getFloat ( "unit_price" ) != price_unit.getVal () ||
 						prod.getFloat ( "shipping_price" ) != price_transport.getVal () ) {
@@ -257,11 +270,11 @@ public class OrderSummary extends Composite implements Lockable {
 			}
 		} );
 
-		main.setWidget ( row, 10, cell );
+		main.setWidget ( row, PRODUCT_NOTIFICATIONS_COLUMN, cell );
 	}
 
 	private void removeManualAdjustIcon ( int row ) {
-		main.setWidget ( row, 10, new Label () );
+		main.setWidget ( row, PRODUCT_NOTIFICATIONS_COLUMN, new Label () );
 	}
 
 	private String measureSymbol ( Product prod ) {
@@ -321,16 +334,16 @@ public class OrderSummary extends Composite implements Lockable {
 
 			if ( cmp == sender ) {
 				price = ( ( PriceBox ) sender ).getVal ();
-				lab = ( Label ) main.getWidget ( i, 6 );
+				lab = ( Label ) main.getWidget ( i, PRODUCT_ORDQUANT_COLUMN );
 				quantity = Float.parseFloat ( lab.getText () );
 
 				switch ( id ) {
 					case 2:
-						label_index = 7;
+						label_index = PRODUCT_TOTALPRICE_COLUMN;
 						break;
 
 					case 3:
-						label_index = 8;
+						label_index = PRODUCT_TOTALTRANSPORT_COLUMN;
 						break;
 
 					default:
@@ -350,6 +363,7 @@ public class OrderSummary extends Composite implements Lockable {
 		float stock;
 		Label lab;
 		PriceBox box;
+		PercentageBox perc;
 
 		stock = product.getFloat ( "stock_size" );
 
@@ -366,7 +380,7 @@ public class OrderSummary extends Composite implements Lockable {
 					alignRow ( sender, 2 );
 				}
 			} );
-			main.setWidget ( index, 2, box );
+			main.setWidget ( index, PRODUCT_PRICE_COLUMN, box );
 
 			box = new PriceBox ();
 			box.setVal ( product.getFloat ( "shipping_price" ) );
@@ -378,27 +392,31 @@ public class OrderSummary extends Composite implements Lockable {
 					alignRow ( sender, 3 );
 				}
 			} );
-			main.setWidget ( index, 3, box );
+			main.setWidget ( index, PRODUCT_TRANSPORT_COLUMN, box );
 
-			main.setWidget ( index, 4, new Label ( measureSymbol ( product ) ) );
+			perc = new PercentageBox ();
+			perc.setValue ( product.getString ( "surplus" ) );
+			main.setWidget ( index, PRODUCT_OVERPRICE_COLUMN, perc );
+
+			main.setWidget ( index, PRODUCT_MEASURE_COLUMN, new Label ( measureSymbol ( product ) ) );
 
 			if ( stock != 0 )
-				main.setWidget ( index, 5, new Label ( Float.toString ( stock ) ) );
+				main.setWidget ( index, PRODUCT_STOCK_COLUMN, new Label ( Float.toString ( stock ) ) );
 		}
 
-		lab = editableLabel ( index, 1, new_row );
+		lab = editableLabel ( index, PRODUCT_NAME_COLUMN, new_row );
 		lab.setText ( product.getString ( "name" ) );
 
-		lab = editableLabel ( index, 6, new_row );
+		lab = editableLabel ( index, PRODUCT_ORDQUANT_COLUMN, new_row );
 		lab.setText ( Utils.floatToString ( quantity ) );
 
-		lab = editableLabel ( index, 7, new_row );
+		lab = editableLabel ( index, PRODUCT_TOTALPRICE_COLUMN, new_row );
 		lab.setText ( Utils.priceToString ( price ) );
 
-		lab = editableLabel ( index, 8, new_row );
+		lab = editableLabel ( index, PRODUCT_TOTALTRANSPORT_COLUMN, new_row );
 		lab.setText ( Utils.priceToString ( price_details ) );
 
-		lab = editableLabel ( index, 9, new_row );
+		lab = editableLabel ( index, PRODUCT_SHIPQUANT_COLUMN, new_row );
 		lab.setText ( Utils.floatToString ( delivered ) );
 
 		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) )
@@ -430,7 +448,7 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( e, 0, 11 );
+		main.getFlexCellFormatter ().setColSpan ( e, 0, 12 );
 
 		e++;
 
@@ -443,8 +461,8 @@ public class OrderSummary extends Composite implements Lockable {
 			totalshipLabel.setVal ( 0 );
 		}
 
-		main.setWidget ( e, 7, totalLabel );
-		main.setWidget ( e, 8, totalshipLabel );
+		main.setWidget ( e, PRODUCT_TOTALPRICE_COLUMN, totalLabel );
+		main.setWidget ( e, PRODUCT_TOTALTRANSPORT_COLUMN, totalshipLabel );
 	}
 
 	/****************************************************************** Lockable */

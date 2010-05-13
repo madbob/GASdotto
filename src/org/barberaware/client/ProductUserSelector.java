@@ -59,6 +59,7 @@ public class ProductUserSelector extends ObjectWidget {
 					float val;
 					float input;
 					FromServer prod;
+					Supplier supp;
 
 					if ( constraintsDialog != null )
 						constraintsDialog.hide ();
@@ -77,11 +78,15 @@ public class ProductUserSelector extends ObjectWidget {
 							return;
 						}
 
-						val = prod.getFloat ( "multiple_order" );
-						if ( ( val != 0 ) && ( input % val ) != 0 ) {
-							Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
-							undoChange ();
-							return;
+						supp = ( Supplier ) prod.getObject ( "supplier" );
+
+						if ( supp.iAmReference () == false ) {
+							val = prod.getFloat ( "multiple_order" );
+							if ( ( val != 0 ) && ( input % val ) != 0 ) {
+								Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
+								undoChange ();
+								return;
+							}
 						}
 					}
 
@@ -176,12 +181,12 @@ public class ProductUserSelector extends ObjectWidget {
 		prod = currentValue.getObject ( "product" );
 		m = prod.getObject ( "measure" );
 		if ( m != null )
-			ms = m.getString ( "symbol" );
+			ms = " " + m.getString ( "symbol" );
 		else
 			ms = "";
 
 		effectiveQuantity.setVisible ( true );
-		effectiveQuantity.setText ( "( " + ( quantity * prod.getFloat ( "unit_size" ) ) + " " + ms + " )" );
+		effectiveQuantity.setText ( "( " + ( Utils.floatToString ( quantity * prod.getFloat ( "unit_size" ) ) ) + ms + " )" );
 	}
 
 	public void setProduct ( Product prod ) {

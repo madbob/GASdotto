@@ -133,6 +133,38 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		return ret;
 	}
 
+	private void hookCalculator ( ProductUser prod, FloatBox box ) {
+		int pieces;
+		float unit;
+		final ScreenCalculator calc;
+
+		unit = prod.getObject ( "product" ).getFloat ( "unit_size" );
+		if ( unit != 0 ) {
+			pieces = Math.round ( prod.getFloat ( "quantity" ) / unit );
+
+			if ( pieces > 1 ) {
+				box.addStyleName ( "calculator-addicted" );
+
+				calc = new ScreenCalculator ( pieces );
+				calc.setText ( prod.getObject ( "product" ).getString ( "name" ) );
+				calc.setTarget ( box );
+
+				box.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+						calc.center ();
+						calc.show ();
+					}
+
+					public void onLostFocus ( Widget sender ) {
+						/*
+							dummy
+						*/
+					}
+				} );
+			}
+		}
+	}
+
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
@@ -142,6 +174,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 	public void setElements ( ArrayList elements ) {
 		int i;
 		int e;
+		String symbol;
 		ProductUser prod_user;
 		FromServer prod;
 		FromServer measure;
@@ -172,15 +205,21 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				continue;
 
 			measure = prod.getObject ( "measure" );
+			if ( measure != null )
+				symbol = " " + measure.getString ( "symbol" );
+			else
+				symbol = "";
 
 			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
 			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( e, 2, new Label ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + " " + measure.getString ( "symbol" ) ) );
+			main.setWidget ( e, 2, new Label ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + symbol ) );
 
 			del = new FloatBox ();
 			delivered = prod_user.getFloat ( "delivered" );
 			del.setVal ( delivered );
 			main.setWidget ( e, 3, del );
+
+			hookCalculator ( prod_user, del );
 
 			del.addFocusListener ( new FocusListener () {
 				public void onFocus ( Widget sender ) {

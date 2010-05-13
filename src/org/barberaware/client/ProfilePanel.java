@@ -74,6 +74,7 @@ public class ProfilePanel extends GenericPanel {
 		hor.add ( frame );
 
 		frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
+		ver.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
 
 		/**
 			TODO	Feedback quando si salvano i dati

@@ -72,7 +72,7 @@ public class HomePanel extends GenericPanel {
 						uorder = ( OrderUser ) object;
 						total = new Label ();
 						fillTotalText ( total, uorder );
-						total.setStyleName ( "smaller-text" );
+						total.setStyleName ( "highlight-text" );
 						tab.setWidget ( index, 3, total );
 					}
 				}

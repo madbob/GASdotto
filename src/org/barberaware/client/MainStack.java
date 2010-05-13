@@ -67,6 +67,7 @@ public class MainStack extends Composite {
 			add ( new OrdersEditPanel () );
 			add ( new OrdersPrivilegedPanel () );
 			add ( new DeliveryPanel () );
+			add ( new NotificationPanel () );
 			add ( new SystemPanel () );
 		}
 

@@ -53,6 +53,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		main = new FlexTable ();
 		main.setStyleName ( "elements-table" );
+		main.setCellPadding ( 10 );
 		initWidget ( main );
 	}
 

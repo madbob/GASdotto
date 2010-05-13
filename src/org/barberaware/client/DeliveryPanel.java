@@ -177,6 +177,8 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	private FromServerForm doOrderRow ( Order order ) {
+		CaptionPanel frame;
+		CheckBox show_closed_orders;
 		HorizontalPanel downloads;
 		final FromServerForm ver;
 		DeliverySummary summary;
@@ -195,10 +197,20 @@ public class DeliveryPanel extends GenericPanel {
 			public void onOpen ( FromServerForm form ) {
 				Order ord;
 
+				/**
+					TODO	Magari si possono caricare solo gli ordini non ancora consegnati
+						(gia' che quelli consegnati sono nascosti alla vista), badare a non
+						stravolgere Order.asyncLoadUsersOrders() perche' altra roba dipende
+						da li'
+				*/
 				ord = ( Order ) form.getObject ();
 				ord.asyncLoadUsersOrders ();
 			}
 		} );
+
+		frame = new CaptionPanel ( "Stampa Report" );
+		frame.addStyleName ( "print-reports-box" );
+		ver.add ( frame );
 
 		downloads = new HorizontalPanel ();
 		downloads.setStyleName ( "bottom-buttons" );
@@ -218,7 +230,20 @@ public class DeliveryPanel extends GenericPanel {
 		files.addLink ( "PDF", "products_pdf.php?id=" + order.getLocalID () );
 		downloads.add ( files );
 
-		ver.add ( downloads );
+		frame.add ( downloads );
+
+		show_closed_orders = new CheckBox ( "Mostra Ordini Consegnati" );
+		show_closed_orders.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				DeliverySummary summary;
+				CheckBox myself;
+
+				myself = ( CheckBox ) sender;
+				summary = ( DeliverySummary ) ver.retriveInternalWidget ( "list" );
+				summary.viewShippedOrders ( myself.isChecked () );
+			}
+		} );
+		ver.add ( show_closed_orders );
 
 		ver.add ( new HTML ( "<hr>" ) );
 

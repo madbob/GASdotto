@@ -278,6 +278,12 @@ body {
         padding-left:		18px;
 }
 
+.calculator-addicted {
+	margin:			1px;
+	background:		#FFFFFF url('images/calc_selector.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+}
+
 .cyclic-toggle {
 	margin:			1px;
 	cursor:			pointer;
@@ -325,6 +331,11 @@ body {
 
 .smaller-text {
 	font-size:		9px;
+}
+
+.highlight-text {
+	font-size:		15px;
+	color:			#FF0000;
 }
 
 .static-value {
@@ -383,7 +394,7 @@ fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;
 	padding:		10px;
-	margin-top:		10px;
+	margin:			10px;
 }
 
 fieldset legend {
