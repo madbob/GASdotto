@@ -168,11 +168,16 @@ function connect_to_the_database () {
 /****************************************************************** formatting */
 
 function comma_format ( $a ) {
+	/*
+		Cast esplicito: e' successo che il cast implicito provocasse problemi
+	*/
+	$a = ( string ) $a;
+
 	$decimal = strlen ( strstr ( $a, '.' ) );
 	if ( $decimal != 0 )
 		return number_format ( $a, $decimal - 1, ',', '' );
 	else
-		return sprintf ( "%d", $a );
+		return $a;
 }
 
 function sort_product_by_name ( $first, $second ) {
