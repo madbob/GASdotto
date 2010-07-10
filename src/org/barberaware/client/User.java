@@ -67,6 +67,7 @@ public class User extends FromServer {
 		addAttribute ( "paying", FromServer.DATE );
 		addAttribute ( "privileges", FromServer.INTEGER );
 		addAttribute ( "family", FromServer.INTEGER );
+		addAttribute ( "photo", FromServer.STRING );
 		addAttribute ( "lastlogin", FromServer.DATE );
 		addAttribute ( "leaving_date", FromServer.DATE );
 

@@ -214,6 +214,11 @@ public class DeliverySummary extends Composite {
 			o_iter = row.getObject ();
 			status_iter = o_iter.getInt ( "status" );
 
+			/**
+				TODO	Ordinare ordini non in base numerica ma mettere i SAVED
+					prima dei PARTIAL_DELIVERY
+			*/
+
 			if ( status_iter > status_to_place ) {
 				return i;
 			}

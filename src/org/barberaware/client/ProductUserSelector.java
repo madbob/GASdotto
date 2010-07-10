@@ -22,6 +22,11 @@ import java.lang.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+/**
+	TODO	Usare nome esteso unita' di misura anziche' simbolo a fianco della box per
+		quantita'
+*/
+
 public class ProductUserSelector extends ObjectWidget {
 	private HorizontalPanel				main;
 	private boolean					editable;

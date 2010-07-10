@@ -164,6 +164,40 @@ public class UsersPanel extends GenericPanel {
 
 					frame.addPair ( "Persone in Famiglia", form.getWidget ( "family" ) );
 
+					/*
+						La foto personale puo' essere personalizzato solo
+						se e' concesso il caricamento di files sul server
+					*/
+					if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
+						String path;
+						FileUploadDialog photo;
+						final Image image;
+
+						photo = new FileUploadDialog ();
+						image = new Image ();
+
+						path = user.getString ( "photo" );
+						if ( path == null || path == "" )
+							image.setVisible ( false );
+						else
+							image.setUrl ( path );
+
+						frame.addPair ( "Foto", form.getPersonalizedWidget ( "photo", photo ) );
+						frame.addRight ( image );
+
+						photo.setDestination ( "upload_image.php" );
+
+						photo.addChangeListener ( new ChangeListener () {
+							public void onChange ( Widget sender ) {
+								FileUploadDialog photo;
+
+								photo = ( FileUploadDialog ) sender;
+								image.setVisible ( true );
+								image.setUrl ( Utils.getServer ().getDomain () + photo.getValue () );
+							}
+						} );
+					}
+
 					/* seconda colonna */
 
 					frame = new CustomCaptionPanel ( "Nel GAS" );

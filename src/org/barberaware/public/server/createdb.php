@@ -107,6 +107,7 @@ function install_main_db () {
 					paying date,
 					privileges int default 1,
 					family int default 1,
+					photo varchar ( 100 ) default '',
 					lastlogin date,
 					leaving_date date,
 					primary key ( id )

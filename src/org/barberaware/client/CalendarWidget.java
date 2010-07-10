@@ -101,6 +101,20 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 						calendar.forceYear ( year.getVal () );
 					}
 				} );
+
+				year.addKeyboardListener ( new KeyboardListener () {
+					public void onKeyDown ( Widget sender, char keyCode, int modifiers ) {
+						/* dummy */
+					}
+
+					public void onKeyUp ( Widget sender, char keyCode, int modifiers ) {
+						calendar.forceYear ( year.getVal () );
+					}
+
+					public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
+						/* dummy */
+					}
+				} );
 			}
 			else {
 				year = null;

@@ -115,6 +115,11 @@ public class ScreenCalculator extends DialogBox {
 		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		pan.add ( buttons );
 
+		/**
+			TODO	Conflitto tra eventi: cliccando "salva" o "annulla" subito dopo
+				il dialog riappare
+		*/
+
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				saveOnTarget ();

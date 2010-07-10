@@ -37,6 +37,7 @@ class User extends FromServer {
 		$this->addAttribute ( "paying", "DATE" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
 		$this->addAttribute ( "family", "INTEGER" );
+		$this->addAttribute ( "photo", "STRING" );
 		$this->addAttribute ( "lastlogin", "DATE" );
 		$this->addAttribute ( "leaving_date", "DATE" );
 

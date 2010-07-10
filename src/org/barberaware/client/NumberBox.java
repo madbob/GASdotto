@@ -28,6 +28,7 @@ public class NumberBox extends TextBox implements IntNumericWidget {
 		addFocusListener (
 			new FocusListener () {
 				public void onFocus ( Widget sender ) {
+					/* dummy */
 				}
 
 				public void onLostFocus ( Widget sender ) {

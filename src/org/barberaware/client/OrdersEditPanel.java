@@ -336,6 +336,10 @@ public class OrdersEditPanel extends GenericPanel {
 		pan.setStyleName ( "panel-up" );
 		addTop ( pan );
 
+		/**
+			TODO	Aggiungere data inizio e fine query
+		*/
+
 		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
 		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
 			public void onClick ( Widget sender ) {

@@ -86,6 +86,11 @@ public class StatisticsPanel extends GenericPanel {
 		input.setWidget ( 3, 0, files );
 		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
 
+		/**
+			TODO	Grafico numero utenti che hanno ordinato dal fornitore (non
+				numero totale ordini)
+		*/
+
 		graphByOrders = new PieChart ();
 		hor.add ( graphByOrders );
 		graphByOrdersOptions = PieChart.Options.create ();

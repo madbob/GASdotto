@@ -228,7 +228,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		} );
 		frame.addPair ( "Addetti Consegne", ver.getPersonalizedWidget ( "carriers", references ) );
 
-		frame.addPair ( "Mesi Suggeriti per Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
+		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );

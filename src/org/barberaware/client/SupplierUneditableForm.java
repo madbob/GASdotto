@@ -50,11 +50,10 @@ public class SupplierUneditableForm extends FromServerForm {
 			frame.add ( getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
 		}
 
-		products = new ProductsPresentationList ( supplier );
-		setExtraWidget ( "products", products );
-		frame = new CaptionPanel ( "Prodotti" );
-		add ( frame );
-		frame.add ( products );
+		/**
+			TODO	Togliere lista ordini aperti (qui e in pannello fornitore
+				editabile)
+		*/
 
 		orders = new OpenedOrdersList ( supplier, this );
 		setExtraWidget ( "orders", orders );
@@ -84,5 +83,11 @@ public class SupplierUneditableForm extends FromServerForm {
 			add ( frame );
 			frame.add ( getPersonalizedWidget ( "files", files ) );
 		}
+
+		products = new ProductsPresentationList ( supplier );
+		setExtraWidget ( "products", products );
+		frame = new CaptionPanel ( "Prodotti" );
+		add ( frame );
+		frame.add ( products );
 	}
 }

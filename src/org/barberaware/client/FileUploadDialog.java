@@ -21,26 +21,35 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
 
-public class FileUploadDialog extends Composite implements StringWidget {
-	private Button			main;
+import com.allen_sauer.gwt.log.client.Log;
 
-	private DialogBox		dialog;
-	private FileUpload		upload;
+public class FileUploadDialog extends Composite implements StringWidget, SourcesChangeEvents {
+	private HorizontalPanel			main;
 
-	private boolean			opened;
-	private String			completeFile;
+	private Button				button;
+	private DownloadButton			link;
+	private FormPanel			form;
+	private DialogBox			dialog;
+	private FileUpload			upload;
+
+	private ChangeListenerCollection	changeCallbacks;
+
+	private boolean				opened;
+	private String				completeFile;
 
 	public FileUploadDialog () {
 		opened = false;
 		completeFile = "";
+		changeCallbacks = null;
 
 		dialog = new DialogBox ( false );
 		dialog.setText ( "Seleziona File" );
 		dialog.setWidget ( doDialog () );
 
-		main = new Button ();
-		showFileName ();
-		main.addClickListener ( new ClickListener () {
+		main = new HorizontalPanel ();
+
+		button = new Button ();
+		button.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
 				if ( opened == false ) {
 					opened = true;
@@ -49,23 +58,37 @@ public class FileUploadDialog extends Composite implements StringWidget {
 				}
 			}
 		} );
+		main.add ( button );
+
+		link = new DownloadButton ();
+		main.add ( link );
 
 		initWidget ( main );
+		showFileName ();
 	}
 
 	private void showFileName () {
 		String [] path;
-		
-		if ( completeFile == null || completeFile.equals ( "" ) )
-			main.setText ( "Nessun file selezionato" );
+
+		if ( completeFile == null || completeFile.equals ( "" ) ) {
+			button.setText ( "Nessun file selezionato" );
+			link.setVisible ( false );
+		}
 		else {
 			path = completeFile.split ( "/" );
-			main.setText ( path [ path.length - 1 ] );
+			button.setText ( path [ path.length - 1 ] );
+
+			link.setVisible ( true );
+			link.setValue ( completeFile );
 		}
 	}
 
+	private void callCallbacks () {
+		if ( changeCallbacks != null )
+			changeCallbacks.fireChange ( this );
+	}
+
 	private Panel doDialog () {
-		final FormPanel form;
 		VerticalPanel pan;
 		HorizontalPanel buttons;
 		Button but;
@@ -113,13 +136,32 @@ public class FileUploadDialog extends Composite implements StringWidget {
 				completeFile = event.getResults ();
 				showFileName ();
 				dialog.hide ();
+				callCallbacks ();
 			}
 		} );
 
 		return form;
 	}
 
+	public void setDestination ( String destination ) {
+		form.setAction ( Utils.getServer ().getURL () + destination );
+	}
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ChangeListenerCollection ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
+	}
+
 	public void setValue ( String value ) {
+		if ( value == null )
+			value = "";
+
 		completeFile = value;
 		showFileName ();
 	}

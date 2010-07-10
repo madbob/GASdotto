@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,33 +17,28 @@
 
 package org.barberaware.client;
 
-import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class CustomCaptionPanel extends CaptionPanel {
-	private FlexTable	content;
+import com.allen_sauer.gwt.log.client.Log;
 
-	public CustomCaptionPanel ( String title ) {
-		super ( title );
+public class DownloadButton extends HTML implements StringWidget {
+	private String			url;
 
-		content = new FlexTable ();
-		setContentWidget ( content );
-
-		setStyleName ( "custom-caption-panel" );
+	public DownloadButton () {
+		url = null;
+		setHTML ( "Nessun File da Scaricare" );
 	}
 
-	public void addPair ( String name, Widget element ) {
-		int row;
+	public void setValue ( String value ) {
+		url = value;
 
-		row = content.getRowCount ();
-		content.setWidget ( row, 0, new Label ( name ) );
-		content.setWidget ( row, 1, element );
+		if ( url == null || url == "" )
+			setHTML ( "Nessun File da Scaricare" );
+		else
+			setHTML ( "<a href=\"" + Utils.getServer ().getDomain () + url + "\">Scarica File</a>" );
 	}
 
-	public void addRight ( Widget element ) {
-		int row;
-
-		row = content.getRowCount ();
-		content.setWidget ( row, 1, element );
+	public String getValue () {
+		return url;
 	}
 }

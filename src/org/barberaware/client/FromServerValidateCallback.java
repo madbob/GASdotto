@@ -209,13 +209,14 @@ public abstract class FromServerValidateCallback {
 					if ( username == null )
 						return true;
 
-					if ( text.equals ( username ) ) {
+					/*
+						Lo scopo della callback e' solo avvertire se la password e' uguale
+						allo username, ma non e' bloccante
+					*/
+					if ( text.equals ( username ) )
 						Utils.showNotification ( "La password non può essere uguale al login" );
-						return false;
-					}
-					else {
-						return true;
-					}
+
+					return true;
 				}
 			}
 		};
