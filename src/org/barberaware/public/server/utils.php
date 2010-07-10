@@ -210,6 +210,20 @@ function get_product_quantity_stocks ( $products, $index, $quantity ) {
 	return comma_format ( round ( $quantity, 2 ), false );
 }
 
+/****************************************************************** files management */
+
+function unique_filesystem_name ( $folder, $name ) {
+	$i = 0;
+	$final_name = $name;
+
+	while ( file_exists ( $folder . '/' . $final_name ) ) {
+		$final_name = $i . '_' . $name;
+		$i++;
+	}
+
+	return $final_name;
+}
+
 /****************************************************************** authentication */
 
 function parse_session_data () {

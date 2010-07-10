@@ -47,6 +47,7 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 		dialog.setWidget ( doDialog () );
 
 		main = new HorizontalPanel ();
+		main.setSpacing ( 5 );
 
 		button = new Button ();
 		button.addClickListener ( new ClickListener () {
