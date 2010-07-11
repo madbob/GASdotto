@@ -62,11 +62,17 @@ public class EmblemsBar extends Composite {
 	}
 
 	public void activate ( String name ) {
+		if ( name == null )
+			return;
+
 		activate ( name, 0 );
 	}
 
 	public void deactivate ( String name ) {
 		Image img;
+
+		if ( name == null )
+			return;
 
 		img = ( Image ) main.getWidget ( infos.getIndex ( name ) );
 		img.setVisible ( false );

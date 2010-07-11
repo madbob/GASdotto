@@ -31,11 +31,11 @@ public class OpenedOrdersList extends OrdersList {
 	}
 
 	public static void configEmblem ( EmblemsInfo info ) {
-		info.addSymbol ( "has_orders", "images/notifications/supplier_having_orders.png" );
+		/* dummy */
 	}
 
 	protected String getMainIcon () {
-		return "has_orders";
+		return null;
 	}
 
 	protected void checkExistingOrders ( FromServer supplier ) {
