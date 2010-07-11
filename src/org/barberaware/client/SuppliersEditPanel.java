@@ -63,9 +63,17 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 
 			protected void asyncLoad ( FromServerForm form ) {
+				ObjectRequest params;
 				Lockable products;
+
 				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
+
+				params = new ObjectRequest ( "Order" );
+				params.add ( "status", "any" );
+				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "query_limit", 10 );
+				Utils.getServer ().testObjectReceive ( params );
 			}
 		};
 
@@ -76,9 +84,6 @@ public class SuppliersEditPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
-
-				if ( object.getInt ( "status" ) != Order.OPENED )
-					return;
 
 				form = main.retrieveForm ( object.getObject ( "supplier" ) );
 
@@ -267,13 +272,13 @@ public class SuppliersEditPanel extends GenericPanel {
 		hor.add ( sframe );
 		hor.setCellWidth ( sframe, "50%" );
 
-		sframe = new CaptionPanel ( "Ordini correntemente aperti" );
+		sframe = new CaptionPanel ( "Storico ultimi 10 ordini" );
 		orders = new OpenedOrdersList ( supp, ver );
 		sframe.add ( orders );
 		ver.setExtraWidget ( "orders", orders );
 		vertical.add ( sframe );
 
-		sframe = new CaptionPanel ( "Ordini effettuati da me" );
+		sframe = new CaptionPanel ( "Ultimi 10 ordini effettuati da me" );
 		past_orders = new PastOrdersList ( supp, ver );
 		sframe.add ( past_orders );
 		ver.setExtraWidget ( "past_orders", past_orders );

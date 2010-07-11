@@ -44,9 +44,17 @@ public class SuppliersPanel extends GenericPanel {
 			}
 
 			protected void asyncLoad ( FromServerForm form ) {
+				ObjectRequest params;
 				Lockable products;
+
 				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
+
+				params = new ObjectRequest ( "Order" );
+				params.add ( "status", "any" );
+				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "query_limit", 10 );
+				Utils.getServer ().testObjectReceive ( params );
 			}
 		};
 
@@ -60,9 +68,6 @@ public class SuppliersPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				FromServerForm form;
-
-				if ( object.getInt ( "status" ) != Order.OPENED )
-					return;
 
 				form = main.retrieveForm ( object.getObject ( "supplier" ) );
 

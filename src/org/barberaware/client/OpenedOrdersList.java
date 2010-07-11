@@ -27,7 +27,7 @@ public class OpenedOrdersList extends OrdersList {
 	}
 
 	protected String getEmptyNotification () {
-		return "Non ci sono ordini aperti per questo fornitore";
+		return "Non sono mai stati aperti ordini per questo fornitore";
 	}
 
 	public static void configEmblem ( EmblemsInfo info ) {
@@ -49,8 +49,7 @@ public class OpenedOrdersList extends OrdersList {
 		for ( int i = 0; i < list.size (); i++ ) {
 			ord = ( FromServer ) list.get ( i );
 
-			if ( ord.getInt ( "status" ) == Order.OPENED &&
-					ord.getObject ( "supplier" ).getLocalID () == supp_id )
+			if ( ord.getObject ( "supplier" ).getLocalID () == supp_id )
 				addOrder ( ( Order ) ord );
 		}
 	}

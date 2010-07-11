@@ -50,20 +50,15 @@ public class SupplierUneditableForm extends FromServerForm {
 			frame.add ( getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
 		}
 
-		/**
-			TODO	Togliere lista ordini aperti (qui e in pannello fornitore
-				editabile)
-		*/
-
 		orders = new OpenedOrdersList ( supplier, this );
 		setExtraWidget ( "orders", orders );
-		frame = new CaptionPanel ( "Ordini correntemente aperti" );
+		frame = new CaptionPanel ( "Storico ultimi 10 ordini" );
 		add ( frame );
 		frame.add ( orders );
 
 		past_orders = new PastOrdersList ( supplier, this );
 		setExtraWidget ( "past_orders", past_orders );
-		frame = new CaptionPanel ( "Ordini effettuati da me" );
+		frame = new CaptionPanel ( "Ultimi 10 ordini effettuati da me" );
 		add ( frame );
 		frame.add ( past_orders );
 

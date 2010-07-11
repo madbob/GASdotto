@@ -59,7 +59,16 @@ class Order extends FromServer {
 		*/
 
 		if ( isset ( $request->status ) ) {
-			$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
+			if ( $request->status == 'any' ) {
+				/*
+					Aggiungo una condizione sempre vera giusto per
+					concatenare poi gli altri pezzi della query correttamente
+				*/
+				$query = sprintf ( "SELECT id FROM %s WHERE id > 0", $this->tablename );
+			}
+			else {
+				$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
+			}
 		}
 		else {
 			/*
@@ -76,7 +85,13 @@ class Order extends FromServer {
 			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
 		}
 
-		$query .= "ORDER BY id";
+		if ( isset ( $request->supplier ) )
+			$query .= sprintf ( "AND supplier = %d ", $request->supplier );
+
+		$query .= "ORDER BY id DESC";
+
+		if ( isset ( $request->query_limit ) )
+			$query .= sprintf ( " LIMIT %d", $request->query_limit );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
