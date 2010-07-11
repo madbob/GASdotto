@@ -21,32 +21,29 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
 public class OrdersHub {
-	private static ArrayList		checkboxes		= null;
-	private static ArrayList		callbacks		= null;
-	private static boolean			status			= false;
+	private static ArrayList		widgets		= null;
+	private static boolean			status		= false;
 
-	public static void toggleShippedOrdersStatus ( boolean st ) {
-		CheckBox check;
-		ClickListener callback;
+	public static void toggleShippedOrdersStatus ( boolean st, Date startdate, Date enddate ) {
+		OrdersHubWidget wid;
 		ObjectRequest params;
 
-		if ( st != status ) {
-			status = st;
+		status = st;
 
-			if ( st == true ) {
-				params = new ObjectRequest ( "Order" );
-				params.add ( "status", Order.SHIPPED );
-				Utils.getServer ().testObjectReceive ( params );
-			}
+		if ( st == true ) {
+			params = new ObjectRequest ( "Order" );
+			params.add ( "status", Order.SHIPPED );
+			params.add ( "startdate", Utils.encodeDate ( startdate ) );
+			params.add ( "enddate", Utils.encodeDate ( enddate ) );
+			Utils.getServer ().testObjectReceive ( params );
+		}
 
-			if ( checkboxes != null ) {
-				for ( int i = 0; i < checkboxes.size (); i++ ) {
-					check = ( CheckBox ) checkboxes.get ( i );
-					check.setChecked ( st );
-
-					callback = ( ClickListener ) callbacks.get ( i );
-					callback.onClick ( check );
-				}
+		if ( widgets != null ) {
+			for ( int i = 0; i < widgets.size (); i++ ) {
+				wid = ( OrdersHubWidget ) widgets.get ( i );
+				wid.engage ( false );
+				wid.setContents ( st, startdate, enddate );
+				wid.engage ( true );
 			}
 		}
 	}
@@ -55,22 +52,10 @@ public class OrdersHub {
 		return status;
 	}
 
-	public static void syncCheckboxOnShippedOrders ( CheckBox check, ClickListener callback ) {
-		if ( checkboxes == null ) {
-			checkboxes = new ArrayList ();
-			callbacks = new ArrayList ();
-		}
+	public static void syncCheckboxOnShippedOrders ( OrdersHubWidget widget ) {
+		if ( widgets == null )
+			widgets = new ArrayList ();
 
-		checkboxes.add ( check );
-		callbacks.add ( callback );
-
-		check.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				CheckBox check;
-
-				check = ( CheckBox ) sender;
-				toggleShippedOrdersStatus ( check.isChecked () );
-			}
-		} );
+		widgets.add ( widget );
 	}
 }

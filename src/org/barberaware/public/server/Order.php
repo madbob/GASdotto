@@ -88,6 +88,12 @@ class Order extends FromServer {
 		if ( isset ( $request->supplier ) )
 			$query .= sprintf ( "AND supplier = %d ", $request->supplier );
 
+		if ( isset ( $request->startdate ) )
+			$query .= sprintf ( "AND startdate > DATE('%s') ", $request->startdate );
+
+		if ( isset ( $request->enddate ) )
+			$query .= sprintf ( "AND enddate < DATE('%s') ", $request->enddate );
+
 		$query .= "ORDER BY id DESC";
 
 		if ( isset ( $request->query_limit ) )

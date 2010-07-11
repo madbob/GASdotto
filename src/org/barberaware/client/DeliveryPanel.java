@@ -87,15 +87,18 @@ public class DeliveryPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Supplier supp;
+				FromServerForm form;
 
 				supp = ( Supplier ) object.getObject ( "supplier" );
 				if ( supp.iAmReference () == false && supp.iAmCarrier () == false )
 					return;
 
-				if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
-					return;
-
-				main.addElement ( object );
+				if ( main.addElement ( object ) == 1 ) {
+					if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false ) {
+						form = main.retrieveForm ( object );
+						form.setVisible ( false );
+					}
+				}
 			}
 
 			public void onModify ( FromServer object ) {
@@ -144,36 +147,37 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	private void doFilterOptions () {
-		HorizontalPanel pan;
-		CheckBox toggle_view;
+		OrdersHubWidget filter;
 
-		pan = new HorizontalPanel ();
-		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
-		pan.setStyleName ( "panel-up" );
-		addTop ( pan );
-
-		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
-		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
-			public void onClick ( Widget sender ) {
-				boolean show;
+		filter = new OrdersHubWidget () {
+			public void doFilter ( boolean show, Date start, Date end ) {
 				ArrayList forms;
-				CheckBox myself;
 				FromServerForm form;
+				FromServer ord;
 
-				myself = ( CheckBox ) sender;
 				forms = main.collectForms ();
-				show = myself.isChecked ();
-				OrdersHub.toggleShippedOrdersStatus ( show );
 
 				for ( int i = 0; i < forms.size (); i++ ) {
 					form = ( FromServerForm ) forms.get ( i );
-					if ( form.getObject ().getInt ( "status" ) == Order.SHIPPED )
-						form.setVisible ( show );
+					ord = form.getObject ();
+
+					if ( show == true ) {
+						if ( ord.getInt ( "status" ) == Order.SHIPPED ) {
+							if ( ord.getDate ( "startdate" ).after ( start ) && ord.getDate ( "enddate" ).before ( end ) )
+								form.setVisible ( true );
+							else
+								form.setVisible ( false );
+						}
+					}
+					else {
+						if ( ord.getInt ( "status" ) == Order.SHIPPED )
+							form.setVisible ( false );
+					}
 				}
 			}
-		} );
-		pan.add ( toggle_view );
+		};
+
+		addTop ( filter );
 	}
 
 	private FromServerForm doOrderRow ( Order order ) {

@@ -101,9 +101,6 @@ public class OrdersEditPanel extends GenericPanel {
 					CaptionPanel sframe;
 					Supplier supplier;
 
-					if ( ord.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
-						return null;
-
 					supplier = ( Supplier ) ord.getObject ( "supplier" );
 					if ( supplier.iAmReference () == false )
 						return null;
@@ -137,6 +134,10 @@ public class OrdersEditPanel extends GenericPanel {
 					addOrderDetails ( ver );
 
 					ver.emblems ().activate ( "status", ord.getInt ( "status" ) );
+
+					if ( ord.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
+						ver.setVisible ( false );
+
 					return ver;
 				}
 
@@ -327,40 +328,37 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	private void doFilterOptions () {
-		HorizontalPanel pan;
-		CheckBox toggle_view;
+		OrdersHubWidget filter;
 
-		pan = new HorizontalPanel ();
-		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
-		pan.setStyleName ( "panel-up" );
-		addTop ( pan );
-
-		/**
-			TODO	Aggiungere data inizio e fine query
-		*/
-
-		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
-		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
-			public void onClick ( Widget sender ) {
-				boolean show;
+		filter = new OrdersHubWidget () {
+			public void doFilter ( boolean show, Date start, Date end ) {
 				ArrayList forms;
-				CheckBox myself;
 				FromServerForm form;
+				FromServer ord;
 
-				myself = ( CheckBox ) sender;
 				forms = main.collectForms ();
-				show = myself.isChecked ();
-				OrdersHub.toggleShippedOrdersStatus ( show );
 
 				for ( int i = 0; i < forms.size (); i++ ) {
 					form = ( FromServerForm ) forms.get ( i );
-					if ( form.getObject ().getInt ( "status" ) == Order.SHIPPED )
-						form.setVisible ( show );
+					ord = form.getObject ();
+
+					if ( show == true ) {
+						if ( ord.getInt ( "status" ) == Order.SHIPPED ) {
+							if ( ord.getDate ( "startdate" ).after ( start ) && ord.getDate ( "enddate" ).before ( end ) )
+								form.setVisible ( true );
+							else
+								form.setVisible ( false );
+						}
+					}
+					else {
+						if ( ord.getInt ( "status" ) == Order.SHIPPED )
+							form.setVisible ( false );
+					}
 				}
 			}
-		} );
-		pan.add ( toggle_view );
+		};
+
+		addTop ( filter );
 	}
 
 	private Widget doOrderStatusSelector () {

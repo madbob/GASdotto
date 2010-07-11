@@ -26,6 +26,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrdersPrivilegedPanel extends GenericPanel {
 	private boolean		hasOrders;
+	private GenericPanel	myself;
 
 	public OrdersPrivilegedPanel () {
 		super ();
@@ -77,16 +78,17 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						insert ( form, index );
 						alignOrdersInCache ( ord, multi );
 					}
-					else if ( status == Order.CLOSED ||
-							( status == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == true ) ) {
-
-						index = getSortedPosition ( object );
+					else if ( status == Order.CLOSED || status == Order.SHIPPED ) {
 						multi = canMultiUser ( ord );
 
 						if ( multi == true ) {
 							form = doOrderRow ( ord, multi, true );
 							closedOrderAlert ( form, true );
+							index = getSortedPosition ( object );
 							insert ( form, index );
+
+							if ( status == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
+								form.setVisible ( false );
 						}
 
 						alignOrdersInCache ( ord, multi );
@@ -178,44 +180,45 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return "OrdersPrivilegedPanel";
 			}
 		} );
+
+		myself = this;
 	}
 
 	private void doFilterOptions () {
-		HorizontalPanel pan;
-		CheckBox toggle_view;
+		OrdersHubWidget filter;
 
-		pan = new HorizontalPanel ();
-		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
-		pan.setStyleName ( "panel-up" );
-		insert ( pan, 0 );
-
-		toggle_view = new CheckBox ( "Mostra Ordini Vecchi" );
-		OrdersHub.syncCheckboxOnShippedOrders ( toggle_view, new ClickListener () {
-			public void onClick ( Widget sender ) {
+		filter = new OrdersHubWidget () {
+			public void doFilter ( boolean show, Date start, Date end ) {
 				int num;
-				boolean show;
-				ArrayList forms;
-				CheckBox myself;
 				FromServerForm form;
-
-				myself = ( CheckBox ) sender;
-				show = myself.isChecked ();
-				OrdersHub.toggleShippedOrdersStatus ( show );
+				FromServer ord;
 
 				if ( hasOrders == false )
 					return;
 
-				num = getWidgetCount ();
+				num = myself.getWidgetCount ();
 
 				for ( int i = 1; i < num; i++ ) {
-					form = ( FromServerForm ) getWidget ( i );
-					if ( form.getObject ().getObject ( "baseorder" ).getInt ( "status" ) == Order.SHIPPED )
-						form.setVisible ( show );
+					form = ( FromServerForm ) myself.getWidget ( i );
+					ord = form.getObject ().getObject ( "baseorder" );
+
+					if ( show == true ) {
+						if ( ord.getInt ( "status" ) == Order.SHIPPED ) {
+							if ( ord.getDate ( "startdate" ).after ( start ) && ord.getDate ( "enddate" ).before ( end ) )
+								form.setVisible ( true );
+							else
+								form.setVisible ( false );
+						}
+					}
+					else {
+						if ( ord.getInt ( "status" ) == Order.SHIPPED )
+							form.setVisible ( false );
+					}
 				}
 			}
-		} );
-		pan.add ( toggle_view );
+		};
+
+		addTop ( filter );
 	}
 
 	private void closedOrderAlert ( FromServerForm form, boolean doit ) {
