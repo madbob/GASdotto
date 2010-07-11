@@ -64,42 +64,64 @@ public class Utils {
 
 	public static void initEmblems () {
 		ArrayList paths;
+		ArrayList desc;
 		EmblemsInfo info;
 
 		info = new EmblemsInfo ();
 		paths = new ArrayList ();
+		desc = new ArrayList ();
 		paths.add ( "images/notifications/order_open.png" );
+		desc.add ( "Ordine Aperto" );
 		paths.add ( "images/notifications/order_closed.png" );
+		desc.add ( "Ordine Chiuso" );
 		paths.add ( "images/notifications/order_suspended.png" );
+		desc.add ( "Ordine Sospeso" );
 		paths.add ( "images/notifications/order_completed.png" );
-		info.addSymbol ( "status", paths );
-		info.addSymbol ( "multiuser", "images/notifications/multiuser_order.png" );
+		desc.add ( "Ordine Consegnato" );
+		info.addSymbol ( "status", paths, desc );
+		info.addSymbol ( "multiuser", "images/notifications/multiuser_order.png", "Tu sei Referente per questo Ordine" );
 		emblemsCache.put ( "orders", info );
 
 		info = new EmblemsInfo ();
 		paths = new ArrayList ();
+		desc = new ArrayList ();
 		paths.add ( "" );
+		desc.add ( "" );
 		paths.add ( "images/notifications/order_shipping.png" );
+		desc.add ( "Consegna Parziale" );
 		paths.add ( "images/notifications/order_shipped.png" );
+		desc.add ( "Consegnato" );
 		paths.add ( "images/notifications/order_saved.png" );
-		info.addSymbol ( "status", paths );
-		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
+		desc.add ( "Consegna Salvata" );
+		info.addSymbol ( "status", paths, desc );
+
+		if ( Session.getGAS ().getBool ( "payments" ) == true )
+			info.addSymbol ( "paying", "images/notifications/user_not_paying.png", "L'Utente non ha Pagato l'Iscrizione" );
+
 		emblemsCache.put ( "delivery", info );
 
 		info = new EmblemsInfo ();
-		info.addSymbol ( "iamreference", "images/notifications/user_responsable.png" );
+		info.addSymbol ( "iamreference", "images/notifications/user_responsable.png", "Tu sei Referente per questo Fornitore" );
 		OpenedOrdersList.configEmblem ( info );
 		PastOrdersList.configEmblem ( info );
 		emblemsCache.put ( "supplier", info );
 
 		info = new EmblemsInfo ();
 		paths = new ArrayList ();
+		desc = new ArrayList ();
 		paths.add ( "" );
+		desc.add ( "" );
 		paths.add ( "images/notifications/user_responsable.png" );
+		desc.add ( "Utente Referente" );
 		paths.add ( "images/notifications/user_admin.png" );
+		desc.add ( "Utente Amministratore" );
 		paths.add ( "images/notifications/user_leaved.png" );
-		info.addSymbol ( "privileges", paths );
-		info.addSymbol ( "paying", "images/notifications/user_not_paying.png" );
+		desc.add ( "Utente Cessato" );
+		info.addSymbol ( "privileges", paths, desc );
+
+		if ( Session.getGAS ().getBool ( "payments" ) == true )
+			info.addSymbol ( "paying", "images/notifications/user_not_paying.png", "L'Utente non ha Pagato l'Iscrizione" );
+
 		emblemsCache.put ( "users", info );
 	}
 

@@ -390,6 +390,17 @@ body {
 	cursor:			hand;
 }
 
+.table-legend {
+	position:		fixed;
+	top:			50px;
+	right:			10px;
+	font-size:		12px;
+	background-color:	#FFFFFF;
+	border-left:		2px solid #000000;
+	border-bottom:		2px solid #000000;
+	z-index:		50;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;

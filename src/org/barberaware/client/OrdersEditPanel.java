@@ -322,6 +322,7 @@ public class OrdersEditPanel extends GenericPanel {
 			}
 		} );
 
+		addTop ( Utils.getEmblemsCache ( "orders" ).getLegend () );
 		addTop ( main );
 
 		doFilterOptions ();

@@ -179,6 +179,7 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		} );
 
+		addTop ( Utils.getEmblemsCache ( "supplier" ).getLegend () );
 		addTop ( main );
 
 		Utils.getServer ().testObjectReceive ( "Supplier" );

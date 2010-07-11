@@ -58,6 +58,7 @@ public class SuppliersPanel extends GenericPanel {
 			}
 		};
 
+		addTop ( Utils.getEmblemsCache ( "supplier" ).getLegend () );
 		addTop ( main );
 
 		/*

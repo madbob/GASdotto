@@ -73,6 +73,7 @@ public class UsersUneditablePanel extends GenericPanel {
 			}
 		};
 
+		addTop ( Utils.getEmblemsCache ( "users" ).getLegend () );
 		addTop ( main );
 		doFilterOptions ();
 	}

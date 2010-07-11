@@ -242,6 +242,8 @@ public class UsersPanel extends GenericPanel {
 				}
 		};
 
+		addTop ( Utils.getEmblemsCache ( "users" ).getLegend () );
+
 		/*
 			Poiche' addTop() mette il widget specificato in cima alla pagina,
 			inserisco la lista di form e la barra di ricerca in ordine inverso in

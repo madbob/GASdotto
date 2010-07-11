@@ -138,6 +138,7 @@ public class DeliveryPanel extends GenericPanel {
 			}
 		} );
 
+		addTop ( Utils.getEmblemsCache ( "orders" ).getLegend ( Utils.getEmblemsCache ( "delivery" ) ) );
 		addTop ( main );
 
 		hasOrders = false;
