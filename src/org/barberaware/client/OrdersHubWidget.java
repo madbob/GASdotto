@@ -29,13 +29,18 @@ public abstract class OrdersHubWidget extends Composite {
 	private DateSelector		enddate;
 
 	public OrdersHubWidget () {
+		CaptionPanel frame;
 		HorizontalPanel main;
 
 		engaged = true;
 
+		frame = new CaptionPanel ( "Opzioni Avanzate" );
+		frame.setStyleName ( "orders-advanced-options" );
+		initWidget ( frame );
+
 		main = new HorizontalPanel ();
 		main.setSpacing ( 5 );
-		initWidget ( main );
+		frame.add ( main );
 
 		toggle = new CheckBox ( "Mostra Ordini Vecchi" );
 		main.add ( toggle );

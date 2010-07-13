@@ -75,8 +75,6 @@ public class FromServerForm extends Composite {
 
 				checkSaving ();
 				onCloseCb ();
-
-				MainApp.jumpTop ();
 			}
 
 			public void onOpen ( DisclosureEvent event ) {

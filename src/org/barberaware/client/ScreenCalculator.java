@@ -27,9 +27,11 @@ public class ScreenCalculator extends DialogBox {
 	private ArrayList		boxes;
 	private FloatBox		completeSum;
 	private FloatBox		finalTarget;
+	private boolean			running;
 
 	public ScreenCalculator ( int pieces ) {
 		boxes = new ArrayList ();
+		running = false;
 		setWidget ( doDialog ( pieces ) );
 	}
 
@@ -40,6 +42,11 @@ public class ScreenCalculator extends DialogBox {
 	public void show () {
 		FloatBox box;
 
+		if ( running == true )
+			return;
+
+		running = true;
+
 		super.show ();
 		box = ( FloatBox ) boxes.get ( 0 );
 		box.setFocus ( true );
@@ -48,6 +55,9 @@ public class ScreenCalculator extends DialogBox {
 	public void hide () {
 		finalTarget.setFocus ( true );
 		super.hide ();
+		finalTarget.setFocus ( false );
+
+		running = false;
 	}
 
 	private void saveOnTarget () {
