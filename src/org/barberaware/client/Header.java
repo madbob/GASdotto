@@ -95,7 +95,7 @@ public class Header extends Composite {
 
 		user = Session.getUser ();
 		gas = Session.getGAS ();
-		text = user.getString ( "firstname" ) + " " + user.getString ( "surname" ) + " @ " + gas.getString ( "name" );
+		text = user.getString ( "surname" ) + " " + user.getString ( "firstname" ) + " @ " + gas.getString ( "name" );
 		label = new Label ( text );
 		return label;
 	}

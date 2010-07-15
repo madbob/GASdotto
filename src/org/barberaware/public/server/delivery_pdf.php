@@ -170,11 +170,19 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$n = sprintf ( "%s", $order_user->baseuser->surname );
-	if ( strlen ( $n ) > 12 ) {
-		$n = substr ( $n, 0, 10 );
-		$n .= '...';
+	$surname = $order_user->baseuser->surname;
+	if ( strlen ( $surname ) > 12 ) {
+		$surname = substr ( $surname, 0, 10 );
+		$surname .= '...';
 	}
+
+	$firstname = $order_user->baseuser->firstname;
+	if ( strlen ( $firstname ) > 12 ) {
+		$firstname = substr ( $firstname, 0, 10 );
+		$firstname .= '...';
+	}
+
+	$n = sprintf ( "%s<br />%s", $surname, $firstname );
 	$row [] = $n;
 
 	$user_total = 0;
