@@ -29,6 +29,7 @@ public abstract class OrdersHubWidget extends Composite {
 	private DateSelector		enddate;
 
 	public OrdersHubWidget () {
+		Date now;
 		CaptionPanel frame;
 		HorizontalPanel main;
 
@@ -47,13 +48,17 @@ public abstract class OrdersHubWidget extends Composite {
 
 		main.add ( new Label ( "Da: " ) );
 		startdate = new DateSelector ();
-		startdate.setValue ( new Date ( System.currentTimeMillis () - ( 1000 * 60 * 60 * 24 * 365 ) ) );
 		main.add ( startdate );
 
 		main.add ( new Label ( "A: " ) );
 		enddate = new DateSelector ();
-		enddate.setValue ( new Date ( System.currentTimeMillis () ) );
 		main.add ( enddate );
+
+		now = new Date ( System.currentTimeMillis () );
+		enddate.setValue ( now );
+		now = ( Date ) now.clone ();
+		now.setYear ( now.getYear () - 1 );
+		startdate.setValue ( now );
 
 		toggle.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {

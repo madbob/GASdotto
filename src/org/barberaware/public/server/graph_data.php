@@ -244,7 +244,7 @@ if ( $graph == 0 ) {
 		$ret = new stdClass ();
 
 		for ( $i = 0; $i < count ( $rows_suppliers ); $i++ ) {
-			$query = sprintf ( "SELECT COUNT(OrderUser.id) FROM OrderUser, Orders
+			$query = sprintf ( "SELECT COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders
 						WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
 							$rows_suppliers [ $i ] [ "id" ], $startdate, $enddate );
 			$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );

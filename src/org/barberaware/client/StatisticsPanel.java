@@ -86,11 +86,6 @@ public class StatisticsPanel extends GenericPanel {
 		input.setWidget ( 3, 0, files );
 		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
 
-		/**
-			TODO	Grafico numero utenti che hanno ordinato dal fornitore (non
-				numero totale ordini)
-		*/
-
 		graphByOrders = new PieChart ();
 		hor.add ( graphByOrders );
 		graphByOrdersOptions = PieChart.Options.create ();
@@ -98,7 +93,7 @@ public class StatisticsPanel extends GenericPanel {
 		graphByOrdersOptions.setHeight ( 240 );
 		graphByOrdersOptions.set3D ( true );
 		graphByOrdersOptions.setLegend ( LegendPosition.NONE );
-		graphByOrdersOptions.setTitle ( "Numero Ordini dagli Utenti" );
+		graphByOrdersOptions.setTitle ( "Numero Utenti con almeno un Ordine" );
 
 		graphByPrices = new PieChart ();
 		hor.add ( graphByPrices );
@@ -122,7 +117,7 @@ public class StatisticsPanel extends GenericPanel {
 
 		by_orders = DataTable.create ();
 		by_orders.addColumn ( AbstractDataTable.ColumnType.STRING, "Fornitore" );
-		by_orders.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Ordini ricevuti" );
+		by_orders.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Utenti che hanno ordinato" );
 		by_orders.addRows ( num_items );
 
 		by_price = DataTable.create ();
@@ -162,9 +157,17 @@ public class StatisticsPanel extends GenericPanel {
 	}
 
 	private void performUpdate () {
-		/**
-			TODO	Fare controllo che data inizio sia antecedente data fine
-		*/
+		Date s;
+		Date e;
+
+		s = startDate.getValue ();
+		e = endDate.getValue ();
+		if ( s.after ( e ) ) {
+			Utils.showNotification ( "La data di partenza è posteriore alla data di fine selezione" );
+			Utils.graphicPulseWidget ( startDate );
+			Utils.graphicPulseWidget ( endDate );
+			return;
+		}
 
 		updateLinks ();
 
