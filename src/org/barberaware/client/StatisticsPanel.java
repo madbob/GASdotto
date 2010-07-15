@@ -29,13 +29,19 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class StatisticsPanel extends GenericPanel {
 	private VerticalPanel		main;
-	private LinksDialog		files;
+
+	private LinksDialog		usersFiles;
 	private DateSelector		startDate;
 	private DateSelector		endDate;
 	private PieChart		graphByOrders;
 	private PieChart		graphByPrices;
 	private PieChart.Options	graphByOrdersOptions;
 	private PieChart.Options	graphByPricesOptions;
+
+	private LinksDialog		productsFiles;
+	private FromServerSelector	supplier;
+	private ColumnChart		graphByProduct;
+	private ColumnChart.Options	graphByProductOptions;
 
 	public StatisticsPanel () {
 		super ();
@@ -44,24 +50,25 @@ public class StatisticsPanel extends GenericPanel {
 		Date past;
 		ChangeListener listener;
 		HorizontalPanel hor;
+		VerticalPanel ver;
 		CaptionPanel frame;
 		FlexTable input;
 
 		main = new VerticalPanel ();
 		addTop ( main );
 
-		hor = new HorizontalPanel ();
-		main.add ( hor );
-
 		frame = new CaptionPanel ( "Report per Utenti/Fornitori" );
-		hor.add ( frame );
+		main.add ( frame );
+
+		hor = new HorizontalPanel ();
+		frame.setContentWidget ( hor );
 
 		input = new FlexTable ();
-		frame.setContentWidget ( input );
+		hor.add ( input );
 
 		listener = new ChangeListener () {
 			public void onChange ( Widget sender ) {
-				performUpdate ();
+				performUsersUpdate ();
 			}
 		};
 
@@ -82,8 +89,8 @@ public class StatisticsPanel extends GenericPanel {
 		input.setWidget ( 2, 0, new Label ( "Al" ) );
 		input.setWidget ( 2, 1, endDate );
 
-		files = new LinksDialog ( "Scarica Statistiche" );
-		input.setWidget ( 3, 0, files );
+		usersFiles = new LinksDialog ( "Scarica Statistiche" );
+		input.setWidget ( 3, 0, usersFiles );
 		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
 
 		graphByOrders = new PieChart ();
@@ -103,9 +110,39 @@ public class StatisticsPanel extends GenericPanel {
 		graphByPricesOptions.set3D ( true );
 		graphByPricesOptions.setLegend ( LegendPosition.NONE );
 		graphByPricesOptions.setTitle ( "Somme Totali Pagate (€)" );
+
+		frame = new CaptionPanel ( "Report per Prodotti/Fornitore" );
+		main.add ( frame );
+
+		ver = new VerticalPanel ();
+		frame.setContentWidget ( ver );
+
+		input = new FlexTable ();
+		ver.add ( input );
+
+		supplier = new FromServerSelector ( "Supplier", true, true );
+		supplier.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				performProductsUpdate ();
+			}
+		} );
+		input.setWidget ( 1, 0, new Label ( "Fornitore" ) );
+		input.setWidget ( 1, 1, supplier );
+
+		productsFiles = new LinksDialog ( "Scarica Statistiche" );
+		input.setWidget ( 1, 2, productsFiles );
+
+		graphByProduct = new ColumnChart ();
+		ver.add ( graphByProduct );
+		graphByProductOptions = ColumnChart.Options.create ();
+		graphByProductOptions.setWidth ( 800 );
+		graphByProductOptions.setHeight ( 240 );
+		graphByProductOptions.set3D ( true );
+		graphByProductOptions.setLegend ( LegendPosition.NONE );
+		graphByProductOptions.setTitle ( "Prodotti Ordinati" );
 	}
 
-	private void populateGraph ( JSONArray array ) {
+	private void populateUsersGraph ( JSONArray array ) {
 		int num_items;
 		String supplier_name;
 		JSONArray row;
@@ -146,17 +183,55 @@ public class StatisticsPanel extends GenericPanel {
 		graphByPrices.draw ( by_price, graphByPricesOptions );
 	}
 
-	private String linkTemplate ( String document_type ) {
-		return "graph_data.php?document=" + document_type + "&graph=0&startdate=" + Utils.encodeDate ( startDate.getValue () ) + "&enddate=" + Utils.encodeDate ( endDate.getValue () );
+	private void populateProductsGraph ( JSONArray array ) {
+		int num_items;
+		String product_name;
+		JSONArray row;
+		JSONString num;
+		DataTable by_products;
+
+		num_items = array.size ();
+
+		by_products = DataTable.create ();
+		by_products.addColumn ( AbstractDataTable.ColumnType.STRING, "Prodotto" );
+		by_products.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Utenti che hanno ordinato" );
+		by_products.addRows ( num_items );
+
+		for ( int i = 0; i < num_items; i++ ) {
+			row = array.get ( i ).isArray ();
+
+			product_name = row.get ( 0 ).isString ().stringValue ();
+			by_products.setValue ( i, 0, product_name );
+
+			num = row.get ( 1 ).isString ();
+			if ( num != null )
+				by_products.setValue ( i, 1, Double.parseDouble ( num.stringValue () ) );
+		}
+
+		graphByProduct.draw ( by_products, graphByProductOptions );
 	}
 
-	private void updateLinks () {
-		files.emptyBox ();
-		files.addLink ( "CVS", linkTemplate ( "csv" ) );
-		files.addLink ( "PDF", linkTemplate ( "pdf" ) );
+	private String linkTemplate ( String data_type, String document_type, int extra ) {
+		return "graph_data.php?type=" + data_type + "&document=" + document_type + "&extra=" + extra + "&graph=0&startdate=" +
+			Utils.encodeDate ( startDate.getValue () ) + "&enddate=" + Utils.encodeDate ( endDate.getValue () );
 	}
 
-	private void performUpdate () {
+	private void notifyError ( Request request, Throwable exception ) {
+		if ( exception instanceof RequestTimeoutException )
+			Utils.showNotification ( "Timeout sulla connessione: accertarsi che il server sia raggiungibile" );
+		else
+			Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+
+		Utils.getServer ().dataArrived ();
+	}
+
+	private void updateUsersLinks () {
+		usersFiles.emptyBox ();
+		usersFiles.addLink ( "CVS", linkTemplate ( "users", "csv", -1 ) );
+		usersFiles.addLink ( "PDF", linkTemplate ( "users", "pdf", -1 ) );
+	}
+
+	private void performUsersUpdate () {
 		Date s;
 		Date e;
 
@@ -169,16 +244,11 @@ public class StatisticsPanel extends GenericPanel {
 			return;
 		}
 
-		updateLinks ();
+		updateUsersLinks ();
 
-		Utils.getServer ().rawGet ( linkTemplate ( "visual" ), new RequestCallback () {
+		Utils.getServer ().rawGet ( linkTemplate ( "users", "visual", -1 ), new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
-				if ( exception instanceof RequestTimeoutException )
-					Utils.showNotification ( "Timeout sulla connessione: accertarsi che il server sia raggiungibile" );
-				else
-					Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
-
-				Utils.getServer ().dataArrived ();
+				notifyError ( request, exception );
 			}
 
 			public void onResponseReceived ( Request request, Response response ) {
@@ -188,7 +258,42 @@ public class StatisticsPanel extends GenericPanel {
 				try {
 					jsonObject = JSONParser.parse ( response.getText () );
 					obj = jsonObject.isObject ();
-					populateGraph ( obj.get ( "data" ).isArray () );
+					populateUsersGraph ( obj.get ( "data" ).isArray () );
+				}
+				catch ( com.google.gwt.json.client.JSONException e ) {
+					Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+				}
+
+				Utils.getServer ().dataArrived ();
+			}
+		} );
+	}
+
+	private void updateProductsLinks ( FromServer supp ) {
+		productsFiles.emptyBox ();
+		productsFiles.addLink ( "CVS", linkTemplate ( "products", "csv", supp.getLocalID () ) );
+		productsFiles.addLink ( "PDF", linkTemplate ( "products", "pdf", supp.getLocalID () ) );
+	}
+
+	private void performProductsUpdate () {
+		FromServer supp;
+
+		supp = supplier.getValue ();
+		updateProductsLinks ( supp );
+
+		Utils.getServer ().rawGet ( linkTemplate ( "products", "visual", supp.getLocalID () ), new RequestCallback () {
+			public void onError ( Request request, Throwable exception ) {
+				notifyError ( request, exception );
+			}
+
+			public void onResponseReceived ( Request request, Response response ) {
+				JSONValue jsonObject;
+				JSONObject obj;
+
+				try {
+					jsonObject = JSONParser.parse ( response.getText () );
+					obj = jsonObject.isObject ();
+					populateProductsGraph ( obj.get ( "data" ).isArray () );
 				}
 				catch ( com.google.gwt.json.client.JSONException e ) {
 					Utils.showNotification ( "Ricevuti dati invalidi dal server" );
@@ -214,6 +319,7 @@ public class StatisticsPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		performUpdate ();
+		performUsersUpdate ();
+		performProductsUpdate ();
 	}
 }
