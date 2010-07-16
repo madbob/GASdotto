@@ -187,7 +187,7 @@ public class StatisticsPanel extends GenericPanel {
 		int num_items;
 		String product_name;
 		JSONArray row;
-		JSONString num;
+		JSONNumber num;
 		DataTable by_products;
 
 		num_items = array.size ();
@@ -203,9 +203,9 @@ public class StatisticsPanel extends GenericPanel {
 			product_name = row.get ( 0 ).isString ().stringValue ();
 			by_products.setValue ( i, 0, product_name );
 
-			num = row.get ( 1 ).isString ();
+			num = row.get ( 1 ).isNumber ();
 			if ( num != null )
-				by_products.setValue ( i, 1, Double.parseDouble ( num.stringValue () ) );
+				by_products.setValue ( i, 1, num.doubleValue () );
 		}
 
 		graphByProduct.draw ( by_products, graphByProductOptions );

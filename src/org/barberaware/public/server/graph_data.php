@@ -96,17 +96,58 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 }
 
 function products_data ( $supplier, $startdate, $enddate ) {
-	$query = sprintf ( "SELECT Product.name, COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
-				WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND OrderUser_products.parent = OrderUser.id AND
-					ProductUser.id = OrderUser_products.target AND Product.id = ProductUser.product AND
-					Orders.startdate > '%s' AND Orders.enddate < '%s' GROUP BY product.name ORDER BY product.name",
-						$supplier, $startdate, $enddate );
+	$query = sprintf ( "SELECT name, id FROM Product WHERE supplier = %d AND previous_description = 0", $supplier );
+	$returned = query_and_check ( $query, "Impossibile recuperare lista prodotti" );
+	$products = $returned->fetchAll ( PDO::FETCH_NUM );
 
-	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
-	$array = $returned->fetchAll ( PDO::FETCH_NUM );
+	$ret = array ();
+
+	foreach ( $products as $p ) {
+		/*
+			La query ricorsiva per ricostruire la lista di prodotti logicamente
+			concatenati potrebbe essere risolta con una query WITH
+			( http://www.postgresql.org/docs/8.4/static/queries-with.html ), che
+			pero' e' supportata solo a partire da PostgreSQL 8.4 . Si rimanda il
+			perfezionamento a quando tale versione di database server sara'
+			abbastanza diffusa
+		*/
+
+		$id = $p [ 1 ];
+		$tot = 0;
+
+		while ( true ) {
+			$query = sprintf ( "SELECT COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders, OrderUser_products, ProductUser
+						WHERE OrderUser.baseorder = Orders.id AND OrderUser_products.parent = OrderUser.id AND
+							ProductUser.id = OrderUser_products.target AND ProductUser.product = %d AND
+							Orders.startdate > '%s' AND Orders.enddate < '%s'",
+								$id, $startdate, $enddate );
+
+			$returned = query_and_check ( $query, "Impossibile recuperare numero utenti per prodotto" );
+			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			$tot += $array [ 0 ] [ 0 ];
+			unset ( $query );
+			unset ( $returned );
+			unset ( $array );
+
+			$query = sprintf ( "FROM Product WHERE previous_description = %d", $id );
+			if ( db_row_count ( $query ) <= 0 )
+				break;
+
+			$returned = query_and_check ( "SELECT id " . $query, "Impossibile recuperare prodotto successivo" );
+			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			$id = $array [ 0 ] [ 0 ];
+			unset ( $query );
+			unset ( $returned );
+			unset ( $array );
+		}
+
+		$ret [] = array ( $p [ 0 ], $tot );
+	}
+
 	unset ( $query );
 	unset ( $returned );
-	return $array;
+	unset ( $products );
+	return $ret;
 }
 
 function list_suppliers () {
