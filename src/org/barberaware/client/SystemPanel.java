@@ -24,8 +24,9 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class SystemPanel extends GenericPanel {
-	private FormCluster	categories;
-	private FormCluster	measures;
+	private FormCluster		categories;
+	private FormCluster		measures;
+	private MailConfigurator	mailConf;
 
 	public SystemPanel () {
 		super ();
@@ -71,6 +72,7 @@ public class SystemPanel extends GenericPanel {
 		FromServerForm ver;
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
+		BooleanSelector mail;
 
 		ver = new FromServerForm ( Session.getGAS () );
 
@@ -101,12 +103,20 @@ public class SystemPanel extends GenericPanel {
 
 		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
 
-		/*
-			Solo se il sistema permette l'invio di mail viene abilitata l'apposita
-			opzione
-		*/
-		if ( Session.getSystemConf ().getBool ( "has_mail" ) == true )
-			frame.addPair ( "Abilita Notifiche Mail", ver.getWidget ( "use_mail" ) );
+		mail = new BooleanSelector ();
+		mail.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				BooleanSelector myself;
+
+				myself = ( BooleanSelector ) sender;
+				mailConf.setEnabled ( myself.isDown () );
+			}
+		} );
+		frame.addPair ( "Abilita Notifiche Mail", ver.getPersonalizedWidget ( "use_mail", mail ) );
+
+		mailConf = new MailConfigurator ();
+		frame.addPair ( "Configurazione Mail", ver.getPersonalizedWidget ( "mail_conf", mailConf ) );
+		mailConf.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );

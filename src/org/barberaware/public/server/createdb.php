@@ -79,6 +79,7 @@ function install_main_db () {
 					payments boolean default false,
 					description varchar ( 500 ) default '',
 					use_mail boolean default false,
+					mail_conf varchar ( 500 ) default '',
 					primary key ( id )
 				)"
 	);

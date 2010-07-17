@@ -38,6 +38,5 @@ public class SystemConf extends FromServer {
 		addAttribute ( "gasdotto_commit_version", FromServer.STRING );
 		addAttribute ( "gasdotto_build_date", FromServer.DATE );
 		addAttribute ( "has_file", FromServer.BOOLEAN );
-		addAttribute ( "has_mail", FromServer.BOOLEAN );
 	}
 }

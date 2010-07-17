@@ -20,10 +20,68 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
-public class BooleanSelector extends ToggleButton {
+public class BooleanSelector extends ToggleButton implements SourcesChangeEvents {
+	private boolean				currentState;
+	private ChangeListenerCollection	changeCallbacks;
+
 	public BooleanSelector () {
 		// super ( new Image ( "images/boolean_false.png" ), new Image ( "images/boolean_true.png" ) );
 		super ( "NO", "SI" );
 		setStyleName ( "boolean-selector" );
+
+		currentState = false;
+
+		addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				BooleanSelector myself;
+
+				myself = ( BooleanSelector ) sender;
+				checkChange ( myself );
+			}
+		} );
+
+		addKeyboardListener ( new KeyboardListener () {
+			public void onKeyDown ( Widget sender, char keyCode, int modifiers ) {
+				/* dummy */
+			}
+
+			public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
+				/* dummy */
+			}
+
+			public void onKeyUp ( Widget sender, char keyCode, int modifiers ) {
+				BooleanSelector myself;
+
+				myself = ( BooleanSelector ) sender;
+				checkChange ( myself );
+			}
+		} );
+	}
+
+	public void setDown ( boolean down ) {
+		currentState = down;
+		super.setDown ( down );
+	}
+
+	private void checkChange ( BooleanSelector myself ) {
+		if ( currentState != myself.isDown () ) {
+			currentState = myself.isDown ();
+
+			if ( changeCallbacks != null )
+				changeCallbacks.fireChange ( this );
+		}
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ChangeListenerCollection ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 }
