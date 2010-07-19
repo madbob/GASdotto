@@ -104,7 +104,7 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 
 	$measure = $prod->getAttribute ( "measure" )->value;
 	if ( $measure != null )
-		$symbol = " / " . $measure->getAttribute ( "symbol" )->value;
+		$symbol = " / " . $measure->getAttribute ( "name" )->value;
 	else
 		$symbol = "";
 
@@ -235,7 +235,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				$q .= ' ( ' . $d . ' )';
 			}
 
-			$row [] = $q;
+			$row [] = $q . '<br />';
 
 			/*
 				Per i prodotti con pezzatura, il prezzo di trasporto viene
@@ -263,8 +263,9 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 			$e++;
 		}
-		else
-			$row [] = "";
+		else {
+			$row [] = '<br />';
+		}
 
 		unset ( $prod_user );
 	}

@@ -44,7 +44,7 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 
 	$measure = $prod->getAttribute ( "measure" )->value;
 	if ( $measure != null )
-		$symbol = " / " . $measure->getAttribute ( "symbol" )->value;
+		$symbol = " / " . $measure->getAttribute ( "name" )->value;
 	else
 		$symbol = "";
 

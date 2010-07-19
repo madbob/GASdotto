@@ -286,7 +286,7 @@ public class OrderSummary extends Composite implements Lockable {
 
 		measure = prod.getObject ( "measure" );
 		if ( measure != null )
-			return measure.getString ( "symbol" );
+			return measure.getString ( "name" );
 		else
 			return "";
 	}
