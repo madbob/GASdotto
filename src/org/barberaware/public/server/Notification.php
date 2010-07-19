@@ -28,6 +28,7 @@ class Notification extends FromServer {
 		parent::addAttribute ( "startdate", "DATE" );
 		parent::addAttribute ( "enddate", "DATE" );
 		parent::addAttribute ( "recipent", "ARRAY::User" );
+		parent::addAttribute ( "send_mail", "BOOLEAN" );
 	}
 
 	public function get ( $request, $compress ) {
@@ -62,6 +63,31 @@ class Notification extends FromServer {
 		}
 
 		return $ret;
+	}
+
+	private function send_as_mail ( $obj ) {
+		$dests = array ();
+
+		foreach ( $obj->recipent as $destination ) {
+			if ( isset ( $destination->mail ) && $destination->mail != '' )
+				$dests [] = $destination->mail;
+		}
+
+		$subject = ( substr ( $obj->description, 0, 10 ) ) . '...';
+		send_mail ( $dests, $subject, $obj->description );
+	}
+
+	public function save ( $obj ) {
+		$sendmail = false;
+		if ( $obj->id == -1 && $obj->send_mail == true )
+			$sendmail = true;
+
+		$id = parent::save ( $obj );
+
+		if ( $id > 0 && $sendmail == true )
+			self::send_as_mail ( $obj );
+
+		return $id;
 	}
 }
 

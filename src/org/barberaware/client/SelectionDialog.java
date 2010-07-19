@@ -28,21 +28,29 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 	public static int		SELECTION_MODE_MULTI	= 1;
 	public static int		SELECTION_MODE_ALL	= 2;
 
-	private ArrayList		callbacks;
+	private ArrayList		savingCallbacks;
+	private ArrayList		extraCallbacks;
 
 	private int			selectionMode;
 	private ArrayList		loadedObjects;
 	private ArrayList		selectedObjects;
 
+	private VerticalPanel		main;
+	private HorizontalPanel		selectionButtons;
 	private FlexTable		itemsTable;
 
 	public SelectionDialog ( int mode ) {
+		savingCallbacks = null;
+		extraCallbacks = null;
+
 		selectionMode = mode;
 		loadedObjects = new ArrayList ();
 		selectedObjects = new ArrayList ();
 
 		setText ( "Seleziona" );
-		setWidget ( doDialog () );
+
+		main = doDialog ();
+		setWidget ( main );
 	}
 
 	/*
@@ -90,7 +98,7 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		itemsTable.setWidget ( i, 1, check );
 		itemsTable.setWidget ( i, 2, new Label ( str_name ) );
 
-		loadedObjects.add ( object );
+		loadedObjects.add ( i, object );
 	}
 
 	public void removeElementInList ( FromServer object ) {
@@ -110,6 +118,52 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		super.show ();
 	}
 
+	public void addSelectionCallbacks ( String name, FilterCallback callback ) {
+		Button toggle;
+
+		if ( extraCallbacks == null )
+			extraCallbacks = new ArrayList ();
+
+		extraCallbacks.add ( callback );
+
+		toggle = new Button ( name );
+
+		toggle.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				int pos;
+				int num;
+				CheckBox checkbox;
+				FromServer tmp;
+				FilterCallback callback;
+
+				/*
+					Se il pannello gia' comprende i tasti "seleziona tutto" e "deseleziona
+					tutto", per pescare l'indice corretto nell'array delle callbacks devo appunto
+					togliere queste due posizioni
+				*/
+				pos = ( ( HorizontalPanel ) sender.getParent () ).getWidgetIndex ( sender );
+				if ( selectionMode == SELECTION_MODE_ALL )
+					pos = pos - 2;
+
+				callback = ( FilterCallback ) extraCallbacks.get ( pos );
+				num = loadedObjects.size ();
+
+				for ( int a = 0; a < num; a++ ) {
+					tmp = ( FromServer ) loadedObjects.get ( a );
+					checkbox = ( CheckBox ) itemsTable.getWidget ( a, 1 );
+					checkbox.setChecked ( callback.check ( tmp, null ) );
+				}
+			}
+		} );
+
+		if ( selectionButtons == null ) {
+			selectionButtons = new HorizontalPanel ();
+			main.insert ( selectionButtons, main.getWidgetIndex ( itemsTable ) );
+		}
+
+		selectionButtons.add ( toggle );
+	}
+
 	private void uncheckAllBut ( CheckBox not_this ) {
 		int num;
 		CheckBox tmp;
@@ -123,18 +177,28 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		}
 	}
 
-	private Panel doDialog () {
+	private VerticalPanel doDialog () {
 		VerticalPanel pan;
 		HorizontalPanel buttons;
 		Button but;
+		ScrollPanel scroll;
 
 		pan = new VerticalPanel ();
 
-		if ( selectionMode == SELECTION_MODE_ALL )
-			pan.add ( doSelectDeselectAll () );
+		if ( selectionMode == SELECTION_MODE_ALL ) {
+			selectionButtons = doSelectDeselectAll ();
+			pan.add ( selectionButtons );
+		}
+		else {
+			selectionButtons = null;
+		}
+
+		scroll = new ScrollPanel ();
+		scroll.setHeight ( ( Window.getClientHeight () - 250 ) + "px" );
+		pan.add ( scroll );
 
 		itemsTable = new FlexTable ();
-		pan.add ( itemsTable );
+		scroll.add ( itemsTable );
 
 		buttons = new HorizontalPanel ();
 		buttons.setStyleName ( "dialog-buttons" );
@@ -204,13 +268,13 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		int num;
 		SavingDialogCallback call;
 
-		if ( callbacks == null )
+		if ( savingCallbacks == null )
 			return;
 
-		num = callbacks.size ();
+		num = savingCallbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			call = ( SavingDialogCallback ) callbacks.get ( i );
+			call = ( SavingDialogCallback ) savingCallbacks.get ( i );
 
 			if ( mode == 0 )
 				call.onSave ( this );
@@ -408,14 +472,14 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 	/****************************************************************** SavingDialog */
 
 	public void addCallback ( SavingDialogCallback callback ) {
-		if ( callbacks == null )
-			callbacks = new ArrayList ();
-		callbacks.add ( callback );
+		if ( savingCallbacks == null )
+			savingCallbacks = new ArrayList ();
+		savingCallbacks.add ( callback );
 	}
 
 	public void removeCallback ( SavingDialogCallback callback ) {
-		if ( callbacks == null )
+		if ( savingCallbacks == null )
 			return;
-		callbacks.remove ( callback );
+		savingCallbacks.remove ( callback );
 	}
 }

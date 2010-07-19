@@ -27,6 +27,7 @@ Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di
 PHP			http://php.net/					testato su versione 5.2.6
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
+Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
 Apache			http://apache.org/				testato su versione 2.2.11
 
 Il database in cui verranno messi i dati puo' essere selezionato tra:

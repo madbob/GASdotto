@@ -172,6 +172,7 @@ function install_main_db () {
 					description varchar ( 500 ) default '',
 					startdate date,
 					enddate date,
+					send_mail boolean,
 					primary key ( id )
 				)"
 	);

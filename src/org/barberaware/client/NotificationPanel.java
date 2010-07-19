@@ -28,6 +28,26 @@ public class NotificationPanel extends GenericPanel {
 		super ();
 
 		main = new FormCluster ( "Notification", "Nuova Notifica" ) {
+				private MultiSelector destinationSelect () {
+					MultiSelector users;
+
+					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
+
+					users.addSelectionCallbacks ( "Seleziona solo Referenti",
+						new FilterCallback () {
+							public boolean check ( FromServer obj, String text ) {
+								if ( obj.getInt ( "privileges" ) == User.USER_RESPONSABLE ||
+										obj.getInt ( "privileges" ) == User.USER_ADMIN )
+									return true;
+								else
+									return false;
+							}
+						}
+					);
+
+					return users;
+				}
+
 				protected FromServerForm doEditableRow ( FromServer n ) {
 					FromServerForm ver;
 					CustomCaptionPanel frame;
@@ -40,8 +60,7 @@ public class NotificationPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );
 
-					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
-					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", users ) );
+					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect () ) );
 
 					frame.addPair ( "Data Inizio", ver.getWidget ( "startdate" ) );
 					frame.addPair ( "Date Fine", ver.getWidget ( "enddate" ) );
@@ -50,6 +69,9 @@ public class NotificationPanel extends GenericPanel {
 					type_sel.addItem ( "Informazione" );
 					type_sel.addItem ( "Avvertimento" );
 					frame.addPair ( "Tipo", ver.getPersonalizedWidget ( "alert_type", type_sel ) );
+
+					if ( Session.getGAS ().getBool ( "use_mail" ) == true )
+						frame.addPair ( "Invia anche via Mail", ver.getWidget ( "send_mail" ) );
 
 					sframe = new CaptionPanel ( "Testo" );
 					sframe.add ( ver.getWidget ( "description" ) );

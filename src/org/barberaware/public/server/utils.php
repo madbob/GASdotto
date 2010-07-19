@@ -19,6 +19,7 @@
 
 require_once ( "config.php" );
 require_once ( "JSON.php" );
+require_once ( "Mail.php" );
 
 require_once ( "FromServer.php" );
 require_once ( "Session.php" );
@@ -222,6 +223,26 @@ function unique_filesystem_name ( $folder, $name ) {
 	}
 
 	return $final_name;
+}
+
+/****************************************************************** mail */
+
+function send_mail ( $recipients, $subject, $body ) {
+	$gas = new GAS ();
+	$gas->readFromDB ( 1 );
+	$mailconf = $gas->getAttribute ( 'mail_conf' )->value;
+	$name = $gas->getAttribute ( 'name' )->value;
+
+	list ( $from, $username, $password, $host, $port, $ssl ) = explode ( '::', $mailconf );
+
+	if ( $ssl == 'true' )
+		$host = 'ssl://' . $host;
+
+	$mysubject = '[' . $name . '] ' . $subject;
+	$headers = array ( 'From' => $from, 'Subject' => $mysubject );
+
+	$smtp = Mail::factory ( 'smtp', array ( 'host' => $host, 'port' => $port, 'auth' => true, 'username' => $username, 'password' => $password ) );
+	$smtp->send ( $recipients, $headers, $body );
 }
 
 /****************************************************************** authentication */

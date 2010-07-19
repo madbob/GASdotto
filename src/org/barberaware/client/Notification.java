@@ -23,9 +23,9 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
 
 public class Notification extends FromServer {
-	public static int	INFO		= 1;
-	public static int	WARNING		= 2;
-	public static int	ERROR		= 3;
+	public static int	INFO		= 0;
+	public static int	WARNING		= 1;
+	public static int	ERROR		= 2;
 
 	public Notification () {
 		super ();
@@ -86,6 +86,7 @@ public class Notification extends FromServer {
 		addAttribute ( "startdate", FromServer.DATE );
 		addAttribute ( "enddate", FromServer.DATE );
 		addAttribute ( "recipent", FromServer.ARRAY, User.class );
+		addAttribute ( "send_mail", FromServer.BOOLEAN );
 	}
 
 	public Image getIcon () {
@@ -93,14 +94,11 @@ public class Notification extends FromServer {
 
 		type = getInt ( "alert_type" );
 
-		switch ( type ) {
-			case 1:
-				return new Image ( "images/notify-info.png" );
-			case 2:
-				return new Image ( "images/notify-warning.png" );
-			case 3:
-			default:
-				return new Image ( "images/notify-error.png" );
-		}
+		if ( type == INFO )
+			return new Image ( "images/notify-info.png" );
+		else if ( type == WARNING )
+			return new Image ( "images/notify-warning.png" );
+		else
+			return new Image ( "images/notify-error.png" );
 	}
 }

@@ -106,6 +106,10 @@ public class MultiSelector extends Composite implements FromServerArray {
 		}
 	}
 
+	public void addSelectionCallbacks ( String name, FilterCallback callback ) {
+		dialog.addSelectionCallbacks ( name, callback );
+	}
+
 	private boolean checkValidity ( FromServer object ) {
 		if ( filterCallback != null )
 			return filterCallback.check ( object, null );
