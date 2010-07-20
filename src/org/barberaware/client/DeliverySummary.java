@@ -43,21 +43,18 @@ public class DeliverySummary extends Composite {
 			public void onModify ( FromServer object ) {
 				int index;
 				FromServerForm form;
-				User user;
 				StringLabel phone;
 
-				user = ( User ) object;
-				form = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
+				form = ( FromServerForm ) object.getRelatedInfo ( "DeliverySummary" + identifier );
 
 				if ( form != null ) {
-					if ( Session.getGAS ().getBool ( "payments" ) == true )
-						user.checkUserPaying ( form );
+					checkPay ( object, form );
 
 					phone = ( StringLabel ) form.retriveInternalWidget ( "phone" );
-					phone.setValue ( user.getString ( "phone" ) );
+					phone.setValue ( object.getString ( "phone" ) );
 
 					phone = ( StringLabel ) form.retriveInternalWidget ( "mobile" );
-					phone.setValue ( user.getString ( "mobile" ) );
+					phone.setValue ( object.getString ( "mobile" ) );
 				}
 			}
 
@@ -82,7 +79,7 @@ public class DeliverySummary extends Composite {
 
 	public void addOrder ( OrderUser uorder ) {
 		final FromServerForm row;
-		User user;
+		FromServer user;
 		CustomCaptionPanel frame;
 		StringLabel phone;
 		ProductsDeliveryTable products;
@@ -93,7 +90,7 @@ public class DeliverySummary extends Composite {
 		if ( uorder.getRelatedInfo ( "DeliverySummary" ) != null )
 			return;
 
-		user = ( User ) uorder.getObject ( "baseuser" );
+		user = uorder.getObject ( "baseuser" );
 		row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
 		row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
 
@@ -114,11 +111,11 @@ public class DeliverySummary extends Composite {
 
 		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				OrderUser uorder;
+				FromServer uorder;
 
-				uorder = ( OrderUser ) row.getObject ();
+				uorder = row.getObject ();
 				uorder.setInt ( "status", OrderUser.COMPLETE_DELIVERY );
-				main.insert ( row, getSortedIndex ( uorder, ( User ) uorder.getObject ( "baseuser" ) ) );
+				main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
 				row.savingObject ();
 				row.open ( false );
 			}
@@ -154,8 +151,7 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
-		if ( Session.getGAS ().getBool ( "payments" ) == true )
-			user.checkUserPaying ( row );
+		checkPay ( user, row );
 
 		setStatusIcon ( row, uorder );
 		main.insert ( row, getSortedIndex ( uorder, user ) );
@@ -196,7 +192,7 @@ public class DeliverySummary extends Composite {
 		}
 	}
 
-	private int getSortedIndex ( OrderUser order, User to_place ) {
+	private int getSortedIndex ( FromServer order, FromServer to_place ) {
 		int i;
 		int status_iter;
 		int status_to_place;
@@ -232,6 +228,14 @@ public class DeliverySummary extends Composite {
 		}
 
 		return i;
+	}
+
+	private void checkPay ( FromServer u, FromServerForm form ) {
+		if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+			User user;
+			user = ( User ) u;
+			user.checkUserPaying ( form );
+		}
 	}
 
 	private void cleanUp () {

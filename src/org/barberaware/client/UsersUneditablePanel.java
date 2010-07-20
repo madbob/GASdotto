@@ -64,7 +64,7 @@ public class UsersUneditablePanel extends GenericPanel {
 				frame.setWidget ( 5, 0, new Label ( "Mail 2" ) );
 				frame.setWidget ( 5, 1, form.getPersonalizedWidget ( "mail2", doString () ) );
 
-				setRoleIcon ( form, ( User ) u );
+				setRoleIcon ( form, u );
 				return form;
 			}
 
@@ -109,7 +109,7 @@ public class UsersUneditablePanel extends GenericPanel {
 		pan.add ( filter );
 	}
 
-	private void setRoleIcon ( FromServerForm form, User user ) {
+	private void setRoleIcon ( FromServerForm form, FromServer user ) {
 		int priv;
 		EmblemsBar bar;
 

@@ -33,6 +33,7 @@ public class Utils {
 	private static NumberFormat	floatFormatter;
 	private static NumberFormat	priceFormatter;
 	private static HashMap		emblemsCache;
+	private static HashMap		classesNames;
 
 	public static void initEnvironment () {
 		notifies = new SmoothingNotify ();
@@ -40,6 +41,7 @@ public class Utils {
 		floatFormatter = NumberFormat.getDecimalFormat ();
 		priceFormatter = NumberFormat.getCurrencyFormat ();
 		emblemsCache = new HashMap ();
+		classesNames = new HashMap ();
 	}
 
 	/****************************************************** notifiche */
@@ -160,7 +162,15 @@ public class Utils {
 	/****************************************************** classi */
 
 	public static String classFinalName ( String name ) {
-		return name.substring ( name.lastIndexOf ( "." ) + 1 );
+		String ret;
+
+		ret = ( String ) classesNames.get ( name );
+		if ( ret == null ) {
+			ret = name.substring ( name.lastIndexOf ( "." ) + 1 );
+			classesNames.put ( name, ret );
+		}
+
+		return ret;
 	}
 
 	/****************************************************** datatype */

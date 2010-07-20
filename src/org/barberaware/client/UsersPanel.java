@@ -41,14 +41,11 @@ public class UsersPanel extends GenericPanel {
 		main = new FormCluster ( "User", "Nuovo Utente", true, true ) {
 				protected FromServerForm doEditableRow ( FromServer u ) {
 					final FromServerForm ver;
-					User user;
 
-					user = ( User ) u;
-
-					if ( user.getInt ( "privileges" ) == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
+					if ( u.getInt ( "privileges" ) == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
 						return null;
 
-					ver = new FromServerForm ( user );
+					ver = new FromServerForm ( u );
 					ver.emblemsAttach ( Utils.getEmblemsCache ( "users" ) );
 
 					/*
@@ -88,6 +85,8 @@ public class UsersPanel extends GenericPanel {
 					} );
 
 					if ( handlePayments == true ) {
+						User user;
+						user = ( User ) u;
 						user.checkUserPaying ( ver );
 					}
 					else {
@@ -97,11 +96,11 @@ public class UsersPanel extends GenericPanel {
 							volutamente nel passato per far si che il giorno in cui la
 							funzione viene abilitata risulti non pagante
 						*/
-						if ( user.getDate ( "paying" ) == null )
-							user.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
+						if ( u.getDate ( "paying" ) == null )
+							u.setDate ( "paying", Utils.decodeDate ( "2000-01-01" ) );
 					}
 
-					setRoleIcon ( ver, user );
+					setRoleIcon ( ver, u );
 					return ver;
 				}
 
@@ -115,7 +114,7 @@ public class UsersPanel extends GenericPanel {
 
 				protected void asyncLoad ( FromServerForm form ) {
 					HorizontalPanel hor;
-					User user;
+					FromServer user;
 					CustomCaptionPanel frame;
 					CyclicToggle privileges;
 					DateSelector birth;
@@ -127,7 +126,7 @@ public class UsersPanel extends GenericPanel {
 					if ( form.retriveInternalWidget ( "login" ) != null )
 						return;
 
-					user = ( User ) form.getObject ();
+					user = form.getObject ();
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
@@ -231,14 +230,17 @@ public class UsersPanel extends GenericPanel {
 				}
 
 				protected void customModify ( FromServerForm form ) {
-					User user;
+					FromServer u;
 
-					user = ( User ) form.getObject ();
+					u = form.getObject ();
 
-					if ( handlePayments == true )
+					if ( handlePayments == true ) {
+						User user;
+						user = ( User ) u;
 						user.checkUserPaying ( form );
+					}
 
-					setRoleIcon ( form, user );
+					setRoleIcon ( form, u );
 				}
 		};
 
@@ -353,7 +355,7 @@ public class UsersPanel extends GenericPanel {
 			};
 	}
 
-	private void setRoleIcon ( FromServerForm form, User user ) {
+	private void setRoleIcon ( FromServerForm form, FromServer user ) {
 		int priv;
 		EmblemsBar bar;
 

@@ -82,13 +82,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 					if ( status == Order.OPENED ) {
 						index = getSortedPosition ( object );
-						multi = canMultiUser ( ord );
+						multi = canMultiUser ( object );
 						form = doOrderRow ( ord, multi, false );
 						insert ( form, index );
 						alignOrdersInCache ( ord, multi );
 					}
 					else if ( status == Order.CLOSED || status == Order.SHIPPED ) {
-						multi = canMultiUser ( ord );
+						multi = canMultiUser ( object );
 
 						if ( multi == true ) {
 							form = doOrderRow ( ord, multi, true );
@@ -138,7 +138,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						syncProductsInForm ( form, ord );
 					}
 					else if ( status == Order.CLOSED ) {
-						if ( canMultiUser ( ord ) == true ) {
+						if ( canMultiUser ( object ) == true ) {
 							form.emblems ().activate ( "status", status );
 							closedOrderAlert ( form, true );
 						}
@@ -169,7 +169,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					*/
 					if ( status == Order.OPENED ) {
 						onReceive ( object );
-						alignOrdersInCache ( ord, canMultiUser ( ord ) );
+						alignOrdersInCache ( ord, canMultiUser ( object ) );
 					}
 				}
 			}
@@ -314,7 +314,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		}
 	}
 
-	private boolean canMultiUser ( Order order ) {
+	private boolean canMultiUser ( FromServer order ) {
 		Supplier supplier;
 
 		supplier = ( Supplier ) order.getObject ( "supplier" );
@@ -390,7 +390,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					UserSelector selector;
 
 					selector = ( UserSelector ) form.retriveInternalWidget ( "baseuser" );
-					retrieveCurrentOrderByUser ( form, ( User ) selector.getValue () );
+					retrieveCurrentOrderByUser ( form, selector.getValue () );
 				}
 			} );
 
@@ -423,7 +423,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 					UserSelector selector;
 					selector = ( UserSelector ) sender;
-					retrieveCurrentOrderByUser ( ver, ( User ) selector.getValue () );
+					retrieveCurrentOrderByUser ( ver, selector.getValue () );
 				}
 			} );
 
@@ -444,7 +444,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		return ver;
 	}
 
-	private FromServerForm doUneditableOrderRow ( Order order ) {
+	private FromServerForm doUneditableOrderRow ( FromServer order ) {
 		FromServerForm ver;
 		OrderUser uorder;
 		ProductsUserSelection products;
@@ -473,10 +473,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	*/
 	private void findAndAlign ( OrderUser uorder, int action ) {
 		int index;
-		Order order;
+		FromServer order;
 		FromServerForm form;
 
-		order = ( Order ) uorder.getObject ( "baseorder" );
+		order = uorder.getObject ( "baseorder" );
 		form = ( FromServerForm ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
 
 		if ( form != null ) {
@@ -560,7 +560,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			orders.add ( uorder );
 	}
 
-	private void retrieveCurrentOrderByUser ( FromServerForm form, User user ) {
+	private void retrieveCurrentOrderByUser ( FromServerForm form, FromServer user ) {
 		int user_id;
 		ArrayList orders;
 		OrderUser iter;
@@ -601,7 +601,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		table.setElements ( null );
 	}
 
-	private void cleanForm ( FromServerForm form, boolean complete, User user ) {
+	private void cleanForm ( FromServerForm form, boolean complete, FromServer user ) {
 		OrderUser uorder;
 		FromServer original_uorder;
 

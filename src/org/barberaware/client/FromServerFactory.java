@@ -23,6 +23,8 @@ public class FromServerFactory {
 	private static HashMap		dummyInstances		= null;
 
 	public static FromServer create ( String name ) {
+		char first;
+
 		/**
 			TODO	Questa funzione (e le relative invocazioni) e' da correggere in modo che prenda il
 				nome gia' "normalizzato" della class che si desidera. In questo modo si puo' usare
@@ -30,34 +32,48 @@ public class FromServerFactory {
 		*/
 		name = Utils.classFinalName ( name );
 
-		if ( name.equals ( "Category" ) )
-			return new Category ();
-		else if ( name.equals ( "GAS" ) )
-			return new GAS ();
-		else if ( name.equals ( "Measure" ) )
-			return new Measure ();
-		else if ( name.equals ( "Order" ) )
-			return new Order ();
-		else if ( name.equals ( "OrderUser" ) )
-			return new OrderUser ();
-		else if ( name.equals ( "Product" ) )
-			return new Product ();
-		else if ( name.equals ( "ProductUser" ) )
-			return new ProductUser ();
-		else if ( name.equals ( "Supplier" ) )
-			return new Supplier ();
-		else if ( name.equals ( "User" ) )
+		first = name.charAt ( 0 );
+
+		if ( first == 'P' ) {
+			if ( name.equals ( "ProductUser" ) )
+				return new ProductUser ();
+			else if ( name.equals ( "Product" ) )
+				return new Product ();
+			else if ( name.equals ( "Probe" ) )
+				return new Probe ();
+		}
+		else if ( first == 'O' ) {
+			if ( name.equals ( "OrderUser" ) )
+				return new OrderUser ();
+			else if ( name.equals ( "Order" ) )
+				return new Order ();
+		}
+		else if ( first == 'S' ) {
+			if ( name.equals ( "Supplier" ) )
+				return new Supplier ();
+			else if ( name.equals ( "SystemConf" ) )
+				return new SystemConf ();
+		}
+		else if ( first == 'C' ) {
+			if ( name.equals ( "Category" ) )
+				return new Category ();
+			else if ( name.equals ( "CustomFile" ) )
+				return new CustomFile ();
+		}
+		else if ( name.equals ( "User" ) ) {
 			return new User ();
-		else if ( name.equals ( "CustomFile" ) )
-			return new CustomFile ();
-		else if ( name.equals ( "Notification" ) )
+		}
+		else if ( name.equals ( "Measure" ) ) {
+			return new Measure ();
+		}
+		else if ( name.equals ( "Notification" ) ) {
 			return new Notification ();
-		else if ( name.equals ( "SystemConf" ) )
-			return new SystemConf ();
-		else if ( name.equals ( "Probe" ) )
-			return new Probe ();
-		else
-			return null;
+		}
+		else if ( name.equals ( "GAS" ) ) {
+			return new GAS ();
+		}
+
+		return null;
 	}
 
 	public static FromServer dummyInstance ( String name ) {
