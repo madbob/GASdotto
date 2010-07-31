@@ -27,6 +27,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class FromServerForm extends Composite {
 	private FromServer		object;
 	private DisclosurePanel		main;
+	private int			editMode;
 	private EmblemsBar		icons;
 	private Label			summary;
 	private VerticalPanel		contents;
@@ -87,6 +88,7 @@ public class FromServerForm extends Composite {
 		contents.setStyleName ( "element-details" );
 		main.add ( contents );
 
+		editMode = editable;
 		buttons = doButtons ( editable );
 		contents.add ( buttons );
 		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
@@ -422,7 +424,7 @@ public class FromServerForm extends Composite {
 	}
 
 	public void checkSaving () {
-		if ( contentsChanged () ) {
+		if ( editMode != NOT_EDITABLE && contentsChanged () ) {
 			if ( Window.confirm ( "Vuoi salvare le modifiche effettuate?" ) == true )
 				savingObject ();
 			else

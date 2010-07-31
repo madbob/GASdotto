@@ -205,7 +205,7 @@ function get_product_quantity_stocks ( $products, $index, $quantity ) {
 		$stock = $prod->getAttribute ( "stock_size" )->value;
 
 		if ( $stock != 0 )
-			return ( comma_format ( round ( $quantity, 2 ), false ) ) . ' (' . ( ceil ( $quantity / $stock ) ) . ' stock da ' . $stock . ')';
+			return ( comma_format ( round ( $quantity, 2 ), false ) ) . ' (' . ( ceil ( $quantity / $stock ) ) . ' confezioni da ' . $stock . ')';
 	}
 
 	return comma_format ( round ( $quantity, 2 ), false );

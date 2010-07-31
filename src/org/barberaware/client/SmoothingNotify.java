@@ -40,6 +40,10 @@ public class SmoothingNotify extends Composite {
 	boolean			running;
 	CircularArray		requests;
 
+	/**
+		TODO	Allineare questi valori con quelli in Notification,
+			in modo da usare un set unico
+	*/
 	public static int	NOTIFY_ERROR		= 0;
 	public static int	NOTIFY_INFO		= 1;
 

@@ -106,16 +106,9 @@ public abstract class FormGroup extends Composite {
 		int pos;
 		FromServerForm iter;
 
-		/*
-			E' possibile che questa funzione venga chiamata su un elemento che gia'
-			e' nella lista, ad esempio quando viene eseguita la callback onReceive
-			(triggerata anche da oggetti creati per mezzo di un form gia' messo qui).
-			Occorre dunque fare un controllino...
-		*/
+		pos = getPosition ( object );
 
-		iter = retrieveFormById ( object.getLocalID () );
-
-		if ( iter == null ) {
+		if ( pos != -1 ) {
 			iter = doEditableRow ( object );
 
 			if ( iter != null ) {
@@ -126,14 +119,14 @@ public abstract class FormGroup extends Composite {
 					}
 				} );
 
-				pos = getPosition ( object );
 				main.insert ( iter, pos );
 				object.addRelatedInfo ( identifier, iter );
 
 				ret = 1;
 			}
-			else
+			else {
 				ret = 2;
+			}
 		}
 		else {
 			ret = 0;
@@ -292,8 +285,12 @@ public abstract class FormGroup extends Composite {
 			iter = ( FromServerForm ) main.getWidget ( i );
 			object_2 = iter.getObject ();
 
-			if ( object_2 != null && sorting ( object, object_2 ) > 0 )
+			if ( object_2 != null && sorting ( object, object_2 ) >= 0 ) {
+				if ( object.getLocalID () == object_2.getLocalID () )
+					i = -1;
+
 				break;
+			}
 		}
 
 		return i;

@@ -214,7 +214,7 @@ public abstract class FromServerValidateCallback {
 						allo username, ma non e' bloccante
 					*/
 					if ( text.equals ( username ) )
-						Utils.showNotification ( "La password non può essere uguale al login" );
+						Utils.showNotification ( "Attenzione: la password non dovrebbe essere uguale al login", SmoothingNotify.NOTIFY_INFO );
 
 					return true;
 				}

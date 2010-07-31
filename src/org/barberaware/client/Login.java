@@ -120,9 +120,32 @@ public class Login extends Composite {
 		return container;
 	}
 
+	private void notifySameUserPwd () {
+		DialogBox box;
+		VerticalPanel contents;
+		Button button;
+
+		box = new DialogBox ();
+		box.setText ( "Attenzione!" );
+
+		contents = new VerticalPanel ();
+		contents.add ( new HTML ( "<p>La tua password è uguale allo username,<br />è fortemente consigliato cambiarla!</p>" ) );
+
+		button = new Button ( "Prometto che cambierò password!", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				Window.Location.reload ();
+			}
+		} );
+		contents.add ( button );
+
+		box.setWidget ( contents );
+		box.center ();
+		box.show ();
+	}
+
 	private void executeLogin () {
-		String user;
-		String pwd;
+		final String user;
+		final String pwd;
 		ObjectRequest params;
 
 		user = username.getText ();
@@ -145,9 +168,12 @@ public class Login extends Composite {
 				utente = new User ();
 				utente.fromJSONObject ( response.isObject () );
 
-				if ( utente.isValid () )
-					Window.Location.reload ();
-
+				if ( utente.isValid () ) {
+					if ( user == pwd )
+						notifySameUserPwd ();
+					else
+						Window.Location.reload ();
+				}
 				else {
 					Utils.showNotification ( "Autenticazione fallita. Riprova" );
 					username.setText ( "" );
