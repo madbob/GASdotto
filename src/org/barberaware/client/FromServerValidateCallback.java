@@ -192,7 +192,7 @@ public abstract class FromServerValidateCallback {
 
 				text = ( ( StringWidget ) widget ).getValue ();
 
-				if ( text.equals ( "" ) ) {
+				if ( object.isValid () == false && text.equals ( "" ) ) {
 					Utils.showNotification ( "La password non è stata definita" );
 					return false;
 				}

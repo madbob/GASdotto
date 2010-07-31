@@ -123,20 +123,30 @@ public class Login extends Composite {
 	private void notifySameUserPwd () {
 		DialogBox box;
 		VerticalPanel contents;
+		HTML message;
+		HorizontalPanel buttons;
 		Button button;
 
 		box = new DialogBox ();
 		box.setText ( "Attenzione!" );
 
 		contents = new VerticalPanel ();
-		contents.add ( new HTML ( "<p>La tua password è uguale allo username,<br />è fortemente consigliato cambiarla!</p>" ) );
+
+		message = new HTML ( "<p>La tua password è uguale allo username,<br />è fortemente consigliato cambiarla!</p>" );
+		message.setStyleName ( "message" );
+		contents.add ( message );
+
+		buttons = new HorizontalPanel ();
+		buttons.setStyleName ( "dialog-buttons" );
+		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		contents.add ( buttons );
 
 		button = new Button ( "Prometto che cambierò password!", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				Window.Location.reload ();
 			}
 		} );
-		contents.add ( button );
+		buttons.add ( button );
 
 		box.setWidget ( contents );
 		box.center ();

@@ -408,6 +408,11 @@ body {
 	border:			1px solid #000000;
 }
 
+.message {
+	padding:		10px;
+	text-align:		center;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;

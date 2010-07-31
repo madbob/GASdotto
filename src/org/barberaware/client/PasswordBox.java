@@ -66,9 +66,14 @@ public class PasswordBox extends Composite implements StringWidget {
 		Grid layout;
 		VerticalPanel pan;
 		HorizontalPanel buttons;
+		HTML message;
 		Button but;
 
 		pan = new VerticalPanel ();
+
+		message = new HTML ( "<p>Ricorda che la password non può essere vuota,<br />se lasci questi campi in bianco essa non verrà modificata.</p>" );
+		message.setStyleName ( "message" );
+		pan.add ( message );
 
 		layout = new Grid ( 2, 2 );
 		pan.add ( layout );
