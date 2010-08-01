@@ -40,7 +40,7 @@ public class PlainFillBox extends FlexTable {
 		checkEmpty ();
 	}
 
-	public void addRow ( ArrayList contents ) {
+	public int addRow ( ArrayList contents ) {
 		int row;
 		int num;
 
@@ -55,6 +55,8 @@ public class PlainFillBox extends FlexTable {
 
 		for ( int i = 0; i < num; i++ )
 			setWidget ( row, i, ( Widget ) contents.get ( i ) );
+
+		return row;
 	}
 
 	public void removeRow ( int index ) {

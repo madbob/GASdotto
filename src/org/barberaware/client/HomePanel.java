@@ -49,34 +49,48 @@ public class HomePanel extends GenericPanel {
 				total.setText ( " (hai ordinato " + Utils.priceToString ( order.getTotalPrice () ) + ")" );
 			}
 
+			private void setOrderedText ( PlainFillBox panel, int index, OrderUser orderuser ) {
+				Label total;
+
+				total = new Label ();
+				fillTotalText ( total, orderuser );
+				total.setStyleName ( "highlight-text" );
+				panel.setWidget ( index, 3, total );
+			}
+
 			public void onReceive ( FromServer object ) {
 				if ( Session.getUser ().equals ( object.getObject ( "baseuser" ) ) ) {
 					int index;
+					int ord_status;
 					Order ord;
-					PlainFillBox tab;
 
 					ord = ( Order ) object.getObject ( "baseorder" );
-					index = retrieveOrderRow ( openedOrders, ord );
+					ord_status = ord.getInt ( "status" );
 
-					if ( index == -1 ) {
-						index = retrieveOrderRow ( closedOrders, ord );
-						tab = closedOrders;
+					if ( ord_status == Order.OPENED ) {
+						index = retrieveOrderRow ( openedOrders, ord );
+
+						if ( index != -1 ) {
+							if ( object.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY )
+								openedOrders.removeRow ( index );
+							else
+								setOrderedText ( openedOrders, index, ( OrderUser ) object );
+						}
 					}
-					else
-						tab = openedOrders;
+					else if ( ord_status == Order.CLOSED ) {
+						index = retrieveOrderRow ( closedOrders, ord );
 
-					if ( index != -1 ) {
-						if ( object.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY ) {
-							tab.removeRow ( index );
+						if ( index != -1 ) {
+							if ( object.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY ) {
+								closedOrders.removeRow ( index );
+								return;
+							}
 						}
 						else {
-							Label total;
-
-							total = new Label ();
-							fillTotalText ( total, ( OrderUser ) object );
-							total.setStyleName ( "highlight-text" );
-							tab.setWidget ( index, 3, total );
+							index = doOrderRow ( closedOrders, ord );
 						}
+
+						setOrderedText ( closedOrders, index, ( OrderUser ) object );
 					}
 				}
 			}
@@ -153,8 +167,12 @@ public class HomePanel extends GenericPanel {
 
 				if ( status == Order.OPENED )
 					doOrderRow ( openedOrders, ord );
-				else if ( status == Order.CLOSED )
-					doOrderRow ( closedOrders, ord );
+
+				/*
+					Gli ordini gia' chiusi sono eventualmente messi nella lista se e quando si
+					trova il relativo ordine da parte dell'utente corrente, altrimenti si evita
+					proprio di visualizzarli
+				*/
 			}
 
 			public void onModify ( FromServer object ) {
@@ -236,7 +254,7 @@ public class HomePanel extends GenericPanel {
 		return orders;
 	}
 
-	private void doOrderRow ( PlainFillBox orders, Order order ) {
+	private int doOrderRow ( PlainFillBox orders, Order order ) {
 		int index;
 		String name;
 		Label text;
@@ -252,7 +270,10 @@ public class HomePanel extends GenericPanel {
 			data.add ( text );
 			data.add ( new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
 
-			orders.addRow ( data );
+			return orders.addRow ( data );
+		}
+		else {
+			return -1;
 		}
 	}
 

@@ -33,9 +33,9 @@ public class StatisticsPanel extends GenericPanel {
 	private LinksDialog		usersFiles;
 	private DateSelector		startDate;
 	private DateSelector		endDate;
-	private PieChart		graphByOrders;
+	private ColumnChart		graphByOrders;
 	private PieChart		graphByPrices;
-	private PieChart.Options	graphByOrdersOptions;
+	private ColumnChart.Options	graphByOrdersOptions;
 	private PieChart.Options	graphByPricesOptions;
 
 	private LinksDialog		productsFiles;
@@ -93,9 +93,9 @@ public class StatisticsPanel extends GenericPanel {
 		input.setWidget ( 3, 0, usersFiles );
 		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
 
-		graphByOrders = new PieChart ();
+		graphByOrders = new ColumnChart ();
 		hor.add ( graphByOrders );
-		graphByOrdersOptions = PieChart.Options.create ();
+		graphByOrdersOptions = ColumnChart.Options.create ();
 		graphByOrdersOptions.setWidth ( 300 );
 		graphByOrdersOptions.setHeight ( 240 );
 		graphByOrdersOptions.set3D ( true );

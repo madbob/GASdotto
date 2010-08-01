@@ -390,7 +390,11 @@ if ( $graph == 0 ) {
 				else
 					$t = $tot [ 0 ] [ 0 ];
 
-				$array [] = array ( $rows_suppliers [ $i ] [ "name" ], $t, $p );
+				$suppname = $rows_suppliers [ $i ] [ "name" ];
+				if ( strlen ( $suppname ) > 25 )
+					$suppname = substr ( $suppname, 0, 23 ) . '...';
+
+				$array [] = array ( $suppname, $t, $p );
 
 				unset ( $tot );
 				unset ( $price );
