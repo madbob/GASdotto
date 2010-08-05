@@ -38,6 +38,7 @@ class Product extends FromServer {
 		$this->addAttribute ( "unit_size", "FLOAT" );
 		$this->addAttribute ( "mutable_price", "BOOLEAN" );
 		$this->addAttribute ( "available", "BOOLEAN" );
+		$this->addAttribute ( "variants", "ARRAY::ProductVariant" );
 		$this->addAttribute ( "archived", "BOOLEAN" );
 		$this->addAttribute ( "previous_description", "INTEGER" );
 	}

@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,25 +17,10 @@
 
 package org.barberaware.client;
 
+import java.util.*;
+
 import com.google.gwt.user.client.ui.*;
 
-public class NameLabelWidget extends Label implements ObjectWidget {
-	private FromServer		el;
-
-	public NameLabelWidget () {
-		setStyleName ( "static-value" );
-	}
-
-	/*
-		Widget valido solo per oggetti FromServer con un attributo "name"
-	*/
-
-	public void setValue ( FromServer element ) {
-		el = element;
-		setText ( element.getString ( "name" ) );
-	}
-
-	public FromServer getValue () {
-		return el;
-	}
+public abstract class WidgetFactoryCallback {
+	public abstract Widget create ();
 }

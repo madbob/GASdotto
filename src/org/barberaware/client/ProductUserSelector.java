@@ -27,8 +27,7 @@ import com.google.gwt.user.client.ui.*;
 		quantita'
 */
 
-public class ProductUserSelector extends ObjectWidget {
-	private HorizontalPanel				main;
+public class ProductUserSelector extends HorizontalPanel implements ObjectWidget {
 	private boolean					editable;
 	private boolean					freeEditable;
 	private FloatWidget				quantity;
@@ -48,9 +47,6 @@ public class ProductUserSelector extends ObjectWidget {
 		editable = edit;
 		freeEditable = freeedit;
 		constraintsDialog = null;
-
-		main = new HorizontalPanel ();
-		initWidget ( main );
 
 		if ( edit == true ) {
 			qb = new FloatBox ();
@@ -101,23 +97,23 @@ public class ProductUserSelector extends ObjectWidget {
 				}
 			} );
 
-			main.add ( qb );
+			add ( qb );
 			quantity = qb;
 		}
 		else {
 			qv = new FloatViewer ();
-			main.add ( qv );
+			add ( qv );
 			quantity = qv;
 		}
 
 		measure = new Label ();
 		measure.addStyleName ( "contents-on-right" );
-		main.add ( measure );
+		add ( measure );
 
 		effectiveQuantity = new Label ();
 		effectiveQuantity.addStyleName ( "contents-on-right" );
 		effectiveQuantity.setVisible ( false );
-		main.add ( effectiveQuantity );
+		add ( effectiveQuantity );
 
 		defineOnProduct ( prod );
 	}
@@ -131,7 +127,7 @@ public class ProductUserSelector extends ObjectWidget {
 		mult = prod.getFloat ( "multiple_order" );
 
 		if ( constraintsDialog != null )
-			main.remove ( constraintsDialog );
+			remove ( constraintsDialog );
 
 		if ( min != 0 || mult != 0 ) {
 			constraintsDialog = new SuggestionBox ();
@@ -148,7 +144,7 @@ public class ProductUserSelector extends ObjectWidget {
 			}
 
 			constraintsDialog.setHTML ( text );
-			main.add ( constraintsDialog );
+			add ( constraintsDialog );
 		}
 	}
 

@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class SelectionDialog extends DialogBox implements FromServerArray, SavingDialog {
+public class SelectionDialog extends SavingDialog implements FromServerArray {
 	public static int		SELECTION_MODE_SINGLE	= 0;
 	public static int		SELECTION_MODE_MULTI	= 1;
 	public static int		SELECTION_MODE_ALL	= 2;

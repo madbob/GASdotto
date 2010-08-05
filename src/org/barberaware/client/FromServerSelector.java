@@ -26,19 +26,14 @@ import com.google.gwt.user.client.ui.*;
 	l'attributo "name" in forma di stringa
 */
 
-public class FromServerSelector extends ObjectWidget implements SourcesChangeEvents {
-	private ListBox					main;
+public class FromServerSelector extends ListBox implements ObjectWidget {
 	private String					type;
 	private boolean					noVoidArticat;
 	private boolean					sortItems;
 	private int					scheduledSelectionID;
 	private FromServerValidateCallback		filterCallback;
-	private DelegatingChangeListenerCollection	changeListeners;
 
 	public FromServerSelector ( String t, boolean hide_void, boolean sort ) {
-		main = new ListBox ();
-		initWidget ( main );
-
 		type = t;
 		filterCallback = null;
 		noVoidArticat = hide_void;
@@ -46,7 +41,7 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		sortItems = sort;
 
 		if ( hide_void == false )
-			main.addItem ( "Nessuno", "0" );
+			addItem ( "Nessuno", "0" );
 
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -75,10 +70,10 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 					int index;
 
 					index = findPositionForName ( name );
-					main.insertItem ( name, Integer.toString ( id ), index );
+					insertItem ( name, Integer.toString ( id ), index );
 				}
 				else
-					main.addItem ( name, Integer.toString ( id ) );
+					addItem ( name, Integer.toString ( id ) );
 
 				if ( scheduledSelectionID == id )
 					setValue ( object );
@@ -89,7 +84,7 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 
 				index = retrieveObjectIndex ( object );
 				if ( index != -1 )
-					main.setItemText ( index, object.getString ( "name" ) );
+					setItemText ( index, object.getString ( "name" ) );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -97,13 +92,13 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 
 				index = retrieveObjectIndex ( object );
 				if ( index != -1 )
-					main.removeItem ( index );
+					removeItem ( index );
 			}
 		} );
 	}
 
 	public void addAllSelector () {
-		main.addItem ( "Tutti", "-1" );
+		addItem ( "Tutti", "-1" );
 	}
 
 	public void addFilter ( FromServerValidateCallback filter ) {
@@ -112,12 +107,12 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 
 		filterCallback = filter;
 
-		for ( int i = 0; i < main.getItemCount (); ) {
-			id = Integer.parseInt ( main.getValue ( i ) );
+		for ( int i = 0; i < getItemCount (); ) {
+			id = Integer.parseInt ( getValue ( i ) );
 			tmp = Utils.getServer ().getObjectFromCache ( type, id );
 
 			if ( filterCallback.checkObject ( tmp ) == false )
-				main.removeItem ( i );
+				removeItem ( i );
 			else
 				i++;
 		}
@@ -139,11 +134,11 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		*/
 
 		low = 0;
-		high = main.getItemCount () - 1;
+		high = getItemCount () - 1;
 
 		while ( low <= high ) {
 			mid = ( low + high ) / 2;
-			name = main.getItemText ( mid );
+			name = getItemText ( mid );
 			comp = name.compareTo ( search );
 
 			if ( comp < 0 )
@@ -163,7 +158,7 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		int num_items;
 		String search_name;
 
-		num_items = main.getItemCount ();
+		num_items = getItemCount ();
 
 		/*
 			Se gli elementi sono ordinati per nome faccio la ricerca sulla stringa
@@ -178,7 +173,7 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 			*/
 
 			for ( int i = 0; i < num_items; i++ ) {
-				switch ( search_name.compareTo ( main.getItemText ( i ) ) ) {
+				switch ( search_name.compareTo ( getItemText ( i ) ) ) {
 					case 0:
 						return i;
 
@@ -194,30 +189,13 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 			search_id = object.getLocalID ();
 
 			for ( int i = 0; i < num_items; i++ ) {
-				id = Integer.parseInt ( main.getValue ( i ) );
+				id = Integer.parseInt ( getValue ( i ) );
 				if ( search_id == id )
 					return i;
 			}
 		}
 
 		return -1;
-	}
-
-	protected ListBox getListWidget () {
-		return main;
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeListeners == null )
-			changeListeners = new DelegatingChangeListenerCollection ( this, main );
-		changeListeners.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeListeners != null )
-			changeListeners.remove ( listener );
 	}
 
 	/****************************************************************** ObjectWidget */
@@ -227,11 +205,11 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		String sel;
 
 		if ( selected == null ) {
-			if ( main.getItemCount () != 0 )
-				main.setItemSelected ( 0, true );
+			if ( getItemCount () != 0 )
+				setItemSelected ( 0, true );
 		}
 		else {
-			num = main.getItemCount ();
+			num = getItemCount ();
 
 			if ( num == 0 )
 				scheduledSelectionID = selected.getLocalID ();
@@ -240,8 +218,8 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 				sel = Integer.toString ( selected.getLocalID () );
 
 				for ( int i = 0; i < num; i++ ) {
-					if ( sel.equals ( main.getValue ( i ) ) ) {
-						main.setItemSelected ( i, true );
+					if ( sel.equals ( getValue ( i ) ) ) {
+						setItemSelected ( i, true );
 						break;
 					}
 				}
@@ -253,10 +231,10 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		int selected;
 		int index;
 
-		if ( main.getItemCount () == 0 )
+		if ( getItemCount () == 0 )
 			return null;
 
-		index = main.getSelectedIndex ();
+		index = getSelectedIndex ();
 
 		/*
 			Se noVoidArticat == false, in posizione 0 si trova la voce appositamente
@@ -265,7 +243,7 @@ public class FromServerSelector extends ObjectWidget implements SourcesChangeEve
 		if ( noVoidArticat == false && index == 0 )
 			return null;
 
-		selected = Integer.parseInt ( main.getValue ( index ) );
+		selected = Integer.parseInt ( getValue ( index ) );
 		return Utils.getServer ().getObjectFromCache ( type, selected );
 	}
 }

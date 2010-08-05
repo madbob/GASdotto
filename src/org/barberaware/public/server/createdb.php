@@ -351,6 +351,58 @@ function install_main_db () {
 	/*
 		=======================================================================================
 	*/
+	
+	$query = sprintf ( "CREATE TABLE ProductVariant (
+					id serial,
+					name varchar ( 100 ) default '',
+					primary key ( id )
+				)" );
+
+	query_and_check ( $query, "Impossibile creare tabella productvariant" );
+	
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE Product_variants (
+					id serial,
+					parent int references Product ( id ) on delete cascade,
+					target int references ProductVariant ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella product_variants" );
+
+	/*
+		=======================================================================================
+	*/
+	
+	$query = sprintf ( "CREATE TABLE ProductVariantValue (
+					id serial,
+					name varchar ( 100 ) default '',
+					primary key ( id )
+				)" );
+
+	query_and_check ( $query, "Impossibile creare tabella productvariantvalue" );
+	
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductVariant_values (
+					id serial,
+					parent int references ProductVariant ( id ) on delete cascade,
+					target int references ProductVariantValue ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productvariant_values" );
+
+	/*
+		=======================================================================================
+	*/
 
 	$query = sprintf ( "CREATE TABLE Orders (
 					id serial,

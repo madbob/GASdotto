@@ -27,7 +27,6 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 	private TextBox				main;
 	private CalendarWidget			cal;
 	private Date				currentDate;
-	private DialogBox			dialog;
 	private boolean				opened;
 	private ChangeListenerCollection	changeCallbacks;
 
@@ -38,24 +37,16 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 		cal = new CalendarWidget ();
 		cal.addCallback (
 			new SavingDialogCallback () {
-				private void commonClose () {
-					dialog.hide ();
-					opened = false;
-				}
-
 				public void onSave ( SavingDialog d ) {
-					commonClose ();
+					opened = false;
 					syncDate ( cal.getDate () );
 				}
 
 				public void onCancel ( SavingDialog d ) {
-					commonClose ();
+					opened = false;
 				}
 			}
 		);
-
-		dialog = new DialogBox ( false );
-		dialog.setWidget ( cal );
 
 		main = new TextBox ();
 		main.setStyleName ( "date-selector" );
@@ -65,8 +56,8 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 				if ( opened == false ) {
 					opened = true;
 					cal.setDate ( currentDate );
-					dialog.center ();
-					dialog.show ();
+					cal.center ();
+					cal.show ();
 				}
 			}
 

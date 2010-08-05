@@ -22,54 +22,114 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class FromServerTable extends Composite implements FromServerArray {
-	private class FromServerTableColumn {
-		public String		head;
-		public String		attr;
-		public boolean		edit;
-		public Widget		customWid;
+	public static int		TABLE_REMOVE		= 0;
+	public static int		TABLE_EDIT		= 1;
 
-		public FromServerTableColumn ( String header, String attribute, boolean editable ) {
+	private class FromServerTableColumn {
+		public String			head;
+		public String			attr;
+		public boolean			edit;
+		public WidgetFactoryCallback	customWid;
+		public int			action;
+
+		public FromServerTableColumn ( String header, String attribute, boolean editable, WidgetFactoryCallback custom, int act ) {
 			head = header;
 			attr = attribute;
 			edit = editable;
-			customWid = null;
-		}
-
-		public FromServerTableColumn ( String header, String attribute, Widget custom ) {
-			head = header;
-			attr = attribute;
 			customWid = custom;
-			edit = true;
+			action = act;
 		}
 	}
 
 	private FlexTable		main;
 	private ArrayList		columns;
 	private ArrayList		rows;
+	private String			emptyWarning;
 
 	public FromServerTable () {
 		columns = new ArrayList ();
 		rows = new ArrayList ();
+		emptyWarning = null;
 
 		main = new FlexTable ();
 		main.setStyleName ( "elements-table" );
 		main.setCellPadding ( 10 );
 		initWidget ( main );
+
+		main.addTableListener ( new TableListener () {
+			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+				FromServer obj;
+				FromServerTableColumn col;
+				SavingDialog dialog;
+
+				col = ( FromServerTableColumn ) columns.get ( cell );
+
+				if ( col.action != -1 ) {
+					obj = ( FromServer ) rows.get ( row - 1 );
+
+					if ( col.action == TABLE_REMOVE ) {
+						removeElement ( obj );
+					}
+					else if ( col.action == TABLE_EDIT ) {
+						dialog = ( SavingDialog ) col.customWid.create ();
+						( ( ObjectWidget ) dialog ).setValue ( obj );
+
+						dialog.addCallback ( new SavingDialogCallback () {
+							public void onSave ( SavingDialog dialog ) {
+								ObjectWidget myself;
+
+								myself = ( ObjectWidget ) dialog;
+								refreshElement ( myself.getValue () );
+							}
+						} );
+
+						dialog.center ();
+						dialog.show ();
+					}
+				}
+			}
+		} );
+
+		clean ( true );
 	}
 
 	public void addColumn ( String header, String attribute, boolean editable ) {
-		columns.add ( new FromServerTableColumn ( header, attribute, editable ) );
+		columns.add ( new FromServerTableColumn ( header, attribute, editable, null, -1 ) );
 	}
 
-	public void addColumn ( String header, String attribute, Widget custom ) {
-		columns.add ( new FromServerTableColumn ( header, attribute, custom ) );
+	public void addColumn ( String header, String attribute, WidgetFactoryCallback custom ) {
+		columns.add ( new FromServerTableColumn ( header, attribute, true, custom, -1 ) );
 	}
 
-	public void clean () {
-		for ( int i = main.getRowCount () - 1; i > 0; i-- )
+	/*
+		Se action == TABLE_REMOVE la callback custom viene ignorata
+		Se action == TABLE_EDIT la callback deve ritornare sempre un SavingDialog che implementi ObjectWidget
+	*/
+	public void addColumn ( String header, int action, WidgetFactoryCallback custom ) {
+		columns.add ( new FromServerTableColumn ( header, null, false, custom, action ) );
+	}
+
+	public void setEmptyWarning ( String warning ) {
+		emptyWarning = warning;
+	}
+
+	public void clean ( boolean empty ) {
+		int num_rows;
+
+		num_rows = main.getRowCount ();
+
+		for ( int i = num_rows - 1; i > 0; i-- )
 			main.removeRow ( i );
 
 		rows.clear ();
+
+		if ( empty == true ) {
+			if ( num_rows > 0 )
+				main.removeRow ( 0 );
+
+			if ( emptyWarning != null )
+				main.setWidget ( 0, 0, new Label ( emptyWarning ) );
+		}
 	}
 
 	private void doHeader () {
@@ -170,10 +230,13 @@ public class FromServerTable extends Composite implements FromServerArray {
 		Widget wid;
 		FromServerTableColumn c;
 
+		if ( element == null )
+			return;
+
 		row = main.getRowCount ();
 		cols = columns.size ();
 
-		if ( row == 0 ) {
+		if ( row < 2 ) {
 			doHeader ();
 			row = 1;
 		}
@@ -181,12 +244,23 @@ public class FromServerTable extends Composite implements FromServerArray {
 		for ( int i = 0; i < cols; i++ ) {
 			c = ( FromServerTableColumn ) columns.get ( i );
 
-			if ( c.customWid != null )
-				wid = new FromServerWidget ( element, c.attr, c.customWid );
-			else if ( c.edit == true )
+			if ( c.action != -1 ) {
+				if ( c.action == TABLE_REMOVE )
+					wid = new Image ( "images/mini_delete.png" );
+				else if ( c.action == TABLE_EDIT )
+					wid = new Image ( "images/mini_edit.png" );
+				else
+					wid = null;
+			}
+			else if ( c.customWid != null ) {
+				wid = new FromServerWidget ( element, c.attr, c.customWid.create () );
+			}
+			else if ( c.edit == true ) {
 				wid = new FromServerWidget ( element, c.attr );
-			else
+			}
+			else {
 				wid = new Label ( element.getString ( c.attr ) );
+			}
 
 			main.setWidget ( row, i, wid );
 		}
@@ -199,13 +273,20 @@ public class FromServerTable extends Composite implements FromServerArray {
 		ArrayList sorted_elements;
 		FromServer obj;
 
-		clean ();
-
-		if ( elements == null )
+		if ( elements == null ) {
+			clean ( true );
 			return;
+		}
 
 		sorted_elements = Utils.sortArrayByName ( elements );
 		num = sorted_elements.size ();
+
+		if ( num == 0 ) {
+			clean ( true );
+			return;
+		}
+
+		clean ( false );
 
 		for ( int i = 0; i < num; i++ ) {
 			obj = ( FromServer ) sorted_elements.get ( i );
@@ -222,6 +303,9 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		main.removeRow ( i );
 		rows.remove ( i - 1 );
+
+		if ( rows.size () == 0 )
+			clean ( true );
 	}
 
 	public void refreshElement ( FromServer element ) {

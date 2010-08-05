@@ -32,7 +32,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class CalendarWidget extends Composite implements ClickListener, SavingDialog {
+public class CalendarWidget extends SavingDialog implements ClickListener {
 	private class NavBar extends Composite implements ClickListener {
 		public DockPanel	bar = new DockPanel ();
 		public Button		prevMonth = new Button ( "&lt;", this );
@@ -358,6 +358,13 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		fireCallbacks ( 0 );
 	}
 
+	public void yearSelectable ( boolean selectable ) {
+		navbar.yearSelectable ( selectable );
+		navbar.setTitle ( getMonth (), getYear () );
+	}
+
+	/****************************************************************** SavingDialog */
+
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( callbacks == null )
 			callbacks = new ArrayList ();
@@ -368,10 +375,5 @@ public class CalendarWidget extends Composite implements ClickListener, SavingDi
 		if ( callbacks == null )
 			return;
 		callbacks.remove ( callback );
-	}
-
-	public void yearSelectable ( boolean selectable ) {
-		navbar.yearSelectable ( selectable );
-		navbar.setTitle ( getMonth (), getYear () );
 	}
 }

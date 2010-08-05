@@ -21,7 +21,7 @@ import java.util.*;
 
 import com.google.gwt.user.client.ui.*;
 
-public abstract class ObjectWidget extends Composite {
-	public abstract void setValue ( FromServer element );
-	public abstract FromServer getValue ();
+public interface ObjectWidget {
+	public void setValue ( FromServer element );
+	public FromServer getValue ();
 }

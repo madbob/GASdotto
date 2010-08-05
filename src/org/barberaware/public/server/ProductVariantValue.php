@@ -1,5 +1,7 @@
+<?
+
 /*  GASdotto
- *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,27 +17,16 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.barberaware.client;
+require_once ( "utils.php" );
 
-import com.google.gwt.user.client.ui.*;
+class ProductVariantValue extends FromServer {
+	public function __construct () {
+		parent::__construct ( "ProductVariantValue" );
 
-public class NameLabelWidget extends Label implements ObjectWidget {
-	private FromServer		el;
+		$this->addAttribute ( "name", "STRING" );
 
-	public NameLabelWidget () {
-		setStyleName ( "static-value" );
-	}
-
-	/*
-		Widget valido solo per oggetti FromServer con un attributo "name"
-	*/
-
-	public void setValue ( FromServer element ) {
-		el = element;
-		setText ( element.getString ( "name" ) );
-	}
-
-	public FromServer getValue () {
-		return el;
+		$this->setSorting ( "name" );
 	}
 }
+
+?>

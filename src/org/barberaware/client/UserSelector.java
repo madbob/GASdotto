@@ -21,8 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class UserSelector extends ObjectWidget {
-	private DeckPanel				main;
+public class UserSelector extends DeckPanel implements ObjectWidget {
 	private FromServerSelector			select;
 	private DelegatingChangeListenerCollection	changeListeners		= null;
 
@@ -30,20 +29,18 @@ public class UserSelector extends ObjectWidget {
 		User user;
 		Label first;
 
-		main = new DeckPanel ();
-		main.setStyleName ( "user-selector" );
-		initWidget ( main );
+		setStyleName ( "user-selector" );
 
 		user = Session.getUser ();
 
 		first = new Label ( user.getString ( "name" ) + " (clicca qui per modificare)" );
 		first.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
-				main.showWidget ( 1 );
+				showWidget ( 1 );
 				fire ();
 			}
 		} );
-		main.add ( first );
+		add ( first );
 
 		/**
 			TODO	Provare a perfezionare la visualizzazione su Explorer: se si
@@ -52,9 +49,9 @@ public class UserSelector extends ObjectWidget {
 		*/
 
 		select = new FromServerSelector ( "User", true, true );
-		main.add ( select );
+		add ( select );
 
-		main.showWidget ( 0 );
+		showWidget ( 0 );
 	}
 
 	private void fire () {
@@ -75,15 +72,15 @@ public class UserSelector extends ObjectWidget {
 
 	public void setValue ( FromServer selected ) {
 		if ( selected != null ) {
-			main.showWidget ( 1 );
+			showWidget ( 1 );
 			select.setValue ( selected );
 		}
 		else
-			main.showWidget ( 0 );
+			showWidget ( 0 );
 	}
 
 	public FromServer getValue () {
-		if ( main.getVisibleWidget () == 0 )
+		if ( getVisibleWidget () == 0 )
 			return Session.getUser ();
 		else
 			return select.getValue ();

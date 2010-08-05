@@ -38,6 +38,7 @@ public class Product extends FromServer {
 		addAttribute ( "unit_size", FromServer.FLOAT );
 		addAttribute ( "mutable_price", FromServer.BOOLEAN );
 		addAttribute ( "available", FromServer.BOOLEAN );
+		addAttribute ( "variants", FromServer.ARRAY, ProductVariant.class );
 		addAttribute ( "archived", FromServer.BOOLEAN );
 		addAttribute ( "previous_description", FromServer.INTEGER );
 

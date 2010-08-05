@@ -68,8 +68,9 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 			main.showWidget ( 2 );
 			switchable.setVisible ( false );
 		}
-		else
+		else {
 			main.showWidget ( 0 );
+		}
 	}
 
 	public void enable ( boolean enabled ) {
@@ -99,6 +100,56 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 	private Widget doListView () {
 		list = new FormCluster ( "Product", "Nuovo Prodotto", filterSupplier (), true ) {
+				private Widget doVariantsPanel ( FromServerForm ver, FromServer product ) {
+					VerticalPanel main;
+					HorizontalPanel buttons;
+					final FromServerTable variants;
+
+					main = new VerticalPanel ();
+
+					variants = new FromServerTable ();
+					variants.addColumn ( "Nome", "name", false );
+					variants.addColumn ( "Opzioni", "values", new WidgetFactoryCallback () {
+						public Widget create () {
+							return new NamesLabelsWidget ();
+						}
+					} );
+					variants.addColumn ( "Elimina", FromServerTable.TABLE_REMOVE, null);
+					variants.addColumn ( "Modifica", FromServerTable.TABLE_EDIT, new WidgetFactoryCallback () {
+						public Widget create () {
+							return new ProductVariantEditor ( false );
+						}
+					} );
+
+					variants.setEmptyWarning ( "Non ci sono varianti per questo prodotto" );
+					main.add ( ver.getPersonalizedWidget ( "variants", variants ) );
+
+					buttons = new HorizontalPanel ();
+					buttons.setStyleName ( "bottom-buttons" );
+					main.add ( buttons );
+
+					buttons.add ( new AddButton ( "Nuova Variante", new ClickListener () {
+						public void onClick ( Widget sender ) {
+							ProductVariantEditor editor;
+
+							editor = new ProductVariantEditor ( true );
+							editor.addCallback ( new SavingDialogCallback () {
+								public void onSave ( SavingDialog dialog ) {
+									ProductVariantEditor editor;
+
+									editor = ( ProductVariantEditor ) dialog;
+									variants.addElement ( editor.getValue () );
+								}
+							} );
+
+							editor.center ();
+							editor.show ();
+						}
+					} ) );
+
+					return main;
+				}
+
 				protected FromServerForm doEditableRow ( FromServer product ) {
 					FromServerForm ver;
 					HorizontalPanel hor;
@@ -189,6 +240,10 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 					sframe = new CaptionPanel ( "Descrizione" );
 					sframe.add ( ver.getWidget ( "description" ) );
+					ver.add ( sframe );
+
+					sframe = new CaptionPanel ( "Varianti" );
+					sframe.add ( doVariantsPanel ( ver, product ) );
 					ver.add ( sframe );
 
 					return ver;
@@ -294,6 +349,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		table.addColumn ( "Nome", "name", false );
 		table.addColumn ( "Prezzo Unitario", "unit_price", true );
 		table.addColumn ( "Ordinabile", "available", true );
+		table.setEmptyWarning ( "Non ci sono prodotti" );
 		container.add ( table );
 
 		buttons = new ButtonsBar ();

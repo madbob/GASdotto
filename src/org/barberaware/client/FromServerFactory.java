@@ -37,6 +37,10 @@ public class FromServerFactory {
 		if ( first == 'P' ) {
 			if ( name.equals ( "ProductUser" ) )
 				return new ProductUser ();
+			else if ( name.equals ( "ProductVariantValue" ) )
+				return new ProductVariantValue ();
+			else if ( name.equals ( "ProductVariant" ) )
+				return new ProductVariant ();
 			else if ( name.equals ( "Product" ) )
 				return new Product ();
 			else if ( name.equals ( "Probe" ) )
@@ -101,6 +105,8 @@ public class FromServerFactory {
 		names.add ( "Order" );
 		names.add ( "OrderUser" );
 		names.add ( "Product" );
+		names.add ( "ProductVariant" );
+		names.add ( "ProductVariantValue" );
 		names.add ( "ProductUser" );
 		names.add ( "Supplier" );
 		names.add ( "User" );

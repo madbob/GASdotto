@@ -413,6 +413,15 @@ body {
 	text-align:		center;
 }
 
+.variants-editor {
+	margin:			10px;
+}
+
+.variants-editor .variant-values {
+	width:			100%;
+	margin-top:		10px;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #dddddd solid;
