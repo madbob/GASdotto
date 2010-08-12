@@ -192,6 +192,29 @@ public class Utils {
 		return ret;
 	}
 
+	public static boolean compareFromServerArray ( ArrayList first, ArrayList second ) {
+		int num_first;
+		int num_second;
+		FromServer comp_first;
+		FromServer comp_second;
+
+		num_first = first.size ();
+		num_second = second.size ();
+
+		if ( num_first != num_second )
+			return false;
+
+		for ( int i = 0; i < num_first; i++ ) {
+			comp_first = ( FromServer ) first.get ( i );
+			comp_second = ( FromServer ) second.get ( i );
+
+			if ( comp_first.equals ( comp_second ) == false )
+				return false;
+		}
+
+		return true;
+	}
+
 	public static ArrayList sortArrayByName ( ArrayList array ) {
 		ArrayList ret;
 

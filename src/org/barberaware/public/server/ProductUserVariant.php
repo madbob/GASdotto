@@ -1,7 +1,7 @@
 <?
 
 /*  GASdotto
- *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,14 +19,11 @@
 
 require_once ( "utils.php" );
 
-class ProductUser extends FromServer {
+class ProductUserVariant extends FromServer {
 	public function __construct () {
-		parent::__construct ( "ProductUser" );
+		parent::__construct ( "ProductUserVariant" );
 
-		$this->addAttribute ( "product", "OBJECT::Product" );
-		$this->addAttribute ( "variants", "ARRAY::ProductUserVariant" );
-		$this->addAttribute ( "quantity", "FLOAT" );
-		$this->addAttribute ( "delivered", "FLOAT" );
+		$this->addAttribute ( "components", "ARRAY::ProductUserVariantComponent" );
 	}
 }
 

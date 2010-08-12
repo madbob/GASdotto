@@ -22,19 +22,27 @@ import java.lang.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /**
 	TODO	Usare nome esteso unita' di misura anziche' simbolo a fianco della box per
 		quantita'
 */
 
-public class ProductUserSelector extends HorizontalPanel implements ObjectWidget {
+public class ProductUserSelector extends Composite implements ObjectWidget {
 	private boolean					editable;
 	private boolean					freeEditable;
+
+	private VerticalPanel				main;
+	private HorizontalPanel				firstRow;
+	private VerticalPanel				variantsBoxes;
+
 	private FloatWidget				quantity;
 	private Label					measure;
 	private Label					effectiveQuantity;
 	private SuggestionBox				constraintsDialog;
-	private ProductUser				currentValue;
+	private FromServer				currentValue;
+
 	private DelegatingChangeListenerCollection	changeListeners;
 
 	public ProductUserSelector ( Product prod, boolean edit, boolean freeedit ) {
@@ -43,6 +51,14 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 
 		currentValue = new ProductUser ();
 		currentValue.setObject ( "product", prod );
+
+		main = new VerticalPanel ();
+		initWidget ( main );
+
+		firstRow = new HorizontalPanel ();
+		main.add ( firstRow );
+
+		variantsBoxes = null;
 
 		editable = edit;
 		freeEditable = freeedit;
@@ -97,28 +113,28 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 				}
 			} );
 
-			add ( qb );
+			firstRow.add ( qb );
 			quantity = qb;
 		}
 		else {
 			qv = new FloatViewer ();
-			add ( qv );
+			firstRow.add ( qv );
 			quantity = qv;
 		}
 
 		measure = new Label ();
 		measure.addStyleName ( "contents-on-right" );
-		add ( measure );
+		firstRow.add ( measure );
 
 		effectiveQuantity = new Label ();
 		effectiveQuantity.addStyleName ( "contents-on-right" );
 		effectiveQuantity.setVisible ( false );
-		add ( effectiveQuantity );
+		firstRow.add ( effectiveQuantity );
 
 		defineOnProduct ( prod );
 	}
 
-	private void disposeConstraints ( Product prod, Widget quantity ) {
+	private void disposeConstraints ( FromServer prod, Widget quantity ) {
 		float min;
 		float mult;
 		String text;
@@ -127,7 +143,7 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 		mult = prod.getFloat ( "multiple_order" );
 
 		if ( constraintsDialog != null )
-			remove ( constraintsDialog );
+			firstRow.remove ( constraintsDialog );
 
 		if ( min != 0 || mult != 0 ) {
 			constraintsDialog = new SuggestionBox ();
@@ -144,7 +160,7 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 			}
 
 			constraintsDialog.setHTML ( text );
-			add ( constraintsDialog );
+			firstRow.add ( constraintsDialog );
 		}
 	}
 
@@ -155,7 +171,95 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 		}
 	}
 
-	private void defineOnProduct ( Product prod ) {
+	private void hideVariants () {
+		int num;
+
+		if ( variantsBoxes == null )
+			return;
+
+		num = variantsBoxes.getWidgetCount ();
+
+		for ( int i = 0; i < num; i++ )
+			variantsBoxes.remove ( 0 );
+
+		variantsBoxes.setVisible ( false );
+	}
+
+	private Widget doVariantRow ( ArrayList variants, FromServer current ) {
+		int selected_index;
+		ArrayList values;
+		ArrayList current_components;
+		HorizontalPanel ret;
+		ListBox sel;
+		ProductVariant var;
+		ProductVariantValue val;
+		ProductUserVariantComponent component;
+		ProductUserVariantComponent current_component;
+
+		ret = new HorizontalPanel ();
+
+		if ( current != null ) {
+			ret.add ( new Hidden ( Integer.toString ( current.getLocalID () ) ) );
+			current_components = current.getArray ( "components" );
+		}
+		else {
+			ret.add ( new Hidden ( "-1" ) );
+			current_components = null;
+		}
+
+		for ( int i = 0; i < variants.size (); i++ ) {
+			var = ( ProductVariant ) variants.get ( i );
+
+			ret.add ( new Hidden ( Integer.toString ( var.getLocalID () ) ) );
+
+			current_component = null;
+
+			if ( current_components != null )
+				for ( int a = 0; a < current_components.size (); a++ ) {
+					component = ( ProductUserVariantComponent ) current_components.get ( a );
+					if ( component.getObject ( "variant" ).getLocalID () == var.getLocalID () ) {
+						current_component = component;
+						break;
+					}
+				}
+
+			ret.add ( new Label ( var.getString ( "name" ) + ": " ) );
+			values = var.getArray ( "values" );
+
+			sel = new ListBox ();
+			ret.add ( sel );
+			selected_index = 0;
+
+			for ( int a = 0; a < values.size (); a++ ) {
+				val = ( ProductVariantValue ) values.get ( a );
+				sel.addItem ( val.getString ( "name" ), Integer.toString ( val.getLocalID () ) );
+
+				if ( current_component != null )
+					if ( current_component.getObject ( "value" ).getLocalID () == val.getLocalID () )
+						selected_index = a;
+			}
+
+			sel.setSelectedIndex ( selected_index );
+		}
+
+		return ret;
+	}
+
+	private void doVariantsMainBox () {
+		if ( variantsBoxes == null ) {
+			variantsBoxes = new VerticalPanel ();
+			main.add ( variantsBoxes );
+		}
+		else {
+			while ( variantsBoxes.getWidgetCount () != 0 )
+				variantsBoxes.remove ( 0 );
+		}
+
+		variantsBoxes.setVisible ( true );
+	}
+
+	private void defineOnProduct ( FromServer prod ) {
+		ArrayList variants;
 		FromServer m;
 
 		if ( prod.getFloat ( "unit_size" ) != 0 ) {
@@ -165,13 +269,48 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 		else {
 			m = prod.getObject ( "measure" );
 			if ( m != null )
-				measure.setText ( m.getString ( "symbol" ) );
+				measure.setText ( m.getString ( "name" ) );
 
 			effectiveQuantity.setVisible ( false );
 		}
 
-		if ( editable == true )
+		if ( editable == true ) {
 			disposeConstraints ( prod, ( FloatBox ) quantity );
+
+			variants = prod.getArray ( "variants" );
+
+			if ( variants != null && variants.size () != 0 ) {
+				( ( FloatBox ) quantity ).addChangeListener ( new ChangeListener () {
+					public void onChange ( Widget sender ) {
+						int i;
+						int q;
+						ArrayList variants;
+						FromServer prod;
+
+						prod = currentValue.getObject ( "product" );
+						variants = prod.getArray ( "variants" );
+
+						if ( variants != null && variants.size () != 0 ) {
+							doVariantsMainBox ();
+							q = ( int ) quantity.getVal ();
+
+							for ( i = variantsBoxes.getWidgetCount (); i < q; i++ )
+								variantsBoxes.add ( doVariantRow ( variants, null ) );
+
+							if ( i > q )
+								while ( variantsBoxes.getWidgetCount () != q )
+									variantsBoxes.remove ( variantsBoxes.getWidgetCount () - 1 );
+						}
+						else {
+							hideVariants ();
+						}
+					}
+				} );
+			}
+			else {
+				hideVariants ();
+			}
+		}
 	}
 
 	private void setEffectiveQuantity ( float quantity ) {
@@ -182,7 +321,7 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 		prod = currentValue.getObject ( "product" );
 		m = prod.getObject ( "measure" );
 		if ( m != null )
-			ms = " " + m.getString ( "symbol" );
+			ms = " " + m.getString ( "name" );
 		else
 			ms = "";
 
@@ -228,24 +367,109 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 		}
 	}
 
+	private ArrayList alignVariants () {
+		int variant_id;
+		ArrayList final_array;
+		ArrayList existing_variants;
+		ArrayList existing_components;
+		ArrayList final_components;
+		HorizontalPanel row;
+		ListBox selector;
+		ProductUserVariant existing_var;
+		ProductUserVariant variant;
+		ProductUserVariantComponent existing_comp;
+		ProductUserVariantComponent component;
+		FromServer value;
+
+		final_array = new ArrayList ();
+		existing_variants = currentValue.getArray ( "variants" );
+
+		for ( int i = 0; i < variantsBoxes.getWidgetCount (); i++ ) {
+			row = ( HorizontalPanel ) variantsBoxes.getWidget ( i );
+			variant_id = Integer.parseInt ( ( ( Hidden ) row.getWidget ( 0 ) ).getName () );
+
+			existing_components = null;
+			variant = null;
+
+			if ( variant_id != -1 && existing_variants != null ) {
+				for ( int a = 0; a < existing_variants.size (); a++ ) {
+					existing_var = ( ProductUserVariant ) existing_variants.get ( a );
+					if ( existing_var.getLocalID () == variant_id ) {
+						variant = existing_var;
+						existing_components = variant.getArray ( "components" );
+						break;
+					}
+				}
+			}
+
+			if ( variant == null )
+				variant = new ProductUserVariant ();
+
+			final_components = new ArrayList ();
+
+			for ( int a = 1; a < row.getWidgetCount (); a += 3 ) {
+				variant_id = Integer.parseInt ( ( ( Hidden ) row.getWidget ( a ) ).getName () );
+				component = null;
+
+				if ( existing_components != null ) {
+					for ( int e = 0; e < existing_components.size (); e++ ) {
+						existing_comp = ( ProductUserVariantComponent ) existing_components.get ( e );
+
+						if ( existing_comp.getObject ( "variant" ).getLocalID () == variant_id ) {
+							component = existing_comp;
+							break;
+						}
+					}
+				}
+
+				if ( component == null ) {
+					component = new ProductUserVariantComponent ();
+					component.setObject ( "variant", Utils.getServer ().getObjectFromCache ( "ProductVariant", variant_id ) );
+				}
+
+				selector = ( ListBox ) row.getWidget ( a + 2 );
+				value = Utils.getServer ().getObjectFromCache ( "ProductVariantValue", Integer.parseInt ( selector.getValue ( selector.getSelectedIndex () ) ) );
+				component.setObject ( "value", value );
+				final_components.add ( component );
+			}
+
+			variant.setArray ( "components", final_components );
+			final_array.add ( variant );
+		}
+
+		return final_array;
+	}
+
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
 		float q;
 		float unit;
-		Product prod;
+		ArrayList variants;
+		ArrayList prod_variants;
+		FromServer prod;
 
-		currentValue = ( ProductUser ) element;
+		currentValue = element;
 
 		q = element.getFloat ( "quantity" );
 
-		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
+		prod = element.getObject ( "product" );
+		unit = prod.getFloat ( "unit_size" );
 		if ( unit != 0 )
 			q = Math.round ( q / unit );
 
 		quantity.setVal ( q );
-		prod = ( Product ) element.getObject ( "product" );
 		defineOnProduct ( prod );
+
+		variants = element.getArray ( "variants" );
+
+		if ( variants != null && variants.size () != 0 ) {
+			doVariantsMainBox ();
+			prod_variants = prod.getArray ( "variants" );
+
+			for ( int i = 0; i < variants.size (); i++ )
+				variantsBoxes.add ( doVariantRow ( prod_variants, ( FromServer ) variants.get ( i ) ) );
+		}
 	}
 
 	public FromServer getValue () {
@@ -259,6 +483,10 @@ public class ProductUserSelector extends HorizontalPanel implements ObjectWidget
 			q = q * unit;
 
 		currentValue.setFloat ( "quantity", q );
+
+		if ( variantsBoxes != null && variantsBoxes.isVisible () == true )
+			currentValue.setArray ( "variants", alignVariants () );
+
 		return currentValue;
 	}
 }

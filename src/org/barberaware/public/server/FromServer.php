@@ -505,6 +505,20 @@ abstract class FromServer {
 				array_push ( $values, $value );
 			}
 
+			/**
+				TODO	Questo funziona solo con PostgreSQL,
+					correggere per farlo funzionare anche
+					in MySQL
+			*/
+			if ( count ( $names ) == 0 ) {
+				/*
+					Questo e' per gestire correttamente le classi FromServer che non hanno
+					contenuti diretti, ad esempio che contengono solo array di altri oggetti
+				*/
+				array_push ( $names, 'id' );
+				array_push ( $values, "nextval('" . $this->tablename . "_id_seq'::regclass)" );
+			}
+
 			$query = sprintf ( "INSERT INTO %s ( %s ) VALUES ( %s )",
 						$this->tablename, join ( ", ", $names ), join ( ", ", $values ) );
 			query_and_check ( $query, "Impossibile salvare oggetto " . $this->classname );
@@ -528,9 +542,11 @@ abstract class FromServer {
 				array_push ( $values, ( $attr->name . " = " . $value ) );
 			}
 
-			$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
-						$this->tablename, join ( ", ", $values ), $id );
-			query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
+			if ( count ( $values ) > 0 ) {
+				$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
+							$this->tablename, join ( ", ", $values ), $id );
+				query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
+			}
 
 			$ret = $id;
 			$this->save_arrays ( false, $obj, $ret );

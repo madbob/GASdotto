@@ -253,10 +253,16 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		pname.setStyleName ( "product-name" );
 		main.setWidget ( row, 0, pname );
 		formatter.setWidth ( row, 0, "30%" );
+		/*
+			Forzo l'allineamento in cima affinche' tutto rimanga in ordine quando (eventualmente) si
+			aprono le righe per definire le varianti dei prodotti (in ProductUserSelector)
+		*/
+		formatter.setVerticalAlignment ( row, 0, HasVerticalAlignment.ALIGN_TOP );
 
 		sel = new ProductUserSelector ( product, editable, freeEditable );
 		main.setWidget ( row, 1, sel );
-		formatter.setWidth ( row, 1, "30%" );
+		formatter.setWidth ( row, 1, "50%" );
+		formatter.setVerticalAlignment ( row, 1, HasVerticalAlignment.ALIGN_TOP );
 
 		if ( editable == true ) {
 			sel.addChangeListener ( new ChangeListener () {
@@ -272,7 +278,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		info_str = getPriceInfo ( product );
 		main.setWidget ( row, 2, new Label ( info_str ) );
-		formatter.setWidth ( row, 2, "40%" );
+		formatter.setWidth ( row, 2, "20%" );
+		formatter.setVerticalAlignment ( row, 2, HasVerticalAlignment.ALIGN_TOP );
 
 		formatter.setHorizontalAlignment ( row, 2, HasHorizontalAlignment.ALIGN_RIGHT );
 	}

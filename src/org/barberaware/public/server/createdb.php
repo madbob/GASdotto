@@ -351,7 +351,7 @@ function install_main_db () {
 	/*
 		=======================================================================================
 	*/
-	
+
 	$query = sprintf ( "CREATE TABLE ProductVariant (
 					id serial,
 					name varchar ( 100 ) default '',
@@ -359,7 +359,7 @@ function install_main_db () {
 				)" );
 
 	query_and_check ( $query, "Impossibile creare tabella productvariant" );
-	
+
 	/*
 		=======================================================================================
 	*/
@@ -377,7 +377,7 @@ function install_main_db () {
 	/*
 		=======================================================================================
 	*/
-	
+
 	$query = sprintf ( "CREATE TABLE ProductVariantValue (
 					id serial,
 					name varchar ( 100 ) default '',
@@ -385,7 +385,7 @@ function install_main_db () {
 				)" );
 
 	query_and_check ( $query, "Impossibile creare tabella productvariantvalue" );
-	
+
 	/*
 		=======================================================================================
 	*/
@@ -469,13 +469,67 @@ function install_main_db () {
 
         $query = sprintf ( "CREATE TABLE OrderUser_products (
 					id serial,
-					parent int references Orderuser ( id ) on delete cascade,
-					target int references Productuser ( id ) on delete cascade,
+					parent int references OrderUser ( id ) on delete cascade,
+					target int references ProductUser ( id ) on delete cascade,
 					primary key ( id )
 				)"
 	);
 
 	query_and_check ( $query, "Impossibile creare tabella orderuser_products" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUserVariant (
+					id serial,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuservariant" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUserVariantComponent (
+					id serial,
+					variant int references ProductVariant ( id ) on delete cascade,
+					value int references ProductVariantValue ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuservariantcomponent" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUserVariant_components (
+					id serial,
+					parent int references ProductuserVariant ( id ) on delete cascade,
+					target int references ProductuserVariantComponent ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuservariant_components" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUser_variants (
+					id serial,
+					parent int references ProductUser ( id ) on delete cascade,
+					target int references ProductuserVariant ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuser_variants" );
 }
 
 ?>

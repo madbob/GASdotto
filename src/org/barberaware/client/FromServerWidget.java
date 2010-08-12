@@ -224,12 +224,8 @@ public class FromServerWidget extends Composite {
 			ret = object.getAddress ( name ).equals ( ( ( AddressSelector ) wid ).getValue () );
 
 		else if ( type == FromServer.ARRAY ) {
-			int flen;
-			int slen;
 			ArrayList first;
 			ArrayList second;
-			FromServer ftmp;
-			FromServer stmp;
 
 			first = object.getArray ( name );
 			if ( first != null )
@@ -242,28 +238,7 @@ public class FromServerWidget extends Composite {
 			else if ( first == null || second == null )
 				return false;
 
-			flen = first.size ();
-			slen = second.size ();
-
-			if ( flen != slen )
-				ret = false;
-
-			else {
-				int i;
-
-				for ( i = 0; i < flen; i++ ) {
-					ftmp = ( FromServer ) first.get ( i );
-					stmp = ( FromServer ) second.get ( i );
-
-					if ( ftmp.compare ( ftmp, stmp ) != 0 ) {
-						ret = false;
-						break;
-					}
-				}
-
-				if ( i == flen )
-					ret = true;
-			}
+			ret = Utils.compareFromServerArray ( first, second );
 		}
 
 		else if ( type == FromServer.OBJECT ) {

@@ -160,9 +160,12 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 	public CalendarWidget () {
 		Button exit;
 
+		setText ( "Seleziona una Data" );
+
 		exit = new Button ( "Annulla", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				fireCallbacks ( 1 );
+				hide ();
 			}
 		} );
 
@@ -185,7 +188,7 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 		outer.add ( grid, DockPanel.CENTER );
 		outer.add ( exit, DockPanel.SOUTH );
 		drawCalendar ();
-		setStyleName ( "CalendarWidget" );
+		addStyleName ( "CalendarWidget" );
 	}
 
 	private void fireCallbacks ( int mode ) {
@@ -356,6 +359,7 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 		setDate(getYear(), getMonth(), cell.getDay());
 		drawCalendar();
 		fireCallbacks ( 0 );
+		hide ();
 	}
 
 	public void yearSelectable ( boolean selectable ) {

@@ -19,10 +19,13 @@ package org.barberaware.client;
 
 import java.util.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class ProductUser extends FromServer {
 	public ProductUser () {
 		super ();
 		addAttribute ( "product", FromServer.OBJECT, Product.class );
+		addAttribute ( "variants", FromServer.ARRAY, ProductUserVariant.class );
 		addAttribute ( "quantity", FromServer.FLOAT );
 		addAttribute ( "delivered", FromServer.FLOAT );
 	}
@@ -96,6 +99,9 @@ public class ProductUser extends FromServer {
 			if ( quant_first < quant_second )
 				return -1;
 			else if ( quant_first > quant_second )
+				return 1;
+
+			if ( Utils.compareFromServerArray ( f.getArray ( "variants" ), s.getArray ( "variants" ) ) == false )
 				return 1;
 		}
 

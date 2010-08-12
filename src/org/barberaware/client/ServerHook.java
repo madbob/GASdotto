@@ -236,7 +236,13 @@ public class ServerHook {
 	}
 
 	private ServerMonitor getMonitor ( String type ) {
-		return ( ServerMonitor ) monitors.get ( type );
+		ServerMonitor ret;
+
+		ret = ( ServerMonitor ) monitors.get ( type );
+		if ( ret == null )
+			Window.alert ( "Pare che la classe " + type + " non sia stata gestita in FromServerFactory..." );
+
+		return ret;
 	}
 
 	private void executeReceivingCallbacks ( ServerMonitor monitor, FromServer object ) {

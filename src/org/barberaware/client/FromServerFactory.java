@@ -37,6 +37,10 @@ public class FromServerFactory {
 		if ( first == 'P' ) {
 			if ( name.equals ( "ProductUser" ) )
 				return new ProductUser ();
+			else if ( name.equals ( "ProductUserVariant" ) )
+				return new ProductUserVariant ();
+			else if ( name.equals ( "ProductUserVariantComponent" ) )
+				return new ProductUserVariantComponent ();
 			else if ( name.equals ( "ProductVariantValue" ) )
 				return new ProductVariantValue ();
 			else if ( name.equals ( "ProductVariant" ) )
@@ -108,6 +112,8 @@ public class FromServerFactory {
 		names.add ( "ProductVariant" );
 		names.add ( "ProductVariantValue" );
 		names.add ( "ProductUser" );
+		names.add ( "ProductUserVariant" );
+		names.add ( "ProductUserVariantComponent" );
 		names.add ( "Supplier" );
 		names.add ( "User" );
 		names.add ( "CustomFile" );

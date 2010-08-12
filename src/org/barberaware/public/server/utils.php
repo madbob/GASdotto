@@ -36,6 +36,8 @@ require_once ( "ProductVariant.php" );
 require_once ( "ProductVariantValue.php" );
 require_once ( "Order.php" );
 require_once ( "ProductUser.php" );
+require_once ( "ProductUserVariant.php" );
+require_once ( "ProductUserVariantComponent.php" );
 require_once ( "OrderUser.php" );
 require_once ( "Probe.php" );
 

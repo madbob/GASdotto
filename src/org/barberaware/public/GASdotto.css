@@ -107,7 +107,7 @@ body {
 .element-summary {
 	background:		#FFFFFF url('images/details-closed.png') no-repeat scroll 0pt 50%;
         padding-left:		30px;
-	font-size:		15px;
+	font-size:		18px;
 	font-family:		arial, sans-serif;
 	margin:			1px;
 	text-align:		left;
@@ -135,8 +135,8 @@ body {
 	margin:			5px;
 	padding-left:		20px;
 	padding:		10px;
-	border-left:		2px solid #4EDFCE;
-	border-bottom:		2px solid #4EDFCE;
+	border-left:		4px solid #3AB5A6;
+	border-bottom:		4px solid #3AB5A6;
 }
 
 .element-details .gwt-Label {

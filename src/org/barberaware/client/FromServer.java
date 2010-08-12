@@ -522,6 +522,7 @@ public abstract class FromServer implements Comparator {
 			return false;
 
 		other = ( FromServer ) second;
-		return ( ( getLocalID () == other.getLocalID () ) && ( getType () == other.getType () ) );
+		// return ( ( getLocalID () == other.getLocalID () ) && ( getType () == other.getType () ) );
+		return ( this.compare ( this, second ) == 0 );
 	}
 }
