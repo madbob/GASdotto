@@ -134,6 +134,22 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		totalLabel.setVal ( total_sum );
 	}
 
+	private void shipAllVariants ( int row ) {
+		FlexTable list;
+		Label quantity_label;
+		FloatBoxes boxes;
+		FloatBox box;
+
+		list = ( FlexTable ) main.getWidget ( row, 2 );
+		boxes = ( FloatBoxes ) main.getWidget ( row, 3 );
+
+		for ( int i = 0; i < list.getRowCount (); i++ ) {
+			quantity_label = ( Label ) list.getWidget ( i, 1 );
+			box = ( FloatBox ) boxes.getWidget ( i );
+			box.setVal ( Integer.parseInt ( quantity_label.getText () ) );
+		}
+	}
+
 	private Button createAutoCompleteButton () {
 		Button ret;
 
@@ -145,14 +161,14 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				float row_sum;
 				float total_sum;
 				Label total_label;
-				FloatBox iter;
+				FloatWidget iter;
 				ProductUser prod_user;
 
 				total_sum = 0;
 				num_rows = currentValues.size ();
 
 				for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
-					iter = ( FloatBox ) main.getWidget ( i, 3 );
+					iter = ( FloatWidget ) main.getWidget ( i, 3 );
 					prod_user = ( ProductUser ) currentValues.get ( a );
 
 					input = prod_user.getFloat ( "quantity" );
@@ -161,7 +177,11 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 					total_label = ( Label ) main.getWidget ( i, 4 );
 					total_label.setText ( Utils.priceToString ( row_sum ) );
 
-					iter.setVal ( input );
+					if ( iter instanceof FloatBox == true )
+						iter.setVal ( input );
+					else
+						shipAllVariants ( i );
+
 					total_sum = row_sum + total_sum;
 				}
 
