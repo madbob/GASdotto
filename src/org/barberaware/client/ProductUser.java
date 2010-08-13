@@ -21,6 +21,30 @@ import java.util.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
+/*
+	                                                                                  +-------------+
+	                                                                                  | ProductUser |
+	                                                                                  +-------------+
+
+	                                +--------------------+                                                                      +--------------------+
+	                                | ProductUserVariant |                                                                      | ProductUserVariant |
+	                                +--------------------+                                                                      +--------------------+
+
+	     +-----------------------------+               +-----------------------------+               +-----------------------------+               +-----------------------------+
+	     | ProductUserVariantComponent |               | ProductUserVariantComponent |               | ProductUserVariantComponent |               | ProductUserVariantComponent |
+	     +-----------------------------+               +-----------------------------+               +-----------------------------+               +-----------------------------+
+
+	+----------------+ +---------------------+   +----------------+ +---------------------+    +----------------+ +---------------------+   +----------------+ +---------------------+
+	| ProductVariant | | ProductVariantValue |   | ProductVariant | | ProductVariantValue |    | ProductVariant | | ProductVariantValue |   | ProductVariant | | ProductVariantValue |
+	+----------------+ +---------------------+   +----------------+ +---------------------+    +----------------+ +---------------------+   +----------------+ +---------------------+
+
+	Ogni ProductUser puo' contenere piu' ProductUserVariant, ognuno dei quali rappresentano una specifica
+	variante ordinata (ad esempio: "scarpa taglia 45 colore rosso", "scarpa taglia 37 colore nero"...). Il
+	ProductUserVariant contiene piu' ProductUserVariantComponent, uno per ogni attributo assegnato al prodotto
+	ordinato (ad esempio: "taglia 47"). Ogni ProductUserVariantComponent contiene il riferimento esatto al tipo
+	di variante ("taglia") ed al valore scelto dall'utente ("47")
+*/
+
 public class ProductUser extends FromServer {
 	public ProductUser () {
 		super ();

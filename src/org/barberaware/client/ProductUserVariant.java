@@ -23,6 +23,7 @@ public class ProductUserVariant extends FromServer {
 	public ProductUserVariant () {
 		super ();
 
+		addAttribute ( "delivered", FromServer.BOOLEAN );
 		addAttribute ( "components", FromServer.ARRAY, ProductUserVariantComponent.class );
 	}
 

@@ -50,7 +50,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		float input;
 		float row_sum;
 		float total_sum;
-		FloatBox iter;
+		FloatWidget iter;
 		ProductUser prod_user;
 		FromServer prod;
 
@@ -58,7 +58,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		num_rows = currentValues.size ();
 
 		for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
-			iter = ( FloatBox ) main.getWidget ( i, 3 );
+			iter = ( FloatWidget ) main.getWidget ( i, 3 );
 			input = iter.getVal ();
 
 			prod_user = ( ProductUser ) currentValues.get ( a );
@@ -83,6 +83,45 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 					if ( prod.getBool ( "mutable_price" ) == false && input > prod_user.getFloat ( "quantity" ) )
 						Utils.showNotification ( "Hai immesso una quantità diversa da quella ordinata",
 										SmoothingNotify.NOTIFY_INFO );
+
+					total_label = ( Label ) main.getWidget ( i, 4 );
+					total_label.setText ( Utils.priceToString ( row_sum ) );
+				}
+			}
+
+			total_sum = row_sum + total_sum;
+		}
+
+		totalLabel.setVal ( total_sum );
+	}
+
+	private void newVariantInputToCheck ( FloatBox box ) {
+		int num_rows;
+		float input;
+		float row_sum;
+		float total_sum;
+		FloatWidget iter;
+		FloatBoxes parent;
+		ProductUser prod_user;
+
+		total_sum = 0;
+		num_rows = currentValues.size ();
+		parent = ( FloatBoxes ) box.getParent ();
+
+		for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
+			iter = ( FloatWidget ) main.getWidget ( i, 3 );
+			input = iter.getVal ();
+
+			prod_user = ( ProductUser ) currentValues.get ( a );
+			row_sum = prod_user.getTotalPrice ( input );
+
+			if ( iter == parent ) {
+				if ( input < 0 ) {
+					Utils.showNotification ( "Il valore immesso non è valido" );
+					box.setVal ( 0 );
+				}
+				else {
+					Label total_label;
 
 					total_label = ( Label ) main.getWidget ( i, 4 );
 					total_label.setText ( Utils.priceToString ( row_sum ) );
@@ -165,6 +204,150 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		}
 	}
 
+	private Widget [] doVariantsList ( ArrayList variants ) {
+		int num;
+		int num_comps;
+		int found;
+		String check;
+		String label;
+		ArrayList components;
+		Hidden check_placeholder;
+		Label counter;
+		FlexTable list;
+		FloatBoxes inputs;
+		FloatBox del;
+		FromServer value;
+		ProductUserVariant variant;
+		ProductUserVariantComponent component;
+		Widget ret [];
+
+		list = new FlexTable ();
+		inputs = new FloatBoxes ();
+
+		num = variants.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			check = "";
+			label = "";
+
+			variant = ( ProductUserVariant ) variants.get ( i );
+
+			components = variant.getArray ( "components" );
+			num_comps = components.size ();
+
+			for ( int a = 0; a < num_comps; a++ ) {
+				component = ( ProductUserVariantComponent ) components.get ( a );
+				value = component.getObject ( "value" );
+				check = check + Integer.toString ( value.getLocalID () ) + ":";
+				label = component.getObject ( "variant" ).getString ( "name" ) + ": " + value.getString ( "name" ) + " ";
+			}
+
+			found = -1;
+
+			for ( int a = 0; a < list.getRowCount (); a++ ) {
+				check_placeholder = ( Hidden ) list.getWidget ( a, 0 );
+				if ( check == check_placeholder.getName () ) {
+					found = a;
+					break;
+				}
+			}
+
+			if ( found == -1 ) {
+				found = list.getRowCount ();
+				list.setWidget ( found, 0, new Hidden ( check ) );
+				list.setWidget ( found, 1, new Label ( "1" ) );
+				list.setWidget ( found, 2, new Label ( label ) );
+
+				del = inputs.addBox ();
+
+				del.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+						/* dummy */
+					}
+
+					public void onLostFocus ( Widget sender ) {
+						newVariantInputToCheck ( ( FloatBox ) sender );
+					}
+				} );
+			}
+			else {
+				counter = ( Label ) list.getWidget ( found, 1 );
+				counter.setText ( Integer.toString ( Integer.parseInt ( counter.getText () ) + 1 ) );
+
+				del = ( FloatBox ) inputs.getWidget ( found );
+			}
+
+			if ( variant.getBool ( "delivered" ) == true )
+				del.setVal ( del.getVal () + 1 );
+		}
+
+		ret = new Widget [ 2 ];
+		ret [ 0 ] = list;
+		ret [ 1 ] = inputs;
+
+		return ret;
+	}
+
+	private void deliverVariants ( ArrayList variants, FlexTable list, FloatBoxes quantities ) {
+		int variants_num;
+		float found;
+		boolean skip;
+		int [] num_ids;
+		String [] ids;
+		ArrayList components;
+		Hidden check;
+		FloatBox quantity;
+		ProductUserVariant var;
+		ProductUserVariantComponent comp;
+
+		variants_num = variants.size ();
+
+		for ( int a = 0; a < variants_num; a++ ) {
+			var = ( ProductUserVariant ) variants.get ( a );
+			var.setBool ( "delivered", false );
+		}
+
+		for ( int i = 0; i < list.getRowCount (); i++ ) {
+			quantity = ( FloatBox ) quantities.getWidget ( i );
+			if ( quantity.getVal () == 0 )
+				continue;
+
+			check = ( Hidden ) list.getWidget ( i, 0 );
+
+			ids = check.getName ().split ( ":" );
+			num_ids = new int [ ids.length ];
+
+			for ( int a = 0; a < ids.length; a++ )
+				num_ids [ a ] = Integer.parseInt ( ids [ a ] );
+
+			found = 0;
+
+			for ( int a = 0; a < variants_num; a++ ) {
+				skip = false;
+
+				var = ( ProductUserVariant ) variants.get ( a );
+				components = var.getArray ( "components" );
+
+				for ( int e = 0; e < components.size (); e++ ) {
+					comp = ( ProductUserVariantComponent ) components.get ( e );
+
+					if ( comp.getObject ( "value" ).getLocalID () != num_ids [ e ] ) {
+						skip = true;
+						break;
+					}
+				}
+
+				if ( skip == false ) {
+					var.setBool ( "delivered", true );
+					found = found + 1;
+
+					if ( found == quantity.getVal () )
+						break;
+				}
+			}
+		}
+	}
+
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
@@ -175,16 +358,21 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		int i;
 		int e;
 		String symbol;
+		float delivered;
+		float price_product;
+		float price_total;
+		ArrayList variants;
 		ProductUser prod_user;
 		FromServer prod;
 		FromServer measure;
 		FloatBox del;
-		float delivered;
-		float price_product;
-		float price_total;
+		FlexTable.FlexCellFormatter formatter;
+		Widget variants_widgets [];
 
 		currentValues = elements;
 		price_total = 0;
+
+		formatter = main.getFlexCellFormatter ();
 
 		for ( i = 0; i < main.getRowCount () - 1; i++ )
 			main.removeRow ( 1 );
@@ -210,30 +398,43 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			else
 				symbol = "";
 
+			delivered = prod_user.getFloat ( "delivered" );
+			variants = prod_user.getArray ( "variants" );
+
 			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
 			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
-			main.setWidget ( e, 2, new Label ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + symbol ) );
 
-			del = new FloatBox ();
-			delivered = prod_user.getFloat ( "delivered" );
-			del.setVal ( delivered );
-			main.setWidget ( e, 3, del );
+			if ( variants == null || variants.size () == 0 ) {
+				main.setWidget ( e, 2, new Label ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + symbol ) );
 
-			hookCalculator ( prod_user, del );
+				del = new FloatBox ();
+				del.setVal ( delivered );
+				main.setWidget ( e, 3, del );
 
-			del.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					/* dummy */
-				}
+				hookCalculator ( prod_user, del );
 
-				public void onLostFocus ( Widget sender ) {
-					newInputToCheck ( ( FloatBox ) sender );
-				}
-			} );
+				del.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+						/* dummy */
+					}
+
+					public void onLostFocus ( Widget sender ) {
+						newInputToCheck ( ( FloatBox ) sender );
+					}
+				} );
+			}
+			else {
+				variants_widgets = doVariantsList ( variants );
+				main.setWidget ( e, 2, variants_widgets [ 0 ] );
+				main.setWidget ( e, 3, variants_widgets [ 1 ] );
+			}
 
 			price_product = prod_user.getTotalPrice ( delivered );
 			main.setWidget ( e, 4, new Label ( Utils.priceToString ( price_product ) ) );
 			price_total = price_total + price_product;
+
+			formatter.setVerticalAlignment ( e, 1, HasVerticalAlignment.ALIGN_TOP );
+			formatter.setVerticalAlignment ( e, 4, HasVerticalAlignment.ALIGN_TOP );
 
 			e++;
 		}
@@ -259,13 +460,19 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 	}
 
 	public ArrayList getElements () {
-		FloatBox del;
+		ArrayList variants;
+		FloatWidget del;
 		FromServer produser;
 
 		for ( int i = 0; i < currentValues.size (); i++ ) {
-			del = ( FloatBox ) main.getWidget ( i + 1, 3 );
+			del = ( FloatWidget ) main.getWidget ( i + 1, 3 );
 			produser = ( FromServer ) currentValues.get ( i );
 			produser.setFloat ( "delivered", del.getVal () );
+
+			variants = produser.getArray ( "variants" );
+
+			if ( variants != null && variants.size () != 0 )
+				deliverVariants ( variants, ( FlexTable ) main.getWidget ( i + 1, 2 ), ( FloatBoxes ) main.getWidget ( i + 1, 3 ) );
 		}
 
 		return currentValues;

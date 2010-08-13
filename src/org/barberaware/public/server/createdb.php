@@ -483,6 +483,7 @@ function install_main_db () {
 
         $query = sprintf ( "CREATE TABLE ProductUserVariant (
 					id serial,
+					delivered boolean default false,
 					primary key ( id )
 				)"
 	);

@@ -75,7 +75,7 @@ class FromServerAttribute {
 				$attr = $parent->getAttribute ( "id" );
 				$id = $attr->value;
 
-				$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d",
+				$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY target ASC",
 							$parent->tablename, $this->name, $id );
 
 				$existing = query_and_check ( $query, "Impossibile recuperare array per " . $parent->classname );
@@ -410,7 +410,7 @@ abstract class FromServer {
 					$name = $attr->name;
 					$arr = $obj->$name;
 
-					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d",
+					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY target ASC",
 								$this->tablename, $name, $id );
 					$existing = query_and_check ( $query, "Impossibile recuperare lista per sincronizzare oggetto " . $this->classname );
 					$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );

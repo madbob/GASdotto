@@ -1,5 +1,3 @@
-<?
-
 /*  GASdotto
  *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
@@ -17,15 +15,41 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once ( "utils.php" );
+package org.barberaware.client;
 
-class ProductUserVariant extends FromServer {
-	public function __construct () {
-		parent::__construct ( "ProductUserVariant" );
+import java.util.*;
+import java.lang.*;
+import com.google.gwt.user.client.ui.*;
 
-		$this->addAttribute ( "delivered", "BOOLEAN" );
-		$this->addAttribute ( "components", "ARRAY::ProductUserVariantComponent" );
+public class FloatBoxes extends VerticalPanel implements FloatWidget {
+	public FloatBoxes () {
+	}
+
+	public FloatBox addBox () {
+		FloatBox box;
+
+		box = new FloatBox ();
+		add ( box );
+		return box;
+	}
+
+	/****************************************************************** FloatWidget */
+
+	public void setVal ( float value ) {
+		/* dummy */
+	}
+
+	public float getVal () {
+		float sum;
+		FloatBox box;
+
+		sum = 0;
+
+		for ( int i = 0; i < getWidgetCount (); i++ ) {
+			box = ( FloatBox ) getWidget ( i );
+			sum += box.getVal ();
+		}
+
+		return sum;
 	}
 }
-
-?>
