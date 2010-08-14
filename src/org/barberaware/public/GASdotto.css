@@ -85,8 +85,8 @@ body {
 }
 
 .main-stack {
-	width:			95%;
-	margin:			20px;
+	width:			98%;
+	margin:			10px;
 	font-size:		30px;
 }
 
@@ -105,23 +105,28 @@ body {
 }
 
 .element-summary {
-	background:		#FFFFFF url('images/details-closed.png') no-repeat scroll 0pt 50%;
+	background:		url('images/details-closed.png') no-repeat scroll 0pt 50%;
         padding-left:		30px;
 	font-size:		18px;
 	font-family:		arial, sans-serif;
-	margin:			1px;
 	text-align:		left;
 	vertical-align:		middle;
 }
 
 .element-summary div {
-	background-color:	#FFFFFF;
 	padding:		3px;
 }
 
 .element-summary div:hover {
-	background-color:	#4EDFCE;
+	background-color:	#EAFFFC;
 	padding:		3px;
+}
+
+.element-summary-opened {
+	background-color:	#EAFFFC;
+	border-top:		4px solid #3AB5A6;
+	border-left:		4px solid #3AB5A6;
+	border-right:		4px solid #3AB5A6;
 }
 
 .icons-bar img {
@@ -130,13 +135,12 @@ body {
 
 .element-details {
 	position:		relative;
-	top:			-10px;
 	width:			100%;
-	margin:			5px;
 	padding-left:		20px;
 	padding:		10px;
-	border-left:		4px solid #3AB5A6;
-	border-bottom:		4px solid #3AB5A6;
+	border:			4px solid #3AB5A6;
+	-moz-border-radius:	7px;
+	background-color:	#EAFFFC;
 }
 
 .element-details .gwt-Label {
@@ -174,14 +178,6 @@ body {
 	font-weight:		bold;
 	border-bottom:		3px solid #4EDFCE;
 	padding:		5px;
-}
-
-.sub-elements-details {
-	width:			90%;
-	margin:			5px;
-	margin-left:		20px;
-	padding:		5px;
-	border:			2px solid #000000;
 }
 
 .buttons-bar .icons {
@@ -392,13 +388,13 @@ body {
 
 .table-legend {
 	position:		fixed;
-	bottom:			10px;
-	right:			10px;
+	bottom:			5px;
+	right:			5px;
 	font-size:		12px;
-	background-color:	#FFFFFF;
 	border-left:		2px solid #000000;
 	border-top:		2px solid #000000;
 	z-index:		50;
+	background-color:	#FFFFFF;
 }
 
 .orders-advanced-options {
@@ -424,7 +420,7 @@ body {
 
 fieldset {
 	-moz-border-radius:	7px;
-	border:			1px #dddddd solid;
+	border:			1px #BBBBBB solid;
 	padding:		10px;
 	margin:			10px;
 }
@@ -471,6 +467,9 @@ br {
 	color:			black;
 	cursor:			pointer;
 	cursor:			hand;
+	position:		relative;
+	top:			4px;
+	z-index:		100;
 }
 
 .gwt-ToggleButton-up,
@@ -528,7 +527,7 @@ br {
 }
 
 .gwt-TabBar .gwt-TabBarItem-selected {
-	border-bottom:		2px solid #FFFFFF;
+	border-bottom:		2px solid #EAFFFC;
 	margin-bottom:		0px;
 	z-index:		101;
 }

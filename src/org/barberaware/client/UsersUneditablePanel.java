@@ -64,6 +64,11 @@ public class UsersUneditablePanel extends GenericPanel {
 				frame.setWidget ( 5, 0, new Label ( "Mail 2" ) );
 				frame.setWidget ( 5, 1, form.getPersonalizedWidget ( "mail2", doString () ) );
 
+				if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
+					frame.setWidget ( 6, 0, new Label ( "Foto" ) );
+					frame.setWidget ( 6, 1, form.getPersonalizedWidget ( "photo", new ImageViewer () ) );
+				}
+
 				setRoleIcon ( form, u );
 				return form;
 			}

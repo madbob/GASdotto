@@ -1,3 +1,5 @@
+<?
+
 /*  GASdotto
  *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
@@ -15,30 +17,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.barberaware.client;
+$path = $_GET [ 'path' ];
 
-import com.google.gwt.user.client.ui.*;
+/*
+	Solo i contenuti della cartella "uploads" possono essere scaricati con questo metodo
+*/
+$tokens = explode ( '/', $path );
+if ( $tokens [ 0 ] != 'uploads' )
+	exit ( 0 );
 
-import com.allen_sauer.gwt.log.client.Log;
+$filesystem = '../' . $path;
+$filename = $tokens [ 1 ];
 
-public class DownloadButton extends HTML implements StringWidget {
-	private String			url;
+header ( "Content-Type: application/octet-stream" );
+header ( "Content-Disposition: disposition-type=attachment; filename=\"$filename\"" );
 
-	public DownloadButton () {
-		url = null;
-		setHTML ( "Nessun File da Scaricare" );
-	}
-
-	public void setValue ( String value ) {
-		url = value;
-
-		if ( url == null || url == "" )
-			setHTML ( "Nessun File da Scaricare" );
-		else
-			setHTML ( "<a href=\"" + Utils.getServer ().getURL () + "downloader.php?path=" + url + "\">Scarica File</a>" );
-	}
-
-	public String getValue () {
-		return url;
-	}
-}
+readfile ( $filesystem );

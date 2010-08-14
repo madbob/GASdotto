@@ -21,24 +21,29 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class DownloadButton extends HTML implements StringWidget {
-	private String			url;
+public class ImageViewer extends Image implements StringWidget {
+	String currentValue;
 
-	public DownloadButton () {
-		url = null;
-		setHTML ( "Nessun File da Scaricare" );
+	public ImageViewer () {
+		reset ();
+	}
+
+	private void reset () {
+		currentValue = "";
+		setUrl ( "images/void_photo.png" );
 	}
 
 	public void setValue ( String value ) {
-		url = value;
-
-		if ( url == null || url == "" )
-			setHTML ( "Nessun File da Scaricare" );
-		else
-			setHTML ( "<a href=\"" + Utils.getServer ().getURL () + "downloader.php?path=" + url + "\">Scarica File</a>" );
+		if ( currentValue != null && currentValue != "" ) {
+			currentValue = value;
+			setUrl ( Utils.getServer ().getDomain () + "/" + value );
+		}
+		else {
+			reset ();
+		}
 	}
 
 	public String getValue () {
-		return url;
+		return currentValue;
 	}
 }

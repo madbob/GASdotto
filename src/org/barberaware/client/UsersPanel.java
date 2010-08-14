@@ -179,7 +179,7 @@ public class UsersPanel extends GenericPanel {
 						if ( path == null || path == "" )
 							image.setVisible ( false );
 						else
-							image.setUrl ( path );
+							image.setUrl ( Utils.getServer ().getDomain () + "/" + path );
 
 						frame.addPair ( "Foto", form.getPersonalizedWidget ( "photo", photo ) );
 						frame.addRight ( image );

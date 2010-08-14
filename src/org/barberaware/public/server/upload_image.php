@@ -25,7 +25,7 @@ if ( !isset ( $name ) || $name == "" ) {
 	echo "";
 }
 else {
-	$target_path = "/uploads/" . ( unique_filesystem_name ( '../uploads/', basename ( $name ) ) );
+	$target_path = "uploads/" . ( unique_filesystem_name ( '../uploads/', basename ( $name ) ) );
 	$filesystem_path = '../' . $target_path;
 	move_uploaded_file ( $_FILES [ 'uploadedfile' ] [ 'tmp_name' ], $filesystem_path );
 

@@ -284,6 +284,8 @@ public class FromServerForm extends Composite {
 	private void onOpenCb () {
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onOpen ( this );
+
+		summary.addStyleName ( "element-summary-opened" );
 	}
 
 	private void onClosingCb () {
@@ -294,6 +296,8 @@ public class FromServerForm extends Composite {
 	private void onCloseCb () {
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClose ( this );
+
+		summary.removeStyleName ( "element-summary-opened" );
 	}
 
 	public void emblemsAttach ( EmblemsInfo info ) {

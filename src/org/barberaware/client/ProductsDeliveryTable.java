@@ -414,7 +414,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 
 			measure = prod.getObject ( "measure" );
 			if ( measure != null )
-				symbol = " " + measure.getString ( "symbol" );
+				symbol = " " + measure.getString ( "name" );
 			else
 				symbol = "";
 
