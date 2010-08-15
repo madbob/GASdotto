@@ -156,15 +156,14 @@ public class OrdersEditPanel extends GenericPanel {
 					ver = new FromServerForm ( order );
 					ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 
-					/**
-						TODO	Questa callback e' valida solo per i nuovi ordini, una volta
-							salvato andrebbe rimossa dal form
-					*/
-					ver.setCallback ( new FromServerFormCallbacks () {
+					ver.setCallback ( new FromServerFormCallbacks ( "notification" ) {
 						public void onSaved ( FromServerForm form ) {
-							if ( form.getObject ().getInt ( "status" ) == Order.OPENED )
+							if ( form.getObject ().getInt ( "status" ) == Order.OPENED ) {
 								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'",
 												SmoothingNotify.NOTIFY_INFO );
+
+								form.removeCallback ( "notification" );
+							}
 						}
 					} );
 
@@ -413,6 +412,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		complete_list = new OrderSummary ( order );
 		form.setExtraWidget ( "summary", complete_list );
+		complete_list.reFill ( order );
 		sframe.add ( complete_list );
 		return sframe;
 	}

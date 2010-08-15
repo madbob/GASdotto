@@ -160,7 +160,7 @@ function list_suppliers () {
 }
 
 function list_users () {
-	$query = sprintf ( "SELECT id, surname FROM Users ORDER BY surname, firstname DESC" );
+	$query = sprintf ( "SELECT id, firstname, surname FROM Users ORDER BY surname, firstname DESC" );
 	$returned = query_and_check ( $query, "Impossibile recuperare utenti" );
 	$rows_users = $returned->fetchAll ( PDO::FETCH_ASSOC );
 	unset ( $query );
@@ -212,7 +212,7 @@ if ( $graph == 0 ) {
 			$ret .= "Totale\n";
 
 			for ( $i = 0; $i < count ( $rows_users ); $i++ ) {
-				$ret .= ( $rows_users [ $i ] [ 'surname' ] ) . ';';
+				$ret .= ( $rows_users [ $i ] [ 'surname' ] ) . ' ' . ( $rows_users [ $i ] [ 'firstname' ] ) . ';';
 				$total_price = 0;
 
 				for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
@@ -284,12 +284,19 @@ if ( $graph == 0 ) {
 				$total_price = 0;
 
 				if ( isset ( $rows_users [ $i ] [ 'surname' ] ) ) {
-					$n = sprintf ( "%s", $rows_users [ $i ] [ 'surname' ] );
+					$s = sprintf ( "%s", $rows_users [ $i ] [ 'surname' ] );
+					if ( strlen ( $s ) > 12 ) {
+						$s = substr ( $s, 0, 10 );
+						$s .= '...';
+					}
+
+					$n = sprintf ( "%s", $rows_users [ $i ] [ 'firstname' ] );
 					if ( strlen ( $n ) > 12 ) {
 						$n = substr ( $n, 0, 10 );
 						$n .= '...';
 					}
-					$row [] = $n;
+
+					$row [] = $s . '<br />' . $n;
 
 					for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
 						list ( $tot, $price ) = users_data ( $rows_users [ $i ] [ "id" ], $rows_suppliers [ $a ] [ "id" ],

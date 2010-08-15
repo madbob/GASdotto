@@ -144,6 +144,18 @@ public class FromServerForm extends Composite {
 		}
 	}
 
+	public void removeCallback ( String id ) {
+		FromServerFormCallbacks call;
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			call = ( FromServerFormCallbacks ) callbacks.get ( i );
+			if ( call.getID () == id ) {
+				callbacks.remove ( call );
+				break;
+			}
+		}
+	}
+
 	public void addEventHandler ( DisclosureHandler handler ) {
 		main.addEventHandler ( handler );
 	}

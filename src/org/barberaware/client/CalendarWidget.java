@@ -208,7 +208,8 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 			}
 		}
 		else {
-			date = originalDate;
+			if ( originalDate != null )
+				date = originalDate;
 
 			for ( i = 0; i < num; i++ ) {
 				call = ( SavingDialogCallback ) callbacks.get ( i );

@@ -13,7 +13,7 @@ body {
 
 .smoothing-notify {
 	opacity:		1.0;
-	z-index:		100;
+	z-index:		50;
 	position:		fixed;
 	top:			10px;
 	left:			10%;
@@ -24,7 +24,7 @@ body {
 
 .smoothing-notify-error {
 	opacity:		1.0;
-	z-index:		100;
+	z-index:		50;
 	position:		fixed;
 	top:			10px;
 	left:			10%;
@@ -35,7 +35,7 @@ body {
 
 .smoothing-notify-info {
 	opacity:		1.0;
-	z-index:		100;
+	z-index:		50;
 	position:		fixed;
 	top:			10px;
 	left:			10%;
@@ -469,7 +469,7 @@ br {
 	cursor:			hand;
 	position:		relative;
 	top:			4px;
-	z-index:		100;
+	z-index:		50;
 }
 
 .gwt-ToggleButton-up,
@@ -482,6 +482,7 @@ br {
 	background-color:	#FFFFFF;
 	border:			10px solid #000000;
 	padding:		20px;
+	z-index:		100;
 }
 
 .gwt-DialogBox .Caption {
@@ -523,13 +524,13 @@ br {
 	margin-right:		3px;
 	margin-bottom:		0px;
 	padding:		6px;
-	z-index:		101;
+	z-index:		51;
 }
 
 .gwt-TabBar .gwt-TabBarItem-selected {
 	border-bottom:		2px solid #EAFFFC;
 	margin-bottom:		0px;
-	z-index:		101;
+	z-index:		51;
 }
 
 .gwt-TabPanel {
@@ -541,7 +542,7 @@ br {
 	border:			2px solid #0080BB;
 	padding:		6px;
 	-moz-border-radius:	7px;
-	z-index:		100;
+	z-index:		51;
 }
 
 .gwt-CheckBox {

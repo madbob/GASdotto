@@ -18,6 +18,19 @@
 package org.barberaware.client;
 
 public class FromServerFormCallbacks {
+	private String		identifier	= "";
+
+	public FromServerFormCallbacks () {
+	}
+
+	public FromServerFormCallbacks ( String id ) {
+		identifier = id;
+	}
+
+	public String getID () {
+		return identifier;
+	}
+
 	public String getName ( FromServerForm form ) {
 		return form.getObject ().getString ( "name" );
 	}
