@@ -114,6 +114,7 @@ function products_data ( $supplier, $startdate, $enddate ) {
 
 		$id = $p [ 1 ];
 		$tot = 0;
+		$val = 0;
 
 		while ( true ) {
 			$query = sprintf ( "SELECT COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders, OrderUser_products, ProductUser
@@ -125,6 +126,19 @@ function products_data ( $supplier, $startdate, $enddate ) {
 			$returned = query_and_check ( $query, "Impossibile recuperare numero utenti per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
 			$tot += $array [ 0 ] [ 0 ];
+
+			unset ( $query );
+			unset ( $returned );
+			unset ( $array );
+
+			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM ProductUser, Product
+						WHERE ProductUser.product = %d and Product.id = %d GROUP BY Product.unit_price", $id, $id );
+
+			$returned = query_and_check ( $query, "Impossibile recuperare valore per prodotto" );
+			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			if ( count ( $array ) == 1 )
+				$val += $array [ 0 ] [ 0 ];
+
 			unset ( $query );
 			unset ( $returned );
 			unset ( $array );
@@ -136,12 +150,13 @@ function products_data ( $supplier, $startdate, $enddate ) {
 			$returned = query_and_check ( "SELECT id " . $query, "Impossibile recuperare prodotto successivo" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
 			$id = $array [ 0 ] [ 0 ];
+
 			unset ( $query );
 			unset ( $returned );
 			unset ( $array );
 		}
 
-		$ret [] = array ( $p [ 0 ], $tot );
+		$ret [] = array ( $p [ 0 ], ( string ) $tot, ( string ) $val );
 	}
 
 	unset ( $query );

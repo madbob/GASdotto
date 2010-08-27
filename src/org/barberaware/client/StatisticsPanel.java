@@ -42,6 +42,8 @@ public class StatisticsPanel extends GenericPanel {
 	private FromServerSelector	supplier;
 	private ColumnChart		graphByProduct;
 	private ColumnChart.Options	graphByProductOptions;
+	private ColumnChart		graphByProductValue;
+	private ColumnChart.Options	graphByProductValueOptions;
 
 	public StatisticsPanel () {
 		super ();
@@ -60,8 +62,11 @@ public class StatisticsPanel extends GenericPanel {
 		frame = new CaptionPanel ( "Report per Utenti/Fornitori" );
 		main.add ( frame );
 
+		ver = new VerticalPanel ();
+		frame.setContentWidget ( ver );
+
 		hor = new HorizontalPanel ();
-		frame.setContentWidget ( hor );
+		ver.add ( hor );
 
 		input = new FlexTable ();
 		hor.add ( input );
@@ -93,23 +98,23 @@ public class StatisticsPanel extends GenericPanel {
 		input.setWidget ( 3, 0, usersFiles );
 		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
 
-		graphByOrders = new ColumnChart ();
-		hor.add ( graphByOrders );
-		graphByOrdersOptions = ColumnChart.Options.create ();
-		graphByOrdersOptions.setWidth ( 300 );
-		graphByOrdersOptions.setHeight ( 240 );
-		graphByOrdersOptions.set3D ( true );
-		graphByOrdersOptions.setLegend ( LegendPosition.NONE );
-		graphByOrdersOptions.setTitle ( "Numero Utenti con almeno un Ordine" );
-
 		graphByPrices = new PieChart ();
 		hor.add ( graphByPrices );
 		graphByPricesOptions = PieChart.Options.create ();
-		graphByPricesOptions.setWidth ( 300 );
+		graphByPricesOptions.setWidth ( 600 );
 		graphByPricesOptions.setHeight ( 240 );
 		graphByPricesOptions.set3D ( true );
 		graphByPricesOptions.setLegend ( LegendPosition.NONE );
 		graphByPricesOptions.setTitle ( "Somme Totali Pagate (€)" );
+
+		graphByOrders = new ColumnChart ();
+		ver.add ( graphByOrders );
+		graphByOrdersOptions = ColumnChart.Options.create ();
+		graphByOrdersOptions.setWidth ( 800 );
+		graphByOrdersOptions.setHeight ( 240 );
+		graphByOrdersOptions.set3D ( true );
+		graphByOrdersOptions.setLegend ( LegendPosition.NONE );
+		graphByOrdersOptions.setTitle ( "Numero Utenti con almeno un Ordine" );
 
 		frame = new CaptionPanel ( "Report per Prodotti/Fornitore" );
 		main.add ( frame );
@@ -139,7 +144,16 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProductOptions.setHeight ( 240 );
 		graphByProductOptions.set3D ( true );
 		graphByProductOptions.setLegend ( LegendPosition.NONE );
-		graphByProductOptions.setTitle ( "Prodotti Ordinati" );
+		graphByProductOptions.setTitle ( "Numero di Utenti che hanno Ordinato i Prodotti" );
+
+		graphByProductValue = new ColumnChart ();
+		ver.add ( graphByProductValue );
+		graphByProductValueOptions = ColumnChart.Options.create ();
+		graphByProductValueOptions.setWidth ( 800 );
+		graphByProductValueOptions.setHeight ( 240 );
+		graphByProductValueOptions.set3D ( true );
+		graphByProductValueOptions.setLegend ( LegendPosition.NONE );
+		graphByProductValueOptions.setTitle ( "Valore dei Prodotti Ordinati" );
 	}
 
 	private void populateUsersGraph ( JSONArray array ) {
@@ -153,13 +167,13 @@ public class StatisticsPanel extends GenericPanel {
 		num_items = array.size ();
 
 		by_orders = DataTable.create ();
-		by_orders.addColumn ( AbstractDataTable.ColumnType.STRING, "Fornitore" );
-		by_orders.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Utenti che hanno ordinato" );
+		by_orders.addColumn ( AbstractDataTable.ColumnType.STRING, "fornitore" );
+		by_orders.addColumn ( AbstractDataTable.ColumnType.NUMBER, "utenti" );
 		by_orders.addRows ( num_items );
 
 		by_price = DataTable.create ();
-		by_price.addColumn ( AbstractDataTable.ColumnType.STRING, "Fornitore" );
-		by_price.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Somma totale (€)" );
+		by_price.addColumn ( AbstractDataTable.ColumnType.STRING, "fornitore" );
+		by_price.addColumn ( AbstractDataTable.ColumnType.NUMBER, "somma" );
 		by_price.addRows ( num_items );
 
 		for ( int i = 0; i < num_items; i++ ) {
@@ -187,28 +201,41 @@ public class StatisticsPanel extends GenericPanel {
 		int num_items;
 		String product_name;
 		JSONArray row;
-		JSONNumber num;
-		DataTable by_products;
+		JSONString num;
+		DataTable by_users;
+		DataTable by_value;
 
 		num_items = array.size ();
 
-		by_products = DataTable.create ();
-		by_products.addColumn ( AbstractDataTable.ColumnType.STRING, "Prodotto" );
-		by_products.addColumn ( AbstractDataTable.ColumnType.NUMBER, "Utenti che hanno ordinato" );
-		by_products.addRows ( num_items );
+		by_users = DataTable.create ();
+		by_users.addColumn ( AbstractDataTable.ColumnType.STRING, "prodotto" );
+		by_users.addColumn ( AbstractDataTable.ColumnType.NUMBER, "utenti" );
+		by_users.addRows ( num_items );
+
+		by_value = DataTable.create ();
+		by_value.addColumn ( AbstractDataTable.ColumnType.STRING, "prodotto" );
+		by_value.addColumn ( AbstractDataTable.ColumnType.NUMBER, "valore" );
+		by_value.addRows ( num_items );
 
 		for ( int i = 0; i < num_items; i++ ) {
 			row = array.get ( i ).isArray ();
 
 			product_name = row.get ( 0 ).isString ().stringValue ();
-			by_products.setValue ( i, 0, product_name );
 
-			num = row.get ( 1 ).isNumber ();
+			by_users.setValue ( i, 0, product_name );
+			by_value.setValue ( i, 0, product_name );
+
+			num = row.get ( 1 ).isString ();
 			if ( num != null )
-				by_products.setValue ( i, 1, num.doubleValue () );
+				by_users.setValue ( i, 1, Double.parseDouble ( num.stringValue () ) );
+
+			num = row.get ( 2 ).isString ();
+			if ( num != null )
+				by_value.setValue ( i, 1, Double.parseDouble ( num.stringValue () ) );
 		}
 
-		graphByProduct.draw ( by_products, graphByProductOptions );
+		graphByProduct.draw ( by_users, graphByProductOptions );
+		graphByProductValue.draw ( by_value, graphByProductValueOptions );
 	}
 
 	private String linkTemplate ( String data_type, String document_type, int extra ) {
