@@ -34,7 +34,7 @@ public class ImageViewer extends Image implements StringWidget {
 	}
 
 	public void setValue ( String value ) {
-		if ( currentValue != null && currentValue != "" ) {
+		if ( value != null && value != "" ) {
 			currentValue = value;
 			setUrl ( Utils.getServer ().getDomain () + "/" + value );
 		}

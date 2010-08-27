@@ -84,11 +84,13 @@ public class ProductVariantValuesList extends FlexTable implements FromServerArr
 			setWidget ( row, 0, new Hidden ( "-1" ) );
 
 		text = new TextBox ();
+
 		text.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				checkAddRow ();
 			}
 		} );
+
 		setWidget ( row, 1, text );
 
 		if ( element != null )

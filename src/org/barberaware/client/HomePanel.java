@@ -87,7 +87,13 @@ public class HomePanel extends GenericPanel {
 							}
 						}
 						else {
-							index = doOrderRow ( closedOrders, ord );
+							/*
+								Se l'ordine e' chiuso e gia' consegnato, non lo visualizzo
+							*/
+							if ( object.getInt ( "status" ) != OrderUser.COMPLETE_DELIVERY )
+								index = doOrderRow ( closedOrders, ord );
+							else
+								return;
 						}
 
 						setOrderedText ( closedOrders, index, ( OrderUser ) object );

@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public abstract class OrdersList extends Composite {
 	private FlexTable	main;
 	private FromServerForm	mainForm;
@@ -115,11 +117,12 @@ public abstract class OrdersList extends Composite {
 		index = retrieveOrder ( order );
 
 		if ( index != -1 ) {
-			label = ( Label ) main.getWidget ( index, 0 );
+			label = ( Label ) main.getWidget ( index, 1 );
 			label.setText ( order.getString ( "name" ) );
 		}
-		else
+		else {
 			addOrder ( order );
+		}
 	}
 
 	public void delOrder ( Order order ) {
@@ -137,19 +140,24 @@ public abstract class OrdersList extends Composite {
 	}
 
 	private int retrieveOrder ( Order order ) {
+		int num;
 		Date start;
 		Order cmp;
 
-		start = order.getDate ( "startdate" );
+		num = orders.size ();
 
-		for ( int i = 0; i < orders.size (); i++ ) {
-			cmp = ( Order ) orders.get ( i );
+		if ( num != 0 ) {
+			start = order.getDate ( "startdate" );
 
-			if ( cmp.equals ( order ) )
-				return i;
+			for ( int i = 0; i < num; i++ ) {
+				cmp = ( Order ) orders.get ( i );
 
-			if ( cmp.getDate ( "startdate" ).before ( start ) )
-				return -1;
+				if ( cmp.equals ( order ) )
+					return i;
+
+				if ( cmp.getDate ( "startdate" ).before ( start ) )
+					return -1;
+			}
 		}
 
 		return -1;

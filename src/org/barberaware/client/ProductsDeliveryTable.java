@@ -239,10 +239,14 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		FromServer value;
 		ProductUserVariant variant;
 		ProductUserVariantComponent component;
+		HTMLTable.RowFormatter formatter;
 		Widget ret [];
 
 		list = new FlexTable ();
+		list.setHeight ( "100%" );
+
 		inputs = new FloatBoxes ();
+		inputs.setHeight ( "100%" );
 
 		num = variants.size ();
 
@@ -259,7 +263,10 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				component = ( ProductUserVariantComponent ) components.get ( a );
 				value = component.getObject ( "value" );
 				check = check + Integer.toString ( value.getLocalID () ) + ":";
-				label = component.getObject ( "variant" ).getString ( "name" ) + ": " + value.getString ( "name" ) + " ";
+				label = label + component.getObject ( "variant" ).getString ( "name" ) + ": " + value.getString ( "name" );
+
+				if ( a != num_comps - 1 )
+					label = label + ", ";
 			}
 
 			found = -1;
@@ -300,6 +307,14 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			if ( variant.getBool ( "delivered" ) == true )
 				del.setVal ( del.getVal () + 1 );
 		}
+
+		/*
+		formatter = list.getRowFormatter ();
+		num = list.getRowCount ();
+
+		for ( int j = 0; j < num; j++ )
+			formatter.getElement ( j ).setAttribute ( "style", "height: " + ( 100 / num ) + "%;" );
+		*/
 
 		ret = new Widget [ 2 ];
 		ret [ 0 ] = list;

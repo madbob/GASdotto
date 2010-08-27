@@ -27,6 +27,7 @@ public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
 	private String			identifier;
 	private int			numOrders;
+	private int []			statusOrder		= { 0, 2, 3, 1 };
 
 	public DeliverySummary () {
 		main = new VerticalPanel ();
@@ -77,6 +78,15 @@ public class DeliverySummary extends Composite {
 		cleanUp ();
 	}
 
+	private void commonActionsOnEdit ( FromServerForm row ) {
+		FromServer uorder;
+
+		uorder = row.getObject ();
+		main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
+		row.savingObject ();
+		row.open ( false );
+	}
+
 	public void addOrder ( OrderUser uorder ) {
 		final FromServerForm row;
 		FromServer user;
@@ -104,28 +114,21 @@ public class DeliverySummary extends Composite {
 		row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				row.getObject ().setInt ( "status", OrderUser.SAVED );
-				row.savingObject ();
-				row.open ( false );
+				commonActionsOnEdit ( row );
 			}
 		} );
 
 		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				FromServer uorder;
-
-				uorder = row.getObject ();
-				uorder.setInt ( "status", OrderUser.COMPLETE_DELIVERY );
-				main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
-				row.savingObject ();
-				row.open ( false );
+				row.getObject ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+				commonActionsOnEdit ( row );
 			}
 		} );
 
 		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				row.getObject ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
-				row.savingObject ();
-				row.open ( false );
+				commonActionsOnEdit ( row );
 			}
 		} );
 
@@ -210,15 +213,10 @@ public class DeliverySummary extends Composite {
 			o_iter = row.getObject ();
 			status_iter = o_iter.getInt ( "status" );
 
-			/**
-				TODO	Ordinare ordini non in base numerica ma mettere i SAVED
-					prima dei PARTIAL_DELIVERY
-			*/
-
-			if ( status_iter > status_to_place ) {
+			if ( statusOrder [ status_iter ] > statusOrder [ status_to_place ] ) {
 				return i;
 			}
-			else if ( status_iter == status_to_place ) {
+			else if ( statusOrder [ status_iter ] == statusOrder [ status_to_place ] ) {
 				u_iter = o_iter.getObject ( "baseuser" );
 				name_iter = u_iter.getString ( "name" );
 

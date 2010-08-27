@@ -50,6 +50,7 @@ public class NotificationPanel extends GenericPanel {
 
 				protected FromServerForm doEditableRow ( FromServer n ) {
 					FromServerForm ver;
+					DateSelector date;
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
 					EnumSelector type_sel;
@@ -62,8 +63,13 @@ public class NotificationPanel extends GenericPanel {
 
 					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect () ) );
 
-					frame.addPair ( "Data Inizio", ver.getWidget ( "startdate" ) );
+					date = new DateSelector ();
+					frame.addPair ( "Data Inizio", ver.getPersonalizedWidget ( "startdate", date ) );
+					if ( n.getDate ( "startdate" ) == null )
+						date.setValue ( new Date ( System.currentTimeMillis () ) );
+
 					frame.addPair ( "Date Fine", ver.getWidget ( "enddate" ) );
+					ver.setValidation ( "enddate", FromServerValidateCallback.defaultDateValidationCallback () );
 
 					type_sel = new EnumSelector ();
 					type_sel.addItem ( "Informazione" );
