@@ -226,6 +226,14 @@ if ( $graph == 0 ) {
 
 			$ret .= "Totale\n";
 
+			$supplier_total_orders = array ();
+			$supplier_total_price = array ();
+
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
+				$supplier_total_orders [] = 0;
+				$supplier_total_price [] = 0;
+			}
+
 			for ( $i = 0; $i < count ( $rows_users ); $i++ ) {
 				$ret .= ( $rows_users [ $i ] [ 'surname' ] ) . ' ' . ( $rows_users [ $i ] [ 'firstname' ] ) . ';';
 				$total_price = 0;
@@ -234,8 +242,11 @@ if ( $graph == 0 ) {
 					list ( $tot, $price ) = users_data ( $rows_users [ $i ] [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
 
 					if ( $price [ 0 ] [ 0 ] != "" ) {
-						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ' ordini / ' . ( $price [ 0 ] [ 0 ] ) . ' euro;' );
+						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ' ordini / ' . ( format_price ( $price [ 0 ] [ 0 ], false ) ) . ' euro;' );
 						$total_price += $price [ 0 ] [ 0 ];
+
+						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
+						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
 					}
 					else {
 						$ret .= ';';
@@ -245,8 +256,17 @@ if ( $graph == 0 ) {
 					unset ( $price );
 				}
 
-				$ret .= $total_price . " euro\n";
+				$ret .= ( format_price ( $total_price, false ) ) . " euro\n";
 			}
+
+			$ret .= ';';
+
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
+				$ret .= ( $supplier_total_orders [ $a ] ) . ' ordini / ' . ( format_price ( $supplier_total_price [ $a ], false ) ) . ' euro;';
+
+			$ret .= "\n";
+			unset ( $supplier_total_orders );
+			unset ( $supplier_total_price );
 
 			unset ( $rows_users );
 			unset ( $rows_suppliers );
@@ -259,12 +279,12 @@ if ( $graph == 0 ) {
 			if ( isset ( $supplier ) == false )
 				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
 
-			$ret .= "Totale Utenti\n";
+			$ret .= "Totale Utenti;Totale Valore\n";
 			$products = products_data ( $supplier, $startdate, $enddate );
 
 			for ( $i = 0; $i < count ( $products ); $i++ ) {
 				$r = $products [ $i ];
-				$ret .= ( $r [ 0 ] ) . ';' . ( $r [ 1 ] ) . "\n";
+				$ret .= ( $r [ 0 ] ) . ';' . ( $r [ 1 ] ) . ';' . ( format_price ( $r [ 2 ], false ) ) . " euro\n";
 			}
 
 			unset ( $products );
@@ -294,6 +314,14 @@ if ( $graph == 0 ) {
 			$header [] = "Totale";
 			$data = array ();
 
+			$supplier_total_orders = array ();
+			$supplier_total_price = array ();
+
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
+				$supplier_total_orders [] = 0;
+				$supplier_total_price [] = 0;
+			}
+
 			for ( $i = 0; $i < count ( $rows_users ); $i++ ) {
 				$row = array ();
 				$total_price = 0;
@@ -318,8 +346,11 @@ if ( $graph == 0 ) {
 											$startdate, $enddate );
 
 						if ( $price [ 0 ] [ 0 ] != "" ) {
-							$row [] = ( $tot [ 0 ] [ 0 ] ) . ' ordini /<br />' . ( $price [ 0 ] [ 0 ] ) . ' €';
+							$row [] = ( $tot [ 0 ] [ 0 ] ) . ' ordini /<br />' . ( format_price ( $price [ 0 ] [ 0 ] ) );
 							$total_price += $price [ 0 ] [ 0 ];
+
+							$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
+							$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
 						}
 						else {
 							$row [] = '<br />';
@@ -329,12 +360,22 @@ if ( $graph == 0 ) {
 						unset ( $price );
 					}
 
-					$row [] = $total_price . ' €';
+					$row [] = format_price ( $total_price );
 					$data [] = $row;
 				}
 
 				unset ( $rows_users [ $i ] );
 			}
+
+			$row = array ();
+			$row [] = "";
+
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
+				$row [] = ( $supplier_total_orders [ $a ] ) . ' ordini /<br />' . ( format_price ( $supplier_total_price [ $a ] ) );
+
+			$data [] = $row;
+			unset ( $supplier_total_orders );
+			unset ( $supplier_total_price );
 
 			unset ( $rows_users );
 			unset ( $rows_suppliers );
@@ -348,7 +389,11 @@ if ( $graph == 0 ) {
 				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
 
 			$header [] = "Totale Utenti";
+			$header [] = "Totale Valore";
 			$data = products_data ( $supplier, $startdate, $enddate );
+
+			for ( $i = 0; $i < count ( $data ); $i++ )
+				$data [ $i ] [ 2 ] = ( format_price ( $data [ $i ] [ 2 ], false ) ) . " euro";
 
 			$file_title = 'Statistiche Prodotti/Fornitori';
 			$file_name = 'statistiche_prodotti_fornitori.pdf';
