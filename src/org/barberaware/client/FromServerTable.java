@@ -229,7 +229,9 @@ public class FromServerTable extends Composite implements FromServerArray {
 	public void addElement ( FromServer element ) {
 		int row;
 		int cols;
+		String element_name;
 		Widget wid;
+		FromServer cmp;
 		FromServerTableColumn c;
 
 		if ( element == null )
@@ -241,6 +243,19 @@ public class FromServerTable extends Composite implements FromServerArray {
 		if ( row < 2 ) {
 			doHeader ();
 			row = 1;
+		}
+		else {
+			element_name = element.getString ( "name" );
+
+			for ( int i = 0; i < rows.size (); i++ ) {
+				cmp = ( FromServer ) rows.get ( i );
+
+				if ( cmp.getString ( "name" ).compareTo ( element_name ) > 0 ) {
+					main.insertRow ( i + 1 );
+					row = i + 1;
+					break;
+				}
+			}
 		}
 
 		for ( int i = 0; i < cols; i++ ) {

@@ -71,12 +71,16 @@ class FromServerAttribute {
 				break;
 
 			case "ARRAY":
+				$ref = new $objtype;
+
 				$ret = array ();
 				$attr = $parent->getAttribute ( "id" );
 				$id = $attr->value;
 
-				$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY target ASC",
-							$parent->tablename, $this->name, $id );
+				$tabname = $parent->tablename . '_' . $this->name;
+
+				$query = sprintf ( "SELECT target FROM %s, %s WHERE %s.parent = %d AND %s.id = %s.target ORDER BY %s.%s",
+							$tabname, $ref->tablename, $tabname, $id, $ref->tablename, $tabname, $ref->tablename, $ref->sorting );
 
 				$existing = query_and_check ( $query, "Impossibile recuperare array per " . $parent->classname );
 				$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );

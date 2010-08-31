@@ -255,14 +255,38 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			label = "";
 
 			variant = ( ProductUserVariant ) variants.get ( i );
-
 			components = variant.getArray ( "components" );
+
+			Collections.sort ( components, new Comparator () {
+				public int compare ( Object first, Object second ) {
+					FromServer tmp;
+					String name_first;
+					String name_second;
+
+					tmp = ( FromServer ) first;
+					name_first = tmp.getObject ( "variant" ).getString ( "name" );
+					tmp = ( FromServer ) second;
+					name_second = tmp.getObject ( "variant" ).getString ( "name" );
+
+					return name_first.compareTo ( name_second );
+				}
+
+				public boolean equals ( Object obj ) {
+					return false;
+				}
+			} );
+
 			num_comps = components.size ();
 
 			for ( int a = 0; a < num_comps; a++ ) {
 				component = ( ProductUserVariantComponent ) components.get ( a );
 				value = component.getObject ( "value" );
 				check = check + Integer.toString ( value.getLocalID () ) + ":";
+
+				/*
+					Qui costruisco la stringa da visualizzare in ogni caso, se poi salta fuori
+					che una variante come questa e' gia' presente in tabella la butto
+				*/
 				label = label + component.getObject ( "variant" ).getString ( "name" ) + ": " + value.getString ( "name" );
 
 				if ( a != num_comps - 1 )

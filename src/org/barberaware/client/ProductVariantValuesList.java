@@ -121,11 +121,17 @@ public class ProductVariantValuesList extends FlexTable implements FromServerArr
 	}
 
 	public void setElements ( ArrayList elements ) {
+		int num;
+		ArrayList sorted_elements;
+
 		while ( getRowCount () != 0 )
 			removeRow ( 0 );
 
-		for ( int i = 0; i < elements.size (); i++ )
-			addRow ( ( FromServer ) elements.get ( i ) );
+		sorted_elements = Utils.sortArrayByName ( elements );
+		num = sorted_elements.size ();
+
+		for ( int i = 0; i < num; i++ )
+			addRow ( ( FromServer ) sorted_elements.get ( i ) );
 
 		addRow ( null );
 		addRow ( null );

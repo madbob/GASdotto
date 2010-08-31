@@ -26,6 +26,19 @@ class ProductUserVariant extends FromServer {
 		$this->addAttribute ( "delivered", "BOOLEAN" );
 		$this->addAttribute ( "components", "ARRAY::ProductUserVariantComponent" );
 	}
+
+	private function sort_components ( $first, $second ) {
+		return strcmp ( $first->variant->name, $second->variant->name );
+	}
+
+	public function get ( $request, $compress ) {
+		$ret = parent::get ( $request, $compress );
+
+		foreach ( $ret as $i )
+			usort ( $i->components, "sort_components" );
+
+		return $ret;
+	}
 }
 
 ?>

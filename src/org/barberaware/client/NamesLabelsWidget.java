@@ -47,6 +47,7 @@ public class NamesLabelsWidget extends Label implements FromServerArray {
 	public void setElements ( ArrayList elements ) {
 		int tot;
 		String text;
+		ArrayList sorted_elements;
 		FromServer obj;
 
 		if ( elements == null ) {
@@ -60,16 +61,18 @@ public class NamesLabelsWidget extends Label implements FromServerArray {
 			return;
 		}
 
-		obj = ( FromServer ) elements.get ( 0 );
+		sorted_elements = Utils.sortArrayByName ( elements );
+
+		obj = ( FromServer ) sorted_elements.get ( 0 );
 		text = obj.getString ( "name" );
 
 		for ( int i = 1; i < tot; i++ ) {
-			obj = ( FromServer ) elements.get ( i );
+			obj = ( FromServer ) sorted_elements.get ( i );
 			text = text + ", " + obj.getString ( "name" );
 		}
 
 		setText ( text );
-		currentElements = elements;
+		currentElements = sorted_elements;
 	}
 
 	public void removeElement ( FromServer element ) {
