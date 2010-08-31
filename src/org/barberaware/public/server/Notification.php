@@ -71,6 +71,8 @@ class Notification extends FromServer {
 		foreach ( $obj->recipent as $destination ) {
 			if ( isset ( $destination->mail ) && $destination->mail != '' )
 				$dests [] = $destination->mail;
+			if ( isset ( $destination->mail2 ) && $destination->mail2 != '' )
+				$dests [] = $destination->mail2;
 		}
 
 		$subject = ( substr ( $obj->description, 0, 10 ) ) . '...';

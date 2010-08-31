@@ -136,15 +136,18 @@ public class MonthsSelector extends Composite implements StringWidget {
 		CheckBox check;
 
 		reset ();
-		valid = value.toCharArray ();
 
-		for ( int i = 0; i < valid.length && i < months.size (); i++ ) {
-			check = ( CheckBox ) months.get ( i );
+		if ( value != null ) {
+			valid = value.toCharArray ();
 
-			if ( valid [ i ] == 'X' )
-				check.setChecked ( true );
-			else
-				check.setChecked ( false );
+			for ( int i = 0; i < valid.length && i < months.size (); i++ ) {
+				check = ( CheckBox ) months.get ( i );
+
+				if ( valid [ i ] == 'X' )
+					check.setChecked ( true );
+				else
+					check.setChecked ( false );
+			}
 		}
 
 		monthsSelected ();

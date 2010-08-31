@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class FromServerTable extends Composite implements FromServerArray {
 	public static int		TABLE_REMOVE		= 0;
 	public static int		TABLE_EDIT		= 1;
@@ -321,7 +323,10 @@ public class FromServerTable extends Composite implements FromServerArray {
 		for ( int i = 0; i < cols; i++ ) {
 			c = ( FromServerTableColumn ) columns.get ( i );
 
-			if ( c.edit == true ) {
+			if ( c.action != -1 ) {
+				continue;
+			}
+			else if ( c.edit == true ) {
 				wid = ( FromServerWidget ) main.getWidget ( row, i );
 				wid.set ( element );
 			}

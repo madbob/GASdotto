@@ -321,6 +321,13 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 				prod = prod.duplicate ();
 				prod.setLocalID ( -1 );
 				prod.setString ( "name", prod.getString ( "name" ) + " 2" );
+
+				/*
+					Dai prodotti duplicati vengono rimosse le varianti. Eventualmente si potranno
+					duplicare a loro volta con l'apposita funzione
+				*/
+				prod.setArray ( "variants", null );
+
 				list.addElement ( prod );
 			}
 

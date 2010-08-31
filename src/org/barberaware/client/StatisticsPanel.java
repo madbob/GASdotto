@@ -34,8 +34,8 @@ public class StatisticsPanel extends GenericPanel {
 	private VerticalPanel		main;
 
 	private LinksDialog		usersFiles;
-	private DateSelector		startDate;
-	private DateSelector		endDate;
+	private DateSelector		supplierStartDate;
+	private DateSelector		supplierEndDate;
 	private ColumnChart		graphByOrders;
 	private PieChart		graphByPrices;
 	private ColumnChart.Options	graphByOrdersOptions;
@@ -44,6 +44,8 @@ public class StatisticsPanel extends GenericPanel {
 	private VerticalPanel		supplierDetails;
 
 	private LinksDialog		productsFiles;
+	private DateSelector		productStartDate;
+	private DateSelector		productEndDate;
 	private FromServerSelector	supplier;
 	private ColumnChart		graphByProduct;
 	private ColumnChart.Options	graphByProductOptions;
@@ -84,21 +86,21 @@ public class StatisticsPanel extends GenericPanel {
 		};
 
 		now = new Date ( System.currentTimeMillis () );
-		endDate = new DateSelector ();
-		endDate.setValue ( now );
+		supplierEndDate = new DateSelector ();
+		supplierEndDate.setValue ( now );
 
 		now = ( Date ) now.clone ();
 		now.setYear ( now.getYear () - 1 );
-		startDate = new DateSelector ();
-		startDate.setValue ( now );
+		supplierStartDate = new DateSelector ();
+		supplierStartDate.setValue ( now );
 
-		startDate.addChangeListener ( listener );
+		supplierStartDate.addChangeListener ( listener );
 		input.setWidget ( 1, 0, new Label ( "Dal" ) );
-		input.setWidget ( 1, 1, startDate );
+		input.setWidget ( 1, 1, supplierStartDate );
 
-		endDate.addChangeListener ( listener );
+		supplierEndDate.addChangeListener ( listener );
 		input.setWidget ( 2, 0, new Label ( "Al" ) );
-		input.setWidget ( 2, 1, endDate );
+		input.setWidget ( 2, 1, supplierEndDate );
 
 		usersFiles = new LinksDialog ( "Scarica Statistiche" );
 		input.setWidget ( 3, 0, usersFiles );
@@ -172,11 +174,34 @@ public class StatisticsPanel extends GenericPanel {
 				performProductsUpdate ();
 			}
 		} );
-		input.setWidget ( 1, 0, new Label ( "Fornitore" ) );
-		input.setWidget ( 1, 1, supplier );
+		input.setWidget ( 0, 0, new Label ( "Fornitore" ) );
+		input.setWidget ( 0, 1, supplier );
 
 		productsFiles = new LinksDialog ( "Scarica Statistiche" );
-		input.setWidget ( 1, 2, productsFiles );
+		input.setWidget ( 0, 2, productsFiles );
+
+		now = new Date ( System.currentTimeMillis () );
+		productEndDate = new DateSelector ();
+		productEndDate.setValue ( now );
+
+		listener = new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				performProductsUpdate ();
+			}
+		};
+
+		now = ( Date ) now.clone ();
+		now.setYear ( now.getYear () - 1 );
+		productStartDate = new DateSelector ();
+		productStartDate.setValue ( now );
+
+		productStartDate.addChangeListener ( listener );
+		input.setWidget ( 1, 0, new Label ( "Dal" ) );
+		input.setWidget ( 1, 1, productStartDate );
+
+		productEndDate.addChangeListener ( listener );
+		input.setWidget ( 2, 0, new Label ( "Al" ) );
+		input.setWidget ( 2, 1, productEndDate );
 
 		graphByProduct = new ColumnChart ();
 		layout.setWidget ( 1, 0, graphByProduct );
@@ -380,9 +405,9 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProductValue.draw ( by_value, graphByProductValueOptions );
 	}
 
-	private String linkTemplate ( String data_type, String document_type, int extra ) {
+	private String linkTemplate ( String data_type, String document_type, DateSelector start, DateSelector end, int extra ) {
 		return "graph_data.php?type=" + data_type + "&document=" + document_type + "&extra=" + extra + "&graph=0&startdate=" +
-			Utils.encodeDate ( startDate.getValue () ) + "&enddate=" + Utils.encodeDate ( endDate.getValue () );
+			Utils.encodeDate ( start.getValue () ) + "&enddate=" + Utils.encodeDate ( end.getValue () );
 	}
 
 	private void notifyError ( Request request, Throwable exception ) {
@@ -396,26 +421,26 @@ public class StatisticsPanel extends GenericPanel {
 
 	private void updateUsersLinks () {
 		usersFiles.emptyBox ();
-		usersFiles.addLink ( "CVS", linkTemplate ( "users", "csv", -1 ) );
-		usersFiles.addLink ( "PDF", linkTemplate ( "users", "pdf", -1 ) );
+		usersFiles.addLink ( "CVS", linkTemplate ( "users", "csv", supplierStartDate, supplierEndDate, -1 ) );
+		usersFiles.addLink ( "PDF", linkTemplate ( "users", "pdf", supplierStartDate, supplierEndDate, -1 ) );
 	}
 
 	private void performUsersUpdate () {
 		Date s;
 		Date e;
 
-		s = startDate.getValue ();
-		e = endDate.getValue ();
+		s = supplierStartDate.getValue ();
+		e = supplierEndDate.getValue ();
 		if ( s.after ( e ) ) {
 			Utils.showNotification ( "La data di partenza è posteriore alla data di fine selezione" );
-			Utils.graphicPulseWidget ( startDate );
-			Utils.graphicPulseWidget ( endDate );
+			Utils.graphicPulseWidget ( supplierStartDate );
+			Utils.graphicPulseWidget ( supplierEndDate );
 			return;
 		}
 
 		updateUsersLinks ();
 
-		Utils.getServer ().rawGet ( linkTemplate ( "users", "visual", -1 ), new RequestCallback () {
+		Utils.getServer ().rawGet ( linkTemplate ( "users", "visual", supplierStartDate, supplierEndDate, -1 ), new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				notifyError ( request, exception );
 			}
@@ -440,17 +465,28 @@ public class StatisticsPanel extends GenericPanel {
 
 	private void updateProductsLinks ( FromServer supp ) {
 		productsFiles.emptyBox ();
-		productsFiles.addLink ( "CVS", linkTemplate ( "products", "csv", supp.getLocalID () ) );
-		productsFiles.addLink ( "PDF", linkTemplate ( "products", "pdf", supp.getLocalID () ) );
+		productsFiles.addLink ( "CVS", linkTemplate ( "products", "csv", productStartDate, productEndDate, supp.getLocalID () ) );
+		productsFiles.addLink ( "PDF", linkTemplate ( "products", "pdf", productStartDate, productEndDate, supp.getLocalID () ) );
 	}
 
 	private void performProductsUpdate () {
+		Date s;
+		Date e;
 		FromServer supp;
+
+		s = productStartDate.getValue ();
+		e = productEndDate.getValue ();
+		if ( s.after ( e ) ) {
+			Utils.showNotification ( "La data di partenza è posteriore alla data di fine selezione" );
+			Utils.graphicPulseWidget ( productStartDate );
+			Utils.graphicPulseWidget ( productEndDate );
+			return;
+		}
 
 		supp = supplier.getValue ();
 		updateProductsLinks ( supp );
 
-		Utils.getServer ().rawGet ( linkTemplate ( "products", "visual", supp.getLocalID () ), new RequestCallback () {
+		Utils.getServer ().rawGet ( linkTemplate ( "products", "visual", productStartDate, productEndDate, supp.getLocalID () ), new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				notifyError ( request, exception );
 			}

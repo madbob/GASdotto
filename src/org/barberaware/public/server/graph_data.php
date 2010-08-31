@@ -96,7 +96,7 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 }
 
 function products_data ( $supplier, $startdate, $enddate ) {
-	$query = sprintf ( "SELECT name, id FROM Product WHERE supplier = %d AND previous_description = 0", $supplier );
+	$query = sprintf ( "SELECT name, id FROM Product WHERE supplier = %d AND previous_description = 0 ORDER BY name", $supplier );
 	$returned = query_and_check ( $query, "Impossibile recuperare lista prodotti" );
 	$products = $returned->fetchAll ( PDO::FETCH_NUM );
 
@@ -131,8 +131,11 @@ function products_data ( $supplier, $startdate, $enddate ) {
 			unset ( $returned );
 			unset ( $array );
 
-			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM ProductUser, Product
-						WHERE ProductUser.product = %d and Product.id = %d GROUP BY Product.unit_price", $id, $id );
+			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
+						WHERE Product.id = %d AND OrderUser.baseorder = Orders.id AND OrderUser_products.parent = OrderUser.id AND
+							ProductUser.id = OrderUser_products.target AND ProductUser.product = Product.id AND
+							Orders.startdate > '%s' AND Orders.enddate < '%s' GROUP BY Product.unit_price",
+								$id, $startdate, $enddate );
 
 			$returned = query_and_check ( $query, "Impossibile recuperare valore per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
@@ -166,7 +169,7 @@ function products_data ( $supplier, $startdate, $enddate ) {
 }
 
 function list_suppliers () {
-	$query = sprintf ( "SELECT id, name FROM Supplier ORDER BY name DESC" );
+	$query = sprintf ( "SELECT id, name FROM Supplier ORDER BY name ASC" );
 	$returned = query_and_check ( $query, "Impossibile recuperare fornitori" );
 	$rows_suppliers = $returned->fetchAll ( PDO::FETCH_ASSOC );
 	unset ( $query );
@@ -473,6 +476,12 @@ if ( $graph == 0 ) {
 				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
 
 			$array = products_data ( $supplier, $startdate, $enddate );
+
+			for ( $i = 0; $i < count ( $array ); $i++ ) {
+				$prodname = $array [ $i ] [ 0 ];
+				if ( strlen ( $prodname ) > 25 )
+					$array [ $i ] [ 0 ] = substr ( $prodname, 0, 23 ) . '...';
+			}
 		}
 
 		$ret->data = $array;
