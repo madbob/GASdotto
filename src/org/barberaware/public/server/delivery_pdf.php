@@ -82,6 +82,12 @@ if ( isset ( $id ) == false )
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
+/*
+	Questo serve a sapere se dovro' aggiungere la riga con il riassunto delle confezioni
+	complete o meno al fondo del file
+*/
+$has_stocks = false;
+
 $order = new Order ();
 $order->readFromDB ( $id );
 $supplier = $order->getAttribute ( 'supplier' )->value;
@@ -109,6 +115,9 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 		$symbol = "";
 
 	array_push ( $header, $name . "<br />(" . $price . $symbol . ")" );
+
+	if ( $prod->getAttribute ( "stock_size" )->value > 0 )
+		$has_stocks = true;
 }
 
 array_push ( $header, 'Totale Prezzo Prodotti' );
@@ -291,7 +300,6 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 }
 
 unset ( $contents );
-unset ( $products );
 
 $row = array ();
 $row [] = "Quantita' Totali";
@@ -308,6 +316,35 @@ for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 	$row [] = $q;
 }
 $data [] = $row;
+
+if ( $has_stocks == true ) {
+	$row = array ();
+	$row [] = "Numero Confezioni";
+
+	for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
+		$prod = $products [ $i ];
+		$stock = $prod->getAttribute ( "stock_size" )->value;
+
+		if ( $stock <= 0.0 ) {
+			$row [] = "";
+		}
+		else {
+			$quantity = $quantities_sums [ $i ];
+			$boxes = ceil ( $quantity / $stock );
+			$q = $boxes . ' confezioni da ' . $stock;
+
+			$missing = ( $stock * $boxes ) - $quantity;
+			if ( $missing > 0 )
+				$q .= ',<br />' . $missing . ' non assegnati';
+
+			$row [] = $q;
+		}
+	}
+
+	$data [] = $row;
+}
+
+unset ( $products );
 
 $gran_total = 0;
 $row = array ();

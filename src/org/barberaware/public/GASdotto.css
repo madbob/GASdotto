@@ -388,11 +388,12 @@ body {
 
 .table-legend {
 	position:		fixed;
-	bottom:			5px;
+	top:			45px;
 	right:			5px;
 	font-size:		12px;
 	border-left:		2px solid #000000;
 	border-top:		2px solid #000000;
+	border-bottom:		2px solid #000000;
 	z-index:		50;
 	background-color:	#FFFFFF;
 }

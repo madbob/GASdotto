@@ -26,6 +26,8 @@ if ( isset ( $id ) == false )
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
+$has_stocks = false;
+
 $order = new Order ();
 $order->readFromDB ( $id );
 
@@ -49,6 +51,9 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 		$symbol = "";
 
 	$products_prices [] = ( format_price ( $prod->getAttribute ( "unit_price" )->value, false ) ) . $symbol;
+
+	if ( $prod->getAttribute ( "stock_size" )->value > 0 )
+		$has_stocks = true;
 }
 
 $products_names [] = "Totale Prezzo Prodotti";
@@ -210,6 +215,31 @@ for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 	$output .= ";" . $q;
 }
 $output .= "\n";
+
+if ( $has_stocks == true ) {
+	$output .= 'Numero Confezioni';
+
+	for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
+		$q = '';
+
+		$prod = $products [ $i ];
+		$stock = $prod->getAttribute ( 'stock_size' )->value;
+
+		if ( $stock > 0 ) {
+			$quantity = $quantities_sums [ $i ];
+			$boxes = ceil ( $quantity / $stock );
+			$q = $boxes . ' confezioni da ' . $stock;
+
+			$missing = ( $stock * $boxes ) - $quantity;
+			if ( $missing > 0 )
+				$q .= ', ' . $missing . ' non assegnati';
+		}
+
+		$output .= ';' . $q;
+	}
+
+	$output .= "\n";
+}
 
 $gran_total = 0;
 $output .= "Totale Prezzo Prodotti";
