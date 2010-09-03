@@ -52,7 +52,10 @@ class Notification extends FromServer {
 			$query .= sprintf ( " %s.id NOT IN ( %s ) AND ", $this->tablename, $ids );
 		}
 
-		$query .= sprintf ( " %s.target = %d AND %s.id = %s.parent ORDER BY startdate DESC", $references, $current_user, $this->tablename, $references );
+		if ( !isset ( $request->all ) )
+			$query .= sprintf ( "%s.target = %d AND ", $references, $current_user );
+
+		$query .= sprintf ( "%s.id = %s.parent ORDER BY startdate DESC", $this->tablename, $references );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
@@ -86,8 +89,11 @@ class Notification extends FromServer {
 
 		$id = parent::save ( $obj );
 
-		if ( $id > 0 && $sendmail == true )
-			self::send_as_mail ( $obj );
+		if ( $id > 0 && $sendmail == true ) {
+			$m = self::send_as_mail ( $obj );
+			if ( $m != null )
+				error_exit ( "Notifica salvata, ma problema in invio mail: " . $m );
+		}
 
 		return $id;
 	}

@@ -246,7 +246,13 @@ function my_send_mail ( $recipients, $subject, $body ) {
 	$headers = array ( 'From' => $from, 'Subject' => $mysubject );
 
 	$smtp = Mail::factory ( 'smtp', array ( 'host' => $host, 'port' => $port, 'auth' => true, 'username' => $username, 'password' => $password ) );
-	$smtp->send ( $recipients, $headers, $body );
+
+	$ret = $smtp->send ( $recipients, $headers, $body );
+
+	if ( PEAR::isError ( $ret ) )
+		return $ret->getMessage ();
+	else
+		return null;
 }
 
 /****************************************************************** authentication */
