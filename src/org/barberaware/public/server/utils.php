@@ -231,7 +231,7 @@ function unique_filesystem_name ( $folder, $name ) {
 
 /****************************************************************** mail */
 
-function send_mail ( $recipients, $subject, $body ) {
+function my_send_mail ( $recipients, $subject, $body ) {
 	$gas = new GAS ();
 	$gas->readFromDB ( 1 );
 	$mailconf = $gas->getAttribute ( 'mail_conf' )->value;

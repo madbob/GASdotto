@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------[Readme]
 
-GASdotto 1.1
+GASdotto 2.0
 Roberto -MadBob- Guido
-Marzo 2010
+Settembre 2010
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -24,15 +24,17 @@ GWT-Log			http://code.google.com/p/gwt-log/					v2.5.2
 GWT-Visualization	http://code.google.com/apis/visualization/interactive_charts.html	v1.0.1
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
-PHP			http://php.net/					testato su versione 5.2.6
+PHP			http://php.net/					testato su versione 5.3.3
 PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
 Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
-Apache			http://apache.org/				testato su versione 2.2.11
+Pear-Net_SMTP		http://pear.php.net/package/Net_SMTP/		testato su versione 1.4.2
+Apache			http://apache.org/				testato su versione 2.2.15
 
 Il database in cui verranno messi i dati puo' essere selezionato tra:
-PostgreSQL		http://www.postgresql.org/			testato su versione 8.3.7
+PostgreSQL		http://www.postgresql.org/			testato su versione 8.4
 MySQL			http://www.mysql.com				testato su versione 5.0.81
+E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
 -------------------------------------------------------------------------------------[Compilazione]
 

@@ -76,7 +76,7 @@ class Notification extends FromServer {
 		}
 
 		$subject = ( substr ( $obj->description, 0, 10 ) ) . '...';
-		send_mail ( $dests, $subject, $obj->description );
+		my_send_mail ( $dests, $subject, $obj->description );
 	}
 
 	public function save ( $obj ) {

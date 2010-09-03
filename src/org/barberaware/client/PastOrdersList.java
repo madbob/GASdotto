@@ -31,11 +31,11 @@ public class PastOrdersList extends OrdersList {
 	}
 
 	public static void configEmblem ( EmblemsInfo info ) {
-		info.addSymbol ( "past_orders", "images/notifications/supplier_having_past_orders.png", "Hai Eseguito Ordini presso questo Fornitore" );
+		/* dummy */
 	}
 
 	protected String getMainIcon () {
-		return "past_orders";
+		return null;
 	}
 
 	protected void checkExistingOrders ( FromServer supplier ) {

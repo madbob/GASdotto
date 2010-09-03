@@ -74,6 +74,13 @@ public class SuppliersEditPanel extends GenericPanel {
 				params.add ( "supplier", form.getObject ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
+
+				params = new ObjectRequest ( "OrderUser" );
+				params.add ( "all", 1 );
+				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "baseuser", Session.getUser ().getLocalID () );
+				params.add ( "query_limit", 10 );
+				Utils.getServer ().testObjectReceive ( params );
 			}
 		};
 
@@ -396,6 +403,5 @@ public class SuppliersEditPanel extends GenericPanel {
 
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
-		Utils.getServer ().testObjectReceive ( "Product" );
 	}
 }

@@ -48,12 +48,17 @@ class User extends FromServer {
 		global $current_user;
 
 		$ret = array ();
-		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
+		$query = sprintf ( "SELECT id FROM %s WHERE id > 0 ", $this->tablename );
 
 		if ( !isset ( $request->privileges ) )
-			$query .= sprintf ( "privileges != 3 " );
+			$query .= sprintf ( "AND privileges != 3 " );
 		else
-			$query .= sprintf ( "privileges = %d ", $request->privileges );
+			$query .= sprintf ( "AND privileges = %d ", $request->privileges );
+
+		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+			$ids = join ( ',', $request->has );
+			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+		}
 
 		$query .= sprintf ( "ORDER BY %s", $this->sorting );
 

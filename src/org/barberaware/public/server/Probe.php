@@ -44,6 +44,17 @@ class Probe extends FromServer {
 		return $this->exportable ( $request, $compress );
 	}
 
+	function random_string () {
+		$length = 20;
+		$characters = '0123456789abcdefghijklmnopqrstuvwxyz';
+		$string = '';
+
+		for ( $p = 0; $p < $length; $p++ )
+			$string .= $characters [ mt_rand ( 0, strlen ( $characters ) ) ];
+
+		return $string;
+	}
+
 	public function save ( $obj ) {
 		if ( is_writable ( "./config.php" ) == false )
 			return 0;
@@ -56,6 +67,7 @@ class Probe extends FromServer {
 		fwrite ( $f, sprintf ( "\$dbpassword = \"%s\";\n", $obj->dbpassword ) );
 		fwrite ( $f, sprintf ( "\$dbname = \"%s\";\n", $obj->dbname ) );
 		fwrite ( $f, sprintf ( "\$dbhost = \"%s\";\n", $obj->dbhost ) );
+		fwrite ( $f, sprintf ( "\$session_key = \"%s\";\n", self::random_string () ) );
 		fwrite ( $f, "?>\n" );
 
 		fclose ( $f );

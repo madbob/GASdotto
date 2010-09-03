@@ -41,16 +41,15 @@ class OrderUser extends FromServer {
 			$query .= sprintf ( "id = %d ", $request->id );
 		}
 		else {
-			/*
-				Al momento questo viene usato solo per order_csv.php, dunque non viene
-				contemplato il parametro "has" come nelle altre ricerche
-			*/
+			$ord = new Order ();
+
 			if ( isset ( $request->baseorder ) ) {
 				$query .= sprintf ( "baseorder = %d ", $request->baseorder );
 			}
+			else if ( isset ( $request->supplier ) ) {
+				$query .= sprintf ( "baseorder IN ( SELECT id FROM %s WHERE supplier = %d ) ", $ord->tablename, $request->supplier );
+			}
 			else {
-				$ord = new Order ();
-
 				if ( !isset ( $request->all ) ) {
 					/*
 						Per le richieste generiche, vengono scartati i dati per ordini
@@ -78,6 +77,9 @@ class OrderUser extends FromServer {
 			$query .= sprintf ( "AND baseuser = %d ", $request->baseuser );
 
 		$query .= "ORDER BY id";
+
+		if ( isset ( $request->query_limit ) )
+			$query .= sprintf ( " LIMIT %d", $request->query_limit );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
