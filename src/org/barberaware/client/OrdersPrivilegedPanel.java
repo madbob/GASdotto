@@ -510,6 +510,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				form = doUneditableOrderRow ( order );
 				insert ( form, index );
 				alignOrderRow ( form, uorder );
+
+				if ( order.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
+					form.setVisible ( false );
 			}
 		}
 	}

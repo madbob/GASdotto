@@ -50,9 +50,20 @@ public class SuppliersPanel extends GenericPanel {
 				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
 
+				params = new ObjectRequest ( "Product" );
+				params.add ( "supplier", form.getObject ().getLocalID () );
+				Utils.getServer ().testObjectReceive ( params );
+
 				params = new ObjectRequest ( "Order" );
 				params.add ( "status", "any" );
 				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "query_limit", 10 );
+				Utils.getServer ().testObjectReceive ( params );
+
+				params = new ObjectRequest ( "OrderUser" );
+				params.add ( "all", 1 );
+				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "baseuser", Session.getUser ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
 			}
@@ -199,14 +210,6 @@ public class SuppliersPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		ObjectRequest params;
-
 		Utils.getServer ().testObjectReceive ( "Supplier" );
-		Utils.getServer ().testObjectReceive ( "Product" );
-		Utils.getServer ().testObjectReceive ( "Order" );
-
-		params = new ObjectRequest ( "OrderUser" );
-		params.add ( "all", 1 );
-		Utils.getServer ().testObjectReceive ( params );
 	}
 }

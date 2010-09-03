@@ -46,8 +46,10 @@ class GraphReport extends TCPDF {
 				$width = 10 * ( $end - $offset );
 
 			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . $width . '%"><tr>';
-			for ( $i = $offset; $i < $end; $i++ )
+			for ( $i = $offset; $i < $end; $i++ ) {
 				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
+				unset ( $header [ $i ] );
+			}
 			$html .= '</tr>';
 
 			foreach ( $data as $row ) {
@@ -56,6 +58,7 @@ class GraphReport extends TCPDF {
 				for ( $i = $offset; $i < $end; $i++ ) {
 					$val = $row [ $i ];
 					$html .= '<td>' . $val . '</td>';
+					unset ( $row [ $i ] );
 				}
 
 				$html .= '</tr>';
@@ -66,6 +69,7 @@ class GraphReport extends TCPDF {
 			$this->writeHTML ( $html, true, false, false, false, 'C' );
 
 			$offset = $end;
+			unset ( $html );
 
 		} while ( $end < $tot );
 	}
@@ -237,12 +241,12 @@ if ( $graph == 0 ) {
 				$supplier_total_price [] = 0;
 			}
 
-			for ( $i = 0; $i < count ( $rows_users ); $i++ ) {
-				$ret .= ( $rows_users [ $i ] [ 'surname' ] ) . ' ' . ( $rows_users [ $i ] [ 'firstname' ] ) . ';';
+			foreach ( $rows_users as $user ) {
+				$ret .= ( $user [ 'surname' ] ) . ' ' . ( $user [ 'firstname' ] ) . ';';
 				$total_price = 0;
 
 				for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
-					list ( $tot, $price ) = users_data ( $rows_users [ $i ] [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
+					list ( $tot, $price ) = users_data ( $user [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
 
 					if ( $price [ 0 ] [ 0 ] != "" ) {
 						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ' ordini / ' . ( format_price ( $price [ 0 ] [ 0 ], false ) ) . ' euro;' );
@@ -325,56 +329,59 @@ if ( $graph == 0 ) {
 				$supplier_total_price [] = 0;
 			}
 
-			for ( $i = 0; $i < count ( $rows_users ); $i++ ) {
+			foreach ( $rows_users as $user ) {
 				$row = array ();
 				$total_price = 0;
+				$s = '';
+				$n = '';
 
-				if ( isset ( $rows_users [ $i ] [ 'surname' ] ) ) {
-					$s = sprintf ( "%s", $rows_users [ $i ] [ 'surname' ] );
+				if ( isset ( $user [ 'surname' ] ) ) {
+					$s = sprintf ( "%s", $user [ 'surname' ] );
 					if ( strlen ( $s ) > 12 ) {
 						$s = substr ( $s, 0, 10 );
 						$s .= '...';
 					}
+				}
 
-					$n = sprintf ( "%s", $rows_users [ $i ] [ 'firstname' ] );
+				if ( isset ( $user [ 'firstname' ] ) ) {
+					$n = sprintf ( "%s", $user [ 'firstname' ] );
 					if ( strlen ( $n ) > 12 ) {
 						$n = substr ( $n, 0, 10 );
 						$n .= '...';
 					}
-
-					$row [] = $s . '<br />' . $n;
-
-					for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
-						list ( $tot, $price ) = users_data ( $rows_users [ $i ] [ "id" ], $rows_suppliers [ $a ] [ "id" ],
-											$startdate, $enddate );
-
-						if ( $price [ 0 ] [ 0 ] != "" ) {
-							$row [] = ( $tot [ 0 ] [ 0 ] ) . ' ordini /<br />' . ( format_price ( $price [ 0 ] [ 0 ] ) );
-							$total_price += $price [ 0 ] [ 0 ];
-
-							$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
-							$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
-						}
-						else {
-							$row [] = '<br />';
-						}
-
-						unset ( $tot );
-						unset ( $price );
-					}
-
-					$row [] = format_price ( $total_price );
-					$data [] = $row;
 				}
 
-				unset ( $rows_users [ $i ] );
+				$row [] = $s . '<br />' . $n;
+
+				for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
+					list ( $tot, $price ) = users_data ( $user [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
+
+					if ( $price [ 0 ] [ 0 ] != "" ) {
+						$row [] = ( $tot [ 0 ] [ 0 ] ) . ' ordini /<br />' . ( format_price ( $price [ 0 ] [ 0 ] ) );
+						$total_price += $price [ 0 ] [ 0 ];
+
+						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
+						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
+					}
+					else {
+						$row [] = '<br />';
+					}
+
+					unset ( $tot );
+					unset ( $price );
+				}
+
+				$row [] = format_price ( $total_price );
+				$data [] = $row;
 			}
 
 			$row = array ();
 			$row [] = "";
 
-			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
 				$row [] = ( $supplier_total_orders [ $a ] ) . ' ordini /<br />' . ( format_price ( $supplier_total_price [ $a ] ) );
+				unset ( $rows_suppliers [ $a ] );
+			}
 
 			$data [] = $row;
 			unset ( $supplier_total_orders );

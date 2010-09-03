@@ -69,6 +69,10 @@ public class SuppliersEditPanel extends GenericPanel {
 				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
 
+				params = new ObjectRequest ( "Product" );
+				params.add ( "supplier", form.getObject ().getLocalID () );
+				Utils.getServer ().testObjectReceive ( params );
+
 				params = new ObjectRequest ( "Order" );
 				params.add ( "status", "any" );
 				params.add ( "supplier", form.getObject ().getLocalID () );
