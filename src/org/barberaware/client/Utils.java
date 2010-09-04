@@ -245,18 +245,18 @@ public class Utils {
 		float perc;
 
 		if ( percentage == null || percentage.length () == 0 )
-			return origin;
+			return 0;
 
 		if ( percentage.endsWith ( "%" ) ) {
 			int symbol;
 
 			symbol = percentage.indexOf ( "%" );
 			perc = Float.parseFloat ( percentage.substring ( 0, symbol ) );
-			return origin + ( ( origin * perc ) / 100 );
+			return ( origin * perc ) / 100;
 		}
 		else {
 			perc = Float.parseFloat ( percentage );
-			return origin + perc;
+			return perc;
 		}
 	}
 

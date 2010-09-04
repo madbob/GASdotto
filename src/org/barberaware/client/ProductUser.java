@@ -82,17 +82,15 @@ public class ProductUser extends FromServer {
 		return quantity * getObject ( "product" ).getFloat ( "shipping_price" );
 	}
 
-	public float getExternalPrice () {
-		float quantity;
+	public float getSurplus () {
+		float price;
 		float tot;
-		FromServer product;
+		Product product;
 
-		quantity = getFloat ( "quantity" );
-		product = getObject ( "product" );
-
-		tot = product.getFloat ( "shipping_price" );
-		tot = Utils.sumPercentage ( tot, product.getString ( "surplus" ) );
-		return tot * quantity;
+		product = ( Product ) getObject ( "product" );
+		price = product.getFloat ( "unit_price" );
+		tot = Utils.sumPercentage ( price, product.getString ( "surplus" ) );
+		return tot * getFloat ( "quantity" );
 	}
 
 	public int compare ( Object first, Object second ) {
