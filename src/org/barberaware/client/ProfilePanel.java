@@ -112,9 +112,11 @@ public class ProfilePanel extends GenericPanel {
 		frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 		ver.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
 
-		/**
-			TODO	Feedback quando si salvano i dati
-		*/
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onSaved ( FromServerForm form ) {
+				Utils.showNotification ( "Profilo Salvato", Notification.INFO );
+			}
+		} );
 
 		addTop ( ver );
 	}

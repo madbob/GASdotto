@@ -161,6 +161,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 						return null;
 
 					ver = new FromServerForm ( product );
+					ver.addStyleName ( "subform" );
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );

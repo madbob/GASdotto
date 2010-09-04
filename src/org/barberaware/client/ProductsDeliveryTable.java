@@ -82,7 +82,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 					*/
 					if ( prod.getBool ( "mutable_price" ) == false && input > prod_user.getFloat ( "quantity" ) )
 						Utils.showNotification ( "Hai immesso una quantità diversa da quella ordinata",
-										SmoothingNotify.NOTIFY_INFO );
+										Notification.INFO );
 
 					total_label = ( Label ) main.getWidget ( i, 4 );
 					total_label.setText ( Utils.priceToString ( row_sum ) );

@@ -27,7 +27,7 @@ import com.google.gwt.user.client.ui.*;
 public class DummyTextArea extends TextArea implements StringWidget {
 	public DummyTextArea () {
 		setStyleName ( "dummy-text-area" );
-		setVisibleLines ( 4 );
+		setVisibleLines ( 3 );
 		setCharacterWidth ( 40 );
 	}
 

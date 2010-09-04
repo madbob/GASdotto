@@ -40,13 +40,6 @@ public class SmoothingNotify extends Composite {
 	boolean			running;
 	CircularArray		requests;
 
-	/**
-		TODO	Allineare questi valori con quelli in Notification,
-			in modo da usare un set unico
-	*/
-	public static int	NOTIFY_ERROR		= 0;
-	public static int	NOTIFY_INFO		= 1;
-
 	public SmoothingNotify () {
 		staticTime = 4000;
 		fadeFrequency = 100;
@@ -76,9 +69,11 @@ public class SmoothingNotify extends Composite {
 			main.setVisible ( true );
 			notification.setText ( not.text );
 
-			if ( not.type == NOTIFY_ERROR )
+			if ( not.type == Notification.ERROR )
 				main.addStyleName ( "smoothing-notify-error" );
-			else if ( not.type == NOTIFY_INFO )
+			else if ( not.type == Notification.WARNING )
+				main.addStyleName ( "smoothing-notify-warning" );
+			else if ( not.type == Notification.INFO )
 				main.addStyleName ( "smoothing-notify-info" );
 
 			DOM.setStyleAttribute ( main.getElement (), "opacity", "1.0" );

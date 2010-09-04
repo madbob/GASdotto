@@ -102,6 +102,7 @@ public class DeliverySummary extends Composite {
 
 		user = uorder.getObject ( "baseuser" );
 		row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
+		row.addStyleName ( "subform" );
 		row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
 
 		/**

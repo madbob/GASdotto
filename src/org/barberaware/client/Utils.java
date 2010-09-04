@@ -55,7 +55,7 @@ public class Utils {
 	}
 
 	public static void showNotification ( String text ) {
-		notifies.show ( text, SmoothingNotify.NOTIFY_ERROR );
+		notifies.show ( text, Notification.ERROR );
 	}
 
 	public static void showNotification ( String text, int type ) {

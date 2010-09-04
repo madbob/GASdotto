@@ -160,7 +160,7 @@ public class OrdersEditPanel extends GenericPanel {
 						public void onSaved ( FromServerForm form ) {
 							if ( form.getObject ().getInt ( "status" ) == Order.OPENED ) {
 								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'",
-												SmoothingNotify.NOTIFY_INFO );
+												Notification.INFO );
 
 								form.removeCallback ( "notification" );
 							}

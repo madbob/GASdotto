@@ -109,8 +109,15 @@ public class EmblemsInfo {
 		Object [] keys;
 		Emblem emblem;
 
-		row = 0;
 		keys = symbols.keySet ().toArray ();
+		if ( keys.length == 0 )
+			return;
+
+		row = legend.getRowCount ();
+		if ( row == 0 ) {
+			legend.setWidget ( 0, 1, new Label ( "LEGENDA:" ) );
+			row = 1;
+		}
 
 		for ( int i = 0; i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
