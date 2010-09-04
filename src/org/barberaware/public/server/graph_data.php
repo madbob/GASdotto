@@ -332,6 +332,7 @@ if ( $graph == 0 ) {
 			foreach ( $rows_users as $user ) {
 				$row = array ();
 				$total_price = 0;
+				$total_orders = 0;
 				$s = '';
 				$n = '';
 
@@ -359,6 +360,7 @@ if ( $graph == 0 ) {
 					if ( $price [ 0 ] [ 0 ] != "" ) {
 						$row [] = ( $tot [ 0 ] [ 0 ] ) . ' ordini /<br />' . ( format_price ( $price [ 0 ] [ 0 ] ) );
 						$total_price += $price [ 0 ] [ 0 ];
+						$total_orders += $tot [ 0 ] [ 0 ];
 
 						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
 						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
@@ -371,17 +373,15 @@ if ( $graph == 0 ) {
 					unset ( $price );
 				}
 
-				$row [] = format_price ( $total_price );
+				$row [] = $total_orders . ' ordini /<br />' . ( format_price ( $total_price ) );
 				$data [] = $row;
 			}
 
 			$row = array ();
 			$row [] = "";
 
-			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
 				$row [] = ( $supplier_total_orders [ $a ] ) . ' ordini /<br />' . ( format_price ( $supplier_total_price [ $a ] ) );
-				unset ( $rows_suppliers [ $a ] );
-			}
 
 			$data [] = $row;
 			unset ( $supplier_total_orders );
