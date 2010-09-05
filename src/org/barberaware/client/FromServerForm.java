@@ -407,6 +407,8 @@ public class FromServerForm extends Composite {
 			*/
 			if ( contents.remove ( tmp.wid ) == false )
 				contents.remove ( tmp );
+
+			widgets.remove ( name );
 		}
 	}
 

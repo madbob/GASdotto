@@ -79,7 +79,12 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					} );
 
-					frame.addPair ( "Si ripete", form.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
+					/**
+						TODO	La ripetizione degli ordini va riccamente
+							rivista, per ora la funzione e' sospesa
+					*/
+
+					// frame.addPair ( "Si ripete", form.getPersonalizedWidget ( "nextdate", new OrderCiclyc () ) );
 				}
 
 				private void addSaveProducts ( FromServerForm form ) {
@@ -141,6 +146,66 @@ public class OrdersEditPanel extends GenericPanel {
 					return ver;
 				}
 
+				private void populateProductsPreview ( FromServerForm form, FromServer supplier ) {
+					int num_products;
+					ArrayList products;
+					ArrayList final_products;
+					FromServer prod;
+					FromServerTable table;
+
+					final_products = new ArrayList ();
+
+					if ( supplier != null ) {
+						products = Utils.getServer ().getObjectsFromCache ( "Product" );
+						num_products = products.size ();
+
+						for ( int i = 0; i < num_products; i++ ) {
+							prod = ( FromServer ) products.get ( i );
+
+							if ( prod.getBool ( "available" ) && prod.getObject ( "supplier" ).equals ( supplier ) )
+								final_products.add ( prod );
+						}
+					}
+
+					table = ( FromServerTable ) form.retriveInternalWidget ( "products_preview" );
+					table.setElements ( final_products );
+				}
+
+				private void addStaticProductsList ( FromServerForm ver, FromServerSelector suppliers ) {
+					VerticalPanel container;
+					CaptionPanel products_frame;
+					FromServerTable products;
+
+					products_frame = new CaptionPanel ( "Elenco Prodotti" );
+					ver.setExtraWidget ( "products_preview_frame", products_frame );
+					ver.add ( products_frame );
+
+					container = new VerticalPanel ();
+					products_frame.add ( container );
+
+					container.add ( new HTML ( "Qui di seguito, i prodotti che saranno contemplati nell'ordine.<br />Per cambiare la lista o gli attributi, intervenire nel pannello \"Prodotti\" del fornitore desiderato." ) );
+
+					products = new FromServerTable ();
+					products.setEmptyWarning ( "Non ci sono prodotti caricati per il fornitore selezionato" );
+
+					products.addColumn ( "Nome", "name", false );
+					products.addColumn ( "Prezzo Unitario", "unit_price", new WidgetFactoryCallback () {
+						public Widget create () {
+							return new PriceViewer ();
+						}
+					} );
+					products.addColumn ( "Prezzo Trasporto", "shipping_price", new WidgetFactoryCallback () {
+						public Widget create () {
+							return new PriceViewer ();
+						}
+					} );
+
+					ver.setExtraWidget ( "products_preview", products );
+					container.add ( products );
+
+					populateProductsPreview ( ver, suppliers.getValue () );
+				}
+
 				protected FromServerForm doNewEditableRow () {
 					Order order;
 					final FromServerForm ver;
@@ -187,32 +252,13 @@ public class OrdersEditPanel extends GenericPanel {
 
 					suppliers.addChangeListener ( new ChangeListener () {
 						public void onChange ( Widget sender ) {
-							int num_products;
-							boolean found;
-							ArrayList products;
 							FromServerSelector supps;
 							FromServer selected;
-							FromServer prod;
-
-							found = false;
 
 							supps = ( FromServerSelector ) sender;
 							selected = supps.getValue ();
+							populateProductsPreview ( ver, selected );
 
-							products = Utils.getServer ().getObjectsFromCache ( "Product" );
-							num_products = products.size ();
-
-							for ( int i = 0; i < num_products; i++ ) {
-								prod = ( FromServer ) products.get ( i );
-
-								if ( prod.getObject ( "supplier" ).equals ( selected ) ) {
-									found = true;
-									break;
-								}
-							}
-
-							if ( found == false )
-								Utils.showNotification ( "Non ci sono prodotti caricati per il fornitore selezionato" );
 						}
 					} );
 
@@ -229,6 +275,8 @@ public class OrdersEditPanel extends GenericPanel {
 					now = new Date ( System.currentTimeMillis () );
 					date = ( DateWidget ) ver.retriveInternalWidget ( "startdate" );
 					date.setValue ( now );
+
+					addStaticProductsList ( ver, suppliers );
 
 					return ver;
 				}
@@ -250,6 +298,12 @@ public class OrdersEditPanel extends GenericPanel {
 						form.setObject ( object );
 						addOrderDetails ( form );
 						addSaveProducts ( form );
+
+						/*
+							Il widget in "products_preview" e' contenuto all'interno del
+							frame, dunque rimuovendo uno sparisce anche l'altro
+						*/
+						form.removeWidget ( "products_preview_frame" );
 
 						form.emblems ().activate ( "status", object.getInt ( "status" ) );
 						form.emblems ().activate ( "multiuser" );
