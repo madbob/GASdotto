@@ -78,7 +78,7 @@ class Notification extends FromServer {
 				$dests [] = $destination->mail2;
 		}
 
-		$subject = ( substr ( $obj->description, 0, 10 ) ) . '...';
+		$subject = ellipse_string ( $obj->description, 15 );
 		my_send_mail ( $dests, $subject, $obj->description );
 	}
 

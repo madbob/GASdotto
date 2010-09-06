@@ -215,6 +215,15 @@ function get_product_quantity_stocks ( $products, $index, $quantity ) {
 	return comma_format ( round ( $quantity, 2 ), false );
 }
 
+function ellipse_string ( $string, $len ) {
+	if ( strlen ( $string ) > $len ) {
+		$string = substr ( $string, 0, $len - 2 );
+		$string .= '...';
+	}
+
+	return $string;
+}
+
 /****************************************************************** files management */
 
 function unique_filesystem_name ( $folder, $name ) {

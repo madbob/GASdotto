@@ -106,10 +106,7 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 	else
 		$t = $tot [ 0 ] [ 0 ];
 
-	$suppname = $supplier [ "name" ];
-	if ( strlen ( $suppname ) > 25 )
-		$suppname = substr ( $suppname, 0, 23 ) . '...';
-
+	$suppname = ellipse_string ( $supplier [ "name" ], 25 );
 	return array ( $suppname, $t, $p );
 }
 
@@ -371,24 +368,16 @@ if ( $graph == 0 ) {
 				$row = array ();
 				$total_price = 0;
 				$total_orders = 0;
-				$s = '';
-				$n = '';
 
-				if ( isset ( $user [ 'surname' ] ) ) {
-					$s = sprintf ( "%s", $user [ 'surname' ] );
-					if ( strlen ( $s ) > 12 ) {
-						$s = substr ( $s, 0, 10 );
-						$s .= '...';
-					}
-				}
+				if ( isset ( $user [ 'surname' ] ) )
+					$s = ellipse_string ( $user [ 'surname' ], 12 );
+				else
+					$s = '';
 
-				if ( isset ( $user [ 'firstname' ] ) ) {
-					$n = sprintf ( "%s", $user [ 'firstname' ] );
-					if ( strlen ( $n ) > 12 ) {
-						$n = substr ( $n, 0, 10 );
-						$n .= '...';
-					}
-				}
+				if ( isset ( $user [ 'firstname' ] ) )
+					$n = ellipse_string ( $user [ 'firstname' ], 12 );
+				else
+					$n = '';
 
 				$row [] = $s . '<br />' . $n;
 
@@ -417,10 +406,14 @@ if ( $graph == 0 ) {
 
 			$row = array ();
 			$row [] = "";
+			$gran_total = 0;
 
-			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
 				$row [] = ( $supplier_total_orders [ $a ] ) . ' utenti /<br />' . ( format_price ( $supplier_total_price [ $a ] ) );
+				$gran_total += $supplier_total_price [ $a ];
+			}
 
+			$row [] = format_price ( $gran_total );
 			$data [] = $row;
 			unset ( $supplier_total_orders );
 			unset ( $supplier_total_price );
@@ -486,11 +479,8 @@ if ( $graph == 0 ) {
 
 			$array = products_data ( $supplier, $startdate, $enddate );
 
-			for ( $i = 0; $i < count ( $array ); $i++ ) {
-				$prodname = $array [ $i ] [ 0 ];
-				if ( strlen ( $prodname ) > 25 )
-					$array [ $i ] [ 0 ] = substr ( $prodname, 0, 23 ) . '...';
-			}
+			for ( $i = 0; $i < count ( $array ); $i++ )
+				$array [ $i ] [ 0 ] = ellipse_string ( $array [ $i ] [ 0 ], 25 );
 		}
 
 		$ret->data = $array;
