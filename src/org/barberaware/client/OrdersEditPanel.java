@@ -20,6 +20,8 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -95,6 +97,104 @@ public class OrdersEditPanel extends GenericPanel {
 							complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
 							if ( complete_list != null )
 								complete_list.saveContents ();
+						}
+					} );
+				}
+
+				private void checkNewProductsAvailability ( final FromServerForm form ) {
+					FromServer ord;
+
+					ord = form.getObject ();
+
+					if ( ord.getInt ( "status" ) != Order.OPENED )
+						return;
+
+					Utils.getServer ().rawGet ( "data_shortcuts.php?type=order_products_diff&order=" + ord.getLocalID (), new RequestCallback () {
+						public void onError ( Request request, Throwable exception ) {
+							Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+						}
+
+						public void onResponseReceived ( Request request, Response response ) {
+							int num;
+							JSONValue jsonObject;
+							JSONArray products;
+							FlexTable container;
+							FromServer tmp;
+
+							try {
+								jsonObject = JSONParser.parse ( response.getText () );
+
+								products = jsonObject.isArray ();
+								if ( products == null ) {
+									Utils.getServer ().dataArrived ();
+									return;
+								}
+
+								num = products.size ();
+								if ( num == 0 ) {
+									Utils.getServer ().dataArrived ();
+									return;
+								}
+
+								container = ( FlexTable ) form.retriveInternalWidget ( "diff_products" );
+
+								if ( container == null ) {
+									container = new FlexTable ();
+									container.addStyleName ( "info-cell" );
+
+									form.setExtraWidget ( "diff_products", container );
+									form.insert ( container, 1 );
+
+									container.setWidget ( 0, 0, new Label ( "Pare che nuovi prodotti siano stati introdotti dopo la creazione di questo ordine..." ) );
+									container.getFlexCellFormatter ().setColSpan ( 0, 0, 3 );
+
+									container.addTableListener ( new TableListener () {
+										public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
+											ArrayList products;
+											FlexTable tab;
+											Hidden hidden;
+											FromServer order;
+											OrderSummary summary;
+
+											if ( row == 0 || cell != 2 )
+												return;
+
+											tab = ( FlexTable ) sender;
+											hidden = ( Hidden ) tab.getWidget ( row, 0 );
+
+											order = form.getObject ();
+											products = order.getArray ( "products" );
+											products.add ( Utils.getServer ().getObjectFromCache ( "Product", Integer.parseInt ( hidden.getName () ) ) );
+											order.setArray ( "products", products );
+
+											summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+											summary.reFill ( ( Order ) order );
+
+											tab.removeRow ( row );
+											form.forceNextSave ( true );
+
+											if ( tab.getRowCount () == 1 )
+												form.removeWidget ( "diff_products" );
+										}
+									} );
+								}
+								else {
+									while ( container.getRowCount () != 1 )
+										container.removeRow ( 1 );
+								}
+
+								for ( int i = 0, row = 1; i < num; i++, row++ ) {
+									tmp = FromServer.instance ( products.get ( i ).isObject () );
+									container.setWidget ( row, 0, new Hidden ( Integer.toString ( tmp.getLocalID () ) ) );
+									container.setWidget ( row, 1, new Label ( tmp.getString ( "name" ) ) );
+									container.setWidget ( row, 2, new Button ( "Aggiungi il prodotto in questo ordine" ) );
+								}
+							}
+							catch ( com.google.gwt.json.client.JSONException e ) {
+								Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+							}
+
+							Utils.getServer ().dataArrived ();
 						}
 					} );
 				}
@@ -336,6 +436,8 @@ public class OrdersEditPanel extends GenericPanel {
 
 					ord = ( Order ) form.getObject ();
 					ord.asyncLoadUsersOrders ();
+
+					checkNewProductsAvailability ( form );
 				}
 		};
 

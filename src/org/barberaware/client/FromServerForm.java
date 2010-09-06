@@ -36,6 +36,7 @@ public class FromServerForm extends Composite {
 	private ArrayList		callbacks;
 	private HashMap			widgets;
 	private ArrayList		addictionalData;
+	private boolean			forceSave;
 
 	public static int		FULL_EDITABLE		= 0;
 	public static int		EDITABLE_UNDELETABLE	= 1;
@@ -48,6 +49,7 @@ public class FromServerForm extends Composite {
 
 		widgets = new HashMap ();
 		callbacks = new ArrayList ();
+		forceSave = false;
 		noExplicitCallbacks ();
 
 		/*
@@ -189,6 +191,10 @@ public class FromServerForm extends Composite {
 		buttons.add ( button, text );
 	}
 
+	public void forceNextSave ( boolean force ) {
+		forceSave = force;
+	}
+
 	private void noExplicitCallbacks () {
 		callbacks.clear ();
 
@@ -274,10 +280,11 @@ public class FromServerForm extends Composite {
 		if ( editable == FULL_EDITABLE || editable == EDITABLE_UNDELETABLE ) {
 			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
-					if ( contentsChanged () )
+					if ( forceSave == true || contentsChanged () )
 						if ( savingObject () == false )
 							return;
 
+					forceSave = false;
 					main.setOpen ( false );
 				}
 			} );

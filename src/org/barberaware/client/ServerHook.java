@@ -231,6 +231,11 @@ public class ServerHook {
 	private void testObjectReceiveImpl ( ObjectRequest params ) {
 		ServerMonitor tmp;
 
+		/**
+			TODO	Fare in modo di evitare numerose volte di seguito lo stesso tipo
+				di contenuto
+		*/
+
 		tmp = getMonitor ( params.getType () );
 		executeMonitor ( tmp, params );
 	}

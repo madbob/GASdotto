@@ -43,6 +43,16 @@ public abstract class ServerResponse implements RequestCallback {
 		str = response.getText ();
 
 		try {
+			/**
+				TODO	Se GASdotto viene installato su una piattaforma web che forza suoi proprio
+					contenuti HTML all'interno della pagina, i dati JSON in transito sono
+					sporcati ed il parser fallisce nel suo lavoro. Occorrerebbe revisionare le
+					stringhe che arrivano per isolare il pezzo di JSON e buttare tutto il resto.
+
+					Da correggere qui e in tutti gli altri posti in cui viene usato
+					JSONParser.parse
+			*/
+
 			jsonObject = JSONParser.parse ( str );
 			ret = jsonObject.isString ();
 		}
@@ -55,8 +65,9 @@ public abstract class ServerResponse implements RequestCallback {
 			Utils.showNotification ( str );
 			onError ();
 		}
-		else
+		else {
 			onComplete ( jsonObject );
+		}
 
 		Utils.getServer ().dataArrived ();
 	}

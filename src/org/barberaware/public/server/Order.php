@@ -111,34 +111,46 @@ class Order extends FromServer {
 		return $ret;
 	}
 
-	public function save ( $obj ) {
-		$obj->products = array ();
-		$prod = new Product ();
+	private function archiveProduct ( $prod, $product ) {
+		/*
+			Creo una copia, non assegnata a nessun ordine, che
+			restera' in attesa per il prossimo giro
+		*/
+		$dup_prod = $product->exportable ();
+		$dup_prod->previous_description = $product->getAttribute ( 'id' )->value;
+		$dup_prod->id = -1;
+		$prod->save ( $dup_prod );
 
 		/*
-			Quando salvo un nuovo ordine prendo per buoni i prodotti correntemente
-			ordinabili presso il fornitore di riferimento, e li scrivo nell'apposita
-			tabella
+			Il prodotto che finisce in quest'ordine viene marcato
+			come archiviato: e' accessibile solo se esplicitamente
+			chiesto dal pannello degli ordini
 		*/
+		$original_prod = $product->exportable ();
+		$original_prod->archived = "true";
+		$prod->save ( $original_prod );
+	}
+
+	public function save ( $obj ) {
+		$ref = new Product ();
+
 		if ( $obj->id == -1 ) {
+			$obj->products = array ();
+
+			/*
+				Quando salvo un nuovo ordine prendo per buoni i prodotti correntemente
+				ordinabili presso il fornitore di riferimento, e li scrivo nell'apposita
+				tabella
+			*/
 			$query = sprintf ( "SELECT id FROM %s
 						WHERE supplier = %d
 						AND available = true
 						AND archived = false
 						ORDER BY id",
-							$prod->tablename, $obj->supplier );
-		}
-		else {
-			$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY id",
-						$this->tablename, "products", $obj->id );
-		}
+							$ref->tablename, $obj->supplier );
 
-		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $prod->classname );
-		$rows = $returned->fetchAll ( PDO::FETCH_NUM );
-
-		foreach ( $rows as $row ) {
-			$product = new $prod->classname;
-			$product->readFromDB ( $row [ 0 ] );
+			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $ref->classname );
+			$rows = $returned->fetchAll ( PDO::FETCH_NUM );
 
 			/*
 				Se sto creando un nuovo ordine, duplico tutti i prodotti
@@ -147,7 +159,11 @@ class Order extends FromServer {
 				cambiare i prezzi dei singoli elementi sul singolo ordine, e
 				tenere traccia dello storico
 			*/
-			if ( $obj->id == -1 ) {
+
+			foreach ( $rows as $row ) {
+				$product = new $ref->classname;
+				$product->readFromDB ( $row [ 0 ] );
+
 				/*
 					Questo e' per risolvere un vecchio bug di GASdotto, per cui i prodotti non
 					venivano effettivamente duplicati alla creazione di un nuovo ordine.
@@ -165,7 +181,7 @@ class Order extends FromServer {
 					*/
 					$old_prod = $product->exportable ();
 					$old_prod->archived = "true";
-					$prod->save ( $old_prod );
+					$ref->save ( $old_prod );
 
 					/*
 						Creo una copia, che e' quella che sara' inclusa
@@ -175,32 +191,31 @@ class Order extends FromServer {
 					$buggy_prod = $product->exportable ();
 					$buggy_prod->previous_description = $product->getAttribute ( 'id' )->value;
 					$buggy_prod->id = -1;
-					$buggy_id = $prod->save ( $buggy_prod );
+					$buggy_id = $ref->save ( $buggy_prod );
 
-					$product = new $prod->classname;
+					$product = new $ref->classname;
 					$product->readFromDB ( $buggy_id );
 				}
 
-				/*
-					Creo una copia, non assegnata a nessun ordine, che
-					restera' in attesa per il prossimo giro
-				*/
-				$dup_prod = $product->exportable ();
-				$dup_prod->previous_description = $product->getAttribute ( 'id' )->value;
-				$dup_prod->id = -1;
-				$prod->save ( $dup_prod );
-
-				/*
-					Il prodotto che finisce in quest'ordine viene marcato
-					come archiviato: e' accessibile solo se esplicitamente
-					chiesto dal pannello degli ordini
-				*/
-				$original_prod = $product->exportable ();
-				$original_prod->archived = "true";
-				$prod->save ( $original_prod );
+				self::archiveProduct ( $ref, $product );
+				array_push ( $obj->products, $product->exportable () );
 			}
-
-			array_push ( $obj->products, $product->exportable () );
+		}
+		else {
+			foreach ( $obj->products as $product ) {
+				/*
+					Questo interviene quando aggiungo un prodotto all'interno
+					di un ordine, e dunque devo comunque duplicarlo
+				*/
+				if ( $product->archived != 'true' ) {
+					$query = sprintf ( "FROM %s WHERE previous_description = %d", $ref->tablename, $product->id );
+					if ( db_row_count ( $query ) == 0 ) {
+						$p = new Product ();
+						$p->readFromDB ( $product->id );
+						self::archiveProduct ( $ref, $p );
+					}
+				}
+			}
 		}
 
 		/*
