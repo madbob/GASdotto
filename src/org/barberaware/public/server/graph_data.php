@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*  GASdotto
  *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
@@ -73,6 +73,44 @@ class GraphReport extends TCPDF {
 
 		} while ( $end < $tot );
 	}
+}
+
+function suppliers_data ( $supplier, $startdate, $enddate ) {
+	$query = sprintf ( "SELECT COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders
+				WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
+					Orders.startdate > '%s' AND Orders.enddate < '%s'",
+						$supplier [ "id" ], $startdate, $enddate );
+	$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
+	$tot = $returned->fetchAll ( PDO::FETCH_NUM );
+	unset ( $query );
+	unset ( $returned );
+
+	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
+				FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
+				WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
+					OrderUser_products.parent = OrderUser.id AND ProductUser.id = OrderUser_products.target AND
+					Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+						$supplier [ "id" ], $startdate, $enddate );
+	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
+	$price = $returned->fetchAll ( PDO::FETCH_NUM );
+	unset ( $query );
+	unset ( $returned );
+
+	if ( count ( $price ) == 0 )
+		$p = 0;
+	else
+		$p = $price [ 0 ] [ 0 ];
+
+	if ( count ( $tot ) == 0 )
+		$t = 0;
+	else
+		$t = $tot [ 0 ] [ 0 ];
+
+	$suppname = $supplier [ "name" ];
+	if ( strlen ( $suppname ) > 25 )
+		$suppname = substr ( $suppname, 0, 23 ) . '...';
+
+	return array ( $suppname, $t, $p );
 }
 
 function users_data ( $user, $supplier, $startdate, $enddate ) {
@@ -252,7 +290,7 @@ if ( $graph == 0 ) {
 						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ' ordini / ' . ( format_price ( $price [ 0 ] [ 0 ], false ) ) . ' euro;' );
 						$total_price += $price [ 0 ] [ 0 ];
 
-						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
+						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + 1;
 						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
 					}
 					else {
@@ -269,7 +307,7 @@ if ( $graph == 0 ) {
 			$ret .= ';';
 
 			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
-				$ret .= ( $supplier_total_orders [ $a ] ) . ' ordini / ' . ( format_price ( $supplier_total_price [ $a ], false ) ) . ' euro;';
+				$ret .= ( $supplier_total_orders [ $a ] ) . ' utenti / ' . ( format_price ( $supplier_total_price [ $a ], false ) ) . ' euro;';
 
 			$ret .= "\n";
 			unset ( $supplier_total_orders );
@@ -362,7 +400,7 @@ if ( $graph == 0 ) {
 						$total_price += $price [ 0 ] [ 0 ];
 						$total_orders += $tot [ 0 ] [ 0 ];
 
-						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + $tot [ 0 ] [ 0 ];
+						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + 1;
 						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
 					}
 					else {
@@ -381,7 +419,7 @@ if ( $graph == 0 ) {
 			$row [] = "";
 
 			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
-				$row [] = ( $supplier_total_orders [ $a ] ) . ' ordini /<br />' . ( format_price ( $supplier_total_price [ $a ] ) );
+				$row [] = ( $supplier_total_orders [ $a ] ) . ' utenti /<br />' . ( format_price ( $supplier_total_price [ $a ] ) );
 
 			$data [] = $row;
 			unset ( $supplier_total_orders );
@@ -405,7 +443,10 @@ if ( $graph == 0 ) {
 			for ( $i = 0; $i < count ( $data ); $i++ )
 				$data [ $i ] [ 2 ] = ( format_price ( $data [ $i ] [ 2 ], false ) ) . " euro";
 
-			$file_title = 'Statistiche Prodotti/Fornitori';
+			$supp = new Supplier ();
+			$supp->readFromDB ( $supplier );
+
+			$file_title = 'Statistiche Prodotti/Fornitore ' . ($supp->getAttribute ( 'name' )->value);
 			$file_name = 'statistiche_prodotti_fornitori.pdf';
 		}
 
@@ -435,47 +476,8 @@ if ( $graph == 0 ) {
 
 		if ( $type == 'users' ) {
 			$rows_suppliers = list_suppliers ();
-
-			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ ) {
-				$query = sprintf ( "SELECT COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders
-							WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
-								Orders.startdate > '%s' AND Orders.enddate < '%s'",
-									$rows_suppliers [ $i ] [ "id" ], $startdate, $enddate );
-				$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
-				$tot = $returned->fetchAll ( PDO::FETCH_NUM );
-				unset ( $query );
-				unset ( $returned );
-
-				$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
-							FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
-							WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
-								OrderUser_products.parent = OrderUser.id AND ProductUser.id = OrderUser_products.target AND
-								Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
-									$rows_suppliers [ $i ] [ "id" ], $startdate, $enddate );
-				$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
-				$price = $returned->fetchAll ( PDO::FETCH_NUM );
-				unset ( $query );
-				unset ( $returned );
-
-				if ( count ( $price ) == 0 )
-					$p = 0;
-				else
-					$p = $price [ 0 ] [ 0 ];
-
-				if ( count ( $tot ) == 0 )
-					$t = 0;
-				else
-					$t = $tot [ 0 ] [ 0 ];
-
-				$suppname = $rows_suppliers [ $i ] [ "name" ];
-				if ( strlen ( $suppname ) > 25 )
-					$suppname = substr ( $suppname, 0, 23 ) . '...';
-
-				$array [] = array ( $suppname, $t, $p );
-
-				unset ( $tot );
-				unset ( $price );
-			}
+			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ )
+				$array [] = suppliers_data ( $rows_suppliers [ $i ], $startdate, $enddate );
 		}
 		else if ( $type == 'products' ) {
 			$supplier = $_GET [ 'extra' ];

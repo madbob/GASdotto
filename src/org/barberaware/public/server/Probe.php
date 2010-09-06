@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*  GASdotto
  *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
@@ -61,7 +61,7 @@ class Probe extends FromServer {
 
 		$f = fopen ( "./config.php", "w" );
 
-		fwrite ( $f, "<?\n" );
+		fwrite ( $f, "<?php\n" );
 		fwrite ( $f, sprintf ( "\$dbdriver = \"%s\";\n", $obj->dbdriver ) );
 		fwrite ( $f, sprintf ( "\$dbuser = \"%s\";\n", $obj->dbuser ) );
 		fwrite ( $f, sprintf ( "\$dbpassword = \"%s\";\n", $obj->dbpassword ) );

@@ -1,4 +1,4 @@
-<?
+<?php
 
 /*  GASdotto
  *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
