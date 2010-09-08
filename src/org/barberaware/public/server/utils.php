@@ -134,7 +134,6 @@ function connect_to_the_database () {
 	global $dbname;
 	global $dbuser;
 	global $dbpassword;
-	global $instance_identifier;
 	global $db;
 
 	if ( !isset ( $dbhost ) )
@@ -146,12 +145,6 @@ function connect_to_the_database () {
 		else if ( $dbdriver == 'pgsql' )
 			$dbport = 5432;
 	}
-
-	if ( !isset ( $instance_identifier ) )
-		$instance_identifier = 1;
-
-	if ( !isset ( $dbname ) )
-		$dbname = 'gasdotto_' . $instance_identifier;
 
 	try {
 		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );

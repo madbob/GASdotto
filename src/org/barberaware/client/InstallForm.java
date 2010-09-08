@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.lang.*;
+import com.google.gwt.core.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
@@ -47,25 +48,53 @@ public class InstallForm extends Composite {
 		installbutton = new Button ( "Installa GASdotto" );
 		installbutton.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
-				doProbe ();
+				doProbe ( 0 );
 			}
 		} );
+		main.add ( installbutton );
 
+		main.add ( new HTML ( "<br /><br /><br />" ) );
+		main.add ( new HTML ( "<p>Oppure, se hai già una istanza di una vecchia versione installata, clicca qui per importare i dati da essa.</p>" ) );
+
+		installbutton = new Button ( "Importa da versione già installata" );
+		installbutton.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				doProbe ( 1 );
+			}
+		} );
 		main.add ( installbutton );
 	}
 
-	private void doProbe () {
+	private void doProbe ( final int mode ) {
 		ObjectRequest params;
 
 		params = new ObjectRequest ( "Probe" );
 
 		Utils.getServer ().serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
+				String message;
 				Probe probe;
 
 				probe = ( Probe ) FromServer.instance ( response.isObject () );
 				main.clear ();
-				fillForm ( probe );
+
+				if ( probe.getBool ( "writable" ) == false ) {
+					message = "<p>Sembra che il file server/config.php non sia scrivibile da questa applicazione, e non è possibile modificare questa impostazione automaticamente.</p>";
+					message += "<p>Per favore: provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervieni direttamente sul server.</p>";
+					message += "<p>Quando hai fatto, torna su <a href=\"GASdotto.html\">questa pagina</a> per procedere nell'installazione.</p>";
+					main.add ( new HTML ( message ) );
+				}
+				else if ( probe.getString ( "dbdrivers" ).equals ( "" ) == true ) {
+					message = "<p>Sembra che su questo server non sia installato alcun database, oppure alcun driver per poterlo utilizzare.</p>";
+					message += "<p>Per usare GASdotto è necessario avere <a href=\"http://www.php.net\">PHP</a>, l'estensione <a href=\"http://www.php.net/manual/en/book.pdo.php\">PDO</a>, un database a scelta tra <a href=\"http://www.mysql.com\">MySQL</a> e <a href=\"http://www.postgresql.org/\">PostGreSQL</a> ed i relativi driver: verifica che essi siano installati, o chiedi assistenza a qualcuno con maggiore dimestichezza col PC.</p>";
+					main.add ( new HTML ( message ) );
+				}
+				else {
+					if ( mode == 0 )
+						fillForm ( probe );
+					else
+						upgradePanel ( probe );
+				}
 			}
 			public void onError () {
 				Window.Location.reload ();
@@ -73,26 +102,79 @@ public class InstallForm extends Composite {
 		} );
 	}
 
-	private void fillForm ( Probe probe ) {
-		String message;
+	private void upgradePanel ( Probe probe ) {
+		HorizontalPanel url;
+		FromServerForm form;
+		CustomCaptionPanel setts;
 
-		if ( probe.getBool ( "writable" ) == false ) {
-			message = "<p>Sembra che il file server/config.php non sia scrivibile da questa applicazione, e non è possibile modificare questa impostazione automaticamente.</p>";
-			message += "<p>Per favore: provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervieni direttamente sul server.</p>";
-			message += "<p>Quando hai fatto, torna su <a href=\"GASdotto.html\">questa pagina</a> per procedere nell'installazione.</p>";
-			main.add ( new HTML ( message ) );
-		}
-		else if ( probe.getString ( "dbdrivers" ).equals ( "" ) == true ) {
-			message = "<p>Sembra che su questo server non sia installato alcun database, oppure alcun driver per poterlo utilizzare.</p>";
-			message += "<p>Per usare GASdotto è necessario avere <a href=\"http://www.php.net\">PHP</a>, l'estensione <a href=\"http://www.php.net/manual/en/book.pdo.php\">PDO</a>, un database a scelta tra <a href=\"http://www.mysql.com\">MySQL</a> e <a href=\"http://www.postgresql.org/\">PostGreSQL</a> ed i relativi driver: verifica che essi siano installati, o chiedi assistenza a qualcuno con maggiore dimestichezza col PC.</p>";
-			main.add ( new HTML ( message ) );
-		}
-		else {
-			main.add ( doMainForm ( probe ) );
-		}
+		probe.setBool ( "upgrade", true );
+		probe.setBool ( "trylocate", true );
+
+		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
+		form.alwaysOpened ( true );
+
+		form.setCallback ( new FromServerFormCallbacks () {
+			public void onSaved ( FromServerForm form ) {
+				if ( form.getObject ().getLocalID () == 1 ) {
+					upgradeComplete ();
+				}
+				else if ( form.getObject ().getLocalID () == -1 ) {
+					FromServer probe;
+
+					probe = form.getObject ();
+					main.clear ();
+					manualDatabase ( ( Probe ) probe );
+				}
+				else {
+					Utils.showNotification ( "E' occorso un problema durante l'aggiornamento" );
+				}
+			}
+		} );
+
+		form.add ( new HTML ( "<p>Qualche informazione in merito alla installazione che vuoi aggiornare, e sul comportamento da adottare. Puoi scegliere di sovrascrivere completamente la precedente versione oppure di installare questa qui a parte per mantenere la vecchia come riferimento.</p>" ) );
+
+		setts = new CustomCaptionPanel ( "Dettagli" );
+
+		url = new HorizontalPanel ();
+		url.setStyleName ( "multi-selector" );
+		url.add ( new Label ( "http://" + probe.getString ( "servername" ) + "/" ) );
+		url.add ( form.getWidget ( "oldurl" ) );
+		url.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		setts.addPair ( "Indirizzo web presso cui si trova la precedente versione", url );
+
+		form.add ( setts );
+		main.add ( form );
 	}
 
-	private Widget doMainForm ( Probe probe ) {
+	private void manualDatabase ( Probe probe ) {
+		Widget dbsettings;
+		FromServerForm form;
+
+		probe.setBool ( "upgrade", true );
+		probe.setBool ( "trylocate", false );
+
+		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
+		form.alwaysOpened ( true );
+
+		form.setCallback ( new FromServerFormCallbacks () {
+			public void onSaved ( FromServerForm form ) {
+				if ( form.getObject ().getLocalID () == 1 )
+					upgradeComplete ();
+				else
+					Utils.showNotification ( "E' occorso un problema durante l'aggiornamento" );
+			}
+		} );
+
+		form.add ( new HTML ( "<p>Purtroppo non è stato possibile rilevare automaticamente la configurazione della vecchia installazione.</p>" ) );
+		form.add ( new HTML ( "<p>Inserisci manualmente i dati per connettersi al database in cui si trovano i dati che vuoi importare.</p>" ) );
+
+		dbsettings = doDbSettingForm ( form, null );
+		form.add ( dbsettings );
+
+		main.add ( form );
+	}
+
+	private void fillForm ( Probe probe ) {
 		FromServerForm form;
 
 		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
@@ -112,7 +194,7 @@ public class InstallForm extends Composite {
 		form.add ( new HTML ( "<p>Qui definisci alcune informazioni per l'utilizzo immediato di GASdotto, potrai sempre cambiarle in futuro dal pannello 'Configurazioni'. Tieni presente che l'utente amministratore, inizializzato automaticamente, ha sempre come username \"root\".</p>" ) );
 		form.add ( doConfigSettingForm ( form, probe ) );
 
-		return form;
+		main.add ( form );
 	}
 
 	private Widget doDbSettingForm ( FromServerForm form, Probe probe ) {
@@ -144,6 +226,17 @@ public class InstallForm extends Composite {
 
 		message = "<p>Installazione completata con successo.</p>";
 		message += "<p>Ricaricando <a href=\"GASdotto.html\">questa pagina</a> ti verrà presentato il pannello di login: entra nell'applicazione usando username 'root' e la password che hai definito nel passaggio precedente.</p>";
+		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
+		main.add ( new HTML ( message ) );
+	}
+
+	private void upgradeComplete () {
+		String message;
+
+		main.clear ();
+
+		message = "<p>Upgrade completato con successo.</p>";
+		message += "<p>Ricaricando <a href=\"GASdotto.html\">questa pagina</a> ti verrà presentato il pannello di login: entra nell'applicazione usando i tuoi soliti username e password.</p>";
 		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
 		main.add ( new HTML ( message ) );
 	}

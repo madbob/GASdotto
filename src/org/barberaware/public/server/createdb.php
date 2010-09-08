@@ -31,7 +31,6 @@ function target_connect_to_the_database () {
 	global $dbname;
 	global $dbuser;
 	global $dbpassword;
-	global $instance_identifier;
 	global $db;
 
 	if ( !isset ( $dbhost ) )
@@ -44,12 +43,6 @@ function target_connect_to_the_database () {
 			$dbport = 5432;
 	}
 
-	if ( !isset ( $instance_identifier ) )
-		$instance_identifier = 1;
-
-	if ( !isset ( $dbname ) )
-		$dbname = 'gasdotto_' . $instance_identifier;
-
 	try {
 		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
 		return true;
@@ -57,6 +50,125 @@ function target_connect_to_the_database () {
 	catch ( PDOException $e ) {
 		return false;
 	}
+}
+
+function new_tables () {
+	$query = sprintf ( "CREATE TABLE Supplier_carriers (
+					id serial,
+					parent int references Supplier ( id ) on delete cascade,
+					target int references Users ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella supplier_carriers" );
+
+	/*
+		=======================================================================================
+	*/
+
+	$query = sprintf ( "CREATE TABLE ProductVariant (
+					id serial,
+					name varchar ( 100 ) default '',
+					primary key ( id )
+				)" );
+
+	query_and_check ( $query, "Impossibile creare tabella productvariant" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE Product_variants (
+					id serial,
+					parent int references Product ( id ) on delete cascade,
+					target int references ProductVariant ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella product_variants" );
+
+	/*
+		=======================================================================================
+	*/
+
+	$query = sprintf ( "CREATE TABLE ProductVariantValue (
+					id serial,
+					name varchar ( 100 ) default '',
+					primary key ( id )
+				)" );
+
+	query_and_check ( $query, "Impossibile creare tabella productvariantvalue" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductVariant_values (
+					id serial,
+					parent int references ProductVariant ( id ) on delete cascade,
+					target int references ProductVariantValue ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productvariant_values" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUserVariant (
+					id serial,
+					delivered boolean default false,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuservariant" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUserVariantComponent (
+					id serial,
+					variant int references ProductVariant ( id ) on delete cascade,
+					value int references ProductVariantValue ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuservariantcomponent" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUserVariant_components (
+					id serial,
+					parent int references ProductuserVariant ( id ) on delete cascade,
+					target int references ProductuserVariantComponent ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuservariant_components" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "CREATE TABLE ProductUser_variants (
+					id serial,
+					parent int references ProductUser ( id ) on delete cascade,
+					target int references ProductuserVariant ( id ) on delete cascade,
+					primary key ( id )
+				)"
+	);
+
+	query_and_check ( $query, "Impossibile creare tabella productuser_variants" );
 }
 
 function install_main_db () {
@@ -172,7 +284,7 @@ function install_main_db () {
 					description varchar ( 500 ) default '',
 					startdate date,
 					enddate date,
-					send_mail boolean,
+					send_mail boolean default false,
 					primary key ( id )
 				)"
 	);
@@ -241,20 +353,6 @@ function install_main_db () {
 	);
 
 	query_and_check ( $query, "Impossibile creare tabella supplier_references" );
-
-	/*
-		=======================================================================================
-	*/
-
-	$query = sprintf ( "CREATE TABLE Supplier_carriers (
-					id serial,
-					parent int references Supplier ( id ) on delete cascade,
-					target int references Users ( id ) on delete cascade,
-					primary key ( id )
-				)"
-	);
-
-	query_and_check ( $query, "Impossibile creare tabella supplier_carriers" );
 
 	/*
 		=======================================================================================
@@ -352,58 +450,6 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-	$query = sprintf ( "CREATE TABLE ProductVariant (
-					id serial,
-					name varchar ( 100 ) default '',
-					primary key ( id )
-				)" );
-
-	query_and_check ( $query, "Impossibile creare tabella productvariant" );
-
-	/*
-		=======================================================================================
-	*/
-
-        $query = sprintf ( "CREATE TABLE Product_variants (
-					id serial,
-					parent int references Product ( id ) on delete cascade,
-					target int references ProductVariant ( id ) on delete cascade,
-					primary key ( id )
-				)"
-	);
-
-	query_and_check ( $query, "Impossibile creare tabella product_variants" );
-
-	/*
-		=======================================================================================
-	*/
-
-	$query = sprintf ( "CREATE TABLE ProductVariantValue (
-					id serial,
-					name varchar ( 100 ) default '',
-					primary key ( id )
-				)" );
-
-	query_and_check ( $query, "Impossibile creare tabella productvariantvalue" );
-
-	/*
-		=======================================================================================
-	*/
-
-        $query = sprintf ( "CREATE TABLE ProductVariant_values (
-					id serial,
-					parent int references ProductVariant ( id ) on delete cascade,
-					target int references ProductVariantValue ( id ) on delete cascade,
-					primary key ( id )
-				)"
-	);
-
-	query_and_check ( $query, "Impossibile creare tabella productvariant_values" );
-
-	/*
-		=======================================================================================
-	*/
-
 	$query = sprintf ( "CREATE TABLE Orders (
 					id serial,
 					supplier int references Supplier ( id ) on delete cascade,
@@ -481,56 +527,68 @@ function install_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE ProductUserVariant (
-					id serial,
-					delivered boolean default false,
-					primary key ( id )
-				)"
-	);
+	new_tables ();
+}
 
-	query_and_check ( $query, "Impossibile creare tabella productuservariant" );
+function upgrade_main_db () {
+	if ( target_connect_to_the_database () == false )
+		error_exit ( "Impossibile selezionare database primario" );
 
 	/*
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE ProductUserVariantComponent (
-					id serial,
-					variant int references ProductVariant ( id ) on delete cascade,
-					value int references ProductVariantValue ( id ) on delete cascade,
-					primary key ( id )
-				)"
-	);
-
-	query_and_check ( $query, "Impossibile creare tabella productuservariantcomponent" );
+        $query = sprintf ( "ALTER TABLE GAS ADD COLUMN mail_conf varchar ( 500 )" );
+	query_and_check ( $query, "Impossibile aggiornare tabella gas" );
+	$query = sprintf ( "ALTER TABLE GAS ALTER COLUMN mail_conf SET DEFAULT ''" );
+	query_and_check ( $query, "Impossibile aggiornare tabella gas" );
 
 	/*
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE ProductUserVariant_components (
-					id serial,
-					parent int references ProductuserVariant ( id ) on delete cascade,
-					target int references ProductuserVariantComponent ( id ) on delete cascade,
-					primary key ( id )
-				)"
-	);
+        $query = sprintf ( "ALTER TABLE Users ADD COLUMN family int" );
+	query_and_check ( $query, "Impossibile aggiornare tabella users" );
+	$query = sprintf ( "ALTER TABLE Users ALTER COLUMN family SET DEFAULT 1" );
+	query_and_check ( $query, "Impossibile aggiornare tabella users" );
 
-	query_and_check ( $query, "Impossibile creare tabella productuservariant_components" );
+	$query = sprintf ( "ALTER TABLE Users ADD COLUMN photo varchar ( 100 )" );
+	query_and_check ( $query, "Impossibile aggiornare tabella users" );
+	$query = sprintf ( "ALTER TABLE Users ALTER COLUMN photo SET DEFAULT ''" );
+	query_and_check ( $query, "Impossibile aggiornare tabella users" );
 
 	/*
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "CREATE TABLE ProductUser_variants (
-					id serial,
-					parent int references ProductUser ( id ) on delete cascade,
-					target int references ProductuserVariant ( id ) on delete cascade,
-					primary key ( id )
-				)"
-	);
+        $query = sprintf ( "ALTER TABLE Notification ADD COLUMN send_mail boolean" );
+	query_and_check ( $query, "Impossibile aggiornare tabella notification" );
+	$query = sprintf ( "ALTER TABLE Notification ALTER COLUMN send_mail SET DEFAULT false" );
+	query_and_check ( $query, "Impossibile aggiornare tabella notification" );
 
-	query_and_check ( $query, "Impossibile creare tabella productuser_variants" );
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "ALTER TABLE Supplier ADD COLUMN  orders_months varchar ( 20 )" );
+	query_and_check ( $query, "Impossibile aggiornare tabella supplier" );
+	$query = sprintf ( "ALTER TABLE Supplier ALTER COLUMN orders_months SET DEFAULT ''" );
+	query_and_check ( $query, "Impossibile aggiornare tabella supplier" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "ALTER TABLE Product ADD COLUMN  code varchar ( 100 )" );
+	query_and_check ( $query, "Impossibile aggiornare tabella product" );
+	$query = sprintf ( "ALTER TABLE Product ALTER COLUMN code SET DEFAULT ''" );
+	query_and_check ( $query, "Impossibile aggiornare tabella product" );
+
+	/*
+		=======================================================================================
+	*/
+
+	new_tables ();
 }
 
 ?>

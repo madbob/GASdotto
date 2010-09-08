@@ -24,17 +24,25 @@ class Probe extends FromServer {
 	public function __construct () {
 		parent::__construct ( "Probe" );
 
+		$this->addAttribute ( "servername", "STRING" );
+		$this->addAttribute ( "upgrade", "BOOLEAN" );
 		$this->addAttribute ( "writable", "BOOLEAN" );
+		$this->addAttribute ( "oldurl", "STRING" );
+		$this->addAttribute ( "trylocate", "BOOLEAN" );
 		$this->addAttribute ( "dbdrivers", "STRING" );
 		$this->addAttribute ( "dbdriver", "STRING" );
 		$this->addAttribute ( "dbuser", "STRING" );
 		$this->addAttribute ( "dbpassword", "STRING" );
 		$this->addAttribute ( "dbname", "STRING" );
 		$this->addAttribute ( "dbhost", "STRING" );
+		$this->addAttribute ( "gasname", "STRING" );
+		$this->addAttribute ( "gasmail", "STRING" );
 		$this->addAttribute ( "rootpassword", "STRING" );
 	}
 
 	public function get ( $request, $compress ) {
+		$this->getAttribute ( "servername" )->value = $_SERVER [ 'SERVER_NAME' ];
+		$this->getAttribute ( "newdb" )->value = true;
 		$this->getAttribute ( "writable" )->value = is_writable ( "./config.php" );
 
 		$drivers = PDO::getAvailableDrivers ();
@@ -55,10 +63,37 @@ class Probe extends FromServer {
 		return $string;
 	}
 
-	public function save ( $obj ) {
-		if ( is_writable ( "./config.php" ) == false )
-			return 0;
+	/*
+		Funzione copiata da
+		http://www.php.happycodings.com/File_Manipulation/code48.html
+	*/
+	function filefind ( $basedirectory, $needle ) {
+		$handle = opendir ( $basedirectory );
 
+		while ( $file = readdir ( $handle ) ) {
+			if ( ( $file == "." ) || ( $file == ".." ) )
+				continue;
+
+			if ( is_dir ( $basedirectory . '/' . $file ) ) {
+				$subDirResult = self::filefind ( $basedirectory . '/' . $file, $needle );
+
+				if ( $subDirResult != "" ) {
+					closedir ( $handle );
+					return $subDirResult;
+				}
+			}
+
+			if ( strcmp ( $file, $needle ) == 0 ) {
+				closedir ( $handle );
+				return $basedirectory . '/' . $needle;
+			}
+		}
+
+		closedir ( $handle );
+		return "";
+	}
+
+	private function write_config ( $obj ) {
 		$f = fopen ( "./config.php", "w" );
 
 		fwrite ( $f, "<?php\n" );
@@ -71,15 +106,58 @@ class Probe extends FromServer {
 		fwrite ( $f, "?>\n" );
 
 		fclose ( $f );
+	}
 
-		install_main_db ();
+	public function save ( $obj ) {
+		if ( is_writable ( "./config.php" ) == false )
+			return "0";
 
-		$query = sprintf ( "UPDATE accounts SET password = '%s' WHERE username = ( SELECT id FROM Users WHERE login = 'root' )",
-					md5 ( $obj->rootpassword ) );
-		query_and_check ( $query, "Impossibile salvare password per utente root" );
+		if ( $obj->upgrade == true ) {
+			if ( $obj->trylocate == true ) {
+				$path = $_SERVER [ 'DOCUMENT_ROOT' ] . '/' . $obj->oldurl;
 
-		$query = sprintf ( "UPDATE GAS SET name = '%s', mail = '%s'", $obj->gasname, $obj->gasmail );
-		query_and_check ( $query, "Impossibile salvare dati del GAS" );
+				if ( file_exists ( $path ) == false )
+					return "-1";
+
+				if ( is_dir ( $path ) == false )
+					$path = dirname ( $path );
+
+				$old_conf = self::filefind ( $path, 'config.php' );
+				if ( $old_conf == "" )
+					return "-1";
+
+				if ( copy ( $old_conf, './config.php' ) == false )
+					return "-1";
+
+				/*
+					Questa manfrina e' per forzare il ricaricamento dei parametri di connessione
+					al database pescandoli dal nuovo config.php (che in realta' e' quello vecchio)
+				*/
+				global $dbdriver;
+				global $dbhost;
+				global $dbport;
+				global $dbname;
+				global $dbuser;
+				global $dbpassword;
+				require ( "config.php" );
+			}
+			else {
+				self::write_config ( $obj );
+			}
+
+			upgrade_main_db ();
+		}
+		else {
+			self::write_config ( $obj );
+			install_main_db ();
+
+			$query = sprintf ( "UPDATE accounts SET password = '%s' WHERE username = ( SELECT id FROM Users WHERE login = 'root' )",
+						md5 ( $obj->rootpassword ) );
+			query_and_check ( $query, "Impossibile salvare password per utente root" );
+
+			$query = sprintf ( "UPDATE GAS SET name = '%s', mail = '%s'", $obj->gasname, $obj->gasmail );
+			query_and_check ( $query, "Impossibile salvare dati del GAS" );
+		}
 
 		return "1";
 	}
