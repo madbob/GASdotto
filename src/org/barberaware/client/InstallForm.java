@@ -105,6 +105,7 @@ public class InstallForm extends Composite {
 	private void upgradePanel ( Probe probe ) {
 		HorizontalPanel url;
 		FromServerForm form;
+		DummyTextBox tb;
 		CustomCaptionPanel setts;
 
 		probe.setBool ( "upgrade", true );
@@ -115,6 +116,8 @@ public class InstallForm extends Composite {
 
 		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerForm form ) {
+				Log.debug ( Integer.toString ( form.getObject ().getLocalID () ) );
+
 				if ( form.getObject ().getLocalID () == 1 ) {
 					upgradeComplete ();
 				}
@@ -138,7 +141,10 @@ public class InstallForm extends Composite {
 		url = new HorizontalPanel ();
 		url.setStyleName ( "multi-selector" );
 		url.add ( new Label ( "http://" + probe.getString ( "servername" ) + "/" ) );
-		url.add ( form.getWidget ( "oldurl" ) );
+		tb = new DummyTextBox ();
+		tb.setVisibleLength ( 100 );
+		tb.setMaxLength ( 100 );
+		url.add ( form.getPersonalizedWidget ( "oldurl", tb ) );
 		url.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 		setts.addPair ( "Indirizzo web presso cui si trova la precedente versione", url );
 

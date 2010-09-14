@@ -111,9 +111,14 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 }
 
 function users_data ( $user, $supplier, $startdate, $enddate ) {
+	/*
+		Attenzione: per le statistiche si contano solo gli ordini che sono stati
+		consegnati, ovvero quelli chiusi definitivamente
+	*/
+
 	$query = sprintf ( "SELECT COUNT(OrderUser.id) FROM OrderUser, Orders
 				WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
-					Orders.startdate > '%s' AND Orders.enddate < '%s'",
+					OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
 	$tot = $returned->fetchAll ( PDO::FETCH_NUM );
@@ -124,7 +129,7 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 				FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
 				WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
 					OrderUser_products.parent = OrderUser.id AND ProductUser.id = OrderUser_products.target AND
-					Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+					Product.id = ProductUser.product AND OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
 	$price = $returned->fetchAll ( PDO::FETCH_NUM );
@@ -264,9 +269,9 @@ if ( $graph == 0 ) {
 			$rows_users = list_users ();
 
 			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ )
-				$ret .= ( $rows_suppliers [ $i ] [ "name" ] ) . ';';
+				$ret .= ( $rows_suppliers [ $i ] [ "name" ] ) . ' - Ordini;' . ( $rows_suppliers [ $i ] [ "name" ] ) . ' - Valore (in euro);';
 
-			$ret .= "Totale\n";
+			$ret .= "Totale Ordini;Totale Valore\n";
 
 			$supplier_total_orders = array ();
 			$supplier_total_price = array ();
@@ -278,35 +283,42 @@ if ( $graph == 0 ) {
 
 			foreach ( $rows_users as $user ) {
 				$ret .= ( $user [ 'surname' ] ) . ' ' . ( $user [ 'firstname' ] ) . ';';
+				$total_orders = 0;
 				$total_price = 0;
 
 				for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
 					list ( $tot, $price ) = users_data ( $user [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
 
 					if ( $price [ 0 ] [ 0 ] != "" ) {
-						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ' ordini / ' . ( format_price ( $price [ 0 ] [ 0 ], false ) ) . ' euro;' );
+						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ';' . ( format_price ( $price [ 0 ] [ 0 ], false ) ) . ';' );
+						$total_orders += $tot [ 0 ] [ 0 ];
 						$total_price += $price [ 0 ] [ 0 ];
 
 						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + 1;
 						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
 					}
 					else {
-						$ret .= ';';
+						$ret .= ';;';
 					}
 
 					unset ( $tot );
 					unset ( $price );
 				}
 
-				$ret .= ( format_price ( $total_price, false ) ) . " euro\n";
+				$ret .= ( $total_orders . ';' . ( format_price ( $total_price, false ) ) . "\n" );
 			}
 
 			$ret .= ';';
+			$total_orders = 0;
+			$total_price = 0;
 
-			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ )
-				$ret .= ( $supplier_total_orders [ $a ] ) . ' utenti / ' . ( format_price ( $supplier_total_price [ $a ], false ) ) . ' euro;';
+			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
+				$ret .= ( $supplier_total_orders [ $a ] ) . ';' . ( format_price ( $supplier_total_price [ $a ], false ) ) . ';';
+				$total_orders += $supplier_total_orders [ $a ];
+				$total_price += $supplier_total_price [ $a ];
+			}
 
-			$ret .= "\n";
+			$ret .= ( $total_orders . ';' . ( format_price ( $total_price, false ) ) . "\n" );
 			unset ( $supplier_total_orders );
 			unset ( $supplier_total_price );
 
@@ -321,13 +333,17 @@ if ( $graph == 0 ) {
 			if ( isset ( $supplier ) == false )
 				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
 
-			$ret .= "Totale Utenti;Totale Valore\n";
+			$ret .= "Totale Utenti;Totale Valore (in euro)\n";
 			$products = products_data ( $supplier, $startdate, $enddate );
+			$total = 0;
 
 			for ( $i = 0; $i < count ( $products ); $i++ ) {
 				$r = $products [ $i ];
-				$ret .= ( $r [ 0 ] ) . ';' . ( $r [ 1 ] ) . ';' . ( format_price ( $r [ 2 ], false ) ) . " euro\n";
+				$ret .= ( $r [ 0 ] ) . ';' . ( $r [ 1 ] ) . ';' . ( format_price ( $r [ 2 ], false ) ) . "\n";
+				$total += $r [ 2 ];
 			}
+
+			$ret .= ';;' . ( format_price ( $total, false ) ) . "\n";
 
 			unset ( $products );
 
@@ -429,17 +445,22 @@ if ( $graph == 0 ) {
 			if ( isset ( $supplier ) == false )
 				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
 
-			$header [] = "Totale Utenti";
-			$header [] = "Totale Valore";
+			$header [] = 'Totale Utenti';
+			$header [] = 'Totale Valore';
 			$data = products_data ( $supplier, $startdate, $enddate );
+			$total = 0;
 
-			for ( $i = 0; $i < count ( $data ); $i++ )
-				$data [ $i ] [ 2 ] = ( format_price ( $data [ $i ] [ 2 ], false ) ) . " euro";
+			for ( $i = 0; $i < count ( $data ); $i++ ) {
+				$data [ $i ] [ 2 ] = ( format_price ( $data [ $i ] [ 2 ], false ) ) . ' euro';
+				$total += $data [ $i ] [ 2 ];
+			}
+
+			$data [] = array ( '', '', format_price ( $total, false ) . ' euro' );
 
 			$supp = new Supplier ();
 			$supp->readFromDB ( $supplier );
 
-			$file_title = 'Statistiche Prodotti/Fornitore ' . ($supp->getAttribute ( 'name' )->value);
+			$file_title = 'Statistiche Prodotti/Fornitore ' . ( $supp->getAttribute ( 'name' )->value );
 			$file_name = 'statistiche_prodotti_fornitori.pdf';
 		}
 

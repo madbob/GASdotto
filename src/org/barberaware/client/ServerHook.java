@@ -60,6 +60,7 @@ public class ServerHook {
 	private HashMap		monitors		= null;
 	private int		executingMonitor;
 	private ArrayList	monitorSchedulingQueue;
+	private RequestDesc	lastRequest		= null;
 
 	/*
 		Si forza il numero massimo di richieste concorrenti verso il server a 2, onde
@@ -87,6 +88,7 @@ public class ServerHook {
 		initMonitors ();
 		executingMonitor = 0;
 		monitorSchedulingQueue = new ArrayList ();
+		lastRequest = new RequestDesc ();
 	}
 
 	/****************************************************************** raw */
@@ -231,10 +233,8 @@ public class ServerHook {
 	private void testObjectReceiveImpl ( ObjectRequest params ) {
 		ServerMonitor tmp;
 
-		/**
-			TODO	Fare in modo di evitare numerose volte di seguito lo stesso tipo
-				di contenuto
-		*/
+		if ( lastRequest.testAndSet ( params ) == false )
+			return;
 
 		tmp = getMonitor ( params.getType () );
 		executeMonitor ( tmp, params );
