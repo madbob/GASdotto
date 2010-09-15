@@ -116,8 +116,6 @@ public class InstallForm extends Composite {
 
 		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerForm form ) {
-				Log.debug ( Integer.toString ( form.getObject ().getLocalID () ) );
-
 				if ( form.getObject ().getLocalID () == 1 ) {
 					upgradeComplete ();
 				}

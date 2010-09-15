@@ -163,6 +163,18 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					ver = new FromServerForm ( product );
 					ver.addStyleName ( "subform" );
 
+					ver.setCallback ( new FromServerFormCallbacks () {
+						public void onSave ( FromServerForm form ) {
+							FromServer obj;
+							FromServerWidget name;
+
+							obj = form.getObject ();
+							name = ( FromServerWidget ) form.getWidget ( "name" );
+							name.assign ( obj );
+							list.reSort ( obj );
+						}
+					} );
+
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
 					ver.add ( hor );
@@ -272,6 +284,16 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 				}
 
 				protected void customNew ( FromServer object, boolean true_new ) {
+					String id;
+					FromServerForm form;
+
+					form = list.retrieveFormById ( object.getLocalID () );
+					if ( form != null ) {
+						id = list.getIdentifier ();
+						object.addRelatedInfo ( id, form );
+						form.setObject ( object );
+					}
+
 					table.addElement ( object );
 				}
 

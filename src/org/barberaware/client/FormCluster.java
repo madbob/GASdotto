@@ -53,7 +53,8 @@ public abstract class FormCluster extends FormGroup implements Lockable {
 				FromServerForm iter;
 
 				iter = refreshElement ( object );
-				customModify ( iter );
+				if ( iter != null )
+					customModify ( iter );
 			}
 
 			public void onDestroy ( FromServer object ) {

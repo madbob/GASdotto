@@ -391,11 +391,15 @@ public class OrdersEditPanel extends GenericPanel {
 						server, in modo che abbia la lista dei prodotti e se ne possa
 						compilare il summary
 					*/
+					String id;
 					FromServerForm form;
 
 					form = main.retrieveFormById ( object.getLocalID () );
 					if ( form != null ) {
+						id = main.getIdentifier ();
+						object.addRelatedInfo ( id, form );
 						form.setObject ( object );
+
 						addOrderDetails ( form );
 						addSaveProducts ( form );
 

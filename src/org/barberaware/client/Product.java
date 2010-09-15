@@ -44,6 +44,12 @@ public class Product extends FromServer {
 
 		setString ( "name", "Nuovo Prodotto" );
 		setBool ( "available", true );
+
+		/*
+			Il ricaricamento serve per pescare gli ID delle eventuali varianti che
+			sono state assegnate ad un nuovo prodotto
+		*/
+		alwaysReload ( true );
 	}
 
 	public float getTotalPrice () {

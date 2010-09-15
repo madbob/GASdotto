@@ -135,6 +135,18 @@ public abstract class FormGroup extends Composite {
 		return ret;
 	}
 
+	public void reSort ( FromServer object ) {
+		int pos;
+		FromServerForm iter;
+
+		iter = retrieveForm ( object );
+		if ( iter != null ) {
+			pos = getPosition ( object );
+			if ( pos != -1 )
+				main.insert ( iter, pos );
+		}
+	}
+
 	public FromServerForm refreshElement ( FromServer object ) {
 		FromServerForm iter;
 
@@ -148,7 +160,7 @@ public abstract class FormGroup extends Composite {
 	public void deleteElement ( FromServer object ) {
 		FromServerForm iter;
 
-		iter = ( FromServerForm ) object.getRelatedInfo ( identifier );
+		iter = retrieveForm ( object );
 		if ( iter != null ) {
 			iter.invalidate ();
 			object.delRelatedInfo ( identifier );
@@ -216,6 +228,10 @@ public abstract class FormGroup extends Composite {
 		}
 
 		return array;
+	}
+
+	public String getIdentifier () {
+		return identifier;
 	}
 
 	private void closeOtherForms ( FromServerForm target ) {
