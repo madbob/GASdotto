@@ -194,30 +194,7 @@ public class ServerHook {
 
 		serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
-				int i;
-				int num;
-				int existing;
-				JSONArray arr;
-				FromServer tmp;
-				ServerObjectReceive callback;
-
-				arr = response.isArray ();
-
-				if ( arr != null && arr.size () != 0 ) {
-					i = 0;
-					num = arr.size ();
-
-					tmp = FromServer.instance ( arr.get ( i ).isObject () );
-					triggerObjectBlockCreation ( tmp, true );
-					triggerObjectCreation ( tmp );
-
-					for ( i = 1; i < num; i++ ) {
-						tmp = FromServer.instance ( arr.get ( i ).isObject () );
-						triggerObjectCreation ( tmp );
-					}
-
-					triggerObjectBlockCreation ( tmp, false );
-				}
+				JSONToObjects ( response );
 
 				executingMonitor--;
 
@@ -259,6 +236,32 @@ public class ServerHook {
 		for ( int i = 0; i < num; i++ ) {
 			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
 			callback.onReceive ( object );
+		}
+	}
+
+	public void JSONToObjects ( JSONValue response ) {
+		int i;
+		int num;
+		int existing;
+		JSONArray arr;
+		FromServer tmp;
+
+		arr = response.isArray ();
+
+		if ( arr != null && arr.size () != 0 ) {
+			i = 0;
+			num = arr.size ();
+
+			tmp = FromServer.instance ( arr.get ( i ).isObject () );
+			triggerObjectBlockCreation ( tmp, true );
+			triggerObjectCreation ( tmp );
+
+			for ( i = 1; i < num; i++ ) {
+				tmp = FromServer.instance ( arr.get ( i ).isObject () );
+				triggerObjectCreation ( tmp );
+			}
+
+			triggerObjectBlockCreation ( tmp, false );
 		}
 	}
 

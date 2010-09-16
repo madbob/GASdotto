@@ -59,12 +59,12 @@ class Order extends FromServer {
 		*/
 
 		if ( isset ( $request->status ) ) {
-			if ( $request->status == 'any' ) {
+			if ( ( string ) $request->status == "any" ) {
 				/*
 					Aggiungo una condizione sempre vera giusto per
 					concatenare poi gli altri pezzi della query correttamente
 				*/
-				$query = sprintf ( "SELECT id FROM %s WHERE id > 0", $this->tablename );
+				$query = sprintf ( "SELECT id FROM %s WHERE id > 0 ", $this->tablename );
 			}
 			else {
 				$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );

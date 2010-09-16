@@ -246,29 +246,41 @@ public class OrdersEditPanel extends GenericPanel {
 					return ver;
 				}
 
-				private void populateProductsPreview ( FromServerForm form, FromServer supplier ) {
-					int num_products;
-					ArrayList products;
-					ArrayList final_products;
-					FromServer prod;
-					FromServerTable table;
-
-					final_products = new ArrayList ();
+				private void populateProductsPreview ( final FromServerForm form, final FromServer supplier ) {
+					ObjectRequest params;
 
 					if ( supplier != null ) {
-						products = Utils.getServer ().getObjectsFromCache ( "Product" );
-						num_products = products.size ();
+						params = new ObjectRequest ( "Product" );
+						params.add ( "supplier", supplier.getLocalID () );
 
-						for ( int i = 0; i < num_products; i++ ) {
-							prod = ( FromServer ) products.get ( i );
+						Utils.getServer ().serverGet ( params, new ServerResponse () {
+							public void onComplete ( JSONValue response ) {
+								int num_products;
+								ArrayList products;
+								ArrayList final_products;
+								FromServer prod;
+								FromServerTable table;
 
-							if ( prod.getBool ( "available" ) && prod.getObject ( "supplier" ).equals ( supplier ) )
-								final_products.add ( prod );
-						}
+								Utils.getServer ().JSONToObjects ( response );
+
+								final_products = new ArrayList ();
+								products = Utils.getServer ().getObjectsFromCache ( "Product" );
+								num_products = products.size ();
+
+								for ( int i = 0; i < num_products; i++ ) {
+									prod = ( FromServer ) products.get ( i );
+
+									if ( prod.getBool ( "available" ) == true &&
+											prod.getBool ( "archived" ) == false &&
+											prod.getObject ( "supplier" ).equals ( supplier ) )
+										final_products.add ( prod );
+								}
+
+								table = ( FromServerTable ) form.retriveInternalWidget ( "products_preview" );
+								table.setElements ( final_products );
+							}
+						} );
 					}
-
-					table = ( FromServerTable ) form.retriveInternalWidget ( "products_preview" );
-					table.setElements ( final_products );
 				}
 
 				private void addStaticProductsList ( FromServerForm ver, FromServerSelector suppliers ) {

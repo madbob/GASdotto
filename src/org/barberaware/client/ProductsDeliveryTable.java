@@ -233,17 +233,17 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		ArrayList components;
 		Hidden check_placeholder;
 		Label counter;
+		Label l;
 		FlexTable list;
 		FloatBoxes inputs;
 		FloatBox del;
 		FromServer value;
 		ProductUserVariant variant;
 		ProductUserVariantComponent component;
-		HTMLTable.RowFormatter formatter;
 		Widget ret [];
 
 		list = new FlexTable ();
-		list.setHeight ( "100%" );
+		list.setStyleName ( "size-extended" );
 
 		inputs = new FloatBoxes ();
 		inputs.setHeight ( "100%" );
@@ -306,6 +306,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			if ( found == -1 ) {
 				found = list.getRowCount ();
 				list.setWidget ( found, 0, new Hidden ( check ) );
+
 				list.setWidget ( found, 1, new Label ( "1" ) );
 				list.setWidget ( found, 2, new Label ( label ) );
 
@@ -320,6 +321,21 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 						newVariantInputToCheck ( ( FloatBox ) sender );
 					}
 				} );
+
+				/*
+					Orrore e raccapriccio...
+					Per qualche problema non identificato (imputabile o all'elaborazione del DOM
+					Firefox o a qualche proprieta' CSS) la FlexTable in list non viene
+					visualizzata con una altezza al 100% rispetto alla cella che la contiene, e
+					dunque risulta uno spazio vuoto sopra e sotto. Questo pero' disallinea le
+					etichette che si stanno qui piazzando con le caselle di input numerico in
+					inputs (che stanno in tutt'altro contenitore).
+					Ho pertanto forzato l'altezza degli <input> a 25px, e lo stesso faccio qui a
+					mano con le righe della tabella. In questo modo il DOM e' forzato a
+					visualizzare il tutto alto uguale, e pertanto allineato.
+					Sarebbe assai meglio far fare questo lavoro al CSS...
+				*/
+				list.getRowFormatter ().setStyleName ( found, "high-as-input" );
 			}
 			else {
 				counter = ( Label ) list.getWidget ( found, 1 );
@@ -331,14 +347,6 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 			if ( variant.getBool ( "delivered" ) == true )
 				del.setVal ( del.getVal () + 1 );
 		}
-
-		/*
-		formatter = list.getRowFormatter ();
-		num = list.getRowCount ();
-
-		for ( int j = 0; j < num; j++ )
-			formatter.getElement ( j ).setAttribute ( "style", "height: " + ( 100 / num ) + "%;" );
-		*/
 
 		ret = new Widget [ 2 ];
 		ret [ 0 ] = list;

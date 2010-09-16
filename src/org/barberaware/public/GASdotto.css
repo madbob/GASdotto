@@ -350,6 +350,16 @@ body {
 	width:			100%;
 }
 
+.size-extended {
+	display:		block;
+	width:			100%;
+	height:			100%;
+}
+
+.high-as-input {
+	height:			25px;
+}
+
 .products-selection .product-name {
 	cursor:			pointer;
 	cursor:			hand;
@@ -476,6 +486,7 @@ input, textarea, select {
 	margin:			1px;
 	padding:		2px;
 	float:			left;
+	height:			25px;
 }
 
 br {
