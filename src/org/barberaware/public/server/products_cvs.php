@@ -36,14 +36,24 @@ $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
-$products_sums = array ();
-$quantities_sums = array ();
-$shipping_sum = array ();
+$references = array ();
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$products_sums [] = 0;
-	$quantities_sums [] = 0;
-	$shipping_sum [] = 0;
+	$p = $products [ $i ];
+	$vars = $p->getAttribute ( 'variants' )->value;
+
+	if ( count ( $vars ) == 0 ) {
+		$references [] = array ( $p, null, null, 0, 0, 0 );
+	}
+	else {
+		$tot = 1;
+
+		foreach ( $vars as $var )
+			$tot = $tot * count ( $var->getAttribute ( 'values' )->value );
+
+		for ( $j = 0; $j < $tot; $j++ )
+			$references [] = array ( $p, array (), array (), 0, 0, 0 );
+	}
 }
 
 $request = new stdClass ();
@@ -81,25 +91,37 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	*/
 
 	$proxy = array ();
+	$prev_id = -1;
 
-	for ( $e = 0; $e < count ( $products ); $e++ ) {
-		$prod = $products [ $e ];
+	for ( $e = 0; $e < count ( $references ); $e++ ) {
+		$prod = $references [ $e ] [ 0 ];
+		$test_id = $prod->getAttribute ( "id" )->value;
+
+		/*
+			Quando uso le varianti, in $references ci sono piu' elementi in sequenza
+			che fatto capo allo stesso prodotto. Li devo saltare, altrimenti in
+			$proxy ci finisce piu' volte lo stesso $prod_user
+		*/
+		if ( $prev_id == $test_id )
+			continue;
 
 		for ( $a = 0; $a < count ( $user_products ); $a++ ) {
 			$prod_user = $user_products [ $a ];
 
-			if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+			if ( $test_id == $prod_user->product ) {
 				$proxy [] = $prod_user;
 				break;
 			}
 		}
+
+		$prev_id = $test_id;
 	}
 
 	unset ( $user_products );
 	$user_products = $proxy;
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
-		$prod = $products [ $a ];
+	for ( $a = 0, $e = 0; $a < count ( $references ); $a++ ) {
+		$prod = $references [ $a ] [ 0 ];
 		$prod_user = $user_products [ $e ];
 
 		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
@@ -112,13 +134,65 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			else
 				$q = ( $prod_user->quantity / $unit );
 
-			$quantities_sums [ $a ] += $q;
+			if ( is_array ( $references [ $a ] [ 1 ] ) == false ) {
+				$references [ $a ] [ 3 ] += $q;
 
-			$sum = $prod_user->quantity * $uprice;
-			$products_sums [ $a ] += $sum;
+				$sum = $prod_user->quantity * $uprice;
+				$references [ $a ] [ 4 ] += $sum;
 
-			$sum = $prod_user->quantity * $sprice;
-			$shipping_sum [ $a ] += $sum;
+				$sum = $prod_user->quantity * $sprice;
+				$references [ $a ] [ 5 ] += $sum;
+			}
+			else {
+				/*
+					Questo macello cosmico e' per tenere il conto di quante volte una variante e'
+					stata ordinata.
+					In ($references[$q][1]) e ($references[$q][2]) ci sono gli array con le
+					varianti ed i valori sinora trovati. Se uno di questi array (il primo) e'
+					vuoto, vuol dire che la combinazione che sto testando non e' ancora stata
+					trovata e dunque la immetto. Altrimenti verifico che la combinazione
+					varianti-valori sia la stessa della componente che sto maneggiando
+				*/
+				foreach ( $prod_user->variants as $v ) {
+					$found = false;
+
+					for ( $q = $a; $q < count ( $references ); $q++ ) {
+						if ( is_array ( $references [ $q ] [ 1 ] ) == false )
+							break;
+
+						if ( count ( $references [ $q ] [ 1 ] ) == 0 ) {
+							foreach ( $v->components as $c ) {
+								$references [ $q ] [ 1 ] [] = $c->variant->id;
+								$references [ $q ] [ 2 ] [] = $c->value->id;
+								$found = true;
+							}
+						}
+						else {
+							$found = true;
+							$comps = $v->components;
+
+							for ( $z = 0; $z < count ( $comps ); $z++ ) {
+								$c = $comps [ $z ];
+
+								if ( $references [ $q ] [ 1 ] [ $z ] != $c->variant->id ||
+										$references [ $q ] [ 2 ] [ $z ] != $c->value->id ) {
+									$found = false;
+									break;
+								}
+							}
+						}
+
+						if ( $found == true ) {
+							$references [ $q ] [ 3 ] += 1;
+							$references [ $q ] [ 4 ] += $uprice;
+							$references [ $q ] [ 5 ] += $sprice;
+							break;
+						}
+					}
+				}
+
+				$a--;
+			}
 
 			$e++;
 		}
@@ -127,11 +201,39 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 $output = "Prodotto;Quantità;Prezzo Totale;Prezzo Trasporto\n";
 
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$q = get_product_quantity_stocks ( $products, $i, $quantities_sums [ $i ] );
-	$p = format_price ( round ( $products_sums [ $i ], 2 ), false );
-	$s = format_price ( round ( $shipping_sum [ $i ], 2 ), false );
-	$output .= ( get_product_name ( $products, $i ) ) . ';' . $q . ';' . $p . ';' . $s . "\n";
+for ( $i = 0; $i < count ( $references ); $i++ ) {
+	if ( is_array ( $references [ $i ] [ 1 ] ) ) {
+		$tot = count ( $references [ $i ] [ 1 ] );
+		if ( $tot == 0 )
+			continue;
+
+		$vars_str = array ();
+		$name = get_product_name ( $references [ $i ] [ 0 ] ) . ' ( ';
+
+		for ( $a = 0; $a < $tot; $a++ ) {
+			$var = new ProductVariant ();
+			$var->readFromDB ( $references [ $i ] [ 1 ] [ $a ] );
+
+			$val = new ProductVariantValue ();
+			$val->readFromDB ( $references [ $i ] [ 2 ] [ $a ] );
+
+			$vars_str [] = $var->getAttribute ( 'name' )->value . ': ' . $val->getAttribute ( 'name' )->value;
+
+			unset ( $var );
+			unset ( $val );
+		}
+
+		$name .= join ( ', ', $vars_str ) . ' )';
+	}
+	else {
+		$name = get_product_name ( $references [ $i ] [ 0 ] );
+	}
+
+	$q = get_product_quantity_stocks ( $references [ $i ] [ 0 ], $references [ $i ] [ 3 ] );
+	$p = format_price ( round ( $references [ $i ] [ 4 ], 2 ), false );
+	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
+
+	$output .= $name . ';' . $q . ';' . $p . ';' . $s . "\n";
 }
 
 header ( "Content-Type: plain/text" );

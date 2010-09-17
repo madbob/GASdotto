@@ -186,20 +186,17 @@ function sort_orders_by_user ( $first, $second ) {
 	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 }
 
-function get_product_name ( $products, $index ) {
-	$prod = $products [ $index ];
-
-	$code = $prod->getAttribute ( "code" )->value;
+function get_product_name ( $product ) {
+	$code = $product->getAttribute ( "code" )->value;
 	if ( $code != '' )
 		$code = ' - ' . $code;
 
-	return ( $prod->getAttribute ( "name" )->value ) . $code;
+	return ( $product->getAttribute ( "name" )->value ) . $code;
 }
 
-function get_product_quantity_stocks ( $products, $index, $quantity ) {
+function get_product_quantity_stocks ( $product, $quantity ) {
 	if ( $quantity > 0 ) {
-		$prod = $products [ $index ];
-		$stock = $prod->getAttribute ( "stock_size" )->value;
+		$stock = $product->getAttribute ( "stock_size" )->value;
 
 		if ( $stock != 0 )
 			return ( comma_format ( round ( $quantity, 2 ), false ) ) . ' (' . ( ceil ( $quantity / $stock ) ) . ' confezioni da ' . $stock . ')';
@@ -249,12 +246,38 @@ function my_send_mail ( $recipients, $subject, $body ) {
 
 	$smtp = Mail::factory ( 'smtp', array ( 'host' => $host, 'port' => $port, 'auth' => true, 'username' => $username, 'password' => $password ) );
 
-	$ret = $smtp->send ( $recipients, $headers, $body );
+	$tot = count ( $recipients );
 
-	if ( PEAR::isError ( $ret ) )
-		return $ret->getMessage ();
-	else
+	/*
+		Se ci sono piu' di 50 destinatari, mando piu' mail, li divido in porzioni da 50.
+		Questo perche' pressoche' tutti i providers di posta impongono un limite sul
+		numero di destinatari (oltre il quale la mail viene bloccata), il quale e' assai
+		variabile: alcuni lo hanno a 100, altri a 200. Per scaramanzia mi tengo basso nel
+		conto
+	*/
+	if ( $tot > 50 ) {
+		for ( $i = 0; $i < $tot; $i += 50 ) {
+			$end = $i + 50;
+			if ( $end > $tot )
+				$end = $tot;
+
+			$recipients_part = array_slice ( $recipients, $i, $end );
+			$ret = $smtp->send ( $recipients_part, $headers, $body );
+
+			if ( PEAR::isError ( $ret ) )
+				return $ret->getMessage ();
+		}
+
 		return null;
+	}
+	else {
+		$ret = $smtp->send ( $recipients, $headers, $body );
+
+		if ( PEAR::isError ( $ret ) )
+			return $ret->getMessage ();
+		else
+			return null;
+	}
 }
 
 /****************************************************************** authentication */
