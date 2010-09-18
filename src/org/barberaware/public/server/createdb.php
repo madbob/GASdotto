@@ -189,6 +189,7 @@ function install_main_db () {
 					mail varchar ( 100 ) default '',
 					image varchar ( 100 ) default '',
 					payments boolean default false,
+					payment_date date,
 					description varchar ( 500 ) default '',
 					use_mail boolean default false,
 					mail_conf varchar ( 500 ) default '',
@@ -537,6 +538,9 @@ function upgrade_main_db () {
 	/*
 		=======================================================================================
 	*/
+
+	$query = sprintf ( "ALTER TABLE GAS ADD COLUMN payment_date date" );
+	query_and_check ( $query, "Impossibile aggiornare tabella gas" );
 
         $query = sprintf ( "ALTER TABLE GAS ADD COLUMN mail_conf varchar ( 500 )" );
 	query_and_check ( $query, "Impossibile aggiornare tabella gas" );

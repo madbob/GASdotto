@@ -73,6 +73,7 @@ public class SystemPanel extends GenericPanel {
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
 		BooleanSelector mail;
+		DateSelector paydate;
 
 		ver = new FromServerForm ( Session.getGAS () );
 
@@ -102,6 +103,10 @@ public class SystemPanel extends GenericPanel {
 			frame.addPair ( "Logo Homepage", ver.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
 
 		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
+
+		paydate = new DateSelector ();
+		paydate.ignoreYear ( true );
+		frame.addPair ( "Inizio Anno Sociale", ver.getPersonalizedWidget ( "payment_date", paydate ) );
 
 		mail = new BooleanSelector ();
 		mail.addChangeListener ( new ChangeListener () {

@@ -38,6 +38,7 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 		public Button		prevMonth = new Button ( "&lt;", this );
 		public Button		nextMonth = new Button ( "&gt;", this );
 		public NumberBox	year = null;
+		public boolean		noYear = false;
 		public HTML		title = new HTML ();
 
 		private CalendarWidget calendar;
@@ -126,12 +127,17 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 		}
 
 		public void setTitle ( int month, int year ) {
-			if ( this.year == null ) {
-				title.setText ( Utils.months [ month ] + " " + year );
+			if ( noYear == true ) {
+				title.setText ( Utils.months [ month ] );
 			}
 			else {
-				title.setText ( Utils.months [ month ] );
-				this.year.setVal ( year );
+				if ( this.year == null ) {
+					title.setText ( Utils.months [ month ] + " " + year );
+				}
+				else {
+					title.setText ( Utils.months [ month ] );
+					this.year.setVal ( year );
+				}
 			}
 		}
 	}
@@ -365,6 +371,11 @@ public class CalendarWidget extends SavingDialog implements ClickListener {
 
 	public void yearSelectable ( boolean selectable ) {
 		navbar.yearSelectable ( selectable );
+		navbar.setTitle ( getMonth (), getYear () );
+	}
+
+	public void ignoreYear ( boolean ignore ) {
+		navbar.noYear = ignore;
 		navbar.setTitle ( getMonth (), getYear () );
 	}
 

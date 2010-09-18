@@ -75,16 +75,41 @@ public class User extends FromServer {
 	}
 
 	public void checkUserPaying ( FromServerForm form ) {
+		boolean check;
 		Date last_pay;
+		Date gas_date;
 		Date now;
 		EmblemsBar bar;
 
 		bar = form.emblems ();
-		last_pay = this.getDate ( "paying" );
 
-		if ( last_pay == null || ( ( ( System.currentTimeMillis () - last_pay.getTime () ) / 1000 ) > ( 60 * 60 * 24 * 365 ) ) )
+		gas_date = Session.getGAS ().getDate ( "payment_date" );
+		if ( gas_date == null ) {
+			bar.deactivate ( "paying" );
+			return;
+		}
+
+		last_pay = this.getDate ( "paying" );
+		if ( last_pay == null ) {
 			bar.activate ( "paying" );
-		else
+			return;
+		}
+
+		check = false;
+		now = new Date ( System.currentTimeMillis () );
+
+		if ( last_pay.getYear () == now.getYear () - 1 ) {
+			if ( last_pay.getMonth () < gas_date.getMonth () || ( last_pay.getMonth () == gas_date.getMonth () && last_pay.getDay () < gas_date.getDay () ) ) {
+				bar.activate ( "paying" );
+				check = true;
+			}
+		}
+		else if ( last_pay.getYear () < now.getYear () ) {
+			bar.activate ( "paying" );
+			check = true;
+		}
+
+		if ( check == false )
 			bar.deactivate ( "paying" );
 	}
 }

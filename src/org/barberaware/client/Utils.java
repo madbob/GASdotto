@@ -318,6 +318,19 @@ public class Utils {
 			return d.getDate () + " " + months [ d.getMonth () ] + " " + ( d.getYear () + 1900 );
 	}
 
+	public static String printableDate ( Date d, boolean with_year ) {
+		String ret;
+
+		if ( d == null )
+			return "Non settato";
+		else {
+			ret = d.getDate () + " " + months [ d.getMonth () ];
+			if ( with_year == true )
+				ret += " " + ( d.getYear () + 1900 );
+			return ret;
+		}
+	}
+
 	/****************************************************** json */
 
 	public static JSONArray JSONArrayRemove ( JSONArray array, int index ) {

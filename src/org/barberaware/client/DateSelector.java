@@ -28,11 +28,13 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 	private CalendarWidget			cal;
 	private Date				currentDate;
 	private boolean				opened;
+	private boolean				showYear;
 	private ChangeListenerCollection	changeCallbacks;
 
 	public DateSelector () {
 		opened = false;
 		currentDate = null;
+		showYear = true;
 
 		cal = new CalendarWidget ();
 		cal.addCallback (
@@ -72,7 +74,7 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 
 	private void syncDate ( Date date ) {
 		currentDate = date;
-		main.setText ( Utils.printableDate ( date ) );
+		main.setText ( Utils.printableDate ( date, showYear ) );
 
 		if ( changeCallbacks != null )
 			changeCallbacks.fireChange ( this );
@@ -89,6 +91,11 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 
 	public void yearSelectable ( boolean selectable ) {
 		cal.yearSelectable ( selectable );
+	}
+
+	public void ignoreYear ( boolean ignore ) {
+		showYear = !ignore;
+		cal.ignoreYear ( ignore );
 	}
 
 	/****************************************************************** SourcesChangeEvents */
