@@ -159,17 +159,31 @@ function products_data ( $supplier, $startdate, $enddate ) {
 		$id = $p [ 1 ];
 		$tot = 0;
 		$val = 0;
+		$managed_users = array ();
 
 		while ( true ) {
-			$query = sprintf ( "SELECT COUNT(DISTINCT(OrderUser.baseuser)) FROM OrderUser, Orders, OrderUser_products, ProductUser
+			/*
+				Devo badare a scartare dal conteggio gli utenti che ho gia'
+				conteggiato: mi tengo l'array di tutti gli ID e poi li escludo
+				nella query SQL
+			*/
+			if ( count ( $managed_users ) > 0 )
+				$excluded = sprintf ( 'OrderUser.baseuser NOT IN (%s)', join ( ', ', $managed_users ) );
+			else
+				$excluded = 'OrderUser.baseuser > -1';
+
+			$query = sprintf ( "SELECT DISTINCT(OrderUser.baseuser) FROM OrderUser, Orders, OrderUser_products, ProductUser
 						WHERE OrderUser.baseorder = Orders.id AND OrderUser_products.parent = OrderUser.id AND
 							ProductUser.id = OrderUser_products.target AND ProductUser.product = %d AND
-							Orders.startdate > '%s' AND Orders.enddate < '%s'",
-								$id, $startdate, $enddate );
+							Orders.startdate > '%s' AND Orders.enddate < '%s' AND %s",
+								$id, $startdate, $enddate, $excluded );
 
 			$returned = query_and_check ( $query, "Impossibile recuperare numero utenti per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
-			$tot += $array [ 0 ] [ 0 ];
+			$tot += count ( $array );
+
+			foreach ( $array as $u )
+				$managed_users [] = $u [ 0 ];
 
 			unset ( $query );
 			unset ( $returned );
