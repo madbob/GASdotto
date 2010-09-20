@@ -59,7 +59,7 @@ public class FormClusterFilter extends Composite {
 	private void clearFilter () {
 		FromServerForm iter;
 
-		for ( int i = 0; i < reference.latestIterableIndex (); i++ ) {
+		for ( int i = reference.firstIterableIndex (); i < reference.latestIterableIndex (); i++ ) {
 			iter = reference.retrieveForm ( i );
 			if ( iter.getObject () != null )
 				iter.setVisible ( true );
@@ -72,7 +72,7 @@ public class FormClusterFilter extends Composite {
 
 		text = searchBar.getText ();
 
-		for ( int i = 0; i < reference.latestIterableIndex (); i++ ) {
+		for ( int i = reference.firstIterableIndex (); i < reference.latestIterableIndex (); i++ ) {
 			iter = reference.retrieveForm ( i );
 
 			if ( callback.check ( iter.getObject (), text ) == false )

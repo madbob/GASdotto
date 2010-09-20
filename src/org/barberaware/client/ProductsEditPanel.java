@@ -84,10 +84,6 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		}
 	}
 
-	public int numProducts () {
-		return list.latestIterableIndex ();
-	}
-
 	/****************************************************************** lista */
 
 	private FromServerValidateCallback filterSupplier () {
@@ -163,6 +159,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					ver = new FromServerForm ( product );
 					ver.addStyleName ( "subform" );
 
+					/*
+
 					ver.setCallback ( new FromServerFormCallbacks () {
 						public void onSave ( FromServerForm form ) {
 							FromServer obj;
@@ -174,6 +172,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 							list.reSort ( obj );
 						}
 					} );
+
+					*/
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );

@@ -30,7 +30,7 @@ public class Footer extends Composite {
 		main.setStyleName ( "main-footer" );
 		initWidget ( main );
 
-		if ( getUserAgent ().contains ( "firefox" ) == false ) {
+		if ( getUserAgent ().contains ( "firefox" ) == false && getUserAgent ().contains ( "chrome" ) == false ) {
 			label = new HTML ( "<p><img src=\"images/firefox.jpg\" alt=\"Firefox\">Il team GASdotto consiglia di usare <a href=\"http://getfirefox.com\">Firefox</a>.</p>" );
 			main.add ( label );
 			main.setCellVerticalAlignment ( label, HasVerticalAlignment.ALIGN_MIDDLE );

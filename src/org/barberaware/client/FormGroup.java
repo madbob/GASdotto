@@ -62,7 +62,7 @@ public abstract class FormGroup extends Composite {
 		iter = null;
 		tot = latestIterableIndex ();
 
-		for ( i = 0; i < tot; i++ ) {
+		for ( i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 			cmp = iter.getObject ();
 			if ( cmp != null && cmp.getLocalID () == id )
@@ -87,8 +87,12 @@ public abstract class FormGroup extends Composite {
 		return ( FromServerForm ) main.getWidget ( index );
 	}
 
+	public int firstIterableIndex () {
+		return ( addable ? 1 : 0 );
+	}
+
 	public int latestIterableIndex () {
-		return main.getWidgetCount () - ( addable ? 1 : 0 );
+		return main.getWidgetCount ();
 	}
 
 	/*
@@ -106,7 +110,7 @@ public abstract class FormGroup extends Composite {
 		int pos;
 		FromServerForm iter;
 
-		pos = getPosition ( object );
+		pos = getPosition ( object, 0, false );
 
 		if ( pos != -1 ) {
 			iter = doEditableRow ( object );
@@ -116,6 +120,13 @@ public abstract class FormGroup extends Composite {
 					public void onOpen ( FromServerForm form ) {
 						closeOtherForms ( form );
 						asyncLoad ( form );
+					}
+
+					public void onSaved ( FromServerForm form ) {
+						int pos;
+
+						pos = getPosition ( form.getObject (), 1, true );
+						main.insert ( form, pos );
 					}
 				} );
 
@@ -141,7 +152,7 @@ public abstract class FormGroup extends Composite {
 
 		iter = retrieveForm ( object );
 		if ( iter != null ) {
-			pos = getPosition ( object );
+			pos = getPosition ( object, 0, false );
 			if ( pos != -1 )
 				main.insert ( iter, pos );
 		}
@@ -168,10 +179,13 @@ public abstract class FormGroup extends Composite {
 	}
 
 	public int getCurrentlyOpened () {
+		int tot;
 		FromServer obj;
 		FromServerForm iter;
 
-		for ( int i = 0; i < latestIterableIndex (); i++ ) {
+		tot = latestIterableIndex ();
+
+		for ( int i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 			if ( iter.isOpen () == true ) {
 				obj = iter.getObject ();
@@ -197,7 +211,7 @@ public abstract class FormGroup extends Composite {
 		iter = null;
 		tot = latestIterableIndex ();
 
-		for ( i = 0; i < tot; i++ ) {
+		for ( i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 
 			cmp = iter.getObject ();
@@ -219,7 +233,7 @@ public abstract class FormGroup extends Composite {
 		iter = null;
 		tot = latestIterableIndex ();
 
-		for ( i = 0; i < tot; i++ ) {
+		for ( i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 
 			cmp = iter.getObject ();
@@ -240,7 +254,7 @@ public abstract class FormGroup extends Composite {
 
 		tot = latestIterableIndex ();
 
-		for ( int i = 0; i < tot; i++ ) {
+		for ( int i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 
 			if ( iter != target ) {
@@ -281,29 +295,41 @@ public abstract class FormGroup extends Composite {
 					public void onOpen ( FromServerForm form ) {
 						closeOtherForms ( form );
 					}
+
+					public void onSaved ( FromServerForm form ) {
+						int pos;
+
+						pos = getPosition ( form.getObject (), 1, true );
+						main.insert ( form, pos );
+					}
 				} );
 
 				new_form.getObject ().addRelatedInfo ( identifier, new_form );
 				new_form.open ( true );
-				main.insert ( new_form, latestIterableIndex () );
+				main.insert ( new_form, firstIterableIndex () );
 			}
 		} );
 
 		addButtons.add ( button );
 	}
 
-	private int getPosition ( FromServer object ) {
+	private int getPosition ( FromServer object, int from, boolean ignore_existance ) {
 		int i;
+		int tot;
 		FromServer object_2;
 		FromServerForm iter;
 
-		for ( i = 0; i < latestIterableIndex (); i++ ) {
+		tot = latestIterableIndex ();
+
+		for ( i = firstIterableIndex () + from; i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 			object_2 = iter.getObject ();
 
 			if ( object_2 != null && sorting ( object, object_2 ) >= 0 ) {
-				if ( object.getLocalID () == object_2.getLocalID () )
-					i = -1;
+				if ( ignore_existance == false ) {
+					if ( object.getLocalID () == object_2.getLocalID () )
+						i = -1;
+				}
 
 				break;
 			}

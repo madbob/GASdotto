@@ -37,10 +37,6 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 		initWidget ( doListView () );
 	}
 
-	public int numProducts () {
-		return list.latestIterableIndex ();
-	}
-
 	private FromServerValidateCallback filterSupplier () {
 		return new FromServerValidateCallback () {
 			public boolean checkObject ( FromServer object ) {

@@ -25,5 +25,7 @@ public class Category extends FromServer {
 
 		addAttribute ( "name", FromServer.STRING );
 		addAttribute ( "description", FromServer.LONGSTRING );
+
+		setString ( "name", "Nuova Categoria" );
 	}
 }

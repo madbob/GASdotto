@@ -24,5 +24,7 @@ public class Measure extends FromServer {
 		super ();
 		addAttribute ( "name", FromServer.STRING );
 		addAttribute ( "symbol", FromServer.STRING );
+
+		setString ( "name", "Nuova Unità di Misura" );
 	}
 }
