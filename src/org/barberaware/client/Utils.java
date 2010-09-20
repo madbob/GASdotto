@@ -29,6 +29,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class Utils {
 	private static SmoothingNotify	notifies;
+	private static DisasterNotify	disaster;
 	private static ServerHook	server;
 	private static NumberFormat	floatFormatter;
 	private static NumberFormat	priceFormatter;
@@ -37,6 +38,7 @@ public class Utils {
 
 	public static void initEnvironment () {
 		notifies = new SmoothingNotify ();
+		disaster = new DisasterNotify ();
 		server = new ServerHook ();
 		floatFormatter = NumberFormat.getDecimalFormat ();
 		priceFormatter = NumberFormat.getCurrencyFormat ();
@@ -54,12 +56,21 @@ public class Utils {
 		return notifies;
 	}
 
+	public static DisasterNotify getDisasterArea () {
+		return disaster;
+	}
+
 	public static void showNotification ( String text ) {
 		notifies.show ( text, Notification.ERROR );
 	}
 
 	public static void showNotification ( String text, int type ) {
 		notifies.show ( text, type );
+	}
+
+	public static void bigError ( String message, String url, String line ) {
+		disaster.setMessage ( message );
+		disaster.show ();
 	}
 
 	/****************************************************** emblemi */

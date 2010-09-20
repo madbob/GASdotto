@@ -463,6 +463,27 @@ body {
 	margin-top:		10px;
 }
 
+.big-error-dialog {
+	position:		absolute;
+	top:			0;
+	left:			0;
+	bottom:			0;
+	right:			0;
+	width:			90%;
+	height:			90%;
+	padding:		50px;
+	margin:			auto;
+	-moz-border-radius:	20px;
+	border:			10px solid #FF0000;
+	text-align:		center;
+	background-color:	#DDDDDD;
+	z-index:		50;
+}
+
+.big-error-dialog hr {
+	width:			70%;
+}
+
 fieldset {
 	-moz-border-radius:	7px;
 	border:			1px #BBBBBB solid;

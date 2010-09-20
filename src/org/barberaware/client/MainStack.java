@@ -154,4 +154,11 @@ public class MainStack extends Composite {
 			current.getSystemID () + "::" +
 			current.getCurrentInternalReference ();
 	}
+
+	/*
+		Da usare solo in casi estremi!
+	*/
+	public void addToMain ( Widget widget ) {
+		main.add ( widget );
+	}
 }

@@ -31,7 +31,6 @@ public class FromServerFactory {
 				sempre solo tale formato anziche' due diversi (normalizzato ed esteso)
 		*/
 		name = Utils.classFinalName ( name );
-
 		first = name.charAt ( 0 );
 
 		if ( first == 'P' ) {

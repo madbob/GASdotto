@@ -53,6 +53,7 @@ public class MainApp extends Composite {
 		main.add ( new Footer () );
 
 		main.add ( Utils.getNotificationsArea () );
+		main.add ( Utils.getDisasterArea () );
 
 		stack.showPanelAtPos ( 0 );
 		openLink ();
