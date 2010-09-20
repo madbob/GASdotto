@@ -251,10 +251,15 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	}
 }
 
+$tot_price = 0;
+$tot_transport = 0;
 $header = array ( 'Prodotto', 'Quantità', 'Prezzo Totale', 'Prezzo Trasporto' );
 $data = array ();
 
 for ( $i = 0; $i < count ( $references ); $i++ ) {
+	if ( $references [ $i ] [ 3 ] == 0 )
+		continue;
+
 	if ( is_array ( $references [ $i ] [ 1 ] ) ) {
 		$tot = count ( $references [ $i ] [ 1 ] );
 		if ( $tot == 0 )
@@ -287,7 +292,13 @@ for ( $i = 0; $i < count ( $references ); $i++ ) {
 	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
 
 	$data [] = array ( $name, $q, $p, $s );
+	$tot_price += $p;
+	$tot_transport += $s;
 }
+
+$p = format_price ( round ( $tot_price, 2 ), false );
+$s = format_price ( round ( $tot_transport, 2 ), false );
+$data [] = array ( '', '', $p, $s );
 
 $pdf = new DeliveryReport ( 'P', 'mm', 'A4', true, 'UTF-8', false );
 $pdf->SetCreator ( 'TCPDF' );

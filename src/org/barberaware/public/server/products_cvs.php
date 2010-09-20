@@ -199,9 +199,14 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	}
 }
 
+$tot_price = 0;
+$tot_transport = 0;
 $output = "Prodotto;Quantità;Prezzo Totale;Prezzo Trasporto\n";
 
 for ( $i = 0; $i < count ( $references ); $i++ ) {
+	if ( $references [ $i ] [ 3 ] == 0 )
+		continue;
+
 	if ( is_array ( $references [ $i ] [ 1 ] ) ) {
 		$tot = count ( $references [ $i ] [ 1 ] );
 		if ( $tot == 0 )
@@ -234,7 +239,13 @@ for ( $i = 0; $i < count ( $references ); $i++ ) {
 	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
 
 	$output .= $name . ';' . $q . ';' . $p . ';' . $s . "\n";
+	$tot_price += $p;
+	$tot_transport += $s;
 }
+
+$p = format_price ( round ( $tot_price, 2 ), false );
+$s = format_price ( round ( $tot_transport, 2 ), false );
+$output .= ';;' . $p . ';' . $s . "\n";
 
 header ( "Content-Type: plain/text" );
 header ( 'Content-Disposition: inline; filename="' . 'ordinazioni_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
