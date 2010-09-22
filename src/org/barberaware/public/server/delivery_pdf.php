@@ -179,40 +179,16 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
+	$user_products = sort_products_on_products ( $products, $user_products );
+	$user_total = 0;
+	$user_total_ship = 0;
+	$shipped_total = 0;
+
 	$surname = ellipse_string ( $order_user->baseuser->surname, 12 );
 	$firstname = ellipse_string ( $order_user->baseuser->firstname, 12 );
 
 	$n = sprintf ( "%s<br />%s", $surname, $firstname );
 	$row [] = $n;
-
-	$user_total = 0;
-	$user_total_ship = 0;
-	$shipped_total = 0;
-
-	/*
-		Devo ordinare l'array di ProductUser per nome del prodotto, in modo da essere
-		allineato all'array di Products, ma i ProductUser non contengono il nome. Percui
-		mi tocca ordinarlo prendendo come traccia l'array di Products, e ricostruirlo da
-		un'altra parte
-	*/
-
-	$proxy = array ();
-
-	for ( $e = 0; $e < count ( $products ); $e++ ) {
-		$prod = $products [ $e ];
-
-		for ( $a = 0; $a < count ( $user_products ); $a++ ) {
-			$prod_user = $user_products [ $a ];
-
-			if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
-				$proxy [] = $prod_user;
-				break;
-			}
-		}
-	}
-
-	unset ( $user_products );
-	$user_products = $proxy;
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];

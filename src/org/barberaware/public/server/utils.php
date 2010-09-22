@@ -214,6 +214,25 @@ function ellipse_string ( $string, $len ) {
 	return $string;
 }
 
+function sort_products_on_products ( $products, $user_products ) {
+	$proxy = array ();
+
+	for ( $e = 0; $e < count ( $products ); $e++ ) {
+		$prod = $products [ $e ];
+
+		for ( $a = 0; $a < count ( $user_products ); $a++ ) {
+			$prod_user = $user_products [ $a ];
+
+			if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+				$proxy [] = $prod_user;
+				break;
+			}
+		}
+	}
+
+	return $proxy;
+}
+
 /****************************************************************** files management */
 
 function unique_filesystem_name ( $folder, $name ) {

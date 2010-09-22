@@ -229,6 +229,11 @@ public class DeliveryPanel extends GenericPanel {
 		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "&amp;type=saved" );
 		downloads.add ( files );
 
+		files = new LinksDialog ( "Tabella Consegne" );
+		files.addLink ( "CSV", "delivery_document.php?id=" + order.getLocalID () + "&amp;format=csv&amp;type=delivery" );
+		files.addLink ( "PDF", "delivery_document.php?id=" + order.getLocalID () + "&amp;format=pdf&amp;type=delivery" );
+		downloads.add ( files );
+
 		files = new LinksDialog ( "Riassunto Prodotti" );
 		files.addLink ( "CSV", "products_cvs.php?id=" + order.getLocalID () );
 		files.addLink ( "PDF", "products_pdf.php?id=" + order.getLocalID () );
