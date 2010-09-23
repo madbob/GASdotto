@@ -250,24 +250,27 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			variantsBoxes = new VerticalPanel ();
 			main.add ( variantsBoxes );
 		}
-		else {
-			while ( variantsBoxes.getWidgetCount () != 0 )
-				variantsBoxes.remove ( 0 );
-		}
 
 		variantsBoxes.setVisible ( true );
 	}
 
 	private void defineOnProduct ( FromServer prod ) {
+		float unit;
 		ArrayList variants;
 		FromServer m;
 
-		if ( prod.getFloat ( "unit_size" ) != 0 ) {
-			measure.setText ( "pezzi" );
+		unit = prod.getFloat ( "unit_size" );
+		m = prod.getObject ( "measure" );
+
+		if ( unit != 0 ) {
+			if ( m != null )
+				measure.setText ( "pezzi da " + unit + m.getString ( "symbol" ) );
+			else
+				measure.setText ( "pezzi" );
+
 			setEffectiveQuantity ( quantity.getVal () );
 		}
 		else {
-			m = prod.getObject ( "measure" );
 			if ( m != null )
 				measure.setText ( m.getString ( "name" ) );
 
@@ -282,34 +285,52 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			if ( variants != null && variants.size () != 0 ) {
 				( ( FloatBox ) quantity ).addChangeListener ( new ChangeListener () {
 					public void onChange ( Widget sender ) {
-						int i;
-						int q;
-						ArrayList variants;
-						FromServer prod;
-
-						prod = currentValue.getObject ( "product" );
-						variants = prod.getArray ( "variants" );
-
-						if ( variants != null && variants.size () != 0 ) {
-							doVariantsMainBox ();
-							q = ( int ) quantity.getVal ();
-
-							for ( i = variantsBoxes.getWidgetCount (); i < q; i++ )
-								variantsBoxes.add ( doVariantRow ( variants, null ) );
-
-							if ( i > q )
-								while ( variantsBoxes.getWidgetCount () != q )
-									variantsBoxes.remove ( variantsBoxes.getWidgetCount () - 1 );
-						}
-						else {
-							hideVariants ();
-						}
+						alignVariants ( currentValue, ( int ) quantity.getVal (), null );
 					}
 				} );
 			}
 			else {
 				hideVariants ();
 			}
+		}
+	}
+
+	/*
+		Questa funzione viene usata in due casi totalmente diversi: quando devo riempire le caselle per un
+		prodotto che gia' ha delle varianti (durante l'inizializzazione della visualizzazione di un ordine
+		completo), oppure quando viene immessa una quantita' ordinata e devo predisporre le caselle per le
+		nuove varianti.
+		Dunque:
+		- se variants non e' null, num equivale alla sua grandezza
+		- se variants e' null, num e' la quantita' immessa nella apposita casella
+	*/
+	private void alignVariants ( FromServer productuser, int num, ArrayList variants ) {
+		int i;
+		ArrayList v;
+
+		if ( num == 0 ) {
+			hideVariants ();
+			return;
+		}
+
+		v = productuser.getObject ( "product" ).getArray ( "variants" );
+
+		if ( v != null && v.size () != 0 ) {
+			doVariantsMainBox ();
+
+			for ( i = variantsBoxes.getWidgetCount (); i < num; i++ ) {
+				if ( variants == null )
+					variantsBoxes.add ( doVariantRow ( v, null ) );
+				else
+					variantsBoxes.add ( doVariantRow ( v, ( FromServer ) variants.get ( i ) ) );
+			}
+
+			if ( i > num )
+				while ( variantsBoxes.getWidgetCount () != num )
+					variantsBoxes.remove ( variantsBoxes.getWidgetCount () - 1 );
+		}
+		else {
+			hideVariants ();
 		}
 	}
 
@@ -350,6 +371,8 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
 		if ( unit != 0 )
 			setEffectiveQuantity ( 0 );
+
+		hideVariants ();
 	}
 
 	public float getTotalPrice () {
@@ -367,7 +390,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		}
 	}
 
-	private ArrayList alignVariants () {
+	private ArrayList retrieveVariants () {
 		int variant_id;
 		ArrayList final_array;
 		ArrayList existing_variants;
@@ -443,10 +466,10 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
+		int num_variants;
 		float q;
 		float unit;
 		ArrayList variants;
-		ArrayList prod_variants;
 		FromServer prod;
 
 		currentValue = element;
@@ -462,14 +485,12 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		defineOnProduct ( prod );
 
 		variants = element.getArray ( "variants" );
+		if ( variants != null )
+			num_variants = variants.size ();
+		else
+			num_variants = 0;
 
-		if ( variants != null && variants.size () != 0 ) {
-			doVariantsMainBox ();
-			prod_variants = prod.getArray ( "variants" );
-
-			for ( int i = 0; i < variants.size (); i++ )
-				variantsBoxes.add ( doVariantRow ( prod_variants, ( FromServer ) variants.get ( i ) ) );
-		}
+		alignVariants ( element, num_variants, variants );
 	}
 
 	public FromServer getValue () {
@@ -485,7 +506,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		currentValue.setFloat ( "quantity", q );
 
 		if ( variantsBoxes != null && variantsBoxes.isVisible () == true )
-			currentValue.setArray ( "variants", alignVariants () );
+			currentValue.setArray ( "variants", retrieveVariants () );
 
 		return currentValue;
 	}
