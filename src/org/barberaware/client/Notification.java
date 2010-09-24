@@ -101,4 +101,17 @@ public class Notification extends FromServer {
 		else
 			return new Image ( "images/notify-error.png" );
 	}
+
+	/*
+		Questa serve solo per creare notifiche ad uso interno e temporaneo, ad esempio
+		quelle esposte dal "log di sessione"
+	*/
+	public static Notification instanceInternalNotification ( String message ) {
+		Notification ret;
+
+		ret = new Notification ();
+		ret.setString ( "description", message );
+		ret.setDate ( "startdate", new Date ( System.currentTimeMillis () ) );
+		return ret;
+	}
 }

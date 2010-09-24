@@ -38,6 +38,8 @@ public class SmoothingNotify extends Composite {
 	int			staticTime;
 	int			fadeFrequency;
 	boolean			running;
+	boolean			holdFade;
+	ArrayList		pastNotifications;
 	CircularArray		requests;
 
 	public SmoothingNotify () {
@@ -45,6 +47,7 @@ public class SmoothingNotify extends Composite {
 		fadeFrequency = 100;
 
 		requests = new CircularArray ();
+		pastNotifications = new ArrayList ();
 
 		main = new HorizontalPanel ();
 		main.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
@@ -55,7 +58,33 @@ public class SmoothingNotify extends Composite {
 
 		notification = new Label ();
 		main.add ( notification );
+
+		notification.addMouseListener ( new MouseListener () {
+			public void onMouseDown ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+
+			public void onMouseEnter ( Widget sender ) {
+				DOM.setStyleAttribute ( main.getElement (), "opacity", "1.0" );
+				DOM.setStyleAttribute ( main.getElement (), "filter", "alpha(opacity:1.0)" );
+				holdFade = true;
+			}
+
+			public void onMouseLeave ( Widget sender ) {
+				holdFade = false;
+			}
+
+			public void onMouseMove ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+
+			public void onMouseUp ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+		} );
+
 		running = false;
+		holdFade = false;
 	}
 
 	private void popup () {
@@ -68,6 +97,8 @@ public class SmoothingNotify extends Composite {
 
 			main.setVisible ( true );
 			notification.setText ( not.text );
+
+			pastNotifications.add ( Notification.instanceInternalNotification ( not.text ) );
 
 			if ( not.type == Notification.ERROR )
 				main.addStyleName ( "smoothing-notify-error" );
@@ -88,6 +119,9 @@ public class SmoothingNotify extends Composite {
 							double opacity;
 							Element tmp;
 
+							if ( holdFade == true )
+								return;
+
 							tmp = main.getElement ();
 							opacity = Double.parseDouble ( DOM.getStyleAttribute ( tmp, "opacity" ) );
 
@@ -97,7 +131,6 @@ public class SmoothingNotify extends Composite {
 								DOM.setStyleAttribute ( tmp, "opacity", newvalue );
 								DOM.setStyleAttribute ( tmp, "filter", "alpha(opacity:" + newvalue + ")" );
 							}
-
 							else {
 								cancel ();
 								popup ();
@@ -123,5 +156,9 @@ public class SmoothingNotify extends Composite {
 
 		if ( running == false )
 			popup ();
+	}
+
+	public ArrayList getNotificationsHistory () {
+		return pastNotifications;
 	}
 }

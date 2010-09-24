@@ -32,6 +32,7 @@ public class SystemPanel extends GenericPanel {
 		super ();
 
 		CaptionPanel sframe;
+		VerticalPanel ver;
 
 		sframe = new CaptionPanel ( "Configurazione GAS" );
 		sframe.add ( doGlobalConfForm () );
@@ -63,8 +64,11 @@ public class SystemPanel extends GenericPanel {
 		sframe.add ( measures );
 		add ( sframe );
 
-		sframe = new CaptionPanel ( "Configurazione GASdotto" );
-		sframe.add ( doApplicationConfForm () );
+		sframe = new CaptionPanel ( "GASdotto" );
+		ver = new VerticalPanel ();
+		ver.add ( doApplicationConfForm () );
+		ver.add ( doLoggerForm () );
+		sframe.add ( ver );
 		add ( sframe );
 	}
 
@@ -183,6 +187,55 @@ public class SystemPanel extends GenericPanel {
 
 		fields.setWidget ( 2, 0, new Label ( "Data Compilazione" ) );
 		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "gasdotto_build_date", new DateViewer () ) );
+
+		return ver;
+	}
+
+	private FromServerForm doLoggerForm () {
+		FlexTable logs;
+		FromServerForm ver;
+
+		ver = new FromServerForm ( Session.getSystemConf (), FromServerForm.NOT_EDITABLE );
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public String getName ( FromServerForm form ) {
+				return "Log di Sessione";
+			}
+
+			public void onOpen ( FromServerForm form ) {
+				int tot;
+				Date notifydate;
+				String notifydate_str;
+				ArrayList notifies;
+				FlexTable log;
+				Notification notify;
+
+				log = ( FlexTable ) form.retriveInternalWidget ( "logs" );
+				log.clear ();
+
+				notifies = Utils.getNotificationsArea ().getNotificationsHistory ();
+				tot = notifies.size ();
+
+				if ( tot == 0 ) {
+					log.setWidget ( 0, 0, new Label ( "Non ci sono segnalazioni" ) );
+				}
+				else {
+					for ( int i = 0; i < tot; i++ ) {
+						notify = ( Notification ) notifies.get ( i );
+
+						notifydate = notify.getDate ( "startdate" );
+						notifydate_str = notifydate.getDay () + "/" + notifydate.getMonth () + "/" + notifydate.getYear () + " " +
+									notifydate.getHours () + ":" + notifydate.getMinutes () + ":" + notifydate.getSeconds ();
+						log.setWidget ( i, 0, new Label ( notifydate_str, true ) );
+
+						log.setWidget ( i, 1, new Label ( notify.getString ( "description" ), true ) );
+					}
+				}
+			}
+		} );
+
+		logs = new FlexTable ();
+		ver.setExtraWidget ( "logs", logs );
+		ver.add ( logs );
 
 		return ver;
 	}
