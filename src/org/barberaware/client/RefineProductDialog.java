@@ -188,11 +188,13 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 			/**
 				TODO	Questo puo' essere migliorato tenendo un array separato
-					con i ProductUser giusti
+					con i ProductUser giusti. Attenzione: gli ordini in
+					userOrders non necessariamente sono allineati con le
+					caselle in optionsTable
 			*/
 			pu = retrieveInteresting ( order_user );
 
-			if ( q.getVal () != pu.getFloat ( "quantity" ) ) {
+			if ( pu != null && ( q.getVal () != pu.getFloat ( "quantity" ) ) ) {
 				pu.setFloat ( "quantity", q.getVal () );
 				order_user.save ( new ServerResponse () {
 					public void onComplete ( JSONValue response ) {

@@ -205,6 +205,20 @@ function get_product_quantity_stocks ( $product, $quantity ) {
 	return comma_format ( round ( $quantity, 2 ), false );
 }
 
+function sum_percentage ( $original, $perc ) {
+	if ( $perc == null || $perc == '' || $perc == '0' ) {
+		return $original;
+	}
+	else if ( strstr ( $perc, '%' ) ) {
+		list ( $integer ) = explode ( '%', $perc );
+		$sum = ( $original * $integer ) / 100;
+		return $original + $sum;
+	}
+	else {
+		return $original + $perc;
+	}
+}
+
 function ellipse_string ( $string, $len ) {
 	if ( strlen ( $string ) > $len ) {
 		$string = substr ( $string, 0, $len - 2 );

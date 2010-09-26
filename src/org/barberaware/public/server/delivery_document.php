@@ -108,7 +108,6 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	$user_products = sort_products_on_products ( $products, $user_products );
 	$user_total = 0;
-	$user_total_ship = 0;
 
 	$output .= $block_begin;
 	$output .= $head_begin;
@@ -139,11 +138,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$q = comma_format ( $q );
 
 			$quprice = ( $prod_user->quantity * $uprice );
-			$user_total += $quprice;
-			$quprice = format_price ( round ( $quprice, 2 ), false );
-
 			$qsprice = ( $prod_user->quantity * $sprice );
-			$user_total_ship += $qsprice;
+
+			$user_total += sum_percentage ( $quprice, $prod->getAttribute ( "surplus" )->value ) + $qsprice;
+
+			$quprice = format_price ( round ( $quprice, 2 ), false );
 			$qsprice = format_price ( round ( $qsprice, 2 ), false );
 
 			$output .= $row_begin;
@@ -155,8 +154,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		}
 	}
 
-	$output .= $row_begin . $inrow_separator . $inrow_separator;
-	$output .= ( format_price ( round ( $user_total, 2 ), false ) ) . $inrow_separator . ( format_price ( round ( $user_total_ship, 2 ), false ) );
+	$output .= $row_begin . $inrow_separator . $inrow_separator . $inrow_separator;
+	$output .= format_price ( round ( $user_total, 2 ), false );
 	$output .= $row_end . $block_end;
 }
 

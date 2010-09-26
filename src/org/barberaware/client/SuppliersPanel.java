@@ -79,39 +79,15 @@ public class SuppliersPanel extends GenericPanel {
 		*/
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				FromServerForm form;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					OpenedOrdersList list;
-					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
-					list.addOrder ( ( Order ) object );
-				}
+				sharedOrderManagement ( object, main, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				FromServerForm form;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					OpenedOrdersList list;
-					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
-					list.modOrder ( ( Order ) object );
-				}
+				sharedOrderManagement ( object, main, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				FromServerForm form;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					OpenedOrdersList list;
-					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
-					list.delOrder ( ( Order ) object );
-				}
+				sharedOrderManagement ( object, main, 2 );
 			}
 
 			protected String debugName () {
@@ -121,49 +97,15 @@ public class SuppliersPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				FromServerForm form;
-				Order ord;
-
-				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
-					return;
-
-				ord = ( Order ) object.getObject ( "baseorder" );
-				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					PastOrdersList list;
-
-					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.addOrder ( ord );
-				}
+				sharedOrderUserManagement ( object, main, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				FromServerForm form;
-				Order ord;
-
-				ord = ( Order ) object.getObject ( "baseorder" );
-				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					PastOrdersList list;
-					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.modOrder ( ord );
-				}
+				sharedOrderUserManagement ( object, main, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				FromServerForm form;
-				Order ord;
-
-				ord = ( Order ) object.getObject ( "baseorder" );
-				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					PastOrdersList list;
-					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.delOrder ( ord );
-				}
+				sharedOrderUserManagement ( object, main, 2 );
 			}
 
 			protected String debugName () {
@@ -172,6 +114,66 @@ public class SuppliersPanel extends GenericPanel {
 		} );
 
 		Utils.getServer ().testObjectReceive ( "Supplier" );
+	}
+
+	/*
+		Per comodita' questa funzione viene usata anche in SuppliersEditPanel
+	*/
+	public static void sharedOrderUserManagement ( FromServer object, FormCluster cluster, int action ) {
+		FromServerForm form;
+		Order ord;
+
+		ord = ( Order ) object.getObject ( "baseorder" );
+		form = cluster.retrieveForm ( ord.getObject ( "supplier" ) );
+
+		if ( form != null ) {
+			PastOrdersList list;
+
+			list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
+
+			switch ( action ) {
+				case 0:
+					list.addOrder ( ord );
+					break;
+
+				case 1:
+					list.modOrder ( ord );
+					break;
+
+				case 2:
+					list.delOrder ( ord );
+					break;
+			}
+		}
+	}
+
+	/*
+		Per comodita' questa funzione viene usata anche in SuppliersEditPanel
+	*/
+	public static void sharedOrderManagement ( FromServer object, FormCluster cluster, int action ) {
+		FromServerForm form;
+
+		form = cluster.retrieveForm ( object.getObject ( "supplier" ) );
+
+		if ( form != null ) {
+			OpenedOrdersList list;
+
+			list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
+
+			switch ( action ) {
+				case 0:
+					list.addOrder ( ( Order ) object );
+					break;
+
+				case 1:
+					list.modOrder ( ( Order ) object );
+					break;
+
+				case 2:
+					list.delOrder ( ( Order ) object );
+					break;
+			}
+		}
 	}
 
 	/****************************************************************** GenericPanel */

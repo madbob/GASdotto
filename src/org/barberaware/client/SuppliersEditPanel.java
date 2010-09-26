@@ -88,45 +88,17 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		};
 
-		/**
-			TODO	Questa porzione e' stata brutalmente copiata da SuppliersPanel,
-				sarebbe opportuno unificare la funzione
-		*/
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				FromServerForm form;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					OpenedOrdersList list;
-					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
-					list.addOrder ( ( Order ) object );
-				}
+				SuppliersPanel.sharedOrderManagement ( object, main, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				FromServerForm form;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					OpenedOrdersList list;
-					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
-					list.modOrder ( ( Order ) object );
-				}
+				SuppliersPanel.sharedOrderManagement ( object, main, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				FromServerForm form;
-
-				form = main.retrieveForm ( object.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					OpenedOrdersList list;
-					list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
-					list.delOrder ( ( Order ) object );
-				}
+				SuppliersPanel.sharedOrderManagement ( object, main, 2 );
 			}
 
 			protected String debugName () {
@@ -134,55 +106,17 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		} );
 
-		/**
-			TODO	Questa porzione e' stata brutalmente copiata da SuppliersPanel,
-				sarebbe opportuno unificare la funzione
-		*/
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				FromServerForm form;
-				Order ord;
-
-				if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
-					return;
-
-				ord = ( Order ) object.getObject ( "baseorder" );
-				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					PastOrdersList list;
-
-					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.addOrder ( ord );
-				}
+				SuppliersPanel.sharedOrderUserManagement ( object, main, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				FromServerForm form;
-				Order ord;
-
-				ord = ( Order ) object.getObject ( "baseorder" );
-				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					PastOrdersList list;
-					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.modOrder ( ord );
-				}
+				SuppliersPanel.sharedOrderUserManagement ( object, main, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				FromServerForm form;
-				Order ord;
-
-				ord = ( Order ) object.getObject ( "baseorder" );
-				form = main.retrieveForm ( ord.getObject ( "supplier" ) );
-
-				if ( form != null ) {
-					PastOrdersList list;
-					list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
-					list.delOrder ( ord );
-				}
+				SuppliersPanel.sharedOrderUserManagement ( object, main, 2 );
 			}
 
 			protected String debugName () {

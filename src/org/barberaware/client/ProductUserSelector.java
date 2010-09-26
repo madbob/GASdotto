@@ -25,8 +25,8 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 /**
-	TODO	Usare nome esteso unita' di misura anziche' simbolo a fianco della box per
-		quantita'
+	TODO	Implementare la box per la gestione delle varianti in un widget dedicato (e
+		magari meglio formattato)
 */
 
 public class ProductUserSelector extends Composite implements ObjectWidget {
