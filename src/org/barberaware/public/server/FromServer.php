@@ -475,6 +475,7 @@ abstract class FromServer {
 	}
 
 	public function save ( $obj ) {
+		global $dbdriver;
 		global $current_user;
 
 		$this->from_object_to_internal ( $obj );
@@ -509,18 +510,23 @@ abstract class FromServer {
 				array_push ( $values, $value );
 			}
 
-			/**
-				TODO	Questo funziona solo con PostgreSQL,
-					correggere per farlo funzionare anche
-					in MySQL
-			*/
 			if ( count ( $names ) == 0 ) {
 				/*
 					Questo e' per gestire correttamente le classi FromServer che non hanno
 					contenuti diretti, ad esempio che contengono solo array di altri oggetti
 				*/
-				array_push ( $names, 'id' );
-				array_push ( $values, "nextval('" . $this->tablename . "_id_seq'::regclass)" );
+				if ( $dbdriver == 'pgsql' ) {
+					array_push ( $names, 'id' );
+					array_push ( $values, "nextval('" . $this->tablename . "_id_seq'::regclass)" );
+				}
+				else {
+					/*
+						Sperimentalmente, MySQL assegna l'ID correttamente autoincrementato
+						se si definisce -1 in fase di INSERT
+					*/
+					array_push ( $names, 'id' );
+					array_push ( $values, '-1' );
+				}
 			}
 
 			$query = sprintf ( "INSERT INTO %s ( %s ) VALUES ( %s )",

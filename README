@@ -19,9 +19,9 @@ GASdotto e' strutturato come programma client/server: il client e' implementato 
 destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
 
 Per compilare il tutto e' necessario:
-Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/				v1.5.3
-GWT-Log			http://code.google.com/p/gwt-log/					v2.5.2
-GWT-Visualization	http://code.google.com/apis/visualization/interactive_charts.html	v1.0.1
+Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v1.5.3
+GWT-Log			http://code.google.com/p/gwt-log/				v2.5.2
+GWT-Visualization	http://code.google.com/p/gwt-google-apis/wiki/Downloads?tm=2	v1.0.1
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
 PHP			http://php.net/					testato su versione 5.3.3
@@ -33,7 +33,7 @@ Apache			http://apache.org/				testato su versione 2.2.15
 
 Il database in cui verranno messi i dati puo' essere selezionato tra:
 PostgreSQL		http://www.postgresql.org/			testato su versione 8.4
-MySQL			http://www.mysql.com				testato su versione 5.0.81
+MySQL			http://www.mysql.com/				testato su versione 5.1.50
 E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
 -------------------------------------------------------------------------------------[Compilazione]
@@ -50,9 +50,11 @@ Dopodiche' si puo' procedere all'installazione vera e propria:
 
 - esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione oppure
 rinvenuta nel pacchetto binario sul server web
-- accertarsi che il file www/org.barberaware.GASdotto/server/config.php abbia permessi di
-scrittura per il server web, per permettere l'esecuzione della procedura guidata di installazione
-ed il salvataggio dei parametri
+- accertarsi che il file server/config.php abbia permessi di scrittura per il server web, per
+permettere l'esecuzione della procedura guidata di installazione ed il salvataggio dei parametri
+- meglio ancora se tutta la cartella dell'applicativo ha permessi di scrittura: cio' permette di
+utilizzare correttamente tutte le funzionalita' che prevedono il caricamento di files, ad esempio
+le foto degli utenti o documenti relativi ai fornitori
 - creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
 nuovo utente creato ad-hoc
 - accedere via browser alla prima pagina dell'applicazione, per avviare la procedura di
