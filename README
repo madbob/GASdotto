@@ -57,8 +57,24 @@ utilizzare correttamente tutte le funzionalita' che prevedono il caricamento di 
 le foto degli utenti o documenti relativi ai fornitori
 - creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
 nuovo utente creato ad-hoc
-- accedere via browser alla prima pagina dell'applicazione, per avviare la procedura di
+- accedere via browser alla prima pagina dell'applicazione per avviare la procedura di
 installazione del DB
+
+------------------------------------------------------------------------------------[Aggiornamento]
+
+Qualora una installazione di GASdotto 1.0 o 1.1 sia gia' presente, e' possibile aggiornarla alla
+versione 2.0 con qualche semplice passaggio:
+
+- scompattare l'archivio compresso della release 2.0 nella stessa directory in cui si trova la
+cartella della versione precedente
+- accedere via browser alla prima pagina dell'applicazione per avviare la procedura di
+installazione del DB
+- selezionare 'Importa da versione già installata'
+- copiare nell'apposita casella l'URL attraverso cui la precedente installazione e' raggiungibile
+sul server
+- terminato l'aggiornamento del database, e' consigliato rinominare la cartella della vecchia
+installazione con un qualsiasi altro nome oppure rimuoverla, e sostituirla con la cartella della
+nuova installazione
 
 -----------------------------------------------------------------------------------------[Sviluppo]
 
