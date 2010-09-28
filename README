@@ -16,27 +16,33 @@ Per maggiori informazioni si consulti il sito http://gasdotto.barberaware.org
 ----------------------------------------------------------------------------------------[Requisiti]
 
 GASdotto e' strutturato come programma client/server: il client e' implementato in Java e
-destinato ad essere compilato in Javascript grazie al Google Web Toolkit, il server e' in PHP.
+destinato ad essere compilato in Javascript per mezzo del Google Web Toolkit, il server e' in PHP.
 
 Per compilare il tutto e' necessario:
-Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v1.5.3
-GWT-Log			http://code.google.com/p/gwt-log/				v2.5.2
-GWT-Visualization	http://code.google.com/p/gwt-google-apis/wiki/Downloads?tm=2	v1.0.1
+- Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v1.5.3
+- GWT-Log		http://code.google.com/p/gwt-log/				v2.5.2
+- GWT-Visualization	http://code.google.com/p/gwt-google-apis/wiki/Downloads?tm=2	v1.0.1
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
-PHP			http://php.net/					testato su versione 5.3.3
-PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
-TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
-Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
-Pear-Net_SMTP		http://pear.php.net/package/Net_SMTP/		testato su versione 1.4.2
-Apache			http://apache.org/				testato su versione 2.2.15
+- PHP			http://php.net/					testato su versione 5.3.3
+- PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
+- TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
+- Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
+- Pear-Net_SMTP		http://pear.php.net/package/Net_SMTP/		testato su versione 1.4.2
+- Apache		http://apache.org/				testato su versione 2.2.15
 
-Il database in cui verranno messi i dati puo' essere selezionato tra:
-PostgreSQL		http://www.postgresql.org/			testato su versione 8.4
-MySQL			http://www.mysql.com/				testato su versione 5.1.50
+Il database in cui verranno messi i dati puo' essere:
+- PostgreSQL		http://www.postgresql.org/			testato su versione 8.4
+- MySQL			http://www.mysql.com/				testato su versione 5.1.50
 E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
--------------------------------------------------------------------------------------[Compilazione]
+Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard web. Sono stati
+verificati:
+- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 3.6.9
+- Chromium		http://www.google.com/chrome			testato su versione 5.0.376
+E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
+
+---------------------------------------------------------------------[Compilazione e Installazione]
 
 I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository SVN
 raggiungibile con
@@ -48,8 +54,8 @@ d'ambiente $CLASSPATH
 
 Dopodiche' si puo' procedere all'installazione vera e propria:
 
-- esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione oppure
-rinvenuta nel pacchetto binario sul server web
+- esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione,
+oppure la cartella gasdotto/ rinvenuta nel pacchetto binario, sul server web
 - accertarsi che il file server/config.php abbia permessi di scrittura per il server web, per
 permettere l'esecuzione della procedura guidata di installazione ed il salvataggio dei parametri
 - meglio ancora se tutta la cartella dell'applicativo ha permessi di scrittura: cio' permette di
@@ -57,8 +63,20 @@ utilizzare correttamente tutte le funzionalita' che prevedono il caricamento di 
 le foto degli utenti o documenti relativi ai fornitori
 - creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
 nuovo utente creato ad-hoc
-- accedere via browser alla prima pagina dell'applicazione per avviare la procedura di
+- accedere via browser alla cartella che contiene l'applicazione per avviare la procedura di
 installazione del DB
+
+-------------------------------------------------------------------------------------[Avvertimenti]
+
+E' stato constatato che, per motivi tecnici, GASdotto non funziona se installato su taluni
+servizi che offrono spazio web gratuito. Se devi scegliere un tuo provider, opta per uno che non
+introduce banner pubblicitari in testa o al fondo delle pagine ospitate.
+
+Providers gia' identificati come non adeguati:
+- coolpage.biz
+
+Sia che tu abbia problemi con questo genere di hosting, sia che la tua installazione venga
+conclusa con successo, faccelo sapere affinche' la lista condivisa venga aggiornata.
 
 ------------------------------------------------------------------------------------[Aggiornamento]
 
@@ -69,9 +87,12 @@ versione 2.0 con qualche semplice passaggio:
 cartella della versione precedente
 - accedere via browser alla prima pagina dell'applicazione per avviare la procedura di
 installazione del DB
-- selezionare 'Importa da versione già installata'
+- selezionare la voce 'Importa da versione già installata'
 - copiare nell'apposita casella l'URL attraverso cui la precedente installazione e' raggiungibile
 sul server
+- qualora l'autorilevamento della configurazione non dovesse funzionare, immettere nell'apposito
+form i dati di autenticazione al database (sono reperibili nel file server/config.php della
+vecchia installazione)
 - terminato l'aggiornamento del database, e' consigliato rinominare la cartella della vecchia
 installazione con un qualsiasi altro nome oppure rimuoverla, e sostituirla con la cartella della
 nuova installazione
