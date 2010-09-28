@@ -36,10 +36,10 @@ public class StatisticsPanel extends GenericPanel {
 	private LinksDialog		usersFiles;
 	private DateSelector		supplierStartDate;
 	private DateSelector		supplierEndDate;
-	private ColumnChart		graphByOrders;
 	private PieChart		graphByPrices;
-	private ColumnChart.Options	graphByOrdersOptions;
 	private PieChart.Options	graphByPricesOptions;
+	private ColumnChart		graphByOrders;
+	private ColumnChart.Options	graphByOrdersOptions;
 	private DataTable		supplierData;
 	private VerticalPanel		supplierDetails;
 
@@ -49,8 +49,8 @@ public class StatisticsPanel extends GenericPanel {
 	private FromServerSelector	supplier;
 	private ColumnChart		graphByProduct;
 	private ColumnChart.Options	graphByProductOptions;
-	private ColumnChart		graphByProductValue;
-	private ColumnChart.Options	graphByProductValueOptions;
+	private PieChart		graphByProductValue;
+	private PieChart.Options	graphByProductValueOptions;
 	private DataTable		productData;
 	private VerticalPanel		productDetails;
 
@@ -95,21 +95,21 @@ public class StatisticsPanel extends GenericPanel {
 		supplierStartDate.setValue ( now );
 
 		supplierStartDate.addChangeListener ( listener );
-		input.setWidget ( 1, 0, new Label ( "Dal" ) );
-		input.setWidget ( 1, 1, supplierStartDate );
+		input.setWidget ( 0, 0, new Label ( "Dal" ) );
+		input.setWidget ( 0, 1, supplierStartDate );
 
 		supplierEndDate.addChangeListener ( listener );
-		input.setWidget ( 2, 0, new Label ( "Al" ) );
-		input.setWidget ( 2, 1, supplierEndDate );
+		input.setWidget ( 1, 0, new Label ( "Al" ) );
+		input.setWidget ( 1, 1, supplierEndDate );
 
 		usersFiles = new LinksDialog ( "Scarica Statistiche" );
-		input.setWidget ( 3, 0, usersFiles );
-		input.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
+		input.setWidget ( 2, 0, usersFiles );
+		input.getFlexCellFormatter ().setColSpan ( 2, 0, 2 );
 
 		graphByPrices = new PieChart ();
 		layout.setWidget ( 0, 1, graphByPrices );
 		graphByPricesOptions = PieChart.Options.create ();
-		graphByPricesOptions.setWidth ( 600 );
+		graphByPricesOptions.setWidth ( 500 );
 		graphByPricesOptions.setHeight ( 240 );
 		graphByPricesOptions.set3D ( true );
 		graphByPricesOptions.setLegend ( LegendPosition.NONE );
@@ -165,8 +165,9 @@ public class StatisticsPanel extends GenericPanel {
 		formatter = layout.getFlexCellFormatter ();
 		frame.setContentWidget ( layout );
 
-		input = new FlexTable ();
-		layout.setWidget ( 0, 0, input );
+		hor = new HorizontalPanel ();
+		layout.setWidget ( 0, 0, hor );
+		formatter.setColSpan ( 0, 0, 2 );
 
 		supplier = new FromServerSelector ( "Supplier", true, true );
 		supplier.addChangeListener ( new ChangeListener () {
@@ -174,11 +175,11 @@ public class StatisticsPanel extends GenericPanel {
 				performProductsUpdate ();
 			}
 		} );
-		input.setWidget ( 0, 0, new Label ( "Fornitore" ) );
-		input.setWidget ( 0, 1, supplier );
+		hor.add ( new Label ( "Fornitore" ) );
+		hor.add ( supplier );
 
-		productsFiles = new LinksDialog ( "Scarica Statistiche" );
-		input.setWidget ( 0, 2, productsFiles );
+		input = new FlexTable ();
+		layout.setWidget ( 1, 0, input );
 
 		now = new Date ( System.currentTimeMillis () );
 		productEndDate = new DateSelector ();
@@ -196,15 +197,29 @@ public class StatisticsPanel extends GenericPanel {
 		productStartDate.setValue ( now );
 
 		productStartDate.addChangeListener ( listener );
-		input.setWidget ( 1, 0, new Label ( "Dal" ) );
-		input.setWidget ( 1, 1, productStartDate );
+		input.setWidget ( 0, 0, new Label ( "Dal" ) );
+		input.setWidget ( 0, 1, productStartDate );
 
 		productEndDate.addChangeListener ( listener );
-		input.setWidget ( 2, 0, new Label ( "Al" ) );
-		input.setWidget ( 2, 1, productEndDate );
+		input.setWidget ( 1, 0, new Label ( "Al" ) );
+		input.setWidget ( 1, 1, productEndDate );
+
+		productsFiles = new LinksDialog ( "Scarica Statistiche" );
+		input.setWidget ( 2, 0, productsFiles );
+		input.getFlexCellFormatter ().setColSpan ( 2, 0, 2 );
+
+		graphByProductValue = new PieChart ();
+		layout.setWidget ( 1, 1, graphByProductValue );
+		graphByProductValueOptions = PieChart.Options.create ();
+		graphByProductValueOptions.setWidth ( 500 );
+		graphByProductValueOptions.setHeight ( 240 );
+		graphByProductValueOptions.set3D ( true );
+		graphByProductValueOptions.setLegend ( LegendPosition.NONE );
+		graphByProductValueOptions.setTitle ( "Valore dei Prodotti Ordinati (€)" );
 
 		graphByProduct = new ColumnChart ();
-		layout.setWidget ( 1, 0, graphByProduct );
+		layout.setWidget ( 2, 0, graphByProduct );
+		formatter.setColSpan ( 2, 0, 2 );
 		graphByProductOptions = ColumnChart.Options.create ();
 		graphByProductOptions.setWidth ( 800 );
 		graphByProductOptions.setHeight ( 240 );
@@ -212,20 +227,11 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProductOptions.setLegend ( LegendPosition.NONE );
 		graphByProductOptions.setTitle ( "Numero di Utenti che hanno Ordinato i Prodotti" );
 
-		graphByProductValue = new ColumnChart ();
-		layout.setWidget ( 2, 0, graphByProductValue );
-		graphByProductValueOptions = ColumnChart.Options.create ();
-		graphByProductValueOptions.setWidth ( 800 );
-		graphByProductValueOptions.setHeight ( 240 );
-		graphByProductValueOptions.set3D ( true );
-		graphByProductValueOptions.setLegend ( LegendPosition.NONE );
-		graphByProductValueOptions.setTitle ( "Valore dei Prodotti Ordinati" );
-
 		productDetails = new VerticalPanel ();
 		productDetails.setStyleName ( "info-cell" );
-		layout.setWidget ( 1, 1, productDetails );
-		formatter.setRowSpan ( 1, 1, 2 );
-		formatter.setVerticalAlignment ( 1, 1, HasVerticalAlignment.ALIGN_MIDDLE );
+		layout.setWidget ( 0, 2, productDetails );
+		formatter.setRowSpan ( 0, 2, 3 );
+		formatter.setVerticalAlignment ( 0, 2, HasVerticalAlignment.ALIGN_MIDDLE );
 		productDetails.add ( new HTML ( "Clicca su un prodotto<br />per visualizzare qui i dettagli" ) );
 
 		graphByProduct.addSelectHandler ( new SelectHandler () {
