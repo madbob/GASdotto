@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -133,8 +134,27 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 			}
 
 			public void onSubmitComplete ( FormSubmitCompleteEvent event ) {
+				String str;
+				JSONString ret;
+				JSONValue jsonObject;
+
 				Utils.getServer ().loadingAlert ( false );
-				completeFile = event.getResults ();
+				str = event.getResults ();
+
+				try {
+					jsonObject = JSONParser.parse ( str );
+					ret = jsonObject.isString ();
+
+					if ( ret != null && ret.stringValue ().startsWith ( "Errore" ) ) {
+						Utils.showNotification ( ret.stringValue () );
+						return;
+					}
+				}
+				catch ( Exception e ) {
+					/* dummy */
+				}
+
+				completeFile = str;
 				showFileName ();
 				dialog.hide ();
 				callCallbacks ();

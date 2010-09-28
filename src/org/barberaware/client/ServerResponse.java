@@ -62,7 +62,7 @@ public abstract class ServerResponse implements RequestCallback {
 		}
 
 		if ( ret != null && ret.stringValue ().startsWith ( "Errore: " ) ) {
-			Utils.showNotification ( str );
+			Utils.showNotification ( ret.stringValue () );
 			onError ();
 		}
 		else {

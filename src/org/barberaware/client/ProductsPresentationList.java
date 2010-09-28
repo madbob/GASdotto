@@ -59,6 +59,7 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 						return null;
 
 					ver = new FromServerForm ( product, FromServerForm.NOT_EDITABLE );
+					ver.addStyleName ( "subform" );
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
