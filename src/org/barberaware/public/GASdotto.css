@@ -430,15 +430,17 @@ body {
 	cursor:			hand;
 }
 
-.table-legend {
+.legend-box {
 	position:		fixed;
 	top:			45px;
-	right:			5px;
-	font-size:		12px;
-	border-left:		2px solid #000000;
-	border-top:		2px solid #000000;
-	border-bottom:		2px solid #000000;
+	right:			-350px;
 	z-index:		50;
+}
+
+.legend-table {
+	width:			350px;
+	font-size:		12px;
+	border-top:		5px solid #000000;
 	background-color:	#FFFFFF;
 }
 
@@ -527,6 +529,10 @@ br {
 	cursor:			hand;
 }
 
+.gwt-DisclosurePanel-closed .header {
+	width:			95%;
+}
+
 .gwt-DisclosurePanel-open .header,
 .gwt-DisclosurePanel-open .header a,
 .gwt-DisclosurePanel-open .header td {
@@ -537,6 +543,10 @@ br {
 	position:		relative;
 	top:			4px;
 	z-index:		50;
+}
+
+.gwt-DisclosurePanel-open .header {
+	width:			95%;
 }
 
 .gwt-ToggleButton-up,

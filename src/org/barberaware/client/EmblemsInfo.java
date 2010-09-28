@@ -103,7 +103,6 @@ public class EmblemsInfo {
 	}
 
 	private void populateLegend ( FlexTable legend ) {
-		int row;
 		String k;
 		String path;
 		Object [] keys;
@@ -113,13 +112,7 @@ public class EmblemsInfo {
 		if ( keys.length == 0 )
 			return;
 
-		row = legend.getRowCount ();
-		if ( row == 0 ) {
-			legend.setWidget ( 0, 1, new Label ( "LEGENDA:" ) );
-			row = 1;
-		}
-
-		for ( int i = 0; i < keys.length; i++ ) {
+		for ( int i = 0, row = legend.getRowCount (); i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
 			emblem = ( Emblem ) symbols.get ( k );
 
@@ -142,22 +135,84 @@ public class EmblemsInfo {
 		}
 	}
 
-	public Widget getLegend () {
+	private HorizontalPanel prepareBox () {
+		HorizontalPanel panel;
+		Image tab;
 		FlexTable legend;
 
+		panel = new HorizontalPanel ();
+		panel.setStyleName ( "legend-box" );
+
+		tab = new Image ( "images/legend_closed.png" );
+		panel.add ( tab );
+
+		tab.addMouseListener ( new MouseListener () {
+			public void onMouseDown ( Widget sender, int x, int y ) {
+				HorizontalPanel panel;
+				Image tab;
+				FlexTable legend;
+				Element el;
+
+				tab = ( Image ) sender;
+				panel = ( HorizontalPanel ) tab.getParent ();
+				el = panel.getElement ();
+
+				if ( DOM.getStyleAttribute ( el, "right" ) != "5px" ) {
+					DOM.setStyleAttribute ( el, "right", "5px" );
+					tab.setUrl ( "images/legend_opened.png" );
+				}
+				else {
+					legend = ( FlexTable ) panel.getWidget ( 1 );
+					/*
+						350 e' la larghezza per la classe legend-table nel CSS
+					*/
+					DOM.setStyleAttribute ( el, "right", "-350px" );
+					tab.setUrl ( "images/legend_closed.png" );
+				}
+			}
+
+			public void onMouseEnter ( Widget sender ) {
+				/* dummy */
+			}
+
+			public void onMouseLeave ( Widget sender ) {
+				/* dummy */
+			}
+
+			public void onMouseMove ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+
+			public void onMouseUp ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+		} );
+
 		legend = new FlexTable ();
-		legend.setStyleName ( "table-legend" );
+		legend.setStyleName ( "legend-table" );
+		panel.add ( legend );
+
+		return panel;
+	}
+
+	public Widget getLegend () {
+		HorizontalPanel panel;
+		FlexTable legend;
+
+		panel = prepareBox ();
+		legend = ( FlexTable ) panel.getWidget ( 1 );
 		populateLegend ( legend );
-		return legend;
+		return panel;
 	}
 
 	public Widget getLegend ( EmblemsInfo merge ) {
+		HorizontalPanel panel;
 		FlexTable legend;
 
-		legend = new FlexTable ();
-		legend.setStyleName ( "table-legend" );
+		panel = prepareBox ();
+		legend = ( FlexTable ) panel.getWidget ( 1 );
 		populateLegend ( legend );
 		merge.populateLegend ( legend );
-		return legend;
+		return panel;
 	}
 }
