@@ -54,7 +54,7 @@ if ( $format == 'csv' ) {
 }
 else if ( $format == 'pdf' ) {
 	$block_begin = '<table cellspacing="0" cellpadding="1" border="1" width="100%">';
-	$block_end = '</table><br />';
+	$block_end = '</table><br /><br /><br />';
 	$row_begin = '<tr><td width="25%">';
 	$row_end = '</td></tr>';
 	$head_begin = '<tr><td colspan="4"><b>';
@@ -114,6 +114,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$output .= sprintf ( "%s%s %s%s", $string_begin, $order_user->baseuser->surname, $order_user->baseuser->firstname, $string_end );
 	$output .= $head_end;
 
+	$output .= $row_begin . 'Prodotto' . $inrow_separator . 'Quantità' . $inrow_separator . 'Prezzo Totale' . $inrow_separator . 'Prezzo Trasporto' . $row_end;
+
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
@@ -154,9 +156,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		}
 	}
 
-	$output .= $row_begin . $inrow_separator . $inrow_separator . $inrow_separator;
-	$output .= format_price ( round ( $user_total, 2 ), false );
-	$output .= $row_end . $block_end;
+	$output .= $head_begin . "Totale: " . ( format_price ( round ( $user_total, 2 ) ) ) . $head_end;
+	$output .= $block_end;
 }
 
 if ( $format == 'csv' ) {
