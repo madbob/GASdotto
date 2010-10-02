@@ -116,18 +116,18 @@ public class InstallForm extends Composite {
 
 		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerForm form ) {
-				if ( form.getObject ().getLocalID () == 1 ) {
+				if ( form.getObject ().getLocalID () == 1 )
 					upgradeComplete ();
-				}
-				else if ( form.getObject ().getLocalID () == -1 ) {
-					FromServer probe;
+			}
 
-					probe = form.getObject ();
+			public void onError ( FromServerForm form ) {
+				FromServer probe;
+
+				probe = form.getObject ();
+
+				if ( form.getObject ().getLocalID () == -1 ) {
 					main.clear ();
 					manualDatabase ( ( Probe ) probe );
-				}
-				else {
-					Utils.showNotification ( "E' occorso un problema durante l'aggiornamento" );
 				}
 			}
 		} );

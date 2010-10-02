@@ -502,6 +502,11 @@ public class FromServerForm extends Composite {
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSaved ( this );
 	}
 
+	private void errorCallbacks () {
+		for ( int i = 0; i < callbacks.size (); i++ )
+			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onError ( this );
+	}
+
 	public boolean savingObject () {
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this );
@@ -513,6 +518,9 @@ public class FromServerForm extends Composite {
 			public void onComplete ( JSONValue response ) {
 				savedCallbacks ();
 				summary.setText ( retrieveNameInCallbacks () );
+			}
+			public void onError () {
+				errorCallbacks ();
 			}
 		} );
 

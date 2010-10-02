@@ -311,6 +311,8 @@ public class StatisticsPanel extends GenericPanel {
 		DataTable by_price;
 
 		num_items = array.size ();
+		if ( num_items == 0 )
+			return;
 
 		supplierData = DataTable.create ();
 		supplierData.addColumn ( AbstractDataTable.ColumnType.STRING, "fornitore" );
@@ -366,6 +368,8 @@ public class StatisticsPanel extends GenericPanel {
 		DataTable by_value;
 
 		num_items = array.size ();
+		if ( num_items == 0 )
+			return;
 
 		productData = DataTable.create ();
 		productData.addColumn ( AbstractDataTable.ColumnType.STRING, "prodotto" );
@@ -490,6 +494,9 @@ public class StatisticsPanel extends GenericPanel {
 		}
 
 		supp = supplier.getValue ();
+		if ( supp == null )
+			return;
+
 		updateProductsLinks ( supp );
 
 		Utils.getServer ().rawGet ( linkTemplate ( "products", "visual", productStartDate, productEndDate, supp.getLocalID () ), new RequestCallback () {

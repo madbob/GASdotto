@@ -501,6 +501,7 @@ if ( $graph == 0 ) {
 
 	else if ( $document == 'visual' ) {
 		$ret = new stdClass ();
+		$array = array ();
 
 		if ( $type == 'users' ) {
 			$rows_suppliers = list_suppliers ();

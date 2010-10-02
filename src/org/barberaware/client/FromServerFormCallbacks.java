@@ -84,4 +84,11 @@ public class FromServerFormCallbacks {
 	public void onClose ( FromServerForm form ) {
 		/* dummy */
 	}
+
+	/*
+		Invocata quando una operazione di salvataggio fallisce
+	*/
+	public void onError ( FromServerForm form ) {
+		/* dummy */
+	}
 }

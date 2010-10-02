@@ -56,6 +56,9 @@ public class FromServerResponse extends ServerResponse {
 			reference.setLocalID ( reference.getLocalID () );
 
 			Utils.showNotification ( "Errore nel salvataggio sul database" );
+
+			if ( callback != null )
+				callback.onError ();
 		}
 
 		else {

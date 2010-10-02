@@ -112,7 +112,7 @@ class Probe extends FromServer {
 		if ( is_writable ( "./config.php" ) == false )
 			return "0";
 
-		if ( $obj->upgrade == true ) {
+		if ( $obj->upgrade == "true" ) {
 			if ( $obj->trylocate == true ) {
 				$path = $_SERVER [ 'DOCUMENT_ROOT' ] . '/' . $obj->oldurl;
 
