@@ -132,12 +132,28 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
-			if ( $unit <= 0.0 )
+			if ( $unit <= 0.0 ) {
 				$q = $prod_user->quantity;
-			else
-				$q = ( $prod_user->quantity / $unit );
+				$q = comma_format ( $q );
+			}
+			else {
+				/*
+					Richiesto in bug #144
 
-			$q = comma_format ( $q );
+					Per i prodotti con pezzatura, se l'ordine non e' ancora stato consegnato (o
+					salvato) visualizzo il numero di pezzi, altrimenti la quantita'
+					effettivamente consegnata/da consegnare
+				*/
+				if ( $order_user->status == 0 ) {
+					$q = ( $prod_user->quantity / $unit );
+					$q = ( comma_format ( $q ) ) . ' pezzi';
+				}
+				else {
+					$q = $prod_user->quantity;
+					$measure = $prod->getAttribute ( "measure" )->value;
+					$q = ( comma_format ( $q ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
+				}
+			}
 
 			$quprice = ( $prod_user->quantity * $uprice );
 			$qsprice = ( $prod_user->quantity * $sprice );
