@@ -254,6 +254,9 @@ class Order extends FromServer {
 						$text = sprintf ( "Di seguito il riassunto dei prodotti che hai ordinato presso %s insieme agli altri membri di %s.\n\n",
 									$supplier->getAttribute ( 'name' )->value, $gas->getAttribute ( 'name' )->value );
 
+						$html = '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
+						$html .= '<body><p>' . $text . '</p><br /><table><tr><td>Prodotto</td><td>Quantità</td><td>Prezzo</td><td>Prezzo Trasporto</td></tr>';
+
 						for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 							$prod = $products [ $a ];
 							$prod_user = $user_products [ $e ];
@@ -293,13 +296,18 @@ class Order extends FromServer {
 								$text .= ( $prod->getAttribute ( "name" )->value ) . "\n";
 								$text .= "\t\t" . $q . "\t" . $quprice . "\t" . $qsprice . "\n";
 
+								$html .= '<tr><td>' . ( $prod->getAttribute ( "name" )->value );
+								$html .= '</td><td>' . $q . '</td><td>' . $quprice . '</td><td>' . $qsprice . '</td></tr>';
+
 								$e++;
 							}
 						}
 
-						$text .= "\nPer un totale di " . ( format_price ( round ( $user_total, 2 ) ) ) . ".\n\n";
+						$user_total = format_price ( round ( $user_total, 2 ) );
+						$text .= "\nPer un totale di " . $user_total . ".\n\n";
+						$html .= '</table><p>Per un totale di ' . $user_total . '</p></body></html>';
 
-						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, $text );
+						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, $text, $html );
 					}
 
 					unset ( $orderusers );

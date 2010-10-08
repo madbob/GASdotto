@@ -20,6 +20,7 @@
 require_once ( "config.php" );
 require_once ( "JSON.php" );
 require_once ( "Mail.php" );
+require_once ( "Mail/mime.php" );
 
 require_once ( "FromServer.php" );
 require_once ( "Session.php" );
@@ -294,7 +295,7 @@ function unique_filesystem_name ( $folder, $name ) {
 
 /****************************************************************** mail */
 
-function my_send_mail ( $recipients, $subject, $body ) {
+function my_send_mail ( $recipients, $subject, $body, $html = null ) {
 	$gas = new GAS ();
 	$gas->readFromDB ( 1 );
 	$mailconf = $gas->getAttribute ( 'mail_conf' )->value;
@@ -307,6 +308,17 @@ function my_send_mail ( $recipients, $subject, $body ) {
 
 	$mysubject = '[' . $name . '] ' . $subject;
 	$headers = array ( 'From' => $from, 'Subject' => $mysubject );
+
+	if ( $html != null ) {
+		$message = new Mail_mime ();
+		$message->setTXTBody ( $body );
+		$message->setHTMLBody ( $html );
+		$body = $message->get ( array ( 'html_charset' => 'UTF-8', 'text_charset' => 'UTF-8' ) );
+		$headers = $message->headers ( $headers );
+	}
+	else {
+		$headers [ 'Content-Type' ] = "text/plain; charset=\"UTF-8\"";
+	}
 
 	$smtp = Mail::factory ( 'smtp', array ( 'host' => $host, 'port' => $port, 'auth' => true, 'username' => $username, 'password' => $password ) );
 
