@@ -19,6 +19,12 @@
 
 require_once ( "utils.php" );
 
+/**
+	TODO	I vari "explode" utilizzati per dividere i datatype sarebbero da rivedere,
+		generano sfilze di warning ogni volta che non si sta usando un tipo composito (ad
+		esempio "OBJECT::Tipo")
+*/
+
 class FromServerAttribute {
 	public $name		= "";
 	public $type		= "";
@@ -336,8 +342,9 @@ abstract class FromServer {
 				$attr->value = $final;
 			}
 
-			else
+			else {
 				$attr->value = $val . "";
+			}
 		}
 	}
 

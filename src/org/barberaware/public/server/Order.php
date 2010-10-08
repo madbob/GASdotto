@@ -31,6 +31,7 @@ class Order extends FromServer {
 		$this->addAttribute ( "shippingdate", "DATE" );
 		$this->addAttribute ( "nextdate", "STRING" );
 		$this->addAttribute ( "anticipated", "STRING" );
+		$this->addAttribute ( "mail_summary_sent", "BOOLEAN" );
 	}
 
 	public function get ( $request, $compress ) {
@@ -214,6 +215,94 @@ class Order extends FromServer {
 						$p->readFromDB ( $product->id );
 						self::archiveProduct ( $ref, $p );
 					}
+				}
+			}
+
+			if ( $obj->mail_summary_sent == "true" ) {
+				$test = new Order ();
+				$test->readFromDB ( $obj->id );
+
+				if ( $test->getAttribute ( 'mail_summary_sent' )->value == false ) {
+					$products = $test->getAttribute ( 'products' )->value;
+					usort ( $products, 'sort_product_by_name' );
+
+					$supplier = $test->getAttribute ( 'supplier' )->value;
+
+					$gas = new GAS ();
+					$gas->readFromDB ( 1 );
+
+					$orderusers = get_orderuser_by_order ( $test );
+
+					foreach ( $orderusers as $ou ) {
+						$user_products = $ou->products;
+						if ( is_array ( $user_products ) == false )
+							continue;
+
+						$dests = array ();
+
+						if ( isset ( $ou->baseuser->mail ) && $ou->baseuser->mail != '' )
+							$dests [] = $ou->baseuser->mail;
+						if ( isset ( $ou->baseuser->mail2 ) && $ou->baseuser->mail2 != '' )
+							$dests [] = $ou->baseuser->mail2;
+
+						if ( count ( $dests ) == 0 )
+							continue;
+
+						$user_products = sort_products_on_products ( $products, $user_products );
+						$user_total = 0;
+
+						$text = sprintf ( "Di seguito il riassunto dei prodotti che hai ordinato presso %s insieme agli altri membri di %s.\n\n",
+									$supplier->getAttribute ( 'name' )->value, $gas->getAttribute ( 'name' )->value );
+
+						for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+							$prod = $products [ $a ];
+							$prod_user = $user_products [ $e ];
+
+							if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+								if ( $ou->status == 3 )
+									$prod_user->quantity = $prod_user->delivered;
+
+								$unit = $prod->getAttribute ( "unit_size" )->value;
+								$uprice = $prod->getAttribute ( "unit_price" )->value;
+								$sprice = $prod->getAttribute ( "shipping_price" )->value;
+
+								if ( $unit <= 0.0 ) {
+									$q = $prod_user->quantity;
+									$q = comma_format ( $q );
+								}
+								else {
+									if ( $order_user->status == 0 ) {
+										$q = ( $prod_user->quantity / $unit );
+										$q = ( comma_format ( $q ) ) . ' pezzi';
+									}
+									else {
+										$q = $prod_user->quantity;
+										$measure = $prod->getAttribute ( "measure" )->value;
+										$q = ( comma_format ( $q ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
+									}
+								}
+
+								$quprice = ( $prod_user->quantity * $uprice );
+								$qsprice = ( $prod_user->quantity * $sprice );
+
+								$user_total += sum_percentage ( $quprice, $prod->getAttribute ( "surplus" )->value ) + $qsprice;
+
+								$quprice = format_price ( round ( $quprice, 2 ) );
+								$qsprice = format_price ( round ( $qsprice, 2 ) );
+
+								$text .= ( $prod->getAttribute ( "name" )->value ) . "\n";
+								$text .= "\t\t" . $q . "\t" . $quprice . "\t" . $qsprice . "\n";
+
+								$e++;
+							}
+						}
+
+						$text .= "\nPer un totale di " . ( format_price ( round ( $user_total, 2 ) ) ) . ".\n\n";
+
+						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, $text );
+					}
+
+					unset ( $orderusers );
 				}
 			}
 		}

@@ -247,6 +247,37 @@ function sort_products_on_products ( $products, $user_products ) {
 	return $proxy;
 }
 
+/****************************************************************** shortcuts */
+
+function get_orderuser_by_order ( $order ) {
+	$id = $order->getAttribute ( 'id' )->value;
+
+	$request = new stdClass ();
+	$request->baseorder = $id;
+
+	/*
+		Questo e' per evitare che lo script ricarichi per intero l'ordine di riferimento e tutti
+		i prodotti per ogni singolo OrderUser
+	*/
+	$request->has_Order = array ( $id );
+
+	$request->has_Product = array ();
+	$products = $order->getAttribute ( 'products' )->value;
+
+	for ( $i = 0; $i < count ( $products ); $i++ ) {
+		$prod = $products [ $i ];
+		$request->has_Product [] = $prod->getAttribute ( 'id' )->value;
+	}
+
+	$order_user_proxy = new OrderUser ();
+	$ret = $order_user_proxy->get ( $request, false );
+
+	unset ( $request );
+	unset ( $order_user_proxy );
+
+	return $ret;
+}
+
 /****************************************************************** files management */
 
 function unique_filesystem_name ( $folder, $name ) {

@@ -243,8 +243,7 @@ function install_main_db () {
 	);
 	query_and_check ( $query, "Impossibile creare tabella accounts" );
 
-	/* Si, la password di default e' molto stupida :-P */
-	$query = sprintf ( "INSERT INTO accounts ( username, password ) VALUES ( 1, '" . md5 ( "ciccio" ) . "' )" );
+	$query = sprintf ( "INSERT INTO accounts ( username, password ) VALUES ( 1, '" . md5 ( "root" ) . "' )" );
 	query_and_check ( $query, "Impossibile inizializzare tabella accounts" );
 
 	/*
@@ -574,7 +573,7 @@ function upgrade_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "ALTER TABLE Supplier ADD COLUMN  orders_months varchar ( 20 )" );
+        $query = sprintf ( "ALTER TABLE Supplier ADD COLUMN orders_months varchar ( 20 )" );
 	query_and_check ( $query, "Impossibile aggiornare tabella supplier" );
 	$query = sprintf ( "ALTER TABLE Supplier ALTER COLUMN orders_months SET DEFAULT ''" );
 	query_and_check ( $query, "Impossibile aggiornare tabella supplier" );
@@ -583,10 +582,19 @@ function upgrade_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "ALTER TABLE Product ADD COLUMN  code varchar ( 100 )" );
+        $query = sprintf ( "ALTER TABLE Product ADD COLUMN code varchar ( 100 )" );
 	query_and_check ( $query, "Impossibile aggiornare tabella product" );
 	$query = sprintf ( "ALTER TABLE Product ALTER COLUMN code SET DEFAULT ''" );
 	query_and_check ( $query, "Impossibile aggiornare tabella product" );
+
+	/*
+		=======================================================================================
+	*/
+
+        $query = sprintf ( "ALTER TABLE Orders ADD COLUMN mail_summary_sent boolean" );
+	query_and_check ( $query, "Impossibile aggiornare tabella orders" );
+	$query = sprintf ( "ALTER TABLE Orders ALTER COLUMN mail_summary_sent SET DEFAULT false" );
+	query_and_check ( $query, "Impossibile aggiornare tabella orders" );
 
 	/*
 		=======================================================================================

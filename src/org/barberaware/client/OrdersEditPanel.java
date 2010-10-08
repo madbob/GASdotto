@@ -101,6 +101,51 @@ public class OrdersEditPanel extends GenericPanel {
 					} );
 				}
 
+				private void checkMailSummary ( FromServerForm form ) {
+					HorizontalPanel container;
+					FromServer ord;
+					FromServerButton button;
+
+					if ( Session.getGAS ().getBool ( "use_mail" ) == false )
+						return;
+
+					ord = form.getObject ();
+
+					if ( ord.getInt ( "status" ) != Order.CLOSED )
+						return;
+
+					if ( ord.getBool ( "mail_summary_sent" ) == true )
+						return;
+
+					container = ( HorizontalPanel ) form.retriveInternalWidget ( "mail_summary" );
+					if ( container == null ) {
+						container = new HorizontalPanel ();
+						container.addStyleName ( "info-cell" );
+
+						form.setExtraWidget ( "mail_summary", container );
+						form.insert ( container, 1 );
+
+						container.add ( new Label ( "Questo ordine è stato chiuso. Clicca il bottone per inviare una mail di riscontro a coloro che hanno effettuato una prenotazione." ) );
+
+						button = new FromServerButton ( ord, "Invia", new FromServerCallback () {
+							public void execute ( final FromServer object ) {
+								object.setBool ( "mail_summary_sent", true );
+
+								object.save ( new ServerResponse () {
+									protected void onComplete ( JSONValue response ) {
+										FromServerForm form;
+
+										form = main.retrieveFormById ( object.getLocalID () );
+										if ( form != null )
+											form.removeWidget ( "mail_summary" );
+									}
+								} );
+							}
+						} );
+						container.add ( button );
+					}
+				}
+
 				private void checkNewProductsAvailability ( final FromServerForm form ) {
 					FromServer ord;
 
@@ -454,6 +499,7 @@ public class OrdersEditPanel extends GenericPanel {
 					ord.asyncLoadUsersOrders ();
 
 					checkNewProductsAvailability ( form );
+					checkMailSummary ( form );
 				}
 		};
 

@@ -52,7 +52,7 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 
 		main = new TextBox ();
 		main.setStyleName ( "date-selector" );
-		main.setVisibleLength ( 17 );
+		main.setVisibleLength ( 40 );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
 				if ( opened == false ) {

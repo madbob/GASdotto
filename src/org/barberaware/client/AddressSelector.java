@@ -41,7 +41,7 @@ public class AddressSelector extends Composite {
 
 		main = new TextBox ();
 		main.setStyleName ( "address-selector" );
-		main.setVisibleLength ( 17 );
+		main.setVisibleLength ( 40 );
 		main.addFocusListener ( new FocusListener () {
 			public void onFocus ( Widget sender ) {
 				if ( opened == false ) {

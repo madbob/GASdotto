@@ -54,8 +54,6 @@ public class NumberBox extends TextBox implements IntNumericWidget {
 				}
 			}
 		);
-
-		setVisibleLength ( 6 );
 	}
 
 	public void setVal ( int value ) {
