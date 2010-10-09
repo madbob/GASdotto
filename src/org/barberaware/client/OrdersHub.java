@@ -24,7 +24,7 @@ public class OrdersHub {
 	private static ArrayList		widgets		= null;
 	private static boolean			status		= false;
 
-	public static void toggleShippedOrdersStatus ( boolean st, Date startdate, Date enddate ) {
+	public static void toggleShippedOrdersStatus ( boolean st, Date startdate, Date enddate, FromServer supplier ) {
 		OrdersHubWidget wid;
 		ObjectRequest params;
 
@@ -35,6 +35,10 @@ public class OrdersHub {
 			params.add ( "status", Order.SHIPPED );
 			params.add ( "startdate", Utils.encodeDate ( startdate ) );
 			params.add ( "enddate", Utils.encodeDate ( enddate ) );
+
+			if ( supplier != null )
+				params.add ( "supplier", supplier.getLocalID () );
+
 			Utils.getServer ().testObjectReceive ( params );
 		}
 
@@ -42,7 +46,7 @@ public class OrdersHub {
 			for ( int i = 0; i < widgets.size (); i++ ) {
 				wid = ( OrdersHubWidget ) widgets.get ( i );
 				wid.engage ( false );
-				wid.setContents ( st, startdate, enddate );
+				wid.setContents ( st, startdate, enddate, supplier );
 				wid.engage ( true );
 			}
 		}

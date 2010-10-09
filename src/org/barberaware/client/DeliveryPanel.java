@@ -151,7 +151,7 @@ public class DeliveryPanel extends GenericPanel {
 		OrdersHubWidget filter;
 
 		filter = new OrdersHubWidget () {
-			public void doFilter ( boolean show, Date start, Date end ) {
+			public void doFilter ( boolean show, Date start, Date end, FromServer supplier ) {
 				ArrayList forms;
 				FromServerForm form;
 				FromServer ord;
@@ -164,10 +164,14 @@ public class DeliveryPanel extends GenericPanel {
 
 					if ( show == true ) {
 						if ( ord.getInt ( "status" ) == Order.SHIPPED ) {
-							if ( ord.getDate ( "startdate" ).after ( start ) && ord.getDate ( "enddate" ).before ( end ) )
+							if ( ord.getDate ( "startdate" ).after ( start ) &&
+									ord.getDate ( "enddate" ).before ( end ) &&
+									( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
 								form.setVisible ( true );
-							else
+							}
+							else {
 								form.setVisible ( false );
+							}
 						}
 					}
 					else {

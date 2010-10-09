@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /*
 	Il FromServerSelector puo' essere costruito solo per tipi di oggetto che hanno
 	l'attributo "name" in forma di stringa
@@ -244,6 +246,9 @@ public class FromServerSelector extends ListBox implements ObjectWidget {
 			return null;
 
 		selected = Integer.parseInt ( getValue ( index ) );
+		if ( selected == 0 || selected == -1 )
+			return null;
+
 		return Utils.getServer ().getObjectFromCache ( type, selected );
 	}
 }

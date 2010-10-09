@@ -32,12 +32,13 @@ public class CustomCaptionPanel extends CaptionPanel {
 		setStyleName ( "custom-caption-panel" );
 	}
 
-	public void addPair ( String name, Widget element ) {
-		int row;
-
-		row = content.getRowCount ();
+	public void addPair ( String name, Widget element, int row ) {
 		content.setWidget ( row, 0, new Label ( name ) );
 		content.setWidget ( row, 1, element );
+	}
+
+	public void addPair ( String name, Widget element ) {
+		addPair ( name, element, content.getRowCount () );
 	}
 
 	public void addRight ( Widget element ) {

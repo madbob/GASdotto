@@ -24,35 +24,43 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class OrdersHubWidget extends Composite {
 	private boolean			engaged;
+	private boolean			prevShow;
+	private HorizontalPanel		main;
+	private CustomCaptionPanel	frame;
 	private CheckBox		toggle;
 	private DateSelector		startdate;
 	private DateSelector		enddate;
+	private FromServerSelector	supplier;
 
 	public OrdersHubWidget () {
 		Date now;
-		CaptionPanel frame;
-		HorizontalPanel main;
+		HorizontalPanel hor;
 
 		engaged = true;
-
-		frame = new CaptionPanel ( "Opzioni Avanzate" );
-		frame.setStyleName ( "orders-advanced-options" );
-		initWidget ( frame );
+		prevShow = false;
 
 		main = new HorizontalPanel ();
-		main.setSpacing ( 5 );
-		frame.add ( main );
+		main.setStyleName ( "orders-hub-widget" );
+		initWidget ( main );
+
+		frame = new CustomCaptionPanel ( "Mostra Ordini Vecchi" );
+		frame.setVisible ( false );
+		main.add ( frame );
 
 		toggle = new CheckBox ( "Mostra Ordini Vecchi" );
 		main.add ( toggle );
 
-		main.add ( new Label ( "Da: " ) );
-		startdate = new DateSelector ();
-		main.add ( startdate );
+		frame.addPair ( "", new Label () );
 
-		main.add ( new Label ( "A: " ) );
+		startdate = new DateSelector ();
+		frame.addPair ( "Dal", startdate );
+
 		enddate = new DateSelector ();
-		main.add ( enddate );
+		frame.addPair ( "Al", enddate );
+
+		supplier = new FromServerSelector ( "Supplier", true, true );
+		supplier.addAllSelector ();
+		frame.addPair ( "Fornitore", supplier );
 
 		now = new Date ( System.currentTimeMillis () );
 		enddate.setValue ( now );
@@ -78,33 +86,59 @@ public abstract class OrdersHubWidget extends Composite {
 			}
 		} );
 
+		supplier.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				triggerFilters ();
+			}
+		} );
+
 		OrdersHub.syncCheckboxOnShippedOrders ( this );
 	}
 
+	/*
+		Questo viene usato come flag da OrdersHub, serve a non far scattare la procedura di download dei dati
+		da parte di ogni OrdersHubWidget dell'applicazione quando in uno vengono modificati i parametri e
+		vengono riportati negli altri
+	*/
 	public void engage ( boolean e ) {
 		engaged = e;
 	}
 
-	public void setContents ( boolean show, Date s, Date e ) {
+	public void setContents ( boolean show, Date s, Date e, FromServer supp ) {
 		toggle.setChecked ( show );
 		startdate.setValue ( s );
 		enddate.setValue ( e );
+		supplier.setValue ( supp );
 	}
 
 	private void triggerFilters () {
 		boolean show;
 		Date s;
 		Date e;
+		FromServer sup;
 
 		show = toggle.isChecked ();
+
+		if ( show == false && prevShow == true ) {
+			frame.setVisible ( false );
+			main.add ( toggle );
+		}
+		else if ( show == true && prevShow == false ) {
+			supplier.setItemSelected ( 0, true );
+			frame.addPair ( "", toggle, 0 );
+			frame.setVisible ( true );
+		}
+
 		s = startdate.getValue ();
 		e = enddate.getValue ();
+		sup = supplier.getValue ();
 
 		if ( engaged == true )
-			OrdersHub.toggleShippedOrdersStatus ( show, s, e );
+			OrdersHub.toggleShippedOrdersStatus ( show, s, e, sup );
 
-		doFilter ( show, s, e );
+		prevShow = show;
+		doFilter ( show, s, e, sup );
 	}
 
-	public abstract void doFilter ( boolean show, Date start, Date end );
+	public abstract void doFilter ( boolean show, Date start, Date end, FromServer supplier );
 }
