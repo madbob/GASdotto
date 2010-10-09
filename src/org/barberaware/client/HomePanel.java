@@ -36,12 +36,10 @@ public class HomePanel extends GenericPanel {
 		notifications = new NotificationsBox ();
 		add ( notifications );
 
-		openedOrders = doOrdersSummary ( "Non ci sono ordini aperti in questo momento.", "Ordini aperti in questo momento: " );
+		openedOrders = doOrdersSummary ( "Ordini aperti in questo momento (in rosso quelli in chiusura)", "Non ci sono ordini aperti in questo momento." );
 		add ( openedOrders );
 
-		add ( new HTML ( "<hr>" ) );
-
-		closedOrders = doOrdersSummary ( "Non ci sono ordini in consegna.", "Ordini ora in consegna: " );
+		closedOrders = doOrdersSummary ( "Ordini ora in consegna (in rosso quelli che saranno consegnati a breve)", "Non ci sono ordini in consegna." );
 		add ( closedOrders );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
@@ -55,7 +53,7 @@ public class HomePanel extends GenericPanel {
 				total = new Label ();
 				fillTotalText ( total, orderuser );
 				total.setStyleName ( "highlight-text" );
-				panel.setWidget ( index, 3, total );
+				panel.getTable ().setWidget ( index, 3, total );
 			}
 
 			public void onReceive ( FromServer object ) {
@@ -126,7 +124,7 @@ public class HomePanel extends GenericPanel {
 							Label total;
 
 							uorder = ( OrderUser ) object;
-							total = ( Label ) tab.getWidget ( index, 3 );
+							total = ( Label ) tab.getTable ().getWidget ( index, 3 );
 
 							if ( total != null )
 								fillTotalText ( total, uorder );
@@ -154,7 +152,7 @@ public class HomePanel extends GenericPanel {
 						tab = openedOrders;
 
 					if ( index != -1 )
-						tab.setWidget ( index, 3, new Label ( "" ) );
+						tab.getTable ().setWidget ( index, 3, new Label ( "" ) );
 				}
 			}
 
@@ -237,13 +235,13 @@ public class HomePanel extends GenericPanel {
 		} );
 	}
 
-	private PlainFillBox doOrdersSummary ( String empty, String full ) {
+	private PlainFillBox doOrdersSummary ( String title, String empty ) {
 		PlainFillBox orders;
 
 		orders = new PlainFillBox ();
-		orders.setStrings ( empty, full );
+		orders.setStrings ( title, empty );
 
-		orders.addTableListener ( new TableListener () {
+		orders.getTable ().addTableListener ( new TableListener () {
 			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
 				Hidden id;
 				PlainFillBox table;
@@ -252,12 +250,37 @@ public class HomePanel extends GenericPanel {
 					return;
 
 				table = ( PlainFillBox ) sender;
-				id = ( Hidden ) table.getWidget ( row, 1 );
+				id = ( Hidden ) table.getTable ().getWidget ( row, 1 );
 				goTo ( "orders::" + id.getValue () );
 			}
 		} );
 
 		return orders;
+	}
+
+	private void checkOrderExpiry ( PlainFillBox orders, Order order, Label text ) {
+		long now;
+		long d;
+		Date date;
+
+		now = System.currentTimeMillis ();
+
+		if ( orders == openedOrders ) {
+			d = order.getDate ( "enddate" ).getTime ();
+		}
+		else {
+			date = order.getDate ( "shippingdate" );
+
+			if ( date != null )
+				d = date.getTime ();
+			else
+				d = -1;
+		}
+
+		if ( d != -1 && d - now < ( 1000 * 60 * 60 * 24 * 2 ) )
+			text.addStyleName ( "highlight-text" );
+		else
+			text.removeStyleName ( "highlight-text" );
 	}
 
 	private int doOrderRow ( PlainFillBox orders, Order order ) {
@@ -271,6 +294,7 @@ public class HomePanel extends GenericPanel {
 			name = order.getString ( "name" );
 			text = new Label ( name );
 			text.setStyleName ( "clickable" );
+			checkOrderExpiry ( orders, order, text );
 
 			data = new ArrayList ();
 			data.add ( text );
@@ -289,19 +313,25 @@ public class HomePanel extends GenericPanel {
 
 		index = retrieveOrderRow ( orders, order );
 		if ( index != -1 ) {
-			label = ( Label ) orders.getWidget ( index, 0 );
+			label = ( Label ) orders.getTable ().getWidget ( index, 0 );
 			label.setText ( order.getString ( "name" ) );
+			checkOrderExpiry ( orders, order, label );
 		}
 	}
 
 	private int retrieveOrderRow ( PlainFillBox table, FromServer target ) {
 		String target_id_str;
 		Hidden id;
+		FlexTable contents;
+
+		if ( table.isEmpty () == true )
+			return -1;
 
 		target_id_str = Integer.toString ( target.getLocalID () );
+		contents = table.getTable ();
 
-		for ( int i = 1; i < table.getRowCount (); i++ ) {
-			id = ( Hidden ) table.getWidget ( i, 1 );
+		for ( int i = 0; i < contents.getRowCount (); i++ ) {
+			id = ( Hidden ) contents.getWidget ( i, 1 );
 			if ( target_id_str.equals ( id.getValue () ) )
 				return i;
 		}

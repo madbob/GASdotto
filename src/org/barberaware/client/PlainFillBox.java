@@ -23,20 +23,24 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class PlainFillBox extends FlexTable {
+public class PlainFillBox extends CaptionPanel {
+	private FlexTable		main;
 	private boolean			hasContents;
 	private String			emptyString;
-	private String			headString;
 
 	public PlainFillBox () {
+		super ();
+
+		main = new FlexTable ();
+		add ( main );
+
 		hasContents = false;
 		emptyString = "";
-		headString = "";
 	}
 
-	public void setStrings ( String empty, String full ) {
+	public void setStrings ( String title, String empty ) {
+		setCaptionText ( title );
 		emptyString = empty;
-		headString = full;
 		checkEmpty ();
 	}
 
@@ -45,29 +49,36 @@ public class PlainFillBox extends FlexTable {
 		int num;
 
 		if ( hasContents == false ) {
-			super.removeRow ( 0 );
-			setWidget ( 0, 0, new Label ( headString ) );
+			main.removeRow ( 0 );
 			hasContents = true;
 		}
 
 		num = contents.size ();
-		row = getRowCount ();
+		row = main.getRowCount ();
 
 		for ( int i = 0; i < num; i++ )
-			setWidget ( row, i, ( Widget ) contents.get ( i ) );
+			main.setWidget ( row, i, ( Widget ) contents.get ( i ) );
 
 		return row;
 	}
 
 	public void removeRow ( int index ) {
-		super.removeRow ( index );
+		main.removeRow ( index );
 		checkEmpty ();
 	}
 
+	public FlexTable getTable () {
+		return main;
+	}
+
+	public boolean isEmpty () {
+		return ( hasContents == false );
+	}
+
 	private void checkEmpty () {
-		if ( getRowCount () <= 1 ) {
+		if ( hasContents == false || ( hasContents == true && main.getRowCount () == 0 ) ) {
 			hasContents = false;
-			setWidget ( 0, 0, new Label ( emptyString ) );
+			main.setWidget ( 0, 0, new Label ( emptyString ) );
 		}
 	}
 }

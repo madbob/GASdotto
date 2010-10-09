@@ -28,6 +28,7 @@ Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di
 - PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
 - TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
 - Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
+- Pear-Mail_Mime	http://pear.php.net/package/Mail_Mime/		testato su versione 1.5.3-0
 - Pear-Net_SMTP		http://pear.php.net/package/Net_SMTP/		testato su versione 1.4.2
 - Apache		http://apache.org/				testato su versione 2.2.15
 

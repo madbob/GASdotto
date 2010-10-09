@@ -28,7 +28,6 @@ public class NotificationsBox extends Composite {
 
 	public NotificationsBox () {
 		ubermain = new CaptionPanel ( "Hai nuove notifiche..." );
-		ubermain.setStyleName ( "notifications-box" );
 		ubermain.setVisible ( false );
 		initWidget ( ubermain );
 
