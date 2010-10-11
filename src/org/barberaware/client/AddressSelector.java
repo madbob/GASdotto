@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class AddressSelector extends Composite {
+public class AddressSelector extends Composite implements AddressWidget {
 	private TextBox			main;
 	private Address			currentValue;
 
@@ -60,19 +60,6 @@ public class AddressSelector extends Composite {
 
 		initWidget ( main );
 		clean ();
-	}
-
-	public Address getValue () {
-		return currentValue;
-	}
-
-	public void setValue ( Address addr ) {
-		if ( addr == null )
-			currentValue = new Address ();
-		else
-			currentValue = ( Address ) addr.clone ();
-
-		showAddr ();
 	}
 
 	public void clean () {
@@ -174,5 +161,20 @@ public class AddressSelector extends Composite {
 
 	private void showAddr () {
 		main.setText ( currentValue.getStreet () + " " + currentValue.getCap () + " " + currentValue.getCity () );
+	}
+
+	/****************************************************************** AddressWidget */
+
+	public void setValue ( Address addr ) {
+		if ( addr == null )
+			currentValue = new Address ();
+		else
+			currentValue = ( Address ) addr.clone ();
+
+		showAddr ();
+	}
+
+	public Address getValue () {
+		return currentValue;
 	}
 }

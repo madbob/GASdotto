@@ -244,6 +244,10 @@ public abstract class FormGroup extends Composite {
 		return array;
 	}
 
+	public int getElementsNum () {
+		return latestIterableIndex () - firstIterableIndex ();
+	}
+
 	public String getIdentifier () {
 		return identifier;
 	}

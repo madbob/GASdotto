@@ -29,7 +29,7 @@ public class MonthsSelector extends Composite implements StringWidget {
 
 	public MonthsSelector ( boolean editable ) {
 		main = new Label ( "Nessuno in particolare" );
-		main.addStyleName ( "static-value" );
+		main.setStyleName ( "static-value" );
 		initWidget ( main );
 
 		/*

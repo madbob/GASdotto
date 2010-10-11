@@ -360,7 +360,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		int num_elements;
 		int rows;
 		FromServer prod_internal;
-		String id_target;
 		boolean found;
 		ProductUserSelector selector;
 		FromServer prod;
@@ -374,15 +373,13 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				selector.clear ();
 			}
 		}
-
 		else {
-			num_elements = elements.size ();
-
 			/**
 				TODO	Qui un ordinamento degli array eviterebbe di fare tanti
 					giri ed ottimizzare
 			*/
 
+			num_elements = elements.size ();
 			rows = main.getRowCount () - 2;
 
 			for ( int i = 0; i < rows; i++ ) {
@@ -397,7 +394,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				for ( int a = 0; a < num_elements; a++ ) {
 					prod = ( FromServer ) elements.get ( a );
 					prod_internal = prod.getObject ( "product" );
-					id_target = Integer.toString ( prod.getObject ( "product" ).getLocalID () );
 
 					/**
 						TODO	Sia qui che in getElements() duplico oggetti a tutto andare,

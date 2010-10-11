@@ -136,7 +136,7 @@ public class FromServerWidget extends Composite {
 			( ( BooleanSelector ) wid ).setDown ( object.getBool ( name ) );
 
 		else if ( type == FromServer.ADDRESS )
-			( ( AddressSelector ) wid ).setValue ( object.getAddress ( name ) );
+			( ( AddressWidget ) wid ).setValue ( object.getAddress ( name ) );
 
 		else if ( type == FromServer.ARRAY )
 			( ( FromServerArray ) wid ).setElements ( object.getArray ( name ) );
@@ -171,7 +171,7 @@ public class FromServerWidget extends Composite {
 			object.setBool ( name, ( ( BooleanSelector ) wid ).isDown () );
 
 		else if ( type == FromServer.ADDRESS )
-			object.setAddress ( name, ( ( AddressSelector ) wid ).getValue () );
+			object.setAddress ( name, ( ( AddressWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.ARRAY )
 			object.setArray ( name, ( ( FromServerArray ) wid ).getElements () );
@@ -221,7 +221,7 @@ public class FromServerWidget extends Composite {
 			ret = object.getBool ( name ) == ( ( BooleanSelector ) wid ).isDown ();
 
 		else if ( type == FromServer.ADDRESS )
-			ret = object.getAddress ( name ).equals ( ( ( AddressSelector ) wid ).getValue () );
+			ret = object.getAddress ( name ).equals ( ( ( AddressWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.ARRAY ) {
 			ArrayList first;

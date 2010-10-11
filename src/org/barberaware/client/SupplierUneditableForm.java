@@ -29,12 +29,42 @@ public class SupplierUneditableForm extends FromServerForm {
 
 		String desc;
 		CaptionPanel frame;
+		CustomCaptionPanel cframe;
+		HorizontalPanel hor;
+		AddressString addr;
 		ProductsPresentationList products;
 		OpenedOrdersList orders;
 		PastOrdersList past_orders;
 		FromServerTable references;
 
 		emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
+
+		hor = new HorizontalPanel ();
+		hor.setWidth ( "100%" );
+		add ( hor );
+
+		cframe = new CustomCaptionPanel ( "Attributi" );
+		hor.add ( cframe );
+		hor.setCellWidth ( cframe, "50%" );
+
+		cframe.addPair ( "Nome", getPersonalizedWidget ( "name", doString () ) );
+		cframe.addPair ( "Nome Contatto", getPersonalizedWidget ( "contact", doString () ) );
+		cframe.addPair ( "Calendario Ordini", getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
+
+		cframe = new CustomCaptionPanel ( "Contatti" );
+		hor.add ( cframe );
+		hor.setCellWidth ( cframe, "50%" );
+
+		addr = new AddressString ();
+		addr.setStyleName ( "static-value" );
+		cframe.addPair ( "Indirizzo", getPersonalizedWidget ( "address", addr ) );
+
+		cframe.addPair ( "Telefono", getPersonalizedWidget ( "phone", doString () ) );
+		cframe.addPair ( "Fax", getPersonalizedWidget ( "fax", doString () ) );
+		cframe.addPair ( "Mail", getPersonalizedWidget ( "mail", doString () ) );
+		cframe.addPair ( "Sito Web", getPersonalizedWidget ( "website", doString () ) );
+
+		/* dettagli */
 
 		desc = supplier.getString ( "description" );
 		if ( desc == "" )
@@ -43,18 +73,13 @@ public class SupplierUneditableForm extends FromServerForm {
 		add ( frame );
 		frame.add ( new Label ( desc ) );
 
-		desc = supplier.getString ( "orders_months" );
-		frame = new CaptionPanel ( "Mesi Consigliati" );
-		add ( frame );
-		frame.add ( getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
-
-		orders = new OpenedOrdersList ( supplier, this );
+		orders = new OpenedOrdersList ( supplier );
 		setExtraWidget ( "orders", orders );
 		frame = new CaptionPanel ( "Storico ultimi 10 ordini" );
 		add ( frame );
 		frame.add ( orders );
 
-		past_orders = new PastOrdersList ( supplier, this );
+		past_orders = new PastOrdersList ( supplier );
 		setExtraWidget ( "past_orders", past_orders );
 		frame = new CaptionPanel ( "Ultimi 10 ordini effettuati da me" );
 		add ( frame );
@@ -82,5 +107,13 @@ public class SupplierUneditableForm extends FromServerForm {
 		frame = new CaptionPanel ( "Prodotti" );
 		add ( frame );
 		frame.add ( products );
+	}
+
+	private Widget doString () {
+		StringLabel s;
+
+		s = new StringLabel ();
+		s.setStyleName ( "static-value" );
+		return s;
 	}
 }

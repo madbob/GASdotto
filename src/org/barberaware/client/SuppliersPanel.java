@@ -133,15 +133,15 @@ public class SuppliersPanel extends GenericPanel {
 
 			switch ( action ) {
 				case 0:
-					list.addOrder ( ord );
+					list.addOrder ( object );
 					break;
 
 				case 1:
-					list.modOrder ( ord );
+					list.modOrder ( object );
 					break;
 
 				case 2:
-					list.delOrder ( ord );
+					list.delOrder ( object );
 					break;
 			}
 		}

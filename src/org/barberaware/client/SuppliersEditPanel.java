@@ -219,13 +219,13 @@ public class SuppliersEditPanel extends GenericPanel {
 		hor.setCellWidth ( sframe, "50%" );
 
 		sframe = new CaptionPanel ( "Storico ultimi 10 ordini" );
-		orders = new OpenedOrdersList ( supp, ver );
+		orders = new OpenedOrdersList ( supp );
 		sframe.add ( orders );
 		ver.setExtraWidget ( "orders", orders );
 		vertical.add ( sframe );
 
 		sframe = new CaptionPanel ( "Ultimi 10 ordini effettuati da me" );
-		past_orders = new PastOrdersList ( supp, ver );
+		past_orders = new PastOrdersList ( supp );
 		sframe.add ( past_orders );
 		ver.setExtraWidget ( "past_orders", past_orders );
 		vertical.add ( sframe );

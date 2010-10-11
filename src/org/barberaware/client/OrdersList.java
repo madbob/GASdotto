@@ -23,20 +23,12 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public abstract class OrdersList extends Composite {
-	private FlexTable	main;
-	private FromServerForm	mainForm;
-	private ArrayList	orders;
+public abstract class OrdersList extends FormGroup {
+	public OrdersList () {
+		super ( null );
+	}
 
-	protected void buildMe ( FromServer supplier, FromServerForm reference ) {
-		main = new FlexTable ();
-		initWidget ( main );
-
-		mainForm = reference;
-		orders = new ArrayList ();
-
-		clean ();
-
+	protected void buildMe ( FromServer supplier ) {
 		/*
 			Problema: il monitor registrato sugli Order non basta, in quanto
 			viene eseguito prima che vengano creati i form dei fornitori e
@@ -47,127 +39,39 @@ public abstract class OrdersList extends Composite {
 		checkExistingOrders ( supplier );
 	}
 
-	private void clean () {
-		EmblemsBar icons;
+	public void addOrder ( FromServer order ) {
+		int tot;
+		int added;
 
-		main.setWidget ( 0, 0, new Label ( getEmptyNotification () ) );
-		orders.clear ();
+		tot = getElementsNum ();
 
-		icons = mainForm.emblems ();
-		icons.deactivate ( getMainIcon () );
-	}
-
-	private void doRow ( int row, Order order ) {
-		main.setWidget ( row, 0, new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
-		main.setWidget ( row, 1, new Label ( order.getString ( "name" ) ) );
-	}
-
-	public void addOrder ( Order order ) {
-		boolean positioned;
-		int i;
-		Date start;
-		Order cmp;
-		EmblemsBar icons;
-
-		if ( orders.size () == 0 ) {
-			main.removeRow ( 0 );
-			icons = mainForm.emblems ();
-			icons.activate ( getMainIcon () );
-
-			doRow ( 0, order );
-			orders.add ( order );
+		if ( tot >= 10 && sorting ( retrieveForm ( latestIterableIndex () - 1 ).getObject (), order ) < 0 )
 			return;
-		}
-		else {
-			if ( retrieveOrder ( order ) != -1 )
-				return;
-		}
 
-		start = order.getDate ( "startdate" );
-		positioned = false;
+		added = addElement ( order );
 
-		for ( i = 0; i < orders.size () && i < 10; i++ ) {
-			cmp = ( Order ) orders.get ( i );
-
-			if ( cmp.getDate ( "startdate" ).before ( start ) ) {
-				main.insertRow ( i );
-				doRow ( i, order );
-				orders.add ( order );
-
-				if ( orders.size () == 11 ) {
-					orders.remove ( 10 );
-					main.removeRow ( 10 );
-				}
-
-				positioned = true;
-				break;
-			}
-		}
-
-		if ( positioned == false && i < 10 ) {
-			doRow ( i, order );
-			orders.add ( order );
-		}
+		/*
+			Se prima dell'inserimento "tot" era 10 adesso si suppone sia 11...
+		*/
+		if ( added == 1 && tot >= 10 )
+			delOrder ( retrieveForm ( latestIterableIndex () - 1 ).getObject () );
 	}
 
-	public void modOrder ( Order order ) {
-		int index;
-		Label label;
-
-		index = retrieveOrder ( order );
-
-		if ( index != -1 ) {
-			label = ( Label ) main.getWidget ( index, 1 );
-			label.setText ( order.getString ( "name" ) );
-		}
-		else {
-			addOrder ( order );
-		}
+	public void modOrder ( FromServer order ) {
+		refreshElement ( order );
 	}
 
-	public void delOrder ( Order order ) {
-		int index;
-
-		index = retrieveOrder ( order );
-
-		if ( index != -1 ) {
-			main.removeRow ( index );
-			orders.remove ( index );
-
-			if ( orders.size () == 0 )
-				clean ();
-		}
-	}
-
-	private int retrieveOrder ( Order order ) {
-		int num;
-		Date start;
-		Order cmp;
-
-		num = orders.size ();
-
-		if ( num != 0 ) {
-			start = order.getDate ( "startdate" );
-
-			for ( int i = 0; i < num; i++ ) {
-				cmp = ( Order ) orders.get ( i );
-
-				if ( cmp.equals ( order ) )
-					return i;
-
-				if ( cmp.getDate ( "startdate" ).before ( start ) )
-					return -1;
-			}
-		}
-
-		return -1;
+	public void delOrder ( FromServer order ) {
+		deleteElement ( order );
 	}
 
 	protected abstract String getEmptyNotification ();
-	protected abstract String getMainIcon ();
 	protected abstract void checkExistingOrders ( FromServer supplier );
 
-	protected static void configEmblem ( EmblemsInfo info ) {
-		/* Non so perche' non posso dichiarare un metodo abstract static... */
+	/*
+		Questo serve assolutamente a niente, solo ad aderire all'interfaccia di FormGroup
+	*/
+	public FromServerForm doNewEditableRow () {
+		return null;
 	}
 }

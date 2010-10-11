@@ -21,21 +21,15 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class PastOrdersList extends OrdersList {
-	public PastOrdersList ( FromServer supplier, FromServerForm reference ) {
-		buildMe ( supplier, reference );
+	public PastOrdersList ( FromServer supplier ) {
+		buildMe ( supplier );
 	}
 
 	protected String getEmptyNotification () {
 		return "Non sono mai stati eseguiti ordini per questo fornitore";
-	}
-
-	public static void configEmblem ( EmblemsInfo info ) {
-		/* dummy */
-	}
-
-	protected String getMainIcon () {
-		return null;
 	}
 
 	protected void checkExistingOrders ( FromServer supplier ) {
@@ -55,5 +49,30 @@ public class PastOrdersList extends OrdersList {
 					base_ord.getObject ( "supplier" ).getLocalID () == supp_id )
 				addOrder ( base_ord );
 		}
+	}
+
+	protected FromServerForm doEditableRow ( FromServer obj ) {
+		FromServerForm ver;
+		ProductsUserSelection products;
+
+		ver = new FromServerForm ( obj, FromServerForm.NOT_EDITABLE );
+		ver.addStyleName ( "subform" );
+
+		products = new ProductsUserSelection ( obj.getObject ( "baseorder" ).getArray ( "products" ), false, false );
+		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
+
+		return ver;
+	}
+
+	protected int sorting ( FromServer first, FromServer second ) {
+		if ( first == null )
+			return 1;
+		else if ( second == null )
+			return -1;
+
+		if ( first.getObject ( "baseorder" ).getDate ( "enddate" ).before ( second.getObject ( "baseorder" ).getDate ( "enddate" ) ) )
+			return -1;
+		else
+			return 1;
 	}
 }
