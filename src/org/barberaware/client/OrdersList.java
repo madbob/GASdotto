@@ -42,6 +42,8 @@ public abstract class OrdersList extends FormGroup {
 	public void addOrder ( FromServer order ) {
 		int tot;
 		int added;
+		FromServerForm form;
+		FromServer obj;
 
 		tot = getElementsNum ();
 
@@ -53,8 +55,15 @@ public abstract class OrdersList extends FormGroup {
 		/*
 			Se prima dell'inserimento "tot" era 10 adesso si suppone sia 11...
 		*/
-		if ( added == 1 && tot >= 10 )
-			delOrder ( retrieveForm ( latestIterableIndex () - 1 ).getObject () );
+		if ( added == 1 && tot >= 10 ) {
+			form = retrieveForm ( latestIterableIndex () - 1 );
+			if ( form != null ) {
+				obj = form.getObject ();
+
+				if ( obj != null )
+					delOrder ( obj );
+			}
+		}
 	}
 
 	public void modOrder ( FromServer order ) {

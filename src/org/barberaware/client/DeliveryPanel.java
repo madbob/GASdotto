@@ -26,6 +26,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class DeliveryPanel extends GenericPanel {
 	private boolean		hasOrders;
 	private FormGroup	main;
+	private OrdersHubWidget	filter;
 
 	public DeliveryPanel () {
 		super ();
@@ -148,8 +149,6 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	private void doFilterOptions () {
-		OrdersHubWidget filter;
-
 		filter = new OrdersHubWidget () {
 			public void doFilter ( boolean show, Date start, Date end, FromServer supplier ) {
 				ArrayList forms;
@@ -163,20 +162,20 @@ public class DeliveryPanel extends GenericPanel {
 					ord = form.getObject ();
 
 					if ( show == true ) {
-						if ( ord.getInt ( "status" ) == Order.SHIPPED ) {
-							if ( ord.getDate ( "startdate" ).after ( start ) &&
-									ord.getDate ( "enddate" ).before ( end ) &&
-									( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
-								form.setVisible ( true );
-							}
-							else {
-								form.setVisible ( false );
-							}
+						if ( ord.getDate ( "startdate" ).after ( start ) &&
+								ord.getDate ( "enddate" ).before ( end ) &&
+								( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
+							form.setVisible ( true );
+						}
+						else {
+							form.setVisible ( false );
 						}
 					}
 					else {
 						if ( ord.getInt ( "status" ) == Order.SHIPPED )
 							form.setVisible ( false );
+						else
+							form.setVisible ( true );
 					}
 				}
 			}
@@ -303,5 +302,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		params = new ObjectRequest ( "Order" );
 		Utils.getServer ().testObjectReceive ( params );
+
+		filter.doFilter ();
 	}
 }

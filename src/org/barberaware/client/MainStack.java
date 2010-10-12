@@ -57,7 +57,7 @@ public class MainStack extends Composite {
 			add ( new OrdersEditPanel () );
 			add ( new OrdersPrivilegedPanel () );
 			add ( new DeliveryPanel () );
-			// add ( new StatisticsPanel () );
+			add ( new StatisticsPanel () );
 			add ( new NotificationPanel () );
 			add ( new SystemPanel () );
 		}
@@ -68,7 +68,7 @@ public class MainStack extends Composite {
 			add ( new OrdersEditPanel () );
 			add ( new OrdersPrivilegedPanel () );
 			add ( new DeliveryPanel () );
-			// add ( new StatisticsPanel () );
+			add ( new StatisticsPanel () );
 			add ( new NotificationPanel () );
 			add ( new SystemPanel () );
 		}

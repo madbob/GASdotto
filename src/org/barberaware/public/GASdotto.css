@@ -442,6 +442,7 @@ body {
 	margin:			3px;
 	margin-bottom:		7px;
 	padding:		5px;
+	vertical-align:		middle;
 }
 
 .message {

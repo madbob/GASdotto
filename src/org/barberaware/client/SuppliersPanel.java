@@ -120,15 +120,17 @@ public class SuppliersPanel extends GenericPanel {
 		Per comodita' questa funzione viene usata anche in SuppliersEditPanel
 	*/
 	public static void sharedOrderUserManagement ( FromServer object, FormCluster cluster, int action ) {
+		PastOrdersList list;
 		FromServerForm form;
 		Order ord;
+
+		if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+			return;
 
 		ord = ( Order ) object.getObject ( "baseorder" );
 		form = cluster.retrieveForm ( ord.getObject ( "supplier" ) );
 
 		if ( form != null ) {
-			PastOrdersList list;
-
 			list = ( PastOrdersList ) form.retriveInternalWidget ( "past_orders" );
 
 			switch ( action ) {

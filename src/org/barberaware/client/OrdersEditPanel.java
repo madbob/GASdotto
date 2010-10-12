@@ -27,6 +27,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrdersEditPanel extends GenericPanel {
 	private FormCluster		main;
+	private OrdersHubWidget		filter;
 
 	public OrdersEditPanel () {
 		super ();
@@ -546,8 +547,6 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	private void doFilterOptions () {
-		OrdersHubWidget filter;
-
 		filter = new OrdersHubWidget () {
 			public void doFilter ( boolean show, Date start, Date end, FromServer supplier ) {
 				ArrayList forms;
@@ -561,20 +560,20 @@ public class OrdersEditPanel extends GenericPanel {
 					ord = form.getObject ();
 
 					if ( show == true ) {
-						if ( ord.getInt ( "status" ) == Order.SHIPPED ) {
-							if ( ord.getDate ( "startdate" ).after ( start ) &&
-									ord.getDate ( "enddate" ).before ( end ) &&
-									( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
-								form.setVisible ( true );
-							}
-							else {
-								form.setVisible ( false );
-							}
+						if ( ord.getDate ( "startdate" ).after ( start ) &&
+								ord.getDate ( "enddate" ).before ( end ) &&
+								( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
+							form.setVisible ( true );
+						}
+						else {
+							form.setVisible ( false );
 						}
 					}
 					else {
 						if ( ord.getInt ( "status" ) == Order.SHIPPED )
 							form.setVisible ( false );
+						else
+							form.setVisible ( true );
 					}
 				}
 			}
@@ -660,5 +659,6 @@ public class OrdersEditPanel extends GenericPanel {
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Order" );
 		Utils.getServer ().testObjectReceive ( "Product" );
+		filter.doFilter ();
 	}
 }
