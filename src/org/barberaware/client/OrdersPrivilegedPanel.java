@@ -27,7 +27,6 @@ import com.allen_sauer.gwt.log.client.Log;
 public class OrdersPrivilegedPanel extends GenericPanel {
 	private boolean		hasOrders;
 	private GenericPanel	myself;
-	private OrdersHubWidget	filter;
 
 	public OrdersPrivilegedPanel () {
 		super ();
@@ -40,7 +39,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		*/
 
 		addTop ( Utils.getEmblemsCache ( "orders" ).getLegend () );
-		doFilterOptions ();
 
 		checkNoAvailableOrders ();
 
@@ -88,7 +86,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						insert ( form, index );
 						alignOrdersInCache ( ord, multi );
 					}
-					else if ( status == Order.CLOSED || status == Order.SHIPPED ) {
+					else if ( status == Order.CLOSED ) {
 						multi = canMultiUser ( object );
 
 						if ( multi == true ) {
@@ -96,9 +94,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 							closedOrderAlert ( form, true );
 							index = getSortedPosition ( object );
 							insert ( form, index );
-
-							if ( status == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
-								form.setVisible ( false );
 						}
 
 						alignOrdersInCache ( ord, multi );
@@ -194,45 +189,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		myself = this;
 	}
 
-	private void doFilterOptions () {
-		filter = new OrdersHubWidget () {
-			public void doFilter ( boolean show, Date start, Date end, FromServer supplier ) {
-				int num;
-				FromServerForm form;
-				FromServer ord;
-
-				if ( hasOrders == false )
-					return;
-
-				num = myself.getWidgetCount ();
-
-				for ( int i = 2; i < num; i++ ) {
-					form = ( FromServerForm ) myself.getWidget ( i );
-					ord = form.getObject ().getObject ( "baseorder" );
-
-					if ( show == true ) {
-						if ( ord.getDate ( "startdate" ).after ( start ) &&
-								ord.getDate ( "enddate" ).before ( end ) &&
-								( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
-							form.setVisible ( true );
-						}
-						else {
-							form.setVisible ( false );
-						}
-					}
-					else {
-						if ( ord.getInt ( "status" ) == Order.SHIPPED )
-							form.setVisible ( false );
-						else
-							form.setVisible ( true );
-					}
-				}
-			}
-		};
-
-		addTop ( filter );
-	}
-
 	private void closedOrderAlert ( FromServerForm form, boolean doit ) {
 		InfoCell alert;
 
@@ -296,7 +252,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		tdate = object.getDate ( "enddate" );
 
-		for ( i = 2; i < num; i++ ) {
+		for ( i = 1; i < num; i++ ) {
 			iter = ( FromServerForm ) getWidget ( i );
 			object_2 = iter.getObject ();
 
@@ -311,9 +267,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	}
 
 	private void checkNoAvailableOrders () {
-		if ( getWidgetCount () == 2 ) {
+		if ( getWidgetCount () == 1 ) {
 			hasOrders = false;
-			insert ( new Label ( "Non ci sono ordini aperti" ), 2 );
+			insert ( new Label ( "Non ci sono ordini aperti" ), 1 );
 		}
 	}
 
@@ -333,7 +289,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 2 );
+			remove ( 1 );
 		}
 
 		uorder = new OrderUser ();
@@ -454,7 +410,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
-			remove ( 2 );
+			remove ( 1 );
 		}
 
 		uorder = new OrderUser ();
@@ -480,6 +436,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm form;
 
 		order = uorder.getObject ( "baseorder" );
+		if ( order.getInt ( "status" ) == Order.SHIPPED )
+			return;
+
 		form = ( FromServerForm ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
 
 		if ( form != null ) {
@@ -513,9 +472,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				form = doUneditableOrderRow ( order );
 				insert ( form, index );
 				alignOrderRow ( form, uorder );
-
-				if ( order.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false )
-					form.setVisible ( false );
 			}
 		}
 	}
@@ -654,7 +610,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		index = -1;
 
 		if ( hasOrders == true ) {
-			for ( int i = 2; i < getWidgetCount (); i++ ) {
+			for ( int i = 1; i < getWidgetCount (); i++ ) {
 				iter = ( FromServerForm ) getWidget ( i );
 				if ( iter.isOpen () == true ) {
 					index = iter.getObject ().getObject ( "baseorder" ).getLocalID ();
@@ -672,7 +628,5 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		params = new ObjectRequest ( "Order" );
 		params.add ( "status", Order.OPENED );
 		Utils.getServer ().testObjectReceive ( params );
-
-		filter.doFilter ();
 	}
 }
