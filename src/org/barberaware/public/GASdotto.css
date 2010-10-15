@@ -499,11 +499,17 @@ fieldset legend {
 	-moz-border-radius:	3px;
 }
 
-input, textarea, select {
+input, select {
 	margin:			1px;
 	padding:		2px;
 	float:			left;
 	height:			25px;
+}
+
+textarea {
+	margin:			1px;
+	padding:		2px;
+	float:			left;
 }
 
 br {
