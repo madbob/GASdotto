@@ -362,6 +362,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		FromServer prod_internal;
 		boolean found;
 		ProductUserSelector selector;
+		HTMLTable.RowFormatter row_format;
 		FromServer prod;
 		FromServer sel_prod;
 
@@ -371,9 +372,12 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 				selector.clear ();
+				selector.setVisible ( true );
 			}
 		}
 		else {
+			row_format = main.getRowFormatter ();
+
 			/**
 				TODO	Qui un ordinamento degli array eviterebbe di fare tanti
 					giri ed ottimizzare
@@ -406,13 +410,21 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 					if ( sel_prod.equals ( prod_internal ) ) {
 						selector.setValue ( prod.duplicate () );
+
+						if ( editable == false )
+							row_format.setVisible ( i, true );
+
 						found = true;
 						break;
 					}
 				}
 
-				if ( found == false )
+				if ( found == false ) {
 					selector.clear ();
+
+					if ( editable == false )
+						row_format.setVisible ( i, false );
+				}
 			}
 		}
 

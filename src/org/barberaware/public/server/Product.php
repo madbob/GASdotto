@@ -113,6 +113,14 @@ class Product extends FromServer {
 
 		return parent::save ( $obj );
 	}
+
+	public function destroy ( $obj ) {
+		$query = sprintf ( "UPDATE Product SET previous_description = %d WHERE previous_description = %d", $obj->previous_description, $obj->id );
+		query_and_check ( $query, "Impossibile allineare riferimenti storici del prodotto" );
+
+		parent::destroy ( $obj );
+		return $obj->id;
+	}
 }
 
 ?>

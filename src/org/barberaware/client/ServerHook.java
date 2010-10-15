@@ -107,7 +107,7 @@ public class ServerHook {
 		builder = new RequestBuilder ( method, getURL () + script );
 
 		try {
-			builder.setTimeoutMillis ( 15000 );
+			builder.setTimeoutMillis ( 20000 );
 			builder.sendRequest ( contents, callback );
 			engageLoadingBar ();
 		}
@@ -188,6 +188,15 @@ public class ServerHook {
 		monitor.objects.put ( id, obj );
 	}
 
+	private void nextObjectReceive () {
+		ObjectRequest next;
+
+		if ( monitorSchedulingQueue.size () != 0 ) {
+			next = ( ObjectRequest ) monitorSchedulingQueue.remove ( 0 );
+			testObjectReceiveImpl ( next );
+		}
+	}
+
 	private void executeMonitor ( final ServerMonitor monitor, ObjectRequest params ) {
 		params.put ( "has", monitor.comparingObjects );
 		executingMonitor++;
@@ -195,14 +204,8 @@ public class ServerHook {
 		serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				JSONToObjects ( response );
-
 				executingMonitor--;
-
-				if ( monitorSchedulingQueue.size () != 0 ) {
-					ObjectRequest next;
-					next = ( ObjectRequest ) monitorSchedulingQueue.remove ( 0 );
-					testObjectReceiveImpl ( next );
-				}
+				nextObjectReceive ();
 			}
 		} );
 	}
@@ -210,11 +213,13 @@ public class ServerHook {
 	private void testObjectReceiveImpl ( ObjectRequest params ) {
 		ServerMonitor tmp;
 
-		if ( lastRequest.testAndSet ( params ) == false )
-			return;
-
-		tmp = getMonitor ( params.getType () );
-		executeMonitor ( tmp, params );
+		if ( lastRequest.testAndSet ( params ) == false ) {
+			nextObjectReceive ();
+		}
+		else {
+			tmp = getMonitor ( params.getType () );
+			executeMonitor ( tmp, params );
+		}
 	}
 
 	private ServerMonitor getMonitor ( String type ) {

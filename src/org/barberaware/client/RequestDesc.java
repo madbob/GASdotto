@@ -39,7 +39,7 @@ public class RequestDesc {
 		now = System.currentTimeMillis ();
 		params_str = testable.toString ();
 
-		if ( params == params_str && now - date < 500 )
+		if ( params.equals ( params_str ) && now - date < 500 )
 			ret = false;
 
 		params = params_str;

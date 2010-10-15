@@ -459,6 +459,7 @@ function install_main_db () {
 					shippingdate date,
 					nextdate varchar ( 100 ) default '0',
 					anticipated varchar ( 100 ),
+					mail_summary_sent boolean,
 					primary key ( id )
 				)"
 	);
