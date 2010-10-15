@@ -304,8 +304,24 @@ class Order extends FromServer {
 						}
 
 						$user_total = format_price ( round ( $user_total, 2 ) );
-						$text .= "\nPer un totale di " . $user_total . ".\n\n";
-						$html .= '</table><p>Per un totale di ' . $user_total . '</p></body></html>';
+
+						$text .= "\nPer un totale di " . $user_total . ".\n";
+						$text .= "\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
+
+						$html .= '</table><p>Per un totale di ' . $user_total . '</p>';
+						$html .= '<p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
+
+						foreach ( $supplier->getAttribute ( 'references' )->value as $ref ) {
+							if ( ( $ref->getAttribute ( 'mail' )->value != "" ) )
+								$mail = $ref->getAttribute ( 'mail' )->value;
+							else
+								$mail = $ref->getAttribute ( 'mail2' )->value;
+
+							$text .= "\t" . ( $ref->getAttribute ( 'firstname' )->value ) . " " . ( $ref->getAttribute ( 'surname' )->value ) . " - " . $mail . "\n";
+							$html .= "<li>" . ( $ref->getAttribute ( 'firstname' )->value ) . " " . ( $ref->getAttribute ( 'surname' )->value ) . " - <a href=\"mailto:" . $mail . "\">" . $mail . "</a></li>";
+						}
+
+						$html .= '</ul></body></html>';
 
 						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, $text, $html );
 					}
@@ -324,6 +340,14 @@ class Order extends FromServer {
 			$obj->status = 2;
 
 		return parent::save ( $obj );
+	}
+
+	public function destroy ( $obj ) {
+		$query = sprintf ( "DELETE FROM OrderUser WHERE baseorder = %d", $obj->id );
+		query_and_check ( $query, "Impossibile rimuovere ordini su ordine eliminato" );
+
+		parent::destroy ( $obj );
+		return $obj->id;
 	}
 }
 

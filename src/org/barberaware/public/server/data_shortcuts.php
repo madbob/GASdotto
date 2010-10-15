@@ -37,7 +37,7 @@ switch ( $_GET [ 'type' ] ) {
 		$tmp = new Product ();
 
 		$query = sprintf ( "SELECT id FROM %s
-					WHERE archived = false AND supplier = %d AND
+					WHERE archived = false AND supplier = %d AND available = true AND
 					id NOT IN ( SELECT target FROM orders_products WHERE parent = %d ) AND
 					previous_description NOT IN ( SELECT target FROM orders_products WHERE parent = %d )",
 						$tmp->tablename, $ord->getAttribute ( 'supplier' )->value->getAttribute ( 'id' )->value, $order, $order );

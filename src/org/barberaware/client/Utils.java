@@ -207,6 +207,11 @@ public class Utils {
 		FromServer comp_first;
 		FromServer comp_second;
 
+		if ( first == null && second == null )
+			return true;
+		else if ( first == null || second == null )
+			return false;
+
 		num_first = first.size ();
 		num_second = second.size ();
 

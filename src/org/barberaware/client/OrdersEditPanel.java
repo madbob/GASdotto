@@ -658,7 +658,6 @@ public class OrdersEditPanel extends GenericPanel {
 
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Order" );
-		Utils.getServer ().testObjectReceive ( "Product" );
 		filter.doFilter ();
 	}
 }

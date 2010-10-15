@@ -244,7 +244,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		FromServerForm iter;
 
 		if ( hasOrders == false )
-			return 2;
+			return 1;
 
 		num = getWidgetCount ();
 		if ( object == null )
