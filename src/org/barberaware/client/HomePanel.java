@@ -244,14 +244,18 @@ public class HomePanel extends GenericPanel {
 		orders.getTable ().addTableListener ( new TableListener () {
 			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
 				Hidden id;
-				PlainFillBox table;
+				FlexTable table;
 
-				if ( row == 0 )
-					return;
+				table = ( FlexTable ) sender;
 
-				table = ( PlainFillBox ) sender;
-				id = ( Hidden ) table.getTable ().getWidget ( row, 1 );
-				goTo ( "orders::" + id.getValue () );
+				try {
+					id = ( Hidden ) table.getWidget ( row, 1 );
+					if ( id != null )
+						goTo ( "orders::" + id.getValue () );
+				}
+				catch ( Exception e ) {
+					/* dummy */
+				}
 			}
 		} );
 

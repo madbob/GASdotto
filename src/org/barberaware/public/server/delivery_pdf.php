@@ -127,9 +127,10 @@ array_push ( $header, 'Totale' );
 if ( $_GET [ 'type' ] == 'saved' )
 	array_push ( $header, 'Prezzato' );
 else
-	array_push ( $header, 'Pagato' );
+	array_push ( $header, 'Totale Pagato' );
 
 array_push ( $header, 'Stato Consegna' );
+array_push ( $header, 'Utenti' );
 
 /*
 	Format data
@@ -170,8 +171,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$surname = ellipse_string ( $order_user->baseuser->surname, 12 );
 	$firstname = ellipse_string ( $order_user->baseuser->firstname, 12 );
 
-	$n = sprintf ( "%s<br />%s", $surname, $firstname );
-	$row [] = $n;
+	$user_name = sprintf ( "%s<br />%s", $surname, $firstname );
+	$row [] = $user_name;
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
@@ -229,19 +230,25 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		unset ( $prod_user );
 	}
 
-	$row [] = format_price ( round ( $user_total, 2 ), false );
-	$row [] = format_price ( round ( $user_total_ship, 2 ), false );
-	$row [] = format_price ( round ( $user_total + $user_total_ship, 2 ), false );
-	$row [] = format_price ( round ( $shipped_total, 2 ), false );
+	$row [] = ( format_price ( round ( $user_total, 2 ), false ) ) . '<br />';
+	$row [] = ( format_price ( round ( $user_total_ship, 2 ), false ) ) . '<br />';
+	$row [] = ( format_price ( round ( $user_total + $user_total_ship, 2 ), false ) ) . '<br />';
+	$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . '<br />';
 
 	if ( $order_user->status == 1 )
-		$row [] = 'Parzialmente Consegnato';
+		$row [] = 'Parzialmente Consegnato<br />';
 	else if ( $order_user->status == 2 )
-		$row [] = 'Consegnato';
+		$row [] = 'Consegnato<br />';
 	else if ( $order_user->status == 3 )
-		$row [] = 'Prezzato';
+		$row [] = 'Prezzato<br />';
 	else
-		$row [] = "";
+		$row [] = '<br />';
+
+	/*
+		Il nome dell'utente viene messo sia all'inizio che alla fine della riga per
+		facilitare la lettura. Richiesto collateralmente a bug #146
+	*/
+	$row [] = $user_name;
 
 	$data [] = $row;
 
@@ -252,7 +259,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 unset ( $contents );
 
 $row = array ();
-$row [] = "Quantita' Totali";
+$row [] = 'Quantita\' Totali';
 for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 	$qs = $quantities_sums [ $i ];
 	$q = comma_format ( $qs );
@@ -263,20 +270,20 @@ for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 		$q .= ' ( ' . $d . ' )';
 	}
 
-	$row [] = $q;
+	$row [] = $q . '<br />';
 }
 $data [] = $row;
 
 if ( $has_stocks == true ) {
 	$row = array ();
-	$row [] = "Numero Confezioni";
+	$row [] = 'Numero Confezioni<br />';
 
 	for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 		$prod = $products [ $i ];
 		$stock = $prod->getAttribute ( "stock_size" )->value;
 
 		if ( $stock <= 0.0 ) {
-			$row [] = "";
+			$row [] = '<br />';
 		}
 		else {
 			$quantity = $quantities_sums [ $i ];
@@ -287,7 +294,7 @@ if ( $has_stocks == true ) {
 			if ( $missing > 0 )
 				$q .= ',<br />' . $missing . ' non assegnati';
 
-			$row [] = $q;
+			$row [] = $q . '<br />';
 		}
 	}
 
@@ -298,57 +305,57 @@ unset ( $products );
 
 $gran_total = 0;
 $row = array ();
-$row [] = "Totale Prezzo Prodotti";
+$row [] = 'Totale Prezzo Prodotti';
 foreach ( $products_sums as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p;
+	$row [] = $p . '<br />';
 	$gran_total += $r;
 }
-$row [] = format_price ( round ( $gran_total, 2 ), false );
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
 $data [] = $row;
 
 $gran_total = 0;
 $row = array ();
-$row [] = "Totale Prezzo Trasporto";
+$row [] = 'Totale Prezzo Trasporto';
 foreach ( $shipping_price as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p;
+	$row [] = $p . '<br />';
 	$gran_total += $r;
 }
-$row [] = '';
-$row [] = format_price ( round ( $gran_total, 2 ), false );
+$row [] = '<br />';
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
 $data [] = $row;
 
 $gran_total = 0;
 $row = array ();
-$row [] = "Totale";
+$row [] = 'Totale<br />';
 for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
 	$ps = $products_sums [ $i ] + $shipping_price [ $i ];
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p;
+	$row [] = $p . '<br />';
 	$gran_total += $r;
 }
-$row [] = '';
-$row [] = '';
-$row [] = format_price ( round ( $gran_total, 2 ), false );
+$row [] = '<br />';
+$row [] = '<br />';
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
 $data [] = $row;
 
 $gran_total = 0;
 $row = array ();
-$row [] = "Totale Pagato";
+$row [] = 'Totale Pagato<br />';
 foreach ( $shipped_sums as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p;
+	$row [] = $p . '<br />';
 	$gran_total += $r;
 }
-$row [] = '';
-$row [] = '';
-$row [] = '';
-$row [] = format_price ( round ( $gran_total, 2 ), false ) . "\n";
+$row [] = '<br />';
+$row [] = '<br />';
+$row [] = '<br />';
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
 $data [] = $row;
 
 /*
