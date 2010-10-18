@@ -271,6 +271,7 @@ public abstract class FromServer implements Comparator {
 			try {
 				builder.sendRequest ( obj.toString (), true_callback );
 				builder.setTimeoutMillis ( 15000 );
+				Utils.getServer ().engageLoadingBar ();
 			}
 			catch ( RequestException e ) {
 				Utils.showNotification ( "Impossibile salvare oggetto" );

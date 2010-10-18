@@ -282,7 +282,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			main.setWidget ( row, i, wid );
 		}
 
-		rows.add ( element );
+		rows.add ( row - 1, element );
 	}
 
 	public void setElements ( ArrayList elements ) {

@@ -452,7 +452,7 @@ public class ServerHook {
 			loadingDialog.hide ();
 	}
 
-	private void engageLoadingBar () {
+	public void engageLoadingBar () {
 		if ( CurrentRequests == 0 )
 			loadingAlert ( true );
 
