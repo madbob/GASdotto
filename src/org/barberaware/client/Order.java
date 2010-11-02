@@ -75,7 +75,7 @@ public class Order extends FromServer {
 		addAttribute ( "shippingdate", FromServer.DATE );
 		addAttribute ( "nextdate", FromServer.STRING );
 		addAttribute ( "anticipated", FromServer.PERCENTAGE );
-		addAttribute ( "mail_summary_sent", FromServer.BOOLEAN );
+		addAttribute ( "mail_summary_sent", FromServer.DATE );
 
 		setDate ( "startdate", new Date ( System.currentTimeMillis () ) );
 		setInt ( "status", OPENED );

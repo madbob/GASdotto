@@ -184,6 +184,10 @@ public class FromServerForm extends Composite {
 		return main.isOpen ();
 	}
 
+	public void setEditableMode ( int editable ) {
+		editMode = editable;
+	}
+
 	public void addBottomButton ( String image, String text, ClickListener listener ) {
 		PushButton button;
 

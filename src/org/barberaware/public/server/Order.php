@@ -31,7 +31,7 @@ class Order extends FromServer {
 		$this->addAttribute ( "shippingdate", "DATE" );
 		$this->addAttribute ( "nextdate", "STRING" );
 		$this->addAttribute ( "anticipated", "STRING" );
-		$this->addAttribute ( "mail_summary_sent", "BOOLEAN" );
+		$this->addAttribute ( "mail_summary_sent", "DATE" );
 	}
 
 	public function get ( $request, $compress ) {
@@ -218,11 +218,11 @@ class Order extends FromServer {
 				}
 			}
 
-			if ( $obj->mail_summary_sent == "true" ) {
+			if ( isset ( $obj->mail_summary_sent ) ) {
 				$test = new Order ();
 				$test->readFromDB ( $obj->id );
 
-				if ( $test->getAttribute ( 'mail_summary_sent' )->value == false ) {
+				if ( $test->getAttribute ( 'mail_summary_sent' )->value != $obj->mail_summary_sent ) {
 					$products = $test->getAttribute ( 'products' )->value;
 					usort ( $products, 'sort_product_by_name' );
 

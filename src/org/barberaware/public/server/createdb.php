@@ -459,7 +459,7 @@ function install_main_db () {
 					shippingdate date,
 					nextdate varchar ( 100 ) default '0',
 					anticipated varchar ( 100 ),
-					mail_summary_sent boolean,
+					mail_summary_sent date,
 					primary key ( id )
 				)"
 	);
@@ -592,7 +592,7 @@ function upgrade_main_db () {
 		=======================================================================================
 	*/
 
-        $query = sprintf ( "ALTER TABLE Orders ADD COLUMN mail_summary_sent boolean" );
+        $query = sprintf ( "ALTER TABLE Orders ADD COLUMN mail_summary_sent date" );
 	query_and_check ( $query, "Impossibile aggiornare tabella orders" );
 	$query = sprintf ( "ALTER TABLE Orders ALTER COLUMN mail_summary_sent SET DEFAULT false" );
 	query_and_check ( $query, "Impossibile aggiornare tabella orders" );

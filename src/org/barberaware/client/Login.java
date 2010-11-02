@@ -115,7 +115,7 @@ public class Login extends Composite {
 
 		mail = gas.getString ( "mail" );
 		if ( mail.equals ( "" ) == false )
-			container.add ( new Label ( "Per contattatare il gruppo, invia una mail a " + mail ) );
+			container.add ( new Label ( "Per contattare il gruppo, invia una mail a " + mail ) );
 
 		return container;
 	}

@@ -82,8 +82,10 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 						constraintsDialog.hide ();
 
 					input = quantity.getVal ();
-					if ( input == 0 )
+					if ( input == 0 ) {
+						setEffectiveQuantity ( input );
 						return;
+					}
 
 					prod = currentValue.getObject ( "product" );
 
@@ -108,8 +110,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 					}
 
 					val = prod.getFloat ( "unit_size" );
-					if ( val != 0 )
-						setEffectiveQuantity ( input );
+					setEffectiveQuantity ( input );
 				}
 			} );
 

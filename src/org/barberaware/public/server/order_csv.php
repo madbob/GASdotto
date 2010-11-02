@@ -35,6 +35,9 @@ $supplier = $order->getAttribute ( 'supplier' )->value;
 $supplier_name = $supplier->getAttribute ( 'name' )->value;
 $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 
+header ( "Content-Type: plain/text" );
+header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
+
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
@@ -111,22 +114,33 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			if ( $unit <= 0.0 )
 				$q = $prod_user->quantity;
 			else
-				$q = ( $prod_user->quantity / $unit );
+				$q = round ( $prod_user->quantity / $unit );
 
 			$q = comma_format ( $q );
 
 			if ( $prod_user->delivered != 0 ) {
 				$d = comma_format ( $prod_user->delivered );
 				$q .= ' ( ' . $d . ' )';
+				$quantity = $prod_user->delivered;
+			}
+			else {
+				$quantity = $prod_user->quantity;
 			}
 
 			$output .= $q . ";";
 
-			$sum = $prod_user->quantity * $uprice;
+			$sum = $quantity * $uprice;
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 
-			$sum = ( $prod_user->quantity * $sprice );
+			/*
+			if ( $unit <= 0 )
+				$sum = ( $quantity * $sprice );
+			else
+				$sum = ( round ( $quantity / $unit ) * $sprice );
+			*/
+			$sum = ( $quantity * $sprice );
+
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
@@ -243,8 +257,6 @@ foreach ( $shipped_sums as $ps ) {
 }
 $output .= ";;;;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
 
-header ( "Content-Type: plain/text" );
-header ( 'Content-Disposition: inline; filename="' . 'consegne_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
 echo $output;
 
 ?>

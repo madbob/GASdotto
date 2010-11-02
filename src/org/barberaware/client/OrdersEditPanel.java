@@ -104,6 +104,8 @@ public class OrdersEditPanel extends GenericPanel {
 
 				private void checkMailSummary ( FromServerForm form ) {
 					HorizontalPanel container;
+					Date sent;
+					String text;
 					FromServer ord;
 					FromServerButton button;
 
@@ -115,9 +117,6 @@ public class OrdersEditPanel extends GenericPanel {
 					if ( ord.getInt ( "status" ) != Order.CLOSED )
 						return;
 
-					if ( ord.getBool ( "mail_summary_sent" ) == true )
-						return;
-
 					container = ( HorizontalPanel ) form.retriveInternalWidget ( "mail_summary" );
 					if ( container == null ) {
 						container = new HorizontalPanel ();
@@ -126,11 +125,17 @@ public class OrdersEditPanel extends GenericPanel {
 						form.setExtraWidget ( "mail_summary", container );
 						form.insert ( container, 1 );
 
-						container.add ( new Label ( "Questo ordine è stato chiuso. Clicca il bottone per inviare una mail di riscontro a coloro che hanno effettuato una prenotazione." ) );
+						text = "Questo ordine è stato chiuso. Clicca il bottone per inviare una mail di riscontro a coloro che hanno effettuato una prenotazione.";
+
+						sent = ord.getDate ( "mail_summary_sent" );
+						if ( sent != null )
+							text += " L'ultima mail di riepilogo è stata inviata il " + Utils.printableDate ( sent );
+
+						container.add ( new Label ( text ) );
 
 						button = new FromServerButton ( ord, "Invia", new FromServerCallback () {
 							public void execute ( final FromServer object ) {
-								object.setBool ( "mail_summary_sent", true );
+								object.setDate ( "mail_summary_sent", new Date ( System.currentTimeMillis () ) );
 
 								object.save ( new ServerResponse () {
 									protected void onComplete ( JSONValue response ) {

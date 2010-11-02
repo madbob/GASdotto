@@ -186,29 +186,33 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			if ( $unit <= 0.0 )
 				$q = $prod_user->quantity;
 			else
-				$q = ( $prod_user->quantity / $unit );
+				$q = round ( $prod_user->quantity / $unit );
 
 			$q = comma_format ( $q );
 
 			if ( $prod_user->delivered != 0 ) {
 				$d = comma_format ( $prod_user->delivered );
 				$q .= ' ( ' . $d . ' )';
+				$quantity = $prod_user->delivered;
+			}
+			else {
+				$quantity = $prod_user->quantity;
 			}
 
 			$row [] = $q . '<br />';
 
 			/*
-				Per i prodotti con pezzatura, il prezzo di trasporto viene
-				calcolato in funzione dei numeri di pezzi
-			*/
 			if ( $unit <= 0 )
-				$sum = ( $prod_user->quantity * $sprice );
+				$sum = ( $quantity * $sprice );
 			else
-				$sum = ( ( $prod_user->quantity / $unit ) * $sprice );
+				$sum = ( round ( $quantity / $unit ) * $sprice );
+			*/
+			$sum = ( $quantity * $sprice );
+
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
-			$sum = $prod_user->quantity * $uprice;
+			$sum = $quantity * $uprice;
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 

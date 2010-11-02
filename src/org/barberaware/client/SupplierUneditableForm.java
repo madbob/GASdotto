@@ -37,6 +37,9 @@ public class SupplierUneditableForm extends FromServerForm {
 		PastOrdersList past_orders;
 		FromServerTable references;
 
+		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN )
+			setEditableMode ( FromServerForm.FULL_EDITABLE );
+
 		emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
 
 		hor = new HorizontalPanel ();
@@ -85,13 +88,39 @@ public class SupplierUneditableForm extends FromServerForm {
 		add ( frame );
 		frame.add ( past_orders );
 
-		frame = new CaptionPanel ( "Referenti" );
-		add ( frame );
-		references = new FromServerTable ();
-		references.addColumn ( "Nome", "name", false );
-		references.addColumn ( "Telefono", "phone", false );
-		references.addColumn ( "Mail", "mail", false );
-		frame.add ( getPersonalizedWidget ( "references", references ) );
+		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) {
+			MultiSelector editable_references;
+
+			cframe = new CustomCaptionPanel ( "Amministratori" );
+			add ( cframe );
+
+			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
+				public boolean check ( FromServer obj, String text ) {
+					int priv;
+					priv = obj.getInt ( "privileges" );
+					return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
+				}
+			} );
+			cframe.addPair ( "Referenti", this.getPersonalizedWidget ( "references", editable_references ) );
+
+			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
+				public boolean check ( FromServer obj, String text ) {
+					int priv;
+					priv = obj.getInt ( "privileges" );
+					return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
+				}
+			} );
+			cframe.addPair ( "Addetti Consegne", this.getPersonalizedWidget ( "carriers", editable_references ) );
+		}
+		else {
+			frame = new CaptionPanel ( "Referenti" );
+			add ( frame );
+			references = new FromServerTable ();
+			references.addColumn ( "Nome", "name", false );
+			references.addColumn ( "Telefono", "phone", false );
+			references.addColumn ( "Mail", "mail", false );
+			frame.add ( getPersonalizedWidget ( "references", references ) );
+		}
 
 		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
 			FilesStaticList files;
