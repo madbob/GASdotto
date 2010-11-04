@@ -46,8 +46,17 @@ class Probe extends FromServer {
 		$this->getAttribute ( "writable" )->value = is_writable ( "./config.php" );
 
 		$drivers = PDO::getAvailableDrivers ();
-		$this->getAttribute ( "dbdrivers" )->value = join ( ";", $drivers );
-		$this->getAttribute ( "dbdriver" )->value = $drivers [ 0 ];
+		$valid_drivers = array ();
+
+		foreach ( $drivers as $driver ) {
+			if ( $driver == 'pgsql' )
+				$valid_drivers [] = 'PostgreSQL/pgsql';
+			else if ( $driver == 'mysql' )
+				$valid_drivers [] = 'MySQL/mysql';
+		}
+
+		$this->getAttribute ( "dbdrivers" )->value = join (';', $valid_drivers);
+		$this->getAttribute ( "dbdriver" )->value = $valid_drivers [ 0 ];
 
 		return $this->exportable ( $request, $compress );
 	}

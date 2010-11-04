@@ -38,9 +38,10 @@ public class FromServerForm extends Composite {
 	private ArrayList		addictionalData;
 	private boolean			forceSave;
 
-	public static int		FULL_EDITABLE		= 0;
-	public static int		EDITABLE_UNDELETABLE	= 1;
-	public static int		NOT_EDITABLE		= 2;
+	public static int		FULL_EDITABLE				= 0;
+	public static int		EDITABLE_UNDELETABLE			= 1;
+	public static int		NOT_EDITABLE				= 2;
+	public static int		EDITABLE_UNDELETABLE_UNCANCELLABLE	= 3;
 
 	/****************************************************************** init */
 
@@ -275,24 +276,26 @@ public class FromServerForm extends Composite {
 			panel.add ( button, "Elimina" );
 		}
 
-		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
-				if ( object.isValid () == false ) {
-					invalidate ();
+		if ( editable != EDITABLE_UNDELETABLE_UNCANCELLABLE ) {
+			button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
+				public void onClick ( Widget sender ) {
+					if ( object.isValid () == false ) {
+						invalidate ();
+					}
+					else {
+						resetObject ();
+
+						for ( int i = 0; i < callbacks.size (); i++ )
+							( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onReset ( myself );
+
+						main.setOpen ( false );
+					}
 				}
-				else {
-					resetObject ();
+			} );
+			panel.add ( button, "Annulla" );
+		}
 
-					for ( int i = 0; i < callbacks.size (); i++ )
-						( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onReset ( myself );
-
-					main.setOpen ( false );
-				}
-			}
-		} );
-		panel.add ( button, "Annulla" );
-
-		if ( editable == FULL_EDITABLE || editable == EDITABLE_UNDELETABLE ) {
+		if ( editable == FULL_EDITABLE || editable == EDITABLE_UNDELETABLE || editable == EDITABLE_UNDELETABLE_UNCANCELLABLE ) {
 			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					if ( forceSave == true || contentsChanged () )

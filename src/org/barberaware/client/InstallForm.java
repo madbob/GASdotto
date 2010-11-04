@@ -111,7 +111,7 @@ public class InstallForm extends Composite {
 		probe.setBool ( "upgrade", true );
 		probe.setBool ( "trylocate", true );
 
-		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
+		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE_UNCANCELLABLE );
 		form.alwaysOpened ( true );
 
 		form.setCallback ( new FromServerFormCallbacks () {
@@ -157,7 +157,7 @@ public class InstallForm extends Composite {
 		probe.setBool ( "upgrade", true );
 		probe.setBool ( "trylocate", false );
 
-		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
+		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE_UNCANCELLABLE );
 		form.alwaysOpened ( true );
 
 		form.setCallback ( new FromServerFormCallbacks () {
@@ -181,7 +181,7 @@ public class InstallForm extends Composite {
 	private void fillForm ( Probe probe ) {
 		FromServerForm form;
 
-		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE );
+		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE_UNCANCELLABLE );
 		form.alwaysOpened ( true );
 
 		form.setCallback ( new FromServerFormCallbacks () {
@@ -202,13 +202,28 @@ public class InstallForm extends Composite {
 	}
 
 	private Widget doDbSettingForm ( FromServerForm form, Probe probe ) {
+		String [] drivers;
 		CustomCaptionPanel db;
 
 		db = new CustomCaptionPanel ( "Impostazione del Database" );
 		db.addPair ( "Nome del Database", form.getWidget ( "dbname" ) );
 		db.addPair ( "Host del Database", form.getWidget ( "dbhost" ) );
+
+		drivers = probe.getString ( "dbdrivers" ).split ( ";" );
+		if ( drivers.length > 1 ) {
+			db.addPair ( "Tipo di Database", form.getPersonalizedWidget ( "dbdriver", new PrimitiveStringSelect ( drivers ) ) );
+		}
+		else {
+			/*
+				Di questo non ci sarebbe bisogno perche' il driver viene gia'
+				inizializzato nel Probe, ma male non fa
+			*/
+			probe.setString ( "dbdriver", drivers [ 0 ] );
+		}
+
 		db.addPair ( "Username", form.getWidget ( "dbuser" ) );
 		db.addPair ( "Password", form.getPersonalizedWidget ( "dbpassword", new PasswordBox () ) );
+
 		return db;
 	}
 
