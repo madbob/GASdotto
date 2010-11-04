@@ -91,9 +91,8 @@ public class FromServerForm extends Composite {
 		main.add ( contents );
 
 		editMode = editable;
-		buttons = doButtons ( editable );
-		contents.add ( buttons );
-		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+		buttons = null;
+		placeButtons ();
 
 		alwaysShow = false;
 
@@ -185,7 +184,10 @@ public class FromServerForm extends Composite {
 	}
 
 	public void setEditableMode ( int editable ) {
-		editMode = editable;
+		if ( editMode != editable ) {
+			editMode = editable;
+			placeButtons ();
+		}
 	}
 
 	public void addBottomButton ( String image, String text, ClickListener listener ) {
@@ -197,6 +199,15 @@ public class FromServerForm extends Composite {
 
 	public void forceNextSave ( boolean force ) {
 		forceSave = force;
+	}
+
+	private void placeButtons () {
+		if ( buttons != null )
+			contents.remove ( buttons );
+
+		buttons = doButtons ( editMode );
+		contents.add ( buttons );
+		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
 	}
 
 	private void noExplicitCallbacks () {

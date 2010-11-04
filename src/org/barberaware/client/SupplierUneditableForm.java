@@ -38,7 +38,7 @@ public class SupplierUneditableForm extends FromServerForm {
 		FromServerTable references;
 
 		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN )
-			setEditableMode ( FromServerForm.FULL_EDITABLE );
+			setEditableMode ( FromServerForm.EDITABLE_UNDELETABLE );
 
 		emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
 
@@ -90,26 +90,28 @@ public class SupplierUneditableForm extends FromServerForm {
 
 		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) {
 			MultiSelector editable_references;
+			FilterCallback filter;
 
 			cframe = new CustomCaptionPanel ( "Amministratori" );
 			add ( cframe );
 
-			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
+			filter = new FilterCallback () {
 				public boolean check ( FromServer obj, String text ) {
 					int priv;
 					priv = obj.getInt ( "privileges" );
 					return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
 				}
-			} );
+			};
+
+			/*
+				Questi due MultiSelector sono sbloccati nelle funzioni asincrone
+				di SuppliersPanel e SuppliersEditPanel
+			*/
+
+			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, true, filter );
 			cframe.addPair ( "Referenti", this.getPersonalizedWidget ( "references", editable_references ) );
 
-			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
-				public boolean check ( FromServer obj, String text ) {
-					int priv;
-					priv = obj.getInt ( "privileges" );
-					return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
-				}
-			} );
+			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, true, filter );
 			cframe.addPair ( "Addetti Consegne", this.getPersonalizedWidget ( "carriers", editable_references ) );
 		}
 		else {

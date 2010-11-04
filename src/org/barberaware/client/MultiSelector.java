@@ -21,9 +21,12 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class MultiSelector extends Composite implements FromServerArray {
+import com.allen_sauer.gwt.log.client.Log;
+
+public class MultiSelector extends Composite implements FromServerArray, Lockable {
 	private VerticalPanel		main;
 
+	private boolean			locked;
 	private FilterCallback		filterCallback;
 
 	private SelectionDialog		dialog;
@@ -32,11 +35,12 @@ public class MultiSelector extends Composite implements FromServerArray {
 	/*
 		Il parametro "mode" si riferisce ai valori in SelectionDialog
 	*/
-	public MultiSelector ( String type, int mode, FilterCallback filter ) {
+	public MultiSelector ( String type, int mode, boolean lock, FilterCallback filter ) {
 		Button mod_button;
 
 		objectType = type;
 		filterCallback = filter;
+		locked = lock;
 
 		dialog = new SelectionDialog ( mode );
 		dialog.addCallback ( new SavingDialogCallback () {
@@ -58,31 +62,34 @@ public class MultiSelector extends Composite implements FromServerArray {
 		} );
 		main.add ( mod_button );
 
-		if ( type != null ) {
-			Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
-				public void onReceive ( FromServer object ) {
-					if ( checkValidity ( object ) == true )
-						dialog.addElementInList ( object );
-				}
+		if ( type != null && locked == false )
+			registerCallbacks ();
+	}
 
-				public void onModify ( FromServer object ) {
-					if ( checkValidity ( object ) == true )
-						dialog.refreshElement ( object );
-					else
-						dialog.removeElementInList ( object );
-				}
+	private void registerCallbacks () {
+		Utils.getServer ().onObjectEvent ( objectType, new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				if ( checkValidity ( object ) == true )
+					dialog.addElementInList ( object );
+			}
 
-				public void onDestroy ( FromServer object ) {
+			public void onModify ( FromServer object ) {
+				if ( checkValidity ( object ) == true )
+					dialog.refreshElement ( object );
+				else
 					dialog.removeElementInList ( object );
-				}
+			}
 
-				protected String debugName () {
-					return "MultiSelector su " + objectType;
-				}
-			} );
+			public void onDestroy ( FromServer object ) {
+				dialog.removeElementInList ( object );
+			}
 
-			Utils.getServer ().testObjectReceive ( type );
-		}
+			protected String debugName () {
+				return "MultiSelector su " + objectType;
+			}
+		} );
+
+		Utils.getServer ().testObjectReceive ( objectType );
 	}
 
 	public void clean () {
@@ -155,5 +162,14 @@ public class MultiSelector extends Composite implements FromServerArray {
 
 	public void refreshElement ( FromServer element ) {
 		dialog.refreshElement ( element );
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		if ( locked ) {
+			registerCallbacks ();
+			locked = false;
+		}
 	}
 }

@@ -37,7 +37,7 @@ public class SuppliersEditPanel extends GenericPanel {
 				supplier = ( Supplier ) supp;
 
 				if ( supp.isValid () == false || supplier.iAmReference () == true )
-					ver = commonFormBuilder ( supp );
+					ver = commonFormBuilder ( supp, true );
 				else
 					ver = new SupplierUneditableForm ( supplier );
 
@@ -45,7 +45,7 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 
 			protected FromServerForm doNewEditableRow () {
-				return commonFormBuilder ( new Supplier () );
+				return commonFormBuilder ( new Supplier (), false );
 			}
 
 			protected void customNew ( FromServer object, boolean true_new ) {
@@ -65,26 +65,38 @@ public class SuppliersEditPanel extends GenericPanel {
 			protected void asyncLoad ( FromServerForm form ) {
 				ObjectRequest params;
 				Lockable products;
+				Lockable references;
+				Supplier supplier;
+
+				supplier = ( Supplier ) form.getObject ();
 
 				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
 
 				params = new ObjectRequest ( "Product" );
-				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "supplier", supplier.getLocalID () );
 				Utils.getServer ().testObjectReceive ( params );
 
 				params = new ObjectRequest ( "Order" );
 				params.add ( "status", "any" );
-				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "supplier", supplier.getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
 
 				params = new ObjectRequest ( "OrderUser" );
 				params.add ( "all", 1 );
-				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "supplier", supplier.getLocalID () );
 				params.add ( "baseuser", Session.getUser ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
+
+				if ( supplier.iAmReference () == true || Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) {
+					references = ( Lockable ) form.retriveInternalWidget ( "references" );
+					references.unlock ();
+
+					references = ( Lockable ) form.retriveInternalWidget ( "carriers" );
+					references.unlock ();
+				}
 			}
 		};
 
@@ -130,7 +142,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 	}
 
-	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
+	private Widget attributesBuilder ( FromServerForm ver, Supplier supp, boolean lock ) {
 		VerticalPanel vertical;
 		HorizontalPanel hor;
 		MultiSelector references;
@@ -138,6 +150,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		CaptionPanel sframe;
 		OpenedOrdersList orders;
 		PastOrdersList past_orders;
+		FilterCallback filter;
 
 		vertical = new VerticalPanel ();
 
@@ -152,13 +165,15 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Nome Contatto", ver.getWidget ( "contact" ) );
 
-		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
+		filter = new FilterCallback () {
 			public boolean check ( FromServer obj, String text ) {
 				int priv;
 				priv = obj.getInt ( "privileges" );
 				return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
 			}
-		} );
+		};
+
+		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, lock, filter );
 		frame.addPair ( "Referenti", ver.getPersonalizedWidget ( "references", references ) );
 
 		/*
@@ -170,13 +185,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		if ( supp.isValid () == false )
 			references.addElement ( Session.getUser () );
 
-		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, new FilterCallback () {
-			public boolean check ( FromServer obj, String text ) {
-				int priv;
-				priv = obj.getInt ( "privileges" );
-				return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
-			}
-		} );
+		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, lock, filter );
 		frame.addPair ( "Addetti Consegne", ver.getPersonalizedWidget ( "carriers", references ) );
 
 		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
@@ -255,7 +264,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		return container;
 	}
 
-	private FromServerForm commonFormBuilder ( FromServer supp ) {
+	private FromServerForm commonFormBuilder ( FromServer supp, boolean lock ) {
 		final FromServerForm ver;
 		Supplier supplier;
 		TabPanel tabs;
@@ -271,7 +280,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		tabs.setAnimationEnabled ( true );
 		ver.add ( tabs );
 
-		tabs.add ( attributesBuilder ( ver, supplier ), "Dettagli" );
+		tabs.add ( attributesBuilder ( ver, supplier, lock ), "Dettagli" );
 		tabs.add ( productsBuilder ( ver, supplier ), "Prodotti" );
 
 		/*
