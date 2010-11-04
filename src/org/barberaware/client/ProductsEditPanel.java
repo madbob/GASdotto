@@ -41,13 +41,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		container.setWidth ( "100%" );
 		initWidget ( container );
 
-		main = new DeckPanel ();
-		container.add ( main );
-
-		main.add ( doListView () );
-		main.add ( doTableView () );
-
-		switchable = new ToggleButton ( "Visualizza Tabella", "Visualizza Lista" );
+		switchable = new ToggleButton ( new Image ( "images/view_details.png" ), new Image ( "images/view_list.png" ) );
 		switchable.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
 				ToggleButton but;
@@ -62,6 +56,12 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		switchable.setStyleName ( "clickable" );
 		container.add ( switchable );
 		container.setCellHorizontalAlignment ( switchable, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		main = new DeckPanel ();
+		container.add ( main );
+
+		main.add ( doListView () );
+		main.add ( doTableView () );
 
 		if ( enabled == false ) {
 			main.add ( new Label ( "Dopo aver confermato il salvataggio del fornitore, sarà qui possibile definirne i prodotti" ) );
@@ -378,7 +378,9 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 		table = new FromServerTable ();
 		table.addColumn ( "Nome", "name", false );
+		table.addColumn ( "Unità di Misura", "measure", true );
 		table.addColumn ( "Prezzo Unitario", "unit_price", true );
+		table.addColumn ( "Prezzo Trasporto", "shipping_price", true );
 		table.addColumn ( "Ordinabile", "available", true );
 		table.setEmptyWarning ( "Non ci sono prodotti" );
 		container.add ( table );
