@@ -41,6 +41,17 @@ public class FromServerTable extends Composite implements FromServerArray {
 			customWid = custom;
 			action = act;
 		}
+
+		public String getUneditable ( FromServer obj ) {
+			int type;
+
+			type = obj.getAttributeType ( attr );
+
+			if ( type == FromServer.OBJECT )
+				return obj.getObject ( attr ).getString ( "name" );
+			else
+				return obj.getString ( attr );
+		}
 	}
 
 	private FlexTable		main;
@@ -276,7 +287,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 				wid = new FromServerWidget ( element, c.attr );
 			}
 			else {
-				wid = new Label ( element.getString ( c.attr ) );
+				wid = new Label ( c.getUneditable ( element ) );
 			}
 
 			main.setWidget ( row, i, wid );
@@ -347,7 +358,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			}
 			else {
 				lab = ( Label ) main.getWidget ( row, i );
-				lab.setText ( element.getString ( c.attr ) );
+				lab.setText ( c.getUneditable ( element ) );
 			}
 		}
 	}

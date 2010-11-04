@@ -378,7 +378,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 		table = new FromServerTable ();
 		table.addColumn ( "Nome", "name", false );
-		table.addColumn ( "Unità di Misura", "measure", true );
+		table.addColumn ( "Unità di Misura", "measure", false );
 		table.addColumn ( "Prezzo Unitario", "unit_price", true );
 		table.addColumn ( "Prezzo Trasporto", "shipping_price", true );
 		table.addColumn ( "Ordinabile", "available", true );
