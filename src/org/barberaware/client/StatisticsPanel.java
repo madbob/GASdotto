@@ -169,7 +169,7 @@ public class StatisticsPanel extends GenericPanel {
 		layout.setWidget ( 0, 0, hor );
 		formatter.setColSpan ( 0, 0, 2 );
 
-		supplier = new FromServerSelector ( "Supplier", true, true );
+		supplier = new FromServerSelector ( "Supplier", true, true, false );
 		supplier.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				performProductsUpdate ();

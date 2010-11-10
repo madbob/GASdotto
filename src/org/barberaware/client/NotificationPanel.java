@@ -31,7 +31,7 @@ public class NotificationPanel extends GenericPanel {
 				private MultiSelector destinationSelect () {
 					MultiSelector users;
 
-					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, false, null );
+					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
 
 					users.addSelectionCallbacks ( "Seleziona solo Referenti",
 						new FilterCallback () {

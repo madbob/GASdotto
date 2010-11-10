@@ -67,18 +67,6 @@ public class SuppliersPanel extends GenericPanel {
 				params.add ( "baseuser", Session.getUser ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
-
-				/*
-					Questo funge in virtu' del fatto che in SupplierUneditableForm se l'utente
-					corrente e' un amministratore posso editare i referenti e gli addetti consegne
-				*/
-				if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) {
-					references = ( Lockable ) form.retriveInternalWidget ( "references" );
-					references.unlock ();
-
-					references = ( Lockable ) form.retriveInternalWidget ( "carriers" );
-					references.unlock ();
-				}
 			}
 		};
 

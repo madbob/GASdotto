@@ -404,7 +404,7 @@ public class OrdersEditPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Attributi" );
 					hor.add ( frame );
 
-					suppliers = new FromServerSelector ( "Supplier", true, true );
+					suppliers = new FromServerSelector ( "Supplier", true, true, false );
 					suppliers.addFilter ( new FromServerValidateCallback () {
 						public boolean checkObject ( FromServer object ) {
 							Supplier sup;

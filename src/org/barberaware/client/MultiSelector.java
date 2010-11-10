@@ -23,10 +23,10 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class MultiSelector extends Composite implements FromServerArray, Lockable {
+public class MultiSelector extends Composite implements FromServerArray {
 	private VerticalPanel		main;
 
-	private boolean			locked;
+	private boolean			callbacksInited;
 	private FilterCallback		filterCallback;
 
 	private SelectionDialog		dialog;
@@ -35,12 +35,12 @@ public class MultiSelector extends Composite implements FromServerArray, Lockabl
 	/*
 		Il parametro "mode" si riferisce ai valori in SelectionDialog
 	*/
-	public MultiSelector ( String type, int mode, boolean lock, FilterCallback filter ) {
+	public MultiSelector ( String type, int mode, FilterCallback filter ) {
 		Button mod_button;
 
 		objectType = type;
 		filterCallback = filter;
-		locked = lock;
+		callbacksInited = false;
 
 		dialog = new SelectionDialog ( mode );
 		dialog.addCallback ( new SavingDialogCallback () {
@@ -56,14 +56,16 @@ public class MultiSelector extends Composite implements FromServerArray, Lockabl
 		mod_button = new Button ( "Modifica Lista" );
 		mod_button.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
+				if ( callbacksInited == false ) {
+					registerCallbacks ();
+					callbacksInited = true;
+				}
+
 				dialog.center ();
 				dialog.show ();
 			}
 		} );
 		main.add ( mod_button );
-
-		if ( type != null && locked == false )
-			registerCallbacks ();
 	}
 
 	private void registerCallbacks () {
@@ -162,14 +164,5 @@ public class MultiSelector extends Composite implements FromServerArray, Lockabl
 
 	public void refreshElement ( FromServer element ) {
 		dialog.refreshElement ( element );
-	}
-
-	/****************************************************************** Lockable */
-
-	public void unlock () {
-		if ( locked ) {
-			registerCallbacks ();
-			locked = false;
-		}
 	}
 }

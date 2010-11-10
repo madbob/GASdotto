@@ -222,10 +222,10 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 							selezionare automaticamente l'unita' di misura piu' adeguata
 							(lasciando comunque la possibilita' di modificarla)
 					*/
-					select = new FromServerSelector ( "Category", true, true );
+					select = new FromServerSelector ( "Category", true, true, false );
 					frame.addPair ( "Categoria", ver.getPersonalizedWidget ( "category", select ) );
 
-					select = new FromServerSelector ( "Measure", true, true );
+					select = new FromServerSelector ( "Measure", true, true, false );
 					frame.addPair ( "Unità di Misura", ver.getPersonalizedWidget ( "measure", select ) );
 
 					frame.addPair ( "Pezzatura", ver.getWidget ( "unit_size" ) );

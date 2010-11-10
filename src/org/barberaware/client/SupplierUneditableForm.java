@@ -108,10 +108,10 @@ public class SupplierUneditableForm extends FromServerForm {
 				di SuppliersPanel e SuppliersEditPanel
 			*/
 
-			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, true, filter );
+			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, filter );
 			cframe.addPair ( "Referenti", this.getPersonalizedWidget ( "references", editable_references ) );
 
-			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, true, filter );
+			editable_references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, filter );
 			cframe.addPair ( "Addetti Consegne", this.getPersonalizedWidget ( "carriers", editable_references ) );
 		}
 		else {

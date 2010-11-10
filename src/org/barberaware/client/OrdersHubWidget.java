@@ -60,7 +60,7 @@ public abstract class OrdersHubWidget extends Composite {
 		enddate = new DateSelector ();
 		frame.addPair ( "Al", enddate );
 
-		supplier = new FromServerSelector ( "Supplier", true, true );
+		supplier = new FromServerSelector ( "Supplier", true, true, false );
 		supplier.addAllSelector ();
 		frame.addPair ( "Fornitore", supplier );
 

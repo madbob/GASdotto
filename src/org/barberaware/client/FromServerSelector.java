@@ -28,14 +28,15 @@ import com.allen_sauer.gwt.log.client.Log;
 	l'attributo "name" in forma di stringa
 */
 
-public class FromServerSelector extends ListBox implements ObjectWidget {
+public class FromServerSelector extends ListBox implements ObjectWidget, Lockable {
 	private String					type;
 	private boolean					noVoidArticat;
 	private boolean					sortItems;
+	private boolean					locked;
 	private int					scheduledSelectionID;
 	private FromServerValidateCallback		filterCallback;
 
-	public FromServerSelector ( String t, boolean hide_void, boolean sort ) {
+	public FromServerSelector ( String t, boolean hide_void, boolean sort, boolean lock ) {
 		type = t;
 		filterCallback = null;
 		noVoidArticat = hide_void;
@@ -45,6 +46,37 @@ public class FromServerSelector extends ListBox implements ObjectWidget {
 		if ( hide_void == false )
 			addItem ( "Nessuno", "0" );
 
+		locked = lock;
+		if ( locked == false )
+			registerCallbacks ();
+	}
+
+	public void addAllSelector () {
+		addItem ( "Tutti", "-1" );
+	}
+
+	public void addFilter ( FromServerValidateCallback filter ) {
+		int id;
+		FromServer tmp;
+
+		filterCallback = filter;
+
+		for ( int i = 0; i < getItemCount (); ) {
+			id = Integer.parseInt ( getValue ( i ) );
+			tmp = Utils.getServer ().getObjectFromCache ( type, id );
+
+			if ( filterCallback.checkObject ( tmp ) == false )
+				removeItem ( i );
+			else
+				i++;
+		}
+	}
+
+	public String getType () {
+		return type;
+	}
+
+	private void registerCallbacks () {
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int id;
@@ -96,32 +128,11 @@ public class FromServerSelector extends ListBox implements ObjectWidget {
 				if ( index != -1 )
 					removeItem ( index );
 			}
+
+			public String debugName () {
+				return "FromServerSelector su " + type;
+			}
 		} );
-	}
-
-	public void addAllSelector () {
-		addItem ( "Tutti", "-1" );
-	}
-
-	public void addFilter ( FromServerValidateCallback filter ) {
-		int id;
-		FromServer tmp;
-
-		filterCallback = filter;
-
-		for ( int i = 0; i < getItemCount (); ) {
-			id = Integer.parseInt ( getValue ( i ) );
-			tmp = Utils.getServer ().getObjectFromCache ( type, id );
-
-			if ( filterCallback.checkObject ( tmp ) == false )
-				removeItem ( i );
-			else
-				i++;
-		}
-	}
-
-	public String getType () {
-		return type;
 	}
 
 	private int findPositionForName ( String search ) {
@@ -250,5 +261,14 @@ public class FromServerSelector extends ListBox implements ObjectWidget {
 			return null;
 
 		return Utils.getServer ().getObjectFromCache ( type, selected );
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		if ( locked == true )
+			registerCallbacks ();
+
+		locked = false;
 	}
 }

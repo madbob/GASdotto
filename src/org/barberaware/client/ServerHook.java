@@ -107,7 +107,6 @@ public class ServerHook {
 		builder = new RequestBuilder ( method, getURL () + script );
 
 		try {
-			builder.setTimeoutMillis ( 20000 );
 			builder.sendRequest ( contents, callback );
 			engageLoadingBar ();
 		}
@@ -131,7 +130,6 @@ public class ServerHook {
 		builder = new RequestBuilder ( RequestBuilder.POST, getURL () + "server.php?action=get" );
 
 		try {
-			builder.setTimeoutMillis ( 15000 );
 			response = builder.sendRequest ( request.toString (), handler );
 			engageLoadingBar ();
 			return true;

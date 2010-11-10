@@ -35,45 +35,6 @@ public class DeliverySummary extends Composite {
 		main.setWidth ( "100%" );
 
 		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
-
-		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				/* dummy */
-			}
-
-			public void onModify ( FromServer object ) {
-				int index;
-				FromServerForm form;
-				StringLabel phone;
-
-				form = ( FromServerForm ) object.getRelatedInfo ( "DeliverySummary" + identifier );
-
-				if ( form != null ) {
-					checkPay ( object, form );
-
-					phone = ( StringLabel ) form.retriveInternalWidget ( "phone" );
-					phone.setValue ( object.getString ( "phone" ) );
-
-					phone = ( StringLabel ) form.retriveInternalWidget ( "mobile" );
-					phone.setValue ( object.getString ( "mobile" ) );
-				}
-			}
-
-			public void onDestroy ( FromServer object ) {
-				FromServerForm form;
-
-				form = ( FromServerForm ) object.getRelatedInfo ( "DeliverySummary" + identifier );
-				if ( form != null ) {
-					form.invalidate ();
-					object.delRelatedInfo ( "DeliverySummary" + identifier );
-				}
-			}
-
-			protected String debugName () {
-				return "DeliverySummary";
-			}
-		} );
-
 		numOrders = 0;
 		cleanUp ();
 	}
@@ -193,6 +154,34 @@ public class DeliverySummary extends Composite {
 			uorder.delRelatedInfo ( "DeliverySummary" );
 			numOrders -= 1;
 			cleanUp ();
+		}
+	}
+
+	public void modUser ( FromServer user ) {
+		int index;
+		FromServerForm form;
+		StringLabel phone;
+
+		form = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
+
+		if ( form != null ) {
+			checkPay ( user, form );
+
+			phone = ( StringLabel ) form.retriveInternalWidget ( "phone" );
+			phone.setValue ( user.getString ( "phone" ) );
+
+			phone = ( StringLabel ) form.retriveInternalWidget ( "mobile" );
+			phone.setValue ( user.getString ( "mobile" ) );
+		}
+	}
+
+	public void delUser ( FromServer user ) {
+		FromServerForm form;
+
+		form = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
+		if ( form != null ) {
+			form.invalidate ();
+			user.delRelatedInfo ( "DeliverySummary" + identifier );
 		}
 	}
 

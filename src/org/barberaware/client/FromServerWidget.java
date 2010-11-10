@@ -94,7 +94,7 @@ public class FromServerWidget extends Composite {
 				vuota: per personalizzare i propri parametri occorre crearsi per
 				conto proprio il FromServerSelector ed aggiungerlo nel form a mano
 			*/
-			wid = new FromServerSelector ( object.getClassName ( attribute ), false, true );
+			wid = new FromServerSelector ( object.getClassName ( attribute ), false, true, false );
 		}
 
 		else if ( type == FromServer.PRICE )

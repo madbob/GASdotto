@@ -139,6 +139,44 @@ public class DeliveryPanel extends GenericPanel {
 			}
 		} );
 
+		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				/* dummy */
+			}
+
+			public void onModify ( FromServer object ) {
+				ArrayList forms;
+				FromServerForm form;
+				DeliverySummary summary;
+
+				forms = main.collectForms ();
+
+				for ( int i = 0; i < forms.size (); i++ ) {
+					form = ( FromServerForm ) forms.get ( i );
+					summary = ( DeliverySummary ) form.retriveInternalWidget ( "list" );
+					summary.modUser ( object );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				ArrayList forms;
+				FromServerForm form;
+				DeliverySummary summary;
+
+				forms = main.collectForms ();
+
+				for ( int i = 0; i < forms.size (); i++ ) {
+					form = ( FromServerForm ) forms.get ( i );
+					summary = ( DeliverySummary ) form.retriveInternalWidget ( "list" );
+					summary.delUser ( object );
+				}
+			}
+
+			protected String debugName () {
+				return "DeliveryPanel";
+			}
+		} );
+
 		addTop ( Utils.getEmblemsCache ( "orders" ).getLegend ( Utils.getEmblemsCache ( "delivery" ) ) );
 		addTop ( main );
 

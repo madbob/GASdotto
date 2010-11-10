@@ -301,9 +301,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {
 				Order ord;
+				Lockable selector;
 
 				ord = ( Order ) form.getObject ().getObject ( "baseorder" );
 				ord.asyncLoadUsersOrders ();
+
+				selector = ( Lockable ) form.retriveInternalWidget ( "baseuser" );
+				selector.unlock ();
 			}
 
 			/*

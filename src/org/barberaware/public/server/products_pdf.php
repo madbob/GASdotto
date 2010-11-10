@@ -277,8 +277,9 @@ for ( $i = 0; $i < count ( $references ); $i++ ) {
 	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
 
 	$data [] = array ( $name, $q, $p, $s );
-	$tot_price += $p;
-	$tot_transport += $s;
+
+	$tot_price += $references [ $i ] [ 4 ];
+	$tot_transport += $references [ $i ] [ 5 ];
 }
 
 $p = format_price ( round ( $tot_price, 2 ), false );

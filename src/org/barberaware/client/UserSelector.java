@@ -21,7 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class UserSelector extends DeckPanel implements ObjectWidget {
+public class UserSelector extends DeckPanel implements ObjectWidget, Lockable {
 	private FromServerSelector			select;
 	private DelegatingChangeListenerCollection	changeListeners		= null;
 
@@ -48,7 +48,7 @@ public class UserSelector extends DeckPanel implements ObjectWidget {
 				utenti, ma cosi' com'e' non e' il massimo
 		*/
 
-		select = new FromServerSelector ( "User", true, true );
+		select = new FromServerSelector ( "User", true, true, true );
 		add ( select );
 
 		showWidget ( 0 );
@@ -84,5 +84,11 @@ public class UserSelector extends DeckPanel implements ObjectWidget {
 			return Session.getUser ();
 		else
 			return select.getValue ();
+	}
+
+	/****************************************************************** Lockable */
+
+	public void unlock () {
+		select.unlock ();
 	}
 }
