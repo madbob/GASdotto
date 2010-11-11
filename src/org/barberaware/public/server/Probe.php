@@ -18,17 +18,14 @@
  */
 
 require_once ( "utils.php" );
-require_once ( "createdb.php" );
+require_once ( "checkdb.php" );
 
 class Probe extends FromServer {
 	public function __construct () {
 		parent::__construct ( "Probe" );
 
 		$this->addAttribute ( "servername", "STRING" );
-		$this->addAttribute ( "upgrade", "BOOLEAN" );
 		$this->addAttribute ( "writable", "BOOLEAN" );
-		$this->addAttribute ( "oldurl", "STRING" );
-		$this->addAttribute ( "trylocate", "BOOLEAN" );
 		$this->addAttribute ( "dbdrivers", "STRING" );
 		$this->addAttribute ( "dbdriver", "STRING" );
 		$this->addAttribute ( "dbuser", "STRING" );
@@ -121,52 +118,53 @@ class Probe extends FromServer {
 		if ( is_writable ( "./config.php" ) == false )
 			return "0";
 
-		if ( $obj->upgrade == "true" ) {
-			if ( $obj->trylocate == true ) {
-				$path = $_SERVER [ 'DOCUMENT_ROOT' ] . '/' . $obj->oldurl;
+		self::write_config ( $obj );
+		install_main_db ();
 
-				if ( file_exists ( $path ) == false )
-					return "-1";
+		$query = sprintf ( "INSERT INTO GAS ( name, mail ) VALUES ( '%s', '%s' )", $obj->gasname, $obj->gasmail );
+		query_and_check ( $query, "Impossibile salvare dati del GAS" );
 
-				if ( is_dir ( $path ) == false )
-					$path = dirname ( $path );
+		/*
+			Inizializzo utente root
+		*/
 
-				$old_conf = self::filefind ( $path, 'config.php' );
-				if ( $old_conf == "" )
-					return "-1";
+		$query = sprintf ( "INSERT INTO Users ( login, firstname, paying, privileges ) VALUES ( 'root', 'Root', now(), 2 )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella utenti" );
 
-				if ( copy ( $old_conf, './config.php' ) == false )
-					return "-1";
+		$query = sprintf ( "INSERT INTO accounts ( password, username ) VALUES ( '%s', ( SELECT id FROM Users WHERE login = 'root' ) )", md5 ( $obj->rootpassword ) );
+		query_and_check ( $query, "Impossibile salvare password per utente root" );
 
-				/*
-					Questa manfrina e' per forzare il ricaricamento dei parametri di connessione
-					al database pescandoli dal nuovo config.php (che in realta' e' quello vecchio)
-				*/
-				global $dbdriver;
-				global $dbhost;
-				global $dbport;
-				global $dbname;
-				global $dbuser;
-				global $dbpassword;
-				require ( "config.php" );
-			}
-			else {
-				self::write_config ( $obj );
-			}
+		/*
+			Inizializzo categorie
+		*/
 
-			upgrade_main_db ();
-		}
-		else {
-			self::write_config ( $obj );
-			install_main_db ();
+		$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Non Specificato' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella category" );
 
-			$query = sprintf ( "UPDATE accounts SET password = '%s' WHERE username = ( SELECT id FROM Users WHERE login = 'root' )",
-						md5 ( $obj->rootpassword ) );
-			query_and_check ( $query, "Impossibile salvare password per utente root" );
+		$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Frutta e Verdura' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella category" );
 
-			$query = sprintf ( "UPDATE GAS SET name = '%s', mail = '%s'", $obj->gasname, $obj->gasmail );
-			query_and_check ( $query, "Impossibile salvare dati del GAS" );
-		}
+		$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Cosmesi' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella category" );
+
+		$query = sprintf ( "INSERT INTO Category ( name ) VALUES ( 'Bevande' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella category" );
+
+		/*
+			Inizializzo unita' di misura
+		*/
+
+		$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Non Specificato', '?' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella measure" );
+
+		$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Chili', 'kg' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella measure" );
+
+		$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Litri', 'l' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella measure" );
+
+		$query = sprintf ( "INSERT INTO Measure ( name, symbol ) VALUES ( 'Pezzi', 'pezzi' )" );
+		query_and_check ( $query, "Impossibile inizializzare tabella measure" );
 
 		return "1";
 	}

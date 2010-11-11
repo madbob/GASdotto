@@ -30,10 +30,7 @@ public class Probe extends FromServer {
 		} );
 
 		addAttribute ( "servername", FromServer.STRING );
-		addAttribute ( "upgrade", FromServer.BOOLEAN );
 		addAttribute ( "writable", FromServer.BOOLEAN );
-		addAttribute ( "trylocate", FromServer.BOOLEAN );
-		addAttribute ( "oldurl", FromServer.STRING );
 		addAttribute ( "dbdrivers", FromServer.STRING );
 		addAttribute ( "dbdriver", FromServer.STRING );
 		addAttribute ( "dbuser", FromServer.STRING );
@@ -44,8 +41,6 @@ public class Probe extends FromServer {
 		addAttribute ( "gasmail", FromServer.STRING );
 		addAttribute ( "rootpassword", FromServer.STRING );
 
-		setBool ( "upgrade", false );
-		setBool ( "trylocate", true );
 		setString ( "dbhost", "localhost" );
 	}
 }

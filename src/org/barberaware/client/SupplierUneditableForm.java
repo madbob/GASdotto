@@ -99,7 +99,7 @@ public class SupplierUneditableForm extends FromServerForm {
 				public boolean check ( FromServer obj, String text ) {
 					int priv;
 					priv = obj.getInt ( "privileges" );
-					return ( priv != User.USER_LEAVED && priv >= User.USER_RESPONSABLE );
+					return ( priv == User.USER_RESPONSABLE || priv == User.USER_ADMIN );
 				}
 			};
 

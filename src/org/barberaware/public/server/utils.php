@@ -79,10 +79,15 @@ function query_and_check ( $query, $error ) {
 	global $db;
 
 	$ret = $db->query ( $query );
-
 	if ( $ret == false ) {
-		$error_code = $db->errorInfo ();
-		error_exit ( $error . " executing |" . $query . "| " . " (" . ( $error_code [ 2 ] ) . ")" );
+		require_once ( "checkdb.php" );
+		check_db_schema ();
+
+		$ret = $db->query ( $query );
+		if ( $ret == false ) {
+			$error_code = $db->errorInfo ();
+			error_exit ( $error . " executing |" . $query . "| " . " (" . ( $error_code [ 2 ] ) . ")" );
+		}
 	}
 
 	return $ret;
@@ -457,51 +462,6 @@ function perform_authentication ( $userid ) {
 
 	if ( setcookie ( 'gasdotto', $session_cookie, 0, '/', '', 0 ) == false )
 		error_exit ( "Impossibile settare il cookie" );
-}
-
-/*
-	Le "sessioni automatiche" permettono sostanzialmente di accedere all'applicazione senza
-	un login esplicito, ma per mezzo di un hash. L'utilizzo primario di questo strumento e'
-	nelle notifiche via mail: per ogni utente viene generato un diverso hash, che viene
-	impresso nell'URL riportato nella mail ad esso destinata, ed accedendo a tale URL
-	l'autenticazione si svolge implicitamente
-*/
-
-function create_automatic_session ( $userid ) {
-	/*
-		tutte le sessioni piu' vecchie di una settimana sono eliminate
-	*/
-
-	$old_now = date ( "Y-m-d", ( time () - ( 60 * 60 * 24 * 7 ) ) );
-	$query = sprintf ( "DELETE FROM automatic_sessions
-				WHERE init < '%s'",
-					$old_now );
-	query_and_check ( $query, "Impossibile sincronizzare sessioni" );
-
-	$session_id = substr ( md5 ( rand () ), 0, 10 );
-	$now = date ( "Y-m-d", time () );
-
-	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )
-				VALUES ( '%s', DATE('%s'), %d )",
-					$session_id, $now, $userid );
-	query_and_check ( $query, "Impossibile salvare sessione" );
-
-	return $session_id;
-}
-
-function retrieve_automatic_session ( $hash ) {
-	$query = sprintf ( "FROM automatic_sessions WHERE session_id = '%s'", $hash );
-
-	if ( db_row_count ( $query ) == 0 ) {
-		return -1;
-	}
-	else {
-		$query = "SELECT username " . $query;
-		$result = query_and_check ( $query, "Impossibile recuperare sessione automatica" );
-
-		$row = $result->fetchAll ( PDO::FETCH_NUM );
-		return $row [ 0 ] [ 0 ];
-	}
 }
 
 function current_permissions () {

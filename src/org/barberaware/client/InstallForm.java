@@ -48,24 +48,13 @@ public class InstallForm extends Composite {
 		installbutton = new Button ( "Installa GASdotto" );
 		installbutton.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
-				doProbe ( 0 );
-			}
-		} );
-		main.add ( installbutton );
-
-		main.add ( new HTML ( "<br /><br /><br />" ) );
-		main.add ( new HTML ( "<p>Oppure, se hai già una istanza di una vecchia versione installata, clicca qui per importare i dati da essa.</p>" ) );
-
-		installbutton = new Button ( "Importa da versione già installata" );
-		installbutton.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				doProbe ( 1 );
+				doProbe ();
 			}
 		} );
 		main.add ( installbutton );
 	}
 
-	private void doProbe ( final int mode ) {
+	private void doProbe () {
 		ObjectRequest params;
 
 		params = new ObjectRequest ( "Probe" );
@@ -90,92 +79,13 @@ public class InstallForm extends Composite {
 					main.add ( new HTML ( message ) );
 				}
 				else {
-					if ( mode == 0 )
-						fillForm ( probe );
-					else
-						upgradePanel ( probe );
+					fillForm ( probe );
 				}
 			}
 			public void onError () {
 				Window.Location.reload ();
 			}
 		} );
-	}
-
-	private void upgradePanel ( Probe probe ) {
-		HorizontalPanel url;
-		FromServerForm form;
-		DummyTextBox tb;
-		CustomCaptionPanel setts;
-
-		probe.setBool ( "upgrade", true );
-		probe.setBool ( "trylocate", true );
-
-		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE_UNCANCELLABLE );
-		form.alwaysOpened ( true );
-
-		form.setCallback ( new FromServerFormCallbacks () {
-			public void onSaved ( FromServerForm form ) {
-				if ( form.getObject ().getLocalID () == 1 )
-					upgradeComplete ();
-			}
-
-			public void onError ( FromServerForm form ) {
-				FromServer probe;
-
-				probe = form.getObject ();
-
-				if ( form.getObject ().getLocalID () == -1 ) {
-					main.clear ();
-					manualDatabase ( ( Probe ) probe );
-				}
-			}
-		} );
-
-		form.add ( new HTML ( "<p>Qualche informazione in merito alla installazione che vuoi aggiornare, e sul comportamento da adottare. Puoi scegliere di sovrascrivere completamente la precedente versione oppure di installare questa qui a parte per mantenere la vecchia come riferimento.</p>" ) );
-
-		setts = new CustomCaptionPanel ( "Dettagli" );
-
-		url = new HorizontalPanel ();
-		url.setStyleName ( "multi-selector" );
-		url.add ( new Label ( "http://" + probe.getString ( "servername" ) + "/" ) );
-		tb = new DummyTextBox ();
-		tb.setVisibleLength ( 100 );
-		tb.setMaxLength ( 100 );
-		url.add ( form.getPersonalizedWidget ( "oldurl", tb ) );
-		url.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		setts.addPair ( "Indirizzo web presso cui si trova la precedente versione", url );
-
-		form.add ( setts );
-		main.add ( form );
-	}
-
-	private void manualDatabase ( Probe probe ) {
-		Widget dbsettings;
-		FromServerForm form;
-
-		probe.setBool ( "upgrade", true );
-		probe.setBool ( "trylocate", false );
-
-		form = new FromServerForm ( probe, FromServerForm.EDITABLE_UNDELETABLE_UNCANCELLABLE );
-		form.alwaysOpened ( true );
-
-		form.setCallback ( new FromServerFormCallbacks () {
-			public void onSaved ( FromServerForm form ) {
-				if ( form.getObject ().getLocalID () == 1 )
-					upgradeComplete ();
-				else
-					Utils.showNotification ( "E' occorso un problema durante l'aggiornamento" );
-			}
-		} );
-
-		form.add ( new HTML ( "<p>Purtroppo non è stato possibile rilevare automaticamente la configurazione della vecchia installazione.</p>" ) );
-		form.add ( new HTML ( "<p>Inserisci manualmente i dati per connettersi al database in cui si trovano i dati che vuoi importare.</p>" ) );
-
-		dbsettings = doDbSettingForm ( form, null );
-		form.add ( dbsettings );
-
-		main.add ( form );
 	}
 
 	private void fillForm ( Probe probe ) {
@@ -245,17 +155,6 @@ public class InstallForm extends Composite {
 
 		message = "<p>Installazione completata con successo.</p>";
 		message += "<p>Ricaricando <a href=\"GASdotto.html\">questa pagina</a> ti verrà presentato il pannello di login: entra nell'applicazione usando username 'root' e la password che hai definito nel passaggio precedente.</p>";
-		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
-		main.add ( new HTML ( message ) );
-	}
-
-	private void upgradeComplete () {
-		String message;
-
-		main.clear ();
-
-		message = "<p>Upgrade completato con successo.</p>";
-		message += "<p>Ricaricando <a href=\"GASdotto.html\">questa pagina</a> ti verrà presentato il pannello di login: entra nell'applicazione usando i tuoi soliti username e password.</p>";
 		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
 		main.add ( new HTML ( message ) );
 	}

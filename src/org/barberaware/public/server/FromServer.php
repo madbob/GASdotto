@@ -34,9 +34,7 @@ class FromServerAttribute {
 		$this->name = $name;
 		$this->type = $type;
 
-		list ( $type, $objtype ) = explode ( "::", $type );
-
-		if ( $type == "ARRAY" )
+		if ( strncmp ( $type, "ARRAY", 5 ) == 0 )
 			$this->value = array ();
 		else
 			$this->value = "";
