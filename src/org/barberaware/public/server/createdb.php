@@ -280,6 +280,7 @@ function install_main_db () {
 
 	$query = sprintf ( "CREATE TABLE Notification (
 					id serial,
+					name varchar ( 100 ) default '',
 					alert_type int default 0,
 					description varchar ( 500 ) default '',
 					startdate date,

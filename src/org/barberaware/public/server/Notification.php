@@ -23,6 +23,7 @@ class Notification extends FromServer {
 	public function __construct () {
 		parent::__construct ( "Notification" );
 
+		parent::addAttribute ( "name", "STRING" );
 		parent::addAttribute ( "alert_type", "INTEGER" );
 		parent::addAttribute ( "description", "STRING" );
 		parent::addAttribute ( "startdate", "DATE" );
@@ -78,8 +79,7 @@ class Notification extends FromServer {
 				$dests [] = $destination->mail2;
 		}
 
-		$subject = ellipse_string ( $obj->description, 20 );
-		my_send_mail ( $dests, $subject, $obj->description );
+		my_send_mail ( $dests, $obj->name, $obj->description );
 	}
 
 	public function save ( $obj ) {

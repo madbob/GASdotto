@@ -120,6 +120,18 @@ public class Utils {
 		info = new EmblemsInfo ();
 		paths = new ArrayList ();
 		desc = new ArrayList ();
+		paths.add ( "images/notifications/info.png" );
+		desc.add ( "Informazione" );
+		paths.add ( "images/notifications/warning.png" );
+		desc.add ( "Avviso" );
+		paths.add ( "images/notifications/error.png" );
+		desc.add ( "Problema" );
+		info.addSymbol ( "type", paths, desc );
+		emblemsCache.put ( "notifications", info );
+
+		info = new EmblemsInfo ();
+		paths = new ArrayList ();
+		desc = new ArrayList ();
 		paths.add ( "" );
 		desc.add ( "" );
 		paths.add ( "images/notifications/user_responsable.png" );

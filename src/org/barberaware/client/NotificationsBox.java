@@ -24,53 +24,61 @@ import com.google.gwt.json.client.*;
 
 public class NotificationsBox extends Composite {
 	private CaptionPanel		ubermain;
-	private FlexTable		main;
+	private FormGroup		main;
 
 	public NotificationsBox () {
 		ubermain = new CaptionPanel ( "Hai nuove notifiche..." );
 		ubermain.setVisible ( false );
 		initWidget ( ubermain );
 
-		main = new FlexTable ();
+		main = new FormGroup ( null ) {
+			protected FromServerForm doEditableRow ( FromServer n ) {
+				FromServerForm ver;
+
+				ver = new FromServerForm ( n, FromServerForm.NOT_EDITABLE );
+				ver.emblemsAttach ( Utils.getEmblemsCache ( "notifications" ) );
+
+				ver.emblems ().activate ( "type", n.getInt ( "alert_type" ) );
+				ver.add ( ver.getPersonalizedWidget ( "description", new LongStringLabel () ) );
+
+				return ver;
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				return null;
+			}
+
+			protected int sorting ( FromServer first, FromServer second ) {
+				if ( first == null )
+					return 1;
+				else if ( second == null )
+					return -1;
+
+				return -1 * ( first.getDate ( "enddate" ).compareTo ( second.getDate ( "enddate" ) ) );
+			}
+		};
+
 		ubermain.add ( main );
 
 		Utils.getServer ().onObjectEvent ( "Notification", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				int index;
 				Notification tmp;
 
 				tmp = ( Notification ) object;
-
 				if ( isForMe ( tmp ) ) {
-					if ( retrieveExisting ( tmp ) == -1 ) {
-						index = main.getRowCount ();
-						setNotification ( tmp, index );
-						ubermain.setVisible ( true );
-					}
+					main.addElement ( object );
+					ubermain.setVisible ( true );
 				}
 			}
 
 			public void onModify ( FromServer object ) {
-				int index;
-				Notification notify;
-
-				notify = ( Notification ) object;
-
-				index = retrieveExisting ( notify );
-				if ( index != -1 )
-					setNotification ( notify, index );
+				main.refreshElement ( object );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				int index;
-
-				index = retrieveExisting ( ( Notification ) object );
-				if ( index != -1 ) {
-					main.removeRow ( index );
-
-					if ( main.getRowCount () == 0 )
-						ubermain.setVisible ( false );
-				}
+				main.deleteElement ( object );
+				if ( main.getElementsNum () == 0 )
+					ubermain.setVisible ( false );
 			}
 		} );
 	}
@@ -90,29 +98,6 @@ public class NotificationsBox extends Composite {
 		}
 
 		return false;
-	}
-
-	private void setNotification ( Notification notify, int index ) {
-		main.setWidget ( index, 0, new Hidden ( "id", Integer.toString ( notify.getLocalID () ) ) );
-		main.setWidget ( index, 1, notify.getIcon () );
-		main.setWidget ( index, 2, new Label ( notify.getString ( "description" ) ) );
-	}
-
-	private int retrieveExisting ( Notification notify ) {
-		int tot;
-		String iter_id;
-		String search_id;
-
-		tot = main.getRowCount ();
-		search_id = Integer.toString ( notify.getLocalID () );
-
-		for ( int i = 0; i < tot; i++ ) {
-			iter_id = ( ( Hidden ) main.getWidget ( i, 0 ) ).getValue ();
-			if ( iter_id.equals ( search_id ) )
-				return i;
-		}
-
-		return -1;
 	}
 
 	public void syncList () {

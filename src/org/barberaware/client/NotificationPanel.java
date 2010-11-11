@@ -61,6 +61,7 @@ public class NotificationPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );
 
+					frame.addPair ( "Titolo", ver.getWidget ( "name" ) );
 					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect () ) );
 
 					date = new DateSelector ();

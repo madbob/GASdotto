@@ -30,63 +30,15 @@ public class Notification extends FromServer {
 	public Notification () {
 		super ();
 
-		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
-			public String retrive ( FromServer obj ) {
-				int len;
-				ArrayList recipents;
-				String ret;
-
-				recipents = obj.getArray ( "recipent" );
-				if ( recipents == null )
-					return "Nuova Notifica";
-
-				len = recipents.size ();
-
-				if ( len == 0 ) {
-					ret = "A: Tutti";
-				}
-				else {
-					int i;
-					int str_len;
-					boolean closed;
-					FromServer iter;
-					String name;
-
-					ret = "A: ";
-					str_len = 2;
-					len = len - 1;
-					closed = false;
-
-					for ( i = 0; i < len; i++ ) {
-						iter = ( FromServer ) recipents.get ( i );
-						name = iter.getString ( "name" );
-						ret += name + ", ";
-
-						str_len = str_len + name.length ();
-						if ( str_len >= 40 ) {
-							ret += "e altri";
-							closed = true;
-							break;
-						}
-					}
-
-					if ( closed == false ) {
-						iter = ( FromServer ) recipents.get ( i );
-						name = iter.getString ( "name" );
-						ret += name;
-					}
-				}
-
-				return ret;
-			}
-		} );
-
+		addAttribute ( "name", FromServer.STRING );
 		addAttribute ( "alert_type", FromServer.INTEGER );
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "startdate", FromServer.DATE );
 		addAttribute ( "enddate", FromServer.DATE );
 		addAttribute ( "recipent", FromServer.ARRAY, User.class );
 		addAttribute ( "send_mail", FromServer.BOOLEAN );
+
+		setString ( "name", "Nuova Notifica" );
 	}
 
 	public Image getIcon () {

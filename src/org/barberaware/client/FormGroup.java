@@ -245,7 +245,20 @@ public abstract class FormGroup extends Composite {
 	}
 
 	public int getElementsNum () {
-		return latestIterableIndex () - firstIterableIndex ();
+		int tot;
+		int num;
+		FromServerForm iter;
+
+		num = 0;
+		tot = latestIterableIndex ();
+
+		for ( int i = firstIterableIndex (); i < tot; i++ ) {
+			iter = ( FromServerForm ) main.getWidget ( i );
+			if ( iter.getObject () != null )
+				num++;
+		}
+
+		return num;
 	}
 
 	public String getIdentifier () {
