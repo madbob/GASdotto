@@ -56,6 +56,9 @@ public class NotificationPanel extends GenericPanel {
 					EnumSelector type_sel;
 					MultiSelector users;
 
+					if ( n.isValid () == true && n.getObject ( "sender" ).equals ( Session.getUser () ) == false )
+						return null;
+
 					ver = new FromServerForm ( n );
 
 					frame = new CustomCaptionPanel ( "Attributi" );
@@ -88,7 +91,11 @@ public class NotificationPanel extends GenericPanel {
 				}
 
 				protected FromServerForm doNewEditableRow () {
-					return doEditableRow ( new Notification () );
+					Notification notify;
+
+					notify = new Notification ();
+					notify.setObject ( "sender", Session.getUser () );
+					return doEditableRow ( notify );
 				}
 		};
 
@@ -119,7 +126,7 @@ public class NotificationPanel extends GenericPanel {
 		Utils.getServer ().testObjectReceive ( "User" );
 
 		params = new ObjectRequest ( "Notification" );
-		params.add ( "all", 1 );
+		params.add ( "mine", 1 );
 		Utils.getServer ().testObjectReceive ( params );
 	}
 }

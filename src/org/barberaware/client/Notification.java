@@ -35,23 +35,28 @@ public class Notification extends FromServer {
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "startdate", FromServer.DATE );
 		addAttribute ( "enddate", FromServer.DATE );
+		addAttribute ( "sender", FromServer.OBJECT, User.class );
 		addAttribute ( "recipent", FromServer.ARRAY, User.class );
 		addAttribute ( "send_mail", FromServer.BOOLEAN );
 
 		setString ( "name", "Nuova Notifica" );
 	}
 
-	public Image getIcon () {
-		int type;
+	public boolean isForMe () {
+		ArrayList dests;
+		User myself;
+		FromServer iter;
 
-		type = getInt ( "alert_type" );
+		dests = getArray ( "recipent" );
+		myself = Session.getUser ();
 
-		if ( type == INFO )
-			return new Image ( "images/notify-info.png" );
-		else if ( type == WARNING )
-			return new Image ( "images/notify-warning.png" );
-		else
-			return new Image ( "images/notify-error.png" );
+		for ( int i = 0; i < dests.size (); i++ ) {
+			iter = ( FromServer ) dests.get ( i );
+			if ( myself.equals ( iter ) )
+				return true;
+		}
+
+		return false;
 	}
 
 	/*

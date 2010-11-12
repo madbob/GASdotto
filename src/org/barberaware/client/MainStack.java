@@ -77,6 +77,7 @@ public class MainStack extends Composite {
 			add ( new UsersUneditablePanel () );
 			add ( new SuppliersPanel () );
 			add ( new OrdersPrivilegedPanel () );
+			add ( new NotificationPanel () );
 		}
 
 		mainMenu = null;

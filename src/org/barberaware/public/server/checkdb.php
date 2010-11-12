@@ -42,68 +42,79 @@ function linking_table_query ( $obj, $name, $objtype ) {
 }
 
 function update_column ( $table, $column, $type ) {
-	global $db;
 	global $dbdriver;
 
 	if ( $dbdriver == 'pgsql' )
-		$query = sprintf ( 'ALTER TABLE %s ALTER COLUMN %s TYPE %s', $obj->tablename, $attr->name, $change );
+		$query = sprintf ( 'ALTER TABLE %s ALTER COLUMN %s TYPE %s', $table, $column, $type );
 	else
-		$query = sprintf ( 'ALTER TABLE %s CHANGE %s %s %s', $obj->tablename, $attr->name, $attr->name, $change );
+		$query = sprintf ( 'ALTER TABLE %s CHANGE %s %s %s', $table, $column, $column, $type );
 
 	local_query_and_check ( $query, "Impossibile modificare tipo della colonna" );
 }
 
-function create_table_class ( $obj ) {
-	global $db;
-	global $dbdriver;
+function map_type ( $type, $objtype, $default ) {
+	switch ( $type ) {
+		case "STRING":
+		case "PERCENTAGE":
+		case "ADDRESS":
+			$ret = 'varchar (500)';
+			break;
 
+		case "INTEGER":
+			$ret = 'int';
+			if ( $default == true )
+				$ret .= ' default 0';
+			break;
+
+		case "OBJECT":
+			$tmp = new $objtype;
+			$ret = 'int references ' . $tmp->tablename . ' (id)';
+			break;
+
+		case "FLOAT":
+			$ret = 'float';
+			if ( $default == true )
+				$ret .= ' default 0';
+			break;
+
+		case "DATE":
+			$ret = 'date';
+			break;
+
+		case "BOOLEAN":
+			$ret = 'boolean';
+			break;
+
+		case "ARRAY":
+		default:
+			$ret = null;
+			break;
+	}
+
+	return $ret;
+}
+
+function create_table_class ( $obj ) {
 	$columns = array ();
 	$extras = array ();
 
 	$query = sprintf ( 'CREATE TABLE %s ( id serial primary key, ', $obj->tablename );
 
-	for ( $a = 0; $a < count ( $obj->attributes ); $a++ ) {
-		$attr = $obj->attributes [ $a ];
+	foreach ( $obj->attributes as $attr ) {
 		if ( $attr->name == 'id' )
 			continue;
 
-		list ( $type, $objtype ) = explode ( "::", $attr->type );
+		if ( strstr ( $attr->type, '::' ) == false )
+			$type = $attr->type;
+		else
+			list ( $type, $objtype ) = explode ( "::", $attr->type );
 
-		switch ( $type ) {
-			case "STRING":
-			case "PERCENTAGE":
-			case "ADDRESS":
-				$columns [] =  $attr->name . ' varchar (500)';
-				break;
-
-			case "INTEGER":
-				$columns [] =  $attr->name . ' int default 0';
-				break;
-
-			case "OBJECT":
-				$tmp = new $objtype;
-				$columns [] =  $attr->name . ' int references ' . $tmp->tablename . ' (id)';
-				break;
-
-			case "FLOAT":
-				$columns [] =  $attr->name . ' float default 0';
-				break;
-
-			case "DATE":
-				$columns [] =  $attr->name . ' date';
-				break;
-
-			case "BOOLEAN":
-				$columns [] =  $attr->name . ' boolean';
-				break;
-
-			case "ARRAY":
-				$tmp = new $objtype;
-				$extras [] = linking_table_query ( $obj, $attr->name, $objtype );
-				break;
-
-			default:
-				break;
+		if ( $type == 'ARRAY' ) {
+			$tmp = new $objtype;
+			$extras [] = linking_table_query ( $obj, $attr->name, $objtype );
+		}
+		else {
+			$columns [] = $attr->name . ' ' . map_type ( $type, $objtype, true );
 		}
 	}
 
@@ -127,6 +138,8 @@ function test_class ( $class ) {
 		create_table_class ( $obj );
 	}
 	else {
+		$found_attrs = array ();
+
 		for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
 			$meta = $ret->getColumnMeta ( $i );
 			if ( $meta [ 'name' ] == 'id' )
@@ -136,11 +149,10 @@ function test_class ( $class ) {
 			$change = null;
 			$t = $meta [ 'native_type' ];
 
-			for ( $a = 0; $a < count ( $obj->attributes ); $a++ ) {
-				$attr = $obj->attributes [ $a ];
-
+			foreach ( $obj->attributes as $attr ) {
 				if ( $meta [ 'name' ] == $attr->name ) {
 					$found = true;
+					$found_attrs [] = $attr->name;
 
 					if ( strstr ( $attr->type, '::' ) == false )
 						$type = $attr->type;
@@ -188,16 +200,13 @@ function test_class ( $class ) {
 								$change = 'boolean';
 							break;
 
-						case "ARRAY":
-							$query = sprintf ( 'SELECT * FROM %s_%s' . $obj->tablename, $attr->name );
-							$subret = $db->query ( $query );
-
-							if ( $subret == false ) {
-								$query = linking_table_query ( $obj, $attr->name, $objtype );
-								local_query_and_check ( $query, "Impossibile creare tabella di collegamento" );
-							}
-
-							break;
+						/*
+							Gli "ARRAY" sono gestiti su diverse tabelle, dunque non
+							appaiono come colonne nella tabella principale e non sono
+							contemplate in questo controllo.
+							Verranno poi verificate fuori da questo ciclo, nel blocco
+							dedicato ai nuovi attributi
+						*/
 
 						default:
 							break;
@@ -213,6 +222,41 @@ function test_class ( $class ) {
 			}
 			if ( $change != null ) {
 				update_column ( $obj->tablename, $attr->name, $change );
+			}
+		}
+
+		foreach ( $obj->attributes as $attr ) {
+			if ( $attr->name == 'id' )
+				continue;
+
+			$ok = false;
+
+			foreach ( $found_attrs as $f )
+				if ( $f == $attr->name ) {
+					$ok = true;
+					break;
+				}
+
+			if ( $ok == false ) {
+				if ( strstr ( $attr->type, '::' ) == false )
+					$type = $attr->type;
+				else
+					list ( $type, $objtype ) = explode ( '::', $attr->type );
+
+				if ( $type == 'ARRAY' ) {
+					$query = sprintf ( 'SELECT * FROM %s_%s', $obj->tablename, $attr->name );
+					$subret = $db->query ( $query );
+
+					if ( $subret == false ) {
+						$query = linking_table_query ( $obj, $attr->name, $objtype );
+						local_query_and_check ( $query, "Impossibile creare tabella di collegamento" );
+					}
+				}
+				else {
+					$type = map_type ( $type, $objtype, false );
+					$query = sprintf ( 'ALTER TABLE %s ADD COLUMN %s %s', $obj->tablename, $attr->name, $type );
+					local_query_and_check ( $query, "Impossibile aggiungere colonna" );
+				}
 			}
 		}
 	}
@@ -233,6 +277,7 @@ function test_static_tables () {
 		for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
 			$meta = $ret->getColumnMeta ( $i );
 			$name = $meta [ 'name' ];
+			$t = $meta [ 'native_type' ];
 
 			if ( $name == 'username' ) {
 				if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) )
@@ -261,6 +306,7 @@ function test_static_tables () {
 		for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
 			$meta = $ret->getColumnMeta ( $i );
 			$name = $meta [ 'name' ];
+			$t = $meta [ 'native_type' ];
 
 			if ( $name == 'id' ) {
 				/*

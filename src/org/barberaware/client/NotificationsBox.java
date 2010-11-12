@@ -65,7 +65,7 @@ public class NotificationsBox extends Composite {
 				Notification tmp;
 
 				tmp = ( Notification ) object;
-				if ( isForMe ( tmp ) ) {
+				if ( tmp.isForMe () ) {
 					main.addElement ( object );
 					ubermain.setVisible ( true );
 				}
@@ -81,23 +81,6 @@ public class NotificationsBox extends Composite {
 					ubermain.setVisible ( false );
 			}
 		} );
-	}
-
-	private boolean isForMe ( Notification notify ) {
-		ArrayList dests;
-		User myself;
-		FromServer iter;
-
-		dests = notify.getArray ( "recipent" );
-		myself = Session.getUser ();
-
-		for ( int i = 0; i < dests.size (); i++ ) {
-			iter = ( FromServer ) dests.get ( i );
-			if ( myself.equals ( iter ) )
-				return true;
-		}
-
-		return false;
 	}
 
 	public void syncList () {

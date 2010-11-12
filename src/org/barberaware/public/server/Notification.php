@@ -28,6 +28,7 @@ class Notification extends FromServer {
 		parent::addAttribute ( "description", "STRING" );
 		parent::addAttribute ( "startdate", "DATE" );
 		parent::addAttribute ( "enddate", "DATE" );
+		parent::addAttribute ( "sender", "OBJECT::User" );
 		parent::addAttribute ( "recipent", "ARRAY::User" );
 		parent::addAttribute ( "send_mail", "BOOLEAN" );
 	}
@@ -53,8 +54,12 @@ class Notification extends FromServer {
 			$query .= sprintf ( " %s.id NOT IN ( %s ) AND ", $this->tablename, $ids );
 		}
 
-		if ( !isset ( $request->all ) )
-			$query .= sprintf ( "%s.target = %d AND ", $references, $current_user );
+		if ( !isset ( $request->all ) ) {
+			if ( !isset ( $request->mine ) )
+				$query .= sprintf ( "%s.target = %d AND ", $references, $current_user );
+			else
+				$query .= sprintf ( "%s.sender = %d AND ", $this->tablename, $current_user );
+		}
 
 		$query .= sprintf ( "%s.id = %s.parent ORDER BY startdate DESC", $this->tablename, $references );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
@@ -83,6 +88,11 @@ class Notification extends FromServer {
 	}
 
 	public function save ( $obj ) {
+		global $current_user;
+
+		if ( $obj->sender != $current_user )
+			error_exit ( "Richiesta di salvataggio notifica non autorizzata" );
+
 		$sendmail = false;
 		if ( $obj->id == -1 && $obj->send_mail == true )
 			$sendmail = true;
