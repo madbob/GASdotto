@@ -110,6 +110,7 @@ public class OrderSummary extends Composite implements Lockable {
 		ArrayList cached_orders;
 		ArrayList products;
 		ArrayList user_products;
+		FromServer user;
 		FromServer user_ord;
 		FromServer order_product;
 		ProductUser user_product;
@@ -154,7 +155,9 @@ public class OrderSummary extends Composite implements Lockable {
 			if ( user_ord.isValid () == false )
 				continue;
 
-			if ( user_ord.getObject ( "baseorder" ).getLocalID () == my_id ) {
+			user = user_ord.getObject ( "baseorder" );
+
+			if ( user != null && user.getLocalID () == my_id ) {
 				user_products = user_ord.getArray ( "products" );
 
 				for ( int a = 0; a < user_products.size (); a++ ) {

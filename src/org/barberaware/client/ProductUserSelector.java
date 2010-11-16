@@ -97,15 +97,11 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 							return;
 						}
 
-						supp = ( Supplier ) prod.getObject ( "supplier" );
-
-						if ( supp.iAmReference () == false ) {
-							val = prod.getFloat ( "multiple_order" );
-							if ( ( val != 0 ) && ( input % val ) != 0 ) {
-								Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
-								undoChange ();
-								return;
-							}
+						val = prod.getFloat ( "multiple_order" );
+						if ( ( val != 0 ) && ( input % val ) != 0 ) {
+							Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
+							undoChange ();
+							return;
 						}
 					}
 

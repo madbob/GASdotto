@@ -52,7 +52,6 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 					HorizontalPanel hor;
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
-					PriceViewer price;
 					StringLabel desc;
 
 					if ( product.getBool ( "archived" ) == true )
@@ -80,11 +79,13 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 					hor.add ( frame );
 					hor.setCellWidth ( frame, "50%" );
 
-					price = new PriceViewer ();
-					frame.addPair ( "Unitario", ver.getPersonalizedWidget ( "unit_price", price ) );
+					frame.addPair ( "Prezzo Unitario", ver.getPersonalizedWidget ( "unit_price", new PriceViewer () ) );
+					frame.addPair ( "Prezzo Trasporto", ver.getPersonalizedWidget ( "shipping_price", new PriceViewer () ) );
 
-					price = new PriceViewer ();
-					frame.addPair ( "Trasporto", ver.getPersonalizedWidget ( "shipping_price", price ) );
+					if ( product.getFloat ( "minimum_order" ) != 0 )
+						frame.addPair ( "Minimo per Utente", ver.getPersonalizedWidget ( "minimum_order", new FloatViewer () ) );
+					if ( product.getFloat ( "multiple_order" ) != 0 )
+						frame.addPair ( "Multiplo per Utente", ver.getPersonalizedWidget ( "multiple_order", new FloatViewer () ) );
 
 					sframe = new CaptionPanel ( "Descrizione" );
 					desc = new StringLabel ();
