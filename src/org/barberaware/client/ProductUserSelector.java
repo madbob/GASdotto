@@ -341,14 +341,22 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		FromServer m;
 
 		prod = currentValue.getObject ( "product" );
-		m = prod.getObject ( "measure" );
-		if ( m != null )
-			ms = " " + m.getString ( "name" );
-		else
-			ms = "";
+		if ( prod.getFloat ( "unit_size" ) == 0 )
+			return;
 
-		effectiveQuantity.setVisible ( true );
-		effectiveQuantity.setText ( "( " + ( Utils.floatToString ( quantity * prod.getFloat ( "unit_size" ) ) ) + ms + " )" );
+		if ( quantity == 0 ) {
+			effectiveQuantity.setVisible ( false );
+		}
+		else {
+			m = prod.getObject ( "measure" );
+			if ( m != null )
+				ms = " " + m.getString ( "name" );
+			else
+				ms = "";
+
+			effectiveQuantity.setVisible ( true );
+			effectiveQuantity.setText ( "( " + ( Utils.floatToString ( quantity * prod.getFloat ( "unit_size" ) ) ) + ms + " )" );
+		}
 	}
 
 	public void setProduct ( Product prod ) {
@@ -357,8 +365,6 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	}
 
 	public void clear () {
-		float unit;
-
 		quantity.setVal ( 0 );
 
 		/*
@@ -368,11 +374,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			sovrascrivere l'ID precedentemente appeso
 		*/
 		currentValue.setLocalID ( -1 );
-
-		unit = currentValue.getObject ( "product" ).getFloat ( "unit_size" );
-		if ( unit != 0 )
-			setEffectiveQuantity ( 0 );
-
+		setEffectiveQuantity ( 0 );
 		hideVariants ();
 	}
 
