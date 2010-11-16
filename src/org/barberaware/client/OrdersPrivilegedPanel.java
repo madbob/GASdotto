@@ -306,8 +306,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				ord = ( Order ) form.getObject ().getObject ( "baseorder" );
 				ord.asyncLoadUsersOrders ();
 
-				selector = ( Lockable ) form.retriveInternalWidget ( "baseuser" );
-				selector.unlock ();
+				if ( canMultiUser ( ord ) ) {
+					selector = ( Lockable ) form.retriveInternalWidget ( "baseuser" );
+					selector.unlock ();
+				}
 			}
 
 			/*

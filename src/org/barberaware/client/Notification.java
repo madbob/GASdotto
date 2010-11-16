@@ -38,6 +38,7 @@ public class Notification extends FromServer {
 		addAttribute ( "sender", FromServer.OBJECT, User.class );
 		addAttribute ( "recipent", FromServer.ARRAY, User.class );
 		addAttribute ( "send_mail", FromServer.BOOLEAN );
+		addAttribute ( "send_mailinglist", FromServer.BOOLEAN );
 
 		setString ( "name", "Nuova Notifica" );
 	}

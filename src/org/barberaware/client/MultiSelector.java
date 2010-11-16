@@ -23,11 +23,13 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class MultiSelector extends Composite implements FromServerArray {
+public class MultiSelector extends Composite implements FromServerArray, SavingDialog {
 	private VerticalPanel		main;
 
 	private boolean			callbacksInited;
 	private FilterCallback		filterCallback;
+	private ArrayList		savingCallbacks;
+	private ArrayList		extraElements;
 
 	private SelectionDialog		dialog;
 	private String			objectType;
@@ -40,12 +42,19 @@ public class MultiSelector extends Composite implements FromServerArray {
 
 		objectType = type;
 		filterCallback = filter;
+		savingCallbacks = null;
+		extraElements = null;
 		callbacksInited = false;
 
 		dialog = new SelectionDialog ( mode );
 		dialog.addCallback ( new SavingDialogCallback () {
 			public void onSave ( SavingDialog dialog ) {
 				rebuildMainList ();
+				executeSavingCallbacks ( 0 );
+			}
+
+			public void onCancel ( SavingDialog dialog ) {
+				executeSavingCallbacks ( 1 );
 			}
 		} );
 
@@ -66,6 +75,18 @@ public class MultiSelector extends Composite implements FromServerArray {
 			}
 		} );
 		main.add ( mod_button );
+	}
+
+	public void addExtraElement ( String text ) {
+		if ( extraElements == null )
+			extraElements = new ArrayList ();
+
+		extraElements.add ( text );
+		dialog.addExtraElement ( text );
+	}
+
+	public boolean getExtraElement ( String text ) {
+		return dialog.getExtraElement ( text );
 	}
 
 	private void registerCallbacks () {
@@ -128,10 +149,23 @@ public class MultiSelector extends Composite implements FromServerArray {
 
 	private void rebuildMainList () {
 		int num;
+		String extra;
 		FromServer iter;
 		ArrayList objects;
 
 		clean ();
+
+		if ( extraElements != null ) {
+			num = extraElements.size ();
+
+			for ( int i = 0; i < num; i++ ) {
+				extra = ( String ) extraElements.get ( i );
+
+				if ( dialog.getExtraElement ( extra ) )
+					main.add ( new Label ( extra ) );
+			}
+		}
+
 		objects = dialog.getElements ();
 		num = objects.size ();
 
@@ -139,6 +173,36 @@ public class MultiSelector extends Composite implements FromServerArray {
 			iter = ( FromServer ) objects.get ( i );
 			main.add ( new Label ( iter.getString ( "name" ) ) );
 		}
+	}
+
+	private void executeSavingCallbacks ( int mode ) {
+		SavingDialogCallback call;
+
+		if ( savingCallbacks == null )
+			return;
+
+		for ( int i = 0; i < savingCallbacks.size (); i++ ) {
+			call = ( SavingDialogCallback ) savingCallbacks.get ( i );
+
+			if ( mode == 0 )
+				call.onSave ( this );
+			else
+				call.onCancel ( this );
+		}
+	}
+
+	/****************************************************************** SavingDialog */
+
+	public void addCallback ( SavingDialogCallback callback ) {
+		if ( savingCallbacks == null )
+			savingCallbacks = new ArrayList ();
+		savingCallbacks.add ( callback );
+	}
+
+	public void removeCallback ( SavingDialogCallback callback ) {
+		if ( savingCallbacks == null )
+			return;
+		savingCallbacks.remove ( callback );
 	}
 
 	/****************************************************************** FromServerArray */

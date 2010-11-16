@@ -74,6 +74,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 				FromServer obj;
 				FromServerTableColumn col;
 				SavingDialog dialog;
+				DialogBox true_dialog;
 
 				col = ( FromServerTableColumn ) columns.get ( cell );
 
@@ -96,8 +97,9 @@ public class FromServerTable extends Composite implements FromServerArray {
 							}
 						} );
 
-						dialog.center ();
-						dialog.show ();
+						true_dialog = ( DialogBox ) dialog;
+						true_dialog.center ();
+						true_dialog.show ();
 					}
 				}
 			}

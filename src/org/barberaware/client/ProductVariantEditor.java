@@ -22,7 +22,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductVariantEditor extends SavingDialog implements ObjectWidget {
+public class ProductVariantEditor extends DialogBox implements ObjectWidget, SavingDialog {
 	private TextBox				name;
 	private ProductVariantValuesList	values;
 

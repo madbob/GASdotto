@@ -31,6 +31,7 @@ public class GAS extends FromServer {
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "use_mail", FromServer.BOOLEAN );
 		addAttribute ( "mail_conf", FromServer.STRING );
+		addAttribute ( "mailinglist", FromServer.STRING );
 
 		setString ( "name", "Senza Nome" );
 	}

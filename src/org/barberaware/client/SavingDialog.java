@@ -19,7 +19,7 @@ package org.barberaware.client;
 
 import com.google.gwt.user.client.ui.*;
 
-public abstract class SavingDialog extends DialogBox {
-	public abstract void addCallback ( SavingDialogCallback callback );
-	public abstract void removeCallback ( SavingDialogCallback callback );
+public interface SavingDialog {
+	public void addCallback ( SavingDialogCallback callback );
+	public void removeCallback ( SavingDialogCallback callback );
 }

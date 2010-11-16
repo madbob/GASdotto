@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class SelectionDialog extends SavingDialog implements FromServerArray {
+public class SelectionDialog extends DialogBox implements FromServerArray, SavingDialog {
 	public static int		SELECTION_MODE_SINGLE	= 0;
 	public static int		SELECTION_MODE_MULTI	= 1;
 	public static int		SELECTION_MODE_ALL	= 2;
@@ -37,6 +37,7 @@ public class SelectionDialog extends SavingDialog implements FromServerArray {
 
 	private VerticalPanel		main;
 	private HorizontalPanel		selectionButtons;
+	private FlexTable		extraOptions;
 	private FlexTable		itemsTable;
 
 	public SelectionDialog ( int mode ) {
@@ -164,6 +165,34 @@ public class SelectionDialog extends SavingDialog implements FromServerArray {
 		selectionButtons.add ( toggle );
 	}
 
+	public void addExtraElement ( String text ) {
+		int row;
+
+		row = extraOptions.getRowCount ();
+		extraOptions.setWidget ( row, 0, new Hidden () );
+		extraOptions.setWidget ( row, 1, new CheckBox () );
+		extraOptions.setWidget ( row, 2, new Label ( text ) );
+	}
+
+	public boolean getExtraElement ( String text ) {
+		int num;
+		Label lab;
+		CheckBox check;
+
+		num = extraOptions.getRowCount ();
+
+		for ( int i = 0; i < num; i++ ) {
+			lab = ( Label ) extraOptions.getWidget ( i, 2 );
+
+			if ( lab.getText () == text ) {
+				check = ( CheckBox ) extraOptions.getWidget ( i, 1 );
+				return check.isChecked ();
+			}
+		}
+
+		return false;
+	}
+
 	private void uncheckAllBut ( CheckBox not_this ) {
 		int num;
 		CheckBox tmp;
@@ -192,6 +221,9 @@ public class SelectionDialog extends SavingDialog implements FromServerArray {
 		else {
 			selectionButtons = null;
 		}
+
+		extraOptions = new FlexTable ();
+		pan.add ( extraOptions );
 
 		scroll = new ScrollPanel ();
 		scroll.setHeight ( ( Window.getClientHeight () - 250 ) + "px" );

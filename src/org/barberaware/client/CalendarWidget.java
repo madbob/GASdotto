@@ -32,7 +32,7 @@ import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class CalendarWidget extends SavingDialog implements ClickListener {
+public class CalendarWidget extends DialogBox implements ClickListener, SavingDialog {
 	private class NavBar extends Composite implements ClickListener {
 		public DockPanel	bar = new DockPanel ();
 		public Button		prevMonth = new Button ( "&lt;", this );

@@ -28,10 +28,33 @@ public class NotificationPanel extends GenericPanel {
 		super ();
 
 		main = new FormCluster ( "Notification", "Nuova Notifica" ) {
-				private MultiSelector destinationSelect () {
+				private MultiSelector destinationSelect ( final FromServerForm parent ) {
 					MultiSelector users;
 
 					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
+
+					if ( Session.getGAS ().getString ( "mailinglist" ) != "" && Session.getGAS ().getBool ( "use_mail" ) == true ) {
+						users.addExtraElement ( "Mailing List" );
+
+						/*
+							Questo blocco serve solo a settare a priori l'invio della
+							mail della notifica se viene selezionato "Mailing List" nella
+							lista dei destinatari
+						*/
+						users.addCallback ( new SavingDialogCallback () {
+							public void onSave ( SavingDialog dialog ) {
+								BooleanSelector mail;
+								MultiSelector users;
+
+								users = ( MultiSelector ) dialog;
+
+								if ( users.getExtraElement ( "Mailing List" ) == true ) {
+									mail = ( BooleanSelector ) parent.retriveInternalWidget ( "send_mail" );
+									mail.setDown ( true );
+								}
+							}
+						} );
+					}
 
 					users.addSelectionCallbacks ( "Seleziona solo Referenti",
 						new FilterCallback () {
@@ -61,11 +84,25 @@ public class NotificationPanel extends GenericPanel {
 
 					ver = new FromServerForm ( n );
 
+					ver.setCallback ( new FromServerFormCallbacks () {
+						public void onSave ( FromServerForm form ) {
+							MultiSelector users;
+
+							if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+								users = ( MultiSelector ) form.retriveInternalWidget ( "recipent" );
+								form.getObject ().setBool ( "send_mailinglist", users.getExtraElement ( "Mailing List" ) );
+							}
+							else {
+								form.getObject ().setBool ( "send_mailinglist", false );
+							}
+						}
+					} );
+
 					frame = new CustomCaptionPanel ( "Attributi" );
 					ver.add ( frame );
 
 					frame.addPair ( "Titolo", ver.getWidget ( "name" ) );
-					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect () ) );
+					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect ( ver ) ) );
 
 					date = new DateSelector ();
 					frame.addPair ( "Data Inizio", ver.getPersonalizedWidget ( "startdate", date ) );

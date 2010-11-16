@@ -27,6 +27,7 @@ public class SystemPanel extends GenericPanel {
 	private FormCluster		categories;
 	private FormCluster		measures;
 	private MailConfigurator	mailConf;
+	private DummyTextBox		mailList;
 
 	public SystemPanel () {
 		super ();
@@ -119,6 +120,7 @@ public class SystemPanel extends GenericPanel {
 
 				myself = ( BooleanSelector ) sender;
 				mailConf.setEnabled ( myself.isDown () );
+				mailList.setEnabled ( myself.isDown () );
 			}
 		} );
 		frame.addPair ( "Abilita Notifiche Mail", ver.getPersonalizedWidget ( "use_mail", mail ) );
@@ -126,6 +128,10 @@ public class SystemPanel extends GenericPanel {
 		mailConf = new MailConfigurator ();
 		frame.addPair ( "Configurazione Mail", ver.getPersonalizedWidget ( "mail_conf", mailConf ) );
 		mailConf.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
+
+		mailList = new DummyTextBox ();
+		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
+		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );

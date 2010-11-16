@@ -31,6 +31,7 @@ class Notification extends FromServer {
 		parent::addAttribute ( "sender", "OBJECT::User" );
 		parent::addAttribute ( "recipent", "ARRAY::User" );
 		parent::addAttribute ( "send_mail", "BOOLEAN" );
+		parent::addAttribute ( "send_mailinglist", "BOOLEAN" );
 	}
 
 	public function get ( $request, $compress ) {
@@ -82,6 +83,13 @@ class Notification extends FromServer {
 				$dests [] = $destination->mail;
 			if ( isset ( $destination->mail2 ) && $destination->mail2 != '' )
 				$dests [] = $destination->mail2;
+		}
+
+		if ( $obj->send_mailinglist == true ) {
+			$gas = new GAS ();
+			$gas->readFromDB ( 1 );
+			$dests [] = $gas->getAttribute ( 'mailinglist' )->value;
+			unset ( $gas );
 		}
 
 		my_send_mail ( $dests, $obj->name, $obj->description );
