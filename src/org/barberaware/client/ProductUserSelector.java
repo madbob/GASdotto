@@ -40,7 +40,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private FloatWidget				quantity;
 	private Label					measure;
 	private Label					effectiveQuantity;
-	private SuggestionBox				constraintsDialog;
+	private Label					constraints;
 	private FromServer				currentValue;
 
 	private DelegatingChangeListenerCollection	changeListeners;
@@ -62,14 +62,19 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 		editable = edit;
 		freeEditable = freeedit;
-		constraintsDialog = null;
+		constraints = null;
 
 		if ( edit == true ) {
 			qb = new FloatBox ();
 			qb.addFocusListener ( new FocusListener () {
 				public void onFocus ( Widget sender ) {
-					if ( constraintsDialog != null )
-						constraintsDialog.show ();
+					if ( constraints != null ) {
+						int index;
+
+						index = firstRow.getWidgetIndex ( sender );
+						firstRow.remove ( index + 1 );
+						firstRow.insert ( constraints, index + 1 );
+					}
 				}
 
 				public void onLostFocus ( Widget sender ) {
@@ -78,8 +83,13 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 					FromServer prod;
 					Supplier supp;
 
-					if ( constraintsDialog != null )
-						constraintsDialog.hide ();
+					if ( constraints != null ) {
+						int index;
+
+						index = firstRow.getWidgetIndex ( sender );
+						firstRow.remove ( index + 1 );
+						firstRow.insert ( measure, index + 1 );
+					}
 
 					input = quantity.getVal ();
 					if ( input == 0 ) {
@@ -139,25 +149,23 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		min = prod.getFloat ( "minimum_order" );
 		mult = prod.getFloat ( "multiple_order" );
 
-		if ( constraintsDialog != null )
-			firstRow.remove ( constraintsDialog );
-
 		if ( min != 0 || mult != 0 ) {
-			constraintsDialog = new SuggestionBox ();
-			constraintsDialog.relativeTo ( quantity, SuggestionBox.ALIGN_RIGHT );
 			text = "";
 
 			if ( min != 0 )
-				text = text + "Quantità minima ordinabile: " + Utils.floatToString ( min ) + " " + measure.getText ();
+				text = text + "Quantità minima: " + Utils.floatToString ( min );
 
 			if ( mult != 0 ) {
 				if ( text != "" )
-					text = text + "<br>";
-				text = text + "Quantità ordinabile per multipli di: " + Utils.floatToString ( mult ) + " " + measure.getText ();
+					text = text + "; ";
+				text = text + "Ordinabile per multipli di: " + Utils.floatToString ( mult );
 			}
 
-			constraintsDialog.setHTML ( text );
-			firstRow.add ( constraintsDialog );
+			constraints = new Label ( text );
+			constraints.addStyleName ( "contents-on-right" );
+		}
+		else {
+			constraints = null;
 		}
 	}
 
