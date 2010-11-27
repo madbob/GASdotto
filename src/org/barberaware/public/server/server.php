@@ -20,7 +20,6 @@
 require_once ( "utils.php" );
 
 $action = $_GET [ 'action' ];
-
 if ( isset ( $action ) == false )
 	error_exit ( "Richiesta non specificata" );
 
@@ -48,6 +47,36 @@ if ( $type == "Probe" ) {
 	}
 }
 
+else if ( $type == "Reset" ) {
+	$mail = $obj->mail;
+	if ( !isset ( $mail ) )
+		exit ( 0 );
+
+	connect_to_the_database ();
+
+	$query = sprintf ( "FROM Users WHERE mail = '%s' OR mail2 = '%s'", $mail, $mail );
+	if ( db_row_count ( $query ) == 1 ) {
+		$password = ( string ) mt_rand ( 1000000, 9999999 );
+
+		$query = sprintf ( "UPDATE accounts SET reset = '%s'
+					WHERE username = ( SELECT id FROM Users WHERE mail = '%s' OR mail2 = '%s' )",
+						md5 ( $password ), $mail, $mail );
+		query_and_check ( $query, "Impossibile salvare nuova password" );
+
+		$gas = new GAS ();
+		$gas->readFromDB ( 1 );
+
+		$notice = sprintf ( "E' stata ricevuta una richiesta per resettare la tua password sull'istanza GASdotto di %s.\n", $gas->getAttribute ( 'name' )->value );
+		$notice .= sprintf ( "Se non hai espressamente richiesto una nuova password, ignora assolutamente questa mail.\n" );
+		$notice .= sprintf ( "\n" );
+		$notice .= sprintf ( "La tua nuova password è '%s' (da scrivere senza le virgolette!).\n", $password );
+		$notice .= sprintf ( "Con essa potrai accedere nuovamente alle informazioni del tuo GAS. Ti suggeriamo di cambiarla al più presto dal pannello 'Profilo Utente'.\n" );
+		$notice .= sprintf ( "\n" );
+
+		my_send_mail ( array ( $mail ), "Password resettata", $notice );
+	}
+}
+
 else {
 	if ( check_session () == false ) {
 		switch ( $action ) {
@@ -72,12 +101,31 @@ else {
 							if ( $row [ 0 ] [ 'privileges' ] != 3 ) {
 								$query = sprintf ( "FROM accounts WHERE username = %d", $row [ 0 ] [ 'id' ] );
 								if ( db_row_count ( $query ) == 1 ) {
+									$login_ok = false;
+
 									$query = "SELECT * " . $query;
 									$returned = query_and_check ( $query, "Impossibile validare utente" );
 									$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
 
+									$id = $row [ 0 ] [ 'username' ];
+
 									if ( md5 ( $pwd ) == $row [ 0 ] [ 'password' ] ) {
-										$userid = $row [ 0 ] [ 'username' ];
+										$login_ok = true;
+									}
+									else if ( $row [ 0 ] [ 'reset' ] != '' && md5 ( $pwd ) == $row [ 0 ] [ 'reset' ] ) {
+										$login_ok = true;
+
+										$query = sprintf ( "UPDATE accounts SET password = reset WHERE username = %d", $id );
+										query_and_check ( $query, "Impossibile settare nuova password" );
+									}
+
+									if ( $login_ok == true ) {
+										if ( $row [ 0 ] [ 'reset' ] != '' ) {
+											$query = sprintf ( "UPDATE accounts SET reset = '' WHERE username = %d", $id );
+											query_and_check ( $query, "Impossibile resettare password temporanea" );
+										}
+
+										$userid = $id;
 										perform_authentication ( $userid );
 										$ret->readFromDB ( $userid );
 										$ret->registerLogin ();

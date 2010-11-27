@@ -26,6 +26,9 @@ public class Login extends Composite {
 	private TextBox			username;
 	private PasswordTextBox		password;
 
+	private DialogBox		recoveryDialog;
+	private TextBox			recoveryMail;
+
 	public Login () {
 		VerticalPanel main;
 		VerticalPanel container;
@@ -115,7 +118,7 @@ public class Login extends Composite {
 
 		mail = gas.getString ( "mail" );
 		if ( mail.equals ( "" ) == false )
-			container.add ( new Label ( "Per contattare il gruppo, invia una mail a " + mail ) );
+			container.add ( new Label ( "Per contattare il gruppo invia una mail a " + mail ) );
 
 		return container;
 	}
@@ -198,9 +201,79 @@ public class Login extends Composite {
 		params = null;
 	}
 
+	private DialogBox passwordRecoveryBox () {
+		DialogBox dialog;
+		VerticalPanel contents;
+		HorizontalPanel bar;
+		Button but;
+
+		dialog = new DialogBox ();
+		dialog.setText ( "Resetta Password" );
+
+		contents = new VerticalPanel ();
+		contents.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+
+		contents.add ( new Label ( "Se hai dimenticato la tua password, da qui puoi resettarla e riceverne una nuova." ) );
+		contents.add ( new Label ( "Immetti qui il tuo indirizzo mail e clicca 'Resetta Password': una nuova password verrà automaticamente generata, e ti sarà spedita via posta elettronica." ) );
+
+		bar = new HorizontalPanel ();
+		contents.add ( bar );
+
+		bar.add ( new Label ( "Il tuo indirizzo mail" ) );
+
+		recoveryMail = new TextBox ();
+		recoveryMail.setVisibleLength ( 20 );
+		bar.add ( recoveryMail );
+
+		bar = new HorizontalPanel ();
+		contents.add ( bar );
+
+		but = new Button ( "Resetta Password" );
+		but.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				String mail;
+				ObjectRequest params;
+
+				mail = recoveryMail.getText ();
+				if ( mail == "" ) {
+					Utils.showNotification ( "Non hai immesso l'indirizzo mail" );
+					return;
+				}
+
+				params = new ObjectRequest ( "Reset" );
+				params.add ( "mail", mail );
+
+				Utils.getServer ().serverGet ( params, new ServerResponse () {
+					public void onComplete ( JSONValue response ) {
+						/*
+							serverGet() non puo' avere una callback vuota, ma in fin dei
+							conti qui non c'e' da fare nulla...
+						*/
+					}
+				} );
+
+				Utils.showNotification ( "Ti è stata spedita via mail la tua nuova password", Notification.INFO );
+				recoveryDialog.hide ();
+			}
+		} );
+		bar.add ( but );
+
+		but = new Button ( "Annulla" );
+		but.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				recoveryDialog.hide ();
+			}
+		} );
+		bar.add ( but );
+
+		dialog.setWidget ( contents );
+		return dialog;
+	}
+
 	private Widget doCredentials () {
 		FlexTable form;
 		Button button;
+		Hyperlink passwordrecovery;
 		KeyboardListenerAdapter enter_key;
 
 		form = new FlexTable ();
@@ -221,13 +294,23 @@ public class Login extends Composite {
 				executeLogin ();
 			}
 		} );
-
-		/**
-			TODO	Aggiungere opzione "Hai perso la password?"
-		*/
-
 		form.setWidget ( 2, 1, button );
-		form.getCellFormatter ().setHorizontalAlignment ( 3, 1, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+			passwordrecovery = new Hyperlink ();
+			passwordrecovery.setText ( "Hai perso la password? Clicca qui!" );
+			passwordrecovery.addStyleName ( "clickable" );
+			passwordrecovery.addStyleName ( "smaller-text" );
+
+			passwordrecovery.addClickListener ( new ClickListener () {
+				public void onClick ( Widget sender ) {
+					recoveryDialog = passwordRecoveryBox ();
+					recoveryDialog.center ();
+					recoveryDialog.show ();
+				}
+			} );
+			form.setWidget ( 2, 2, passwordrecovery );
+		}
 
 		username.setFocus ( true );
 

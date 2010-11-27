@@ -94,6 +94,72 @@ function map_type ( $type, $objtype, $default ) {
 	return $ret;
 }
 
+function check_type ( $correct_type, $t ) {
+	global $dbdriver;
+
+	$change = null;
+
+	if ( strstr ( $correct_type, '::' ) == false )
+		$type = $correct_type;
+	else
+		list ( $type, $objtype ) = explode ( "::", $correct_type );
+
+	switch ( $type ) {
+		case "STRING":
+		case "PERCENTAGE":
+		case "ADDRESS":
+			if ( ( $dbdriver == 'pgsql' && $t != 'varchar' ) || ( $dbdriver == 'mysql' && $t != 'VAR_STRING' ) )
+				$change = 'varchar (500)';
+			break;
+
+		case "INTEGER":
+			if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) )
+				$change = 'int';
+			break;
+
+		case "OBJECT":
+			if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) ) {
+				$tmp = new $objtype;
+				$change = sprintf ( 'int references %s (id)', $tmp->tablename );
+			}
+
+			break;
+
+		case "FLOAT":
+			if ( ( $dbdriver == 'pgsql' && $t != 'float8' ) || ( $dbdriver == 'mysql' && $t != 'FLOAT' ) )
+				$change = 'float';
+			break;
+
+		case "DATE":
+			if ( ( $dbdriver == 'pgsql' && $t != 'date' ) || ( $dbdriver == 'mysql' && $t != 'DATE' ) )
+				$change = 'date';
+			break;
+
+		case "BOOLEAN":
+			/*
+				Ci deve essere una anomalia nel driver PDO di MySQL:
+				se ho una colonna rappresentante un booleano, tale
+				informazione non viene riportata tra le informazioni
+			*/
+			if ( ( $dbdriver == 'pgsql' && $t != 'bool' ) || ( $dbdriver == 'mysql' && isset ( $t ) ) )
+				$change = 'boolean';
+			break;
+
+		/*
+			Gli "ARRAY" sono gestiti su diverse tabelle, dunque non appaiono come
+			colonne nella tabella principale e non sono contemplate in questo
+			controllo.
+			Verranno poi verificate fuori da questo ciclo, nel blocco dedicato ai
+			nuovi attributi
+		*/
+
+		default:
+			break;
+	}
+
+	return $change;
+}
+
 function create_table_class ( $obj ) {
 	$columns = array ();
 	$extras = array ();
@@ -153,65 +219,7 @@ function test_class ( $class ) {
 				if ( $meta [ 'name' ] == $attr->name ) {
 					$found = true;
 					$found_attrs [] = $attr->name;
-
-					if ( strstr ( $attr->type, '::' ) == false )
-						$type = $attr->type;
-					else
-						list ( $type, $objtype ) = explode ( "::", $attr->type );
-
-					switch ( $type ) {
-						case "STRING":
-						case "PERCENTAGE":
-						case "ADDRESS":
-							if ( ( $dbdriver == 'pgsql' && $t != 'varchar' ) || ( $dbdriver == 'mysql' && $t != 'VAR_STRING' ) )
-								$change = 'varchar (500)';
-							break;
-
-						case "INTEGER":
-							if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) )
-								$change = 'int';
-							break;
-
-						case "OBJECT":
-							if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) ) {
-								$tmp = new $objtype;
-								$change = sprintf ( 'int references %s (id)', $tmp->tablename );
-							}
-
-							break;
-
-						case "FLOAT":
-							if ( ( $dbdriver == 'pgsql' && $t != 'float8' ) || ( $dbdriver == 'mysql' && $t != 'FLOAT' ) )
-								$change = 'float';
-							break;
-
-						case "DATE":
-							if ( ( $dbdriver == 'pgsql' && $t != 'date' ) || ( $dbdriver == 'mysql' && $t != 'DATE' ) )
-								$change = 'date';
-							break;
-
-						case "BOOLEAN":
-							/*
-								Ci deve essere una anomalia nel driver PDO di MySQL:
-								se ho una colonna rappresentante un booleano, tale
-								informazione non viene riportata tra le informazioni
-							*/
-							if ( ( $dbdriver == 'pgsql' && $t != 'bool' ) || ( $dbdriver == 'mysql' && isset ( $t ) ) )
-								$change = 'boolean';
-							break;
-
-						/*
-							Gli "ARRAY" sono gestiti su diverse tabelle, dunque non
-							appaiono come colonne nella tabella principale e non sono
-							contemplate in questo controllo.
-							Verranno poi verificate fuori da questo ciclo, nel blocco
-							dedicato ai nuovi attributi
-						*/
-
-						default:
-							break;
-					}
-
+					$change = check_type ( $attr->type, $t );
 					break;
 				}
 			}
@@ -262,6 +270,65 @@ function test_class ( $class ) {
 	}
 }
 
+function check_manual_columns ( $tablename, $columns, $ret ) {
+	$found_attrs = array ();
+
+	for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
+		$meta = $ret->getColumnMeta ( $i );
+		$name = $meta [ 'name' ];
+		$t = $meta [ 'native_type' ];
+
+		if ( $name == 'id' )
+			continue;
+
+		$found = false;
+		$change = null;
+
+		for ( $a = 0; $a < count ( $columns ); $a = $a + 2 ) {
+			if ( $name == $columns [ $a ] ) {
+				$found = true;
+				$found_attrs [] = $columns [ $a ];
+				$change = check_type ( $columns [ $a + 1 ], $t );
+				break;
+			}
+		}
+
+		if ( $found == false ) {
+			$query = sprintf ( 'ALTER TABLE %s DROP COLUMN %s', $tablename, $name );
+			local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
+		}
+		if ( $change != null ) {
+			update_column ( $tablename, $name, $change );
+		}
+	}
+
+	for ( $i = 0; $i < count ( $columns ); $i = $i + 2 ) {
+		if ( $columns [ $i ] == 'id' )
+			continue;
+
+		$ok = false;
+
+		foreach ( $found_attrs as $f )
+			if ( $f == $columns [ $i ] ) {
+				$ok = true;
+				break;
+			}
+
+		if ( $ok == false ) {
+			$type = $columns [ $i + 1 ];
+
+			if ( strstr ( $type, '::' ) == false )
+				$type = $type;
+			else
+				list ( $type, $objtype ) = explode ( '::', $type );
+
+			$type = map_type ( $type, $objtype, false );
+			$query = sprintf ( 'ALTER TABLE %s ADD COLUMN %s %s', $tablename, $columns [ $i ], $type );
+			local_query_and_check ( $query, "Impossibile aggiungere colonna" );
+		}
+	}
+}
+
 function test_static_tables () {
 	global $db;
 	global $dbdriver;
@@ -270,28 +337,12 @@ function test_static_tables () {
 	$ret = $db->query ( $query );
 
 	if ( $ret == false ) {
-		$query = 'CREATE TABLE accounts ( username int references Users ( id ), password varchar ( 100 ) default \'\' )';
+		$query = 'CREATE TABLE accounts ( username int references Users ( id ), password varchar ( 100 ) default \'\', reset varchar ( 100 ) default \'\' )';
 		local_query_and_check ( $query, "Impossibile creare tabella accounts" );
 	}
 	else {
-		for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
-			$meta = $ret->getColumnMeta ( $i );
-			$name = $meta [ 'name' ];
-			$t = $meta [ 'native_type' ];
-
-			if ( $name == 'username' ) {
-				if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) )
-					update_column ( 'accounts', 'username', 'int' );
-			}
-			else if ( $name == 'password' ) {
-				if ( ( $dbdriver == 'pgsql' && $t != 'varchar' ) || ( $dbdriver == 'mysql' && $t != 'VAR_STRING' ) )
-					update_column ( 'accounts', 'password', 'varchar' );
-			}
-			else {
-				$query = 'ALTER TABLE accounts DROP COLUMN ' . $name;
-				local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
-			}
-		}
+		$columns = array ( 'username', 'OBJECT::User', 'password', 'STRING', 'reset', 'STRING' );
+		check_manual_columns ( 'accounts', $columns, $ret );
 	}
 
 	$query = 'SELECT * FROM current_sessions';
@@ -303,33 +354,8 @@ function test_static_tables () {
 		local_query_and_check ( $query, "Impossibile creare tabella sessioni" );
 	}
 	else {
-		for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
-			$meta = $ret->getColumnMeta ( $i );
-			$name = $meta [ 'name' ];
-			$t = $meta [ 'native_type' ];
-
-			if ( $name == 'id' ) {
-				/*
-					Il controllo sull'id lo salto bellamente...
-				*/
-			}
-			else if ( $name == 'session_id' ) {
-				if ( ( $dbdriver == 'pgsql' && $t != 'varchar' ) || ( $dbdriver == 'mysql' && $t != 'VAR_STRING' ) )
-					update_column ( 'current_sessions', 'session_id', 'varchar' );
-			}
-			else if ( $name == 'init' ) {
-				if ( ( $dbdriver == 'pgsql' && $t != 'date' ) || ( $dbdriver == 'mysql' && $t != 'DATE' ) )
-					update_column ( 'current_sessions', 'init', 'date' );
-			}
-			else if ( $name == 'username' ) {
-				if ( ( $dbdriver == 'pgsql' && $t != 'int4' ) || ( $dbdriver == 'mysql' && $t != 'LONG' ) )
-					update_column ( 'current_sessions', 'username', 'int references Users (id)' );
-			}
-			else {
-				$query = 'ALTER TABLE accounts DROP COLUMN ' . $name;
-				local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
-			}
-		}
+		$columns = array ( 'id', 'INTEGER', 'session_id', 'STRING', 'init', 'DATE', 'username', 'OBJECT::User' );
+		check_manual_columns ( 'current_sessions', $columns, $ret );
 	}
 }
 
