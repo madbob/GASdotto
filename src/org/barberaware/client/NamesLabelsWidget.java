@@ -87,7 +87,7 @@ public class NamesLabelsWidget extends Label implements FromServerArray {
 		if ( currentElements == null )
 			return new ArrayList ();
 		else
-			return Utils.dupliacateFromServerArray ( currentElements );
+			return Utils.duplicateFromServerArray ( currentElements );
 	}
 
 	public void refreshElement ( FromServer element ) {

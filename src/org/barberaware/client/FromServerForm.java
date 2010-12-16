@@ -526,10 +526,14 @@ public class FromServerForm extends Composite {
 	}
 
 	public boolean savingObject () {
-		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this );
+		boolean confirm;
 
-		if ( rebuildObject () == false )
+		confirm = true;
+
+		for ( int i = 0; i < callbacks.size (); i++ )
+			confirm = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this ) || confirm;
+
+		if ( confirm == false || rebuildObject () == false )
 			return false;
 
 		object.save ( new ServerResponse () {

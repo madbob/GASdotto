@@ -93,50 +93,54 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		return buttons;
 	}
 
-	private ProductUser retrieveInteresting ( OrderUser order ) {
-		int tot;
+	private boolean orderMatchesFill ( FromServer order, FlexTable table, int row ) {
+		boolean has;
+		float tot;
 		ArrayList products;
-		ProductUser pu;
+		Label username;
+		FloatBox quantity;
+		FromServer pu;
 
-		products = order.getArray ( "products" );
+		has = false;
+		tot = 0;
+
+		products = order.getArray ( "allproducts" );
 		tot = products.size ();
 
 		for ( int i = 0; i < tot; i++ ) {
-			pu = ( ProductUser ) products.get ( i );
-			if ( pu.getObject ( "product" ).equals ( targetProduct ) )
-				return pu;
+			pu = ( FromServer ) products.get ( i );
+
+			if ( pu.getObject ( "product" ).equals ( targetProduct ) ) {
+				has = true;
+				tot += pu.getFloat ( "quantity" );
+			}
 		}
 
-		return null;
+		if ( has == true ) {
+			username = new Label ( order.getObject ( "baseuser" ).getString ( "name" ) );
+			optionsTable.setWidget ( row, 0, username );
+
+			quantity = new FloatBox ();
+			quantity.setVal ( tot );
+			optionsTable.setWidget ( row, 1, quantity );
+		}
+
+		return has;
 	}
 
 	private Widget doChooses () {
 		int i;
 		int e;
 		int tot;
-		OrderUser order_user;
-		ProductUser pu;
-		Label username;
-		FloatBox quantity;
+		FromServer order_user;
 
 		optionsTable = new FlexTable ();
 		tot = userOrders.size ();
 
 		for ( i = 0, e = 0; i < tot; i++ ) {
-			order_user = ( OrderUser ) userOrders.get ( i );
-
-			pu = retrieveInteresting ( order_user );
-			if ( pu == null )
-				continue;
-
-			username = new Label ( order_user.getObject ( "baseuser" ).getString ( "name" ) );
-			optionsTable.setWidget ( e, 0, username );
-
-			quantity = new FloatBox ();
-			quantity.setVal ( pu.getFloat ( "quantity" ) );
-			optionsTable.setWidget ( e, 1, quantity );
-
-			e++;
+			order_user = ( FromServer ) userOrders.get ( i );
+			if ( orderMatchesFill ( order_user, optionsTable, e ) )
+				e++;
 		}
 
 		return optionsTable;
@@ -174,34 +178,78 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 			listeners.fireChange ( this );
 	}
 
+	private void alignQuantities ( FloatBox q, FromServer order ) {
+		int num;
+		float tot;
+		float user_selected;
+		float difference;
+		ArrayList products;
+		ArrayList products_user;
+		FromServer pu;
+
+		tot = 0;
+		products_user = new ArrayList ();
+
+		products = order.getArray ( "allproducts" );
+		num = products.size ();
+
+		for ( int i = 0; i < num; i++ ) {
+			pu = ( FromServer ) products.get ( i );
+
+			if ( pu.getObject ( "product" ).equals ( targetProduct ) ) {
+				user_selected = pu.getFloat ( "quantity" );
+				if ( user_selected != 0 ) {
+					tot += user_selected;
+					products_user.add ( pu );
+				}
+			}
+		}
+
+		user_selected = q.getVal ();
+
+		if ( user_selected != tot ) {
+			if ( user_selected > tot ) {
+				pu = ( FromServer ) products_user.get ( 0 );
+				pu.setFloat ( "quantity", pu.getFloat ( "quantity" ) + ( user_selected - tot ) );
+			}
+			else {
+				difference = tot - user_selected;
+				num = products_user.size ();
+
+				for ( int i = 0; i < num; i++ ) {
+					pu = ( FromServer ) products_user.get ( i );
+					user_selected = pu.getFloat ( "quantity" );
+
+					if ( user_selected >= difference ) {
+						pu.setFloat ( "quantity", pu.getFloat ( "quantity" ) - difference );
+						break;
+					}
+					else {
+						pu.setFloat ( "quantity", 0 );
+						difference = difference - user_selected;
+					}
+				}
+			}
+
+			order.save ( new ServerResponse () {
+				public void onComplete ( JSONValue response ) {
+					fireChanges ();
+				}
+			} );
+		}
+	}
+
 	private void triggerSave () {
 		int tot;
-		ProductUser pu;
-		OrderUser order_user;
+		FromServer order_user;
 		FloatBox q;
 
 		tot = optionsTable.getRowCount ();
 
 		for ( int i = 0; i < tot; i++ ) {
 			q = ( FloatBox ) optionsTable.getWidget ( i, 1 );
-			order_user = ( OrderUser ) userOrders.get ( i );
-
-			/**
-				TODO	Questo puo' essere migliorato tenendo un array separato
-					con i ProductUser giusti. Attenzione: gli ordini in
-					userOrders non necessariamente sono allineati con le
-					caselle in optionsTable
-			*/
-			pu = retrieveInteresting ( order_user );
-
-			if ( pu != null && ( q.getVal () != pu.getFloat ( "quantity" ) ) ) {
-				pu.setFloat ( "quantity", q.getVal () );
-				order_user.save ( new ServerResponse () {
-					public void onComplete ( JSONValue response ) {
-						fireChanges ();
-					}
-				} );
-			}
+			order_user = ( FromServer ) userOrders.get ( i );
+			alignQuantities ( q, order_user );
 		}
 	}
 }

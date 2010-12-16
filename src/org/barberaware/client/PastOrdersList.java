@@ -53,13 +53,14 @@ public class PastOrdersList extends OrdersList {
 
 	protected FromServerForm doEditableRow ( FromServer obj ) {
 		FromServerForm ver;
-		ProductsUserSelection products;
+		OrderUserManager products;
 
 		ver = new FromServerForm ( obj, FromServerForm.NOT_EDITABLE );
 		ver.addStyleName ( "subform" );
 
-		products = new ProductsUserSelection ( obj.getObject ( "baseorder" ).getArray ( "products" ), false, false );
-		ver.add ( ver.getPersonalizedWidget ( "products", products ) );
+		products = new OrderUserManager ( obj.getObject ( "baseorder" ), false );
+		products.setValue ( obj );
+		ver.add ( products );
 
 		return ver;
 	}

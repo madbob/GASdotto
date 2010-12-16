@@ -18,38 +18,33 @@
 package org.barberaware.client;
 
 import java.util.*;
-import java.lang.*;
-import com.google.gwt.user.client.ui.*;
 
-public class FloatBoxes extends VerticalPanel implements FloatWidget {
-	public FloatBoxes () {
+import com.google.gwt.user.client.*;
+
+public class OrderUserFriend extends FromServer {
+	public OrderUserFriend () {
+		super ();
+
+		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retriveString ( FromServer obj ) {
+				return obj.getString ( "friendname" );
+			}
+		} );
+
+		addAttribute ( "friendname", FromServer.STRING );
+		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
+
+		alwaysReload ( true );
 	}
 
-	public FloatBox addBox () {
-		FloatBox box;
+	public float getTotalPrice () {
+		ArrayList products;
 
-		box = new FloatBox ();
-		add ( box );
-		return box;
-	}
+		products = getArray ( "products" );
 
-	/****************************************************************** FloatWidget */
-
-	public void setVal ( float value ) {
-		/* dummy */
-	}
-
-	public float getVal () {
-		float sum;
-		FloatBox box;
-
-		sum = 0;
-
-		for ( int i = 0; i < getWidgetCount (); i++ ) {
-			box = ( FloatBox ) getWidget ( i );
-			sum += box.getVal ();
-		}
-
-		return sum;
+		if ( products == null )
+			return 0;
+		else
+			return ProductUser.sumProductUserArray ( products );
 	}
 }

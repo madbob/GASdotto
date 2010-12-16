@@ -106,7 +106,7 @@ public abstract class FromServer implements Comparator {
 		attributes.put ( name, new FromServerAttribute ( name, type, object ) );
 	}
 
-	protected void addFakeAttribute ( String name, int type, StringFromObjectClosure value ) {
+	protected void addFakeAttribute ( String name, int type, ValueFromObjectClosure value ) {
 		attributes.put ( name, new FromServerAttribute ( name, type, value ) );
 	}
 
@@ -214,7 +214,7 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public ArrayList getArray ( String name ) {
-		return getInternalAttribute ( name ).getArray ();
+		return getInternalAttribute ( name ).getArray ( this );
 	}
 
 	public FromServer getObject ( String name ) {
@@ -318,7 +318,7 @@ public abstract class FromServer implements Comparator {
 			k = ( String ) keys [ i ];
 			attr = ( FromServerAttribute ) attributes.get ( k );
 
-			if ( attr.type == OBJECT || attr.type == ARRAY )
+			if ( ( attr.type == OBJECT || attr.type == ARRAY ) && attr.objectType != null )
 				ret.add ( attr.getClassName () );
 		}
 

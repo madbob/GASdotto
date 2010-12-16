@@ -30,15 +30,44 @@ public class OrderUser extends FromServer {
 	public OrderUser () {
 		super ();
 
-		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
-			public String retrive ( FromServer obj ) {
+		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retriveString ( FromServer obj ) {
 				return obj.getObject ( "baseorder" ).getString ( "name" );
+			}
+		} );
+
+		/*
+			L'array "allproducts" e' da usare con estrema cautela, in quanto non si
+			mantiene in riferimento tra i prodotti dell'ordine principale e quelli
+			dei sotto-ordini degli amici.
+			Buono per modificare i prodotti all'interno degli ordini (ad esempio, per
+			marcare quelli consegnati) ma non per modificare le liste stesse
+		*/
+		addFakeAttribute ( "allproducts", FromServer.ARRAY, new ValueFromObjectClosure () {
+			public ArrayList retriveArray ( FromServer obj ) {
+				ArrayList ret;
+				ArrayList friends;
+				FromServer friend;
+
+				ret = new ArrayList ();
+				ret.addAll ( getArray ( "products" ) );
+
+				friends = obj.getArray ( "friends" );
+				if ( friends != null ) {
+					for ( int i = 0; i < friends.size (); i++ ) {
+						friend = ( FromServer ) friends.get ( i );
+						ret.addAll ( friend.getArray ( "products" ) );
+					}
+				}
+
+				return ret;
 			}
 		} );
 
 		addAttribute ( "baseuser", FromServer.OBJECT, User.class );
 		addAttribute ( "baseorder", FromServer.OBJECT, Order.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
+		addAttribute ( "friends", FromServer.ARRAY, OrderUserFriend.class );
 		addAttribute ( "status", FromServer.INTEGER );
 
 		setInt ( "status", TO_DELIVER );
@@ -57,23 +86,27 @@ public class OrderUser extends FromServer {
 	}
 
 	public float getTotalPrice () {
-		float total;
 		ArrayList products;
-		ProductUser prod;
 
 		products = getArray ( "products" );
+
 		if ( products == null )
 			return 0;
+		else
+			return ProductUser.sumProductUserArray ( products );
+	}
 
-		total = 0;
+	public float getTotalPriceWithFriends () {
+		float total;
+		ArrayList friends;
+		OrderUserFriend order;
 
-		for ( int i = 0; i < products.size (); i++ ) {
-			prod = ( ProductUser ) products.get ( i );
+		total = getTotalPrice ();
+		friends = getArray ( "friends" );
 
-			if ( prod.getObject ( "product" ).getBool ( "available" ) == false )
-				continue;
-
-			total += prod.getTotalPrice ();
+		for ( int i = 0; i < friends.size (); i++ ) {
+			order = ( OrderUserFriend ) friends.get ( i );
+			total += order.getTotalPrice ();
 		}
 
 		return total;

@@ -26,6 +26,7 @@ class OrderUser extends FromServer {
 		$this->addAttribute ( "baseorder", "OBJECT::Order" );
 		$this->addAttribute ( "baseuser", "OBJECT::User" );
 		$this->addAttribute ( "products", "ARRAY::ProductUser" );
+		$this->addAttribute ( "friends", "ARRAY::OrderUserFriend" );
 		$this->addAttribute ( "status", "INTEGER" );
 
 		$this->enforceUserCheck ( "baseuser" );

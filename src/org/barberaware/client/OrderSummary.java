@@ -158,7 +158,7 @@ public class OrderSummary extends Composite implements Lockable {
 			user = user_ord.getObject ( "baseorder" );
 
 			if ( user != null && user.getLocalID () == my_id ) {
-				user_products = user_ord.getArray ( "products" );
+				user_products = user_ord.getArray ( "allproducts" );
 
 				for ( int a = 0; a < user_products.size (); a++ ) {
 					user_product = ( ProductUser ) user_products.get ( a );

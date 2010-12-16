@@ -229,7 +229,7 @@ public class FromServerWidget extends Composite {
 
 			first = object.getArray ( name );
 			if ( first != null )
-				first = Utils.dupliacateFromServerArray ( object.getArray ( name ) );
+				first = Utils.duplicateFromServerArray ( object.getArray ( name ) );
 
 			second = ( ( FromServerArray ) wid ).getElements ();
 

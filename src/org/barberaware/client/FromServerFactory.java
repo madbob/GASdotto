@@ -54,6 +54,8 @@ public class FromServerFactory {
 				return new OrderUser ();
 			else if ( name.equals ( "Order" ) )
 				return new Order ();
+			else if ( name.equals ( "OrderUserFriend" ) )
+				return new OrderUserFriend ();
 		}
 		else if ( first == 'S' ) {
 			if ( name.equals ( "Supplier" ) )
@@ -107,6 +109,7 @@ public class FromServerFactory {
 		names.add ( "Measure" );
 		names.add ( "Order" );
 		names.add ( "OrderUser" );
+		names.add ( "OrderUserFriend" );
 		names.add ( "Product" );
 		names.add ( "ProductVariant" );
 		names.add ( "ProductVariantValue" );

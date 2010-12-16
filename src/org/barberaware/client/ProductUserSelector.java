@@ -141,6 +141,11 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		defineOnProduct ( prod );
 	}
 
+	public void setEditable ( boolean edit ) {
+		if ( editable == true )
+			( ( FloatBox ) quantity ).setEnabled ( edit );
+	}
+
 	private void disposeConstraints ( FromServer prod, Widget quantity ) {
 		float min;
 		float mult;

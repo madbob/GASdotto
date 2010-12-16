@@ -162,7 +162,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					/*
 
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public void onSave ( FromServerForm form ) {
+						public boolean onSave ( FromServerForm form ) {
 							FromServer obj;
 							FromServerWidget name;
 
@@ -170,6 +170,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 							name = ( FromServerWidget ) form.getWidget ( "name" );
 							name.assign ( obj );
 							list.reSort ( obj );
+							return true;
 						}
 					} );
 

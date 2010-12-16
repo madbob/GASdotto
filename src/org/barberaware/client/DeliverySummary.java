@@ -108,7 +108,7 @@ public class DeliverySummary extends Composite {
 		frame.addPair ( "Cellulare", phone );
 
 		products = new ProductsDeliveryTable ();
-		row.add ( row.getPersonalizedWidget ( "products", products ) );
+		row.add ( row.getPersonalizedWidget ( "allproducts", products ) );
 
 		row.setCallback ( new FromServerFormCallbacks () {
 			public String getName ( FromServerForm form ) {

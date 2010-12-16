@@ -40,8 +40,9 @@ public class FromServerFormCallbacks {
 		valori editati nei campi siano effettivamente assegnati all'oggetto: in questo
 		modo si possono verificare e modificare al volo
 	*/
-	public void onSave ( FromServerForm form ) {
+	public boolean onSave ( FromServerForm form ) {
 		/* dummy */
+		return true;
 	}
 
 	/*

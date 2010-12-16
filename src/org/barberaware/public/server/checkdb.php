@@ -374,6 +374,7 @@ function check_db_schema () {
 	test_class ( ProductUserVariantComponent );
 	test_class ( ProductUserVariant );
 	test_class ( ProductUser );
+	test_class ( OrderUserFriend );
 	test_class ( OrderUser );
 
 	test_static_tables ();

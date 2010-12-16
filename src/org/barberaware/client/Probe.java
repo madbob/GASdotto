@@ -23,8 +23,8 @@ public class Probe extends FromServer {
 	public Probe () {
 		super ();
 
-		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
-			public String retrive ( FromServer obj ) {
+		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retriveString ( FromServer obj ) {
 				return "Configurazione";
 			}
 		} );

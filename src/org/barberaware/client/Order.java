@@ -39,8 +39,8 @@ public class Order extends FromServer {
 	public Order () {
 		super ();
 
-		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
-			public String retrive ( FromServer obj ) {
+		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retriveString ( FromServer obj ) {
 				Date ship;
 				FromServer supplier;
 				String sup;

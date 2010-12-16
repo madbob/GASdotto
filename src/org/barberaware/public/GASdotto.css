@@ -205,7 +205,7 @@ body {
 .table-header .gwt-Label {
 	font-weight:		bold;
 	border-bottom:		3px solid #4EDFCE;
-	padding:		5px;
+	padding:		2px;
 }
 
 .buttons-bar .icons {
@@ -344,6 +344,26 @@ body {
 	width:			100%;
 }
 
+.order-manager {
+	width:			100%;
+}
+
+.radio-buttons {
+	margin:			3px;
+	padding:		5px;
+	-moz-border-radius:	5px;
+	border:			3px solid #BBBBBB;
+}
+
+.radio-buttons div {
+	padding:		5px;
+}
+
+.radio-buttons-selected {
+	padding:		5px;
+	background-color:	#BBBBBB;
+}
+
 .size-extended {
 	display:		block;
 	width:			100%;
@@ -397,8 +417,8 @@ body {
 	border:			2px solid #000000;
 }
 
-.highlight-part td {
-	width:			50%;
+.highlight-part .gwt-Label {
+	margin-right:		10px;
 }
 
 .contents-on-right {
@@ -428,7 +448,7 @@ body {
 	position:		fixed;
 	top:			45px;
 	right:			-350px;
-	z-index:		50;
+	z-index:		60;
 }
 
 .legend-table {
@@ -610,12 +630,18 @@ br {
 	z-index:		51;
 }
 
+.subform .gwt-TabBar .gwt-TabBarItem-selected {
+	border-bottom:		2px solid #EAEEFF;
+	margin-bottom:		0px;
+	z-index:		51;
+}
+
 .gwt-TabPanel {
-	width:			90%;
+	width:			99%;
 }
 
 .gwt-TabPanelBottom {
-	width:			90%;
+	width:			99%;
 	border:			2px solid #0080BB;
 	padding:		6px;
 	-moz-border-radius:	7px;

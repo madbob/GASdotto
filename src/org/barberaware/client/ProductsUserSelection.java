@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsUserSelection extends Composite implements FromServerArray {
+public class ProductsUserSelection extends Composite implements FromServerArray, SourcesChangeEvents {
 	private FlexTable		main;
 	private boolean			editable;
 	private boolean			freeEditable;
@@ -37,6 +37,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 	private float			total;
 	private PriceViewer		totalLabel;
+
+	private ArrayList		changeCallbacks			= null;
 
 	public ProductsUserSelection ( ArrayList products, boolean edit, boolean freeedit ) {
 		int num_products;
@@ -78,6 +80,24 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 				showProductDescriptionDialog ( ( Product ) selector.getValue ().getObject ( "product" ) );
 			}
 		} );
+	}
+
+	/*
+		Questo si puo' usare solo su un ProductsUserSelection editabile, rende non
+		editabili le caselle di testo per le quantita' dei prodotti
+	*/
+	public void setEditable ( boolean edit ) {
+		int num_rows;
+		ProductUserSelector selector;
+
+		if ( editable == true ) {
+			num_rows = main.getRowCount () - 2;
+
+			for ( int i = 0; i < num_rows; i++ ) {
+				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
+				selector.setEditable ( edit );
+			}
+		}
 	}
 
 	private void initDescriptionDialog () {
@@ -333,6 +353,10 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		lab.setText ( info_str );
 	}
 
+	private void triggerChange () {
+		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+	}
+
 	private void updateTotal () {
 		int rows;
 		float price;
@@ -348,6 +372,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		total = price;
 		totalLabel.setVal ( price );
+
+		triggerChange ();
 	}
 
 	/****************************************************************** FromServerArray */
@@ -480,5 +506,18 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		a = retrieveRowByProduct ( prod );
 		if ( a != -1 )
 			modProductRow ( a, prod );
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ArrayList ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 }

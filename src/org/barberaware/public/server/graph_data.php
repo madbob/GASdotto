@@ -96,6 +96,18 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 	unset ( $query );
 	unset ( $returned );
 
+	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
+				FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
+				WHERE OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
+					OrderUser_friends.parent = OrderUser.id AND OrderUser_friends.target = OrderUserFriend.id AND
+					OrderUserFriend_products.parent = OrderUserFriend.id AND ProductUser.id = OrderUserFriend_products.target AND
+					Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+						$supplier [ "id" ], $startdate, $enddate );
+	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
+	$price += $returned->fetchAll ( PDO::FETCH_NUM );
+	unset ( $query );
+	unset ( $returned );
+
 	if ( count ( $price ) == 0 )
 		$p = 0;
 	else
@@ -133,6 +145,18 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
 	$price = $returned->fetchAll ( PDO::FETCH_NUM );
+	unset ( $query );
+	unset ( $returned );
+
+	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
+				FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
+				WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
+					OrderUser_friends.parent = OrderUser.id AND OrderUser_friends.target = OrderUserFriend.id AND
+					OrderUserFriend_products.parent = OrderUserFriend.id AND ProductUser.id = OrderUserFriend_products.target AND
+					Product.id = ProductUser.product AND OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+						$user, $supplier, $startdate, $enddate );
+	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
+	$price += $returned->fetchAll ( PDO::FETCH_NUM );
 	unset ( $query );
 	unset ( $returned );
 
@@ -189,9 +213,44 @@ function products_data ( $supplier, $startdate, $enddate ) {
 			unset ( $returned );
 			unset ( $array );
 
+			$query = sprintf ( "SELECT DISTINCT(OrderUser.baseuser) FROM OrderUser, Orders, OrderUserFriend, OrderUser_friends, OrderUserFriend_products, ProductUser
+						WHERE OrderUser.baseorder = Orders.id AND OrderUser_friends.parent = OrderUser.id AND
+							OrderUser_friends.target = OrderUserFriend.id AND OrderUserFriend_products.parent = OrderUserFriend.id AND
+							ProductUser.id = OrderUserFriend_products.target AND ProductUser.product = %d AND
+							OrderUser.baseuser NOT IN (%s) AND Orders.startdate > '%s' AND Orders.enddate < '%s' AND %s",
+								$id, count ( $managed_users ) == 0 ? '0' : join ( ', ', $managed_users ),
+								$startdate, $enddate, $excluded );
+
+			$returned = query_and_check ( $query, "Impossibile recuperare numero utenti per prodotto" );
+			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			$tot += count ( $array );
+
+			foreach ( $array as $u )
+				$managed_users [] = $u [ 0 ];
+
+			unset ( $query );
+			unset ( $returned );
+			unset ( $array );
+
 			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
 						WHERE Product.id = %d AND OrderUser.baseorder = Orders.id AND OrderUser_products.parent = OrderUser.id AND
 							ProductUser.id = OrderUser_products.target AND ProductUser.product = Product.id AND
+							Orders.startdate > '%s' AND Orders.enddate < '%s' GROUP BY Product.unit_price",
+								$id, $startdate, $enddate );
+
+			$returned = query_and_check ( $query, "Impossibile recuperare valore per prodotto" );
+			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			if ( count ( $array ) == 1 )
+				$val += $array [ 0 ] [ 0 ];
+
+			unset ( $query );
+			unset ( $returned );
+			unset ( $array );
+
+			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
+						WHERE Product.id = %d AND OrderUser.baseorder = Orders.id AND OrderUser_friends.parent = OrderUser.id AND
+							OrderUser_friends.target = OrderUserFriend.id AND OrderUserFriend_products.parent = OrderUserFriend.id AND
+							ProductUser.id = OrderUserFriend_products.target AND ProductUser.product = Product.id AND
 							Orders.startdate > '%s' AND Orders.enddate < '%s' GROUP BY Product.unit_price",
 								$id, $startdate, $enddate );
 

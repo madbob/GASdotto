@@ -85,7 +85,7 @@ public class NotificationPanel extends GenericPanel {
 					ver = new FromServerForm ( n );
 
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public void onSave ( FromServerForm form ) {
+						public boolean onSave ( FromServerForm form ) {
 							MultiSelector users;
 
 							if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
@@ -95,6 +95,8 @@ public class NotificationPanel extends GenericPanel {
 							else {
 								form.getObject ().setBool ( "send_mailinglist", false );
 							}
+
+							return true;
 						}
 					} );
 

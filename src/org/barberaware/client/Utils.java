@@ -196,7 +196,7 @@ public class Utils {
 
 	/****************************************************** datatype */
 
-	public static ArrayList dupliacateFromServerArray ( ArrayList array ) {
+	public static ArrayList duplicateFromServerArray ( ArrayList array ) {
 		FromServer iter;
 		ArrayList ret;
 
@@ -244,7 +244,7 @@ public class Utils {
 	public static ArrayList sortArrayByName ( ArrayList array ) {
 		ArrayList ret;
 
-		ret = Utils.dupliacateFromServerArray ( array );
+		ret = Utils.duplicateFromServerArray ( array );
 		Collections.sort ( ret, new Comparator () {
 			public int compare ( Object first, Object second ) {
 				FromServer tmp;
@@ -294,6 +294,18 @@ public class Utils {
 			return percentage;
 		else
 			return percentage + " €";
+	}
+
+	public static void triggerChangesCallbacks ( ArrayList callbacks, Widget target ) {
+		ChangeListener call;
+
+		if ( callbacks == null )
+			return;
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			call = ( ChangeListener ) callbacks.get ( i );
+			call.onChange ( target );
+		}
 	}
 
 	/****************************************************** date */

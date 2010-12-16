@@ -23,16 +23,24 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ScreenCalculator extends DialogBox {
+public class ScreenCalculator extends DialogBox implements SavingDialog {
 	private ArrayList		boxes;
+	private FlexTable		table;
 	private FloatBox		completeSum;
 	private FloatBox		finalTarget;
-	private boolean			running;
 
-	public ScreenCalculator ( int pieces ) {
+	private boolean			running;
+	private boolean			wasUsed;
+
+	private ArrayList		savingCallbacks;
+
+	public ScreenCalculator () {
 		boxes = new ArrayList ();
+
 		running = false;
-		setWidget ( doDialog ( pieces ) );
+		wasUsed = false;
+
+		setWidget ( doDialog () );
 	}
 
 	public void setTarget ( FloatBox target ) {
@@ -60,6 +68,70 @@ public class ScreenCalculator extends DialogBox {
 		running = false;
 	}
 
+	public void addCells ( int pieces ) {
+		int row;
+		FloatBox box;
+
+		row = table.getRowCount () - 1;
+
+		for ( int i = 0; i < pieces; i++, row++ ) {
+			box = new FloatBox ();
+			boxes.add ( box );
+
+			table.insertRow ( row );
+			table.setWidget ( row, 1, box );
+			table.setWidget ( row, 2, new Label ( "+" ) );
+
+			box.addFocusListener ( new FocusListener () {
+				public void onFocus ( Widget sender ) {
+					/* dummy */
+				}
+
+				public void onLostFocus ( Widget sender ) {
+					updateSum ();
+				}
+			} );
+		}
+	}
+
+	public void setValue ( float value ) {
+		FloatBox box;
+
+		for ( int i = 0; i < boxes.size (); i++ ) {
+			box = ( FloatBox ) boxes.get ( i );
+			box.setVal ( value );
+		}
+
+		wasUsed = true;
+	}
+
+	public float [] getValues () {
+		float [] ret;
+		FloatBox box;
+
+		ret = new float [ boxes.size () ];
+
+		for ( int i = 0; i < boxes.size (); i++ ) {
+			box = ( FloatBox ) boxes.get ( i );
+			ret [ i ] = box.getVal ();
+		}
+
+		return ret;
+	}
+
+	public void clear () {
+		FloatBox box;
+
+		for ( int i = 0; i < boxes.size (); i++ ) {
+			box = ( FloatBox ) boxes.get ( i );
+			box.setVal ( 0 );
+		}
+	}
+
+	public boolean hasBeenUsed () {
+		return wasUsed;
+	}
+
 	private void saveOnTarget () {
 		finalTarget.setVal ( completeSum.getVal () );
 	}
@@ -78,10 +150,25 @@ public class ScreenCalculator extends DialogBox {
 		completeSum.setVal ( sum );
 	}
 
-	private Panel doDialog ( int pieces ) {
+	private void closeCallbacks ( int mode ) {
+		SavingDialogCallback call;
+
+		if ( savingCallbacks != null ) {
+			for ( int i = 0; i < savingCallbacks.size (); i++ ) {
+				call = ( SavingDialogCallback ) savingCallbacks.get ( i );
+
+				if ( mode == 1 )
+					call.onSave ( this );
+				else
+					call.onCancel ( this );
+			}
+		}
+
+		hide ();
+	}
+
+	private Panel doDialog () {
 		VerticalPanel pan;
-		FlexTable table;
-		FloatBox box;
 		HorizontalPanel buttons;
 		Button but;
 
@@ -92,33 +179,9 @@ public class ScreenCalculator extends DialogBox {
 		table = new FlexTable ();
 		pan.add ( table );
 
-		for ( int i = 0; i < pieces; i++ ) {
-			box = new FloatBox ();
-			boxes.add ( box );
-
-			table.setWidget ( i, 1, box );
-
-			if ( i == pieces - 1 )
-				table.setWidget ( i, 2, new Label ( "=" ) );
-			else
-				table.setWidget ( i, 2, new Label ( "+" ) );
-
-			box.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					/*
-						dummy
-					*/
-				}
-
-				public void onLostFocus ( Widget sender ) {
-					updateSum ();
-				}
-			} );
-		}
-
 		completeSum = new FloatBox ();
-		table.setWidget ( pieces, 0, new Label ( "Totale" ) );
-		table.setWidget ( pieces, 1, completeSum );
+		table.setWidget ( 0, 0, new Label ( "Totale" ) );
+		table.setWidget ( 0, 1, completeSum );
 
 		buttons = new HorizontalPanel ();
 		buttons.setStyleName ( "dialog-buttons" );
@@ -128,18 +191,32 @@ public class ScreenCalculator extends DialogBox {
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				saveOnTarget ();
-				hide ();
+				wasUsed = true;
+				closeCallbacks ( 1 );
 			}
 		} );
 		buttons.add ( but );
 
 		but = new Button ( "Annulla", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				hide ();
+				closeCallbacks ( 0 );
 			}
 		} );
 		buttons.add ( but );
 
 		return pan;
+	}
+
+	/****************************************************************** SavingDialog */
+
+	public void addCallback ( SavingDialogCallback callback ) {
+		if ( savingCallbacks == null )
+			savingCallbacks = new ArrayList ();
+		savingCallbacks.add ( callback );
+	}
+
+	public void removeCallback ( SavingDialogCallback callback ) {
+		if ( savingCallbacks != null )
+			savingCallbacks.remove ( callback );
 	}
 }

@@ -57,7 +57,7 @@ public class UsersPanel extends GenericPanel {
 					*/
 
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public void onSave ( FromServerForm form ) {
+						public boolean onSave ( FromServerForm form ) {
 							CyclicToggle role;
 							DateSelector leave;
 							Date leavedate;
@@ -81,6 +81,8 @@ public class UsersPanel extends GenericPanel {
 							*/
 							else if ( leavedate != null )
 								leave.setValue ( null );
+
+							return true;
 						}
 					} );
 

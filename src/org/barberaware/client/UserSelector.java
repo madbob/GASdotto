@@ -42,12 +42,6 @@ public class UserSelector extends DeckPanel implements ObjectWidget, Lockable {
 		} );
 		add ( first );
 
-		/**
-			TODO	Provare a perfezionare la visualizzazione su Explorer: se si
-				toglie il width da highlight-part.td sparisce la combo box degli
-				utenti, ma cosi' com'e' non e' il massimo
-		*/
-
 		select = new FromServerSelector ( "User", true, true, true );
 		add ( select );
 

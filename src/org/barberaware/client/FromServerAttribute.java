@@ -26,7 +26,7 @@ public class FromServerAttribute {
 	public int			type;
 	public Class			objectType	= null;
 
-	private StringFromObjectClosure	fakeString	= null;
+	private ValueFromObjectClosure	fakeClosure	= null;
 	private String			string		= "";
 	private int			integer		= 0;
 	private float			floating	= 0;
@@ -50,9 +50,9 @@ public class FromServerAttribute {
 		this.objectType = reference;
 	}
 
-	public FromServerAttribute ( String name, int type, StringFromObjectClosure reference ) {
+	public FromServerAttribute ( String name, int type, ValueFromObjectClosure reference ) {
 		buildCommon ( name, type );
-		this.fakeString = reference;
+		this.fakeClosure = reference;
 	}
 
 	public void setString ( String value ) {
@@ -98,7 +98,7 @@ public class FromServerAttribute {
 			floating = cpy.floating;
 
 		else if ( type == FromServer.ARRAY )
-			array = Utils.dupliacateFromServerArray ( cpy.array );
+			array = Utils.duplicateFromServerArray ( cpy.array );
 
 		else if ( type == FromServer.OBJECT )
 			objectId = cpy.objectId;
@@ -114,8 +114,8 @@ public class FromServerAttribute {
 	}
 
 	public String getString ( FromServer obj ) {
-		if ( fakeString != null )
-			return fakeString.retrive ( obj );
+		if ( fakeClosure != null )
+			return fakeClosure.retriveString ( obj );
 		else
 			return string;
 	}
@@ -128,8 +128,11 @@ public class FromServerAttribute {
 		return floating;
 	}
 
-	public ArrayList getArray () {
-		return array;
+	public ArrayList getArray ( FromServer obj ) {
+		if ( fakeClosure != null )
+			return fakeClosure.retriveArray ( obj );
+		else
+			return array;
 	}
 
 	public FromServer getObject () {
@@ -153,6 +156,9 @@ public class FromServerAttribute {
 	}
 
 	public JSONValue getJSON () {
+		if ( fakeClosure != null )
+			return null;
+
 		if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
 			if ( string != null && string != "" )
 				return new JSONString ( string );

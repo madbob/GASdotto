@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2008/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,6 +17,19 @@
 
 package org.barberaware.client;
 
-public interface StringFromObjectClosure {
-	public String retrive ( FromServer obj );
+import java.util.*;
+
+import com.google.gwt.user.client.ui.*;
+
+public interface ProductDeliveryEditableCell extends SourcesChangeEvents {
+	public void addProductUser ( FromServer product );
+
+	public void clear ();
+	public float getCurrentQuantity ();
+
+	public float shipAll ();
+	public ArrayList getAlignedProducts ();
+
+	public void addChangeListener ( ChangeListener listener );
+	public void removeChangeListener ( ChangeListener listener );
 }

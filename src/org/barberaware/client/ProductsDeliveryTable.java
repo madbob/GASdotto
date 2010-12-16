@@ -24,130 +24,40 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ProductsDeliveryTable extends Composite implements FromServerArray {
-	private FlexTable		main;
-	private float			total;
+	private VerticalPanel		main;
 	private PriceViewer		totalLabel;
-	private ArrayList		currentValues;
 
 	public ProductsDeliveryTable () {
+		Label header;
+		HorizontalPanel hor;
+
 		HTMLTable.RowFormatter formatter;
 
-		main = new FlexTable ();
+		main = new VerticalPanel ();
 		main.setStyleName ( "elements-table" );
+		main.setWidth ( "90%" );
 		initWidget ( main );
 
-		main.setWidget ( 0, 1, new Label ( "Prodotto" ) );
-		main.setWidget ( 0, 2, new Label ( "Quantità Ordinata" ) );
-		main.setWidget ( 0, 3, new Label ( "Quantità Consegnata" ) );
-		main.setWidget ( 0, 4, new Label ( "Prezzo Totale" ) );
+		hor = new HorizontalPanel ();
+		hor.setStyleName ( "table-header" );
+		hor.setWidth ( "100%" );
+		main.add ( hor );
 
-		formatter = main.getRowFormatter ();
-		formatter.addStyleName ( 0, "table-header" );
-	}
+		header = new Label ( "Prodotto" );
+		hor.add ( header );
+		hor.setCellWidth ( header, "40%" );
 
-	private void newInputToCheck ( FloatBox box ) {
-		int num_rows;
-		float input;
-		float row_sum;
-		float total_sum;
-		FloatWidget iter;
-		ProductUser prod_user;
-		FromServer prod;
+		header = new Label ( "Quantità Ordinata" );
+		hor.add ( header );
+		hor.setCellWidth ( header, "20%" );
 
-		total_sum = 0;
-		num_rows = currentValues.size ();
+		header = new Label ( "Quantità Consegnata" );
+		hor.add ( header );
+		hor.setCellWidth ( header, "20%" );
 
-		for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
-			iter = ( FloatWidget ) main.getWidget ( i, 3 );
-			input = iter.getVal ();
-
-			prod_user = ( ProductUser ) currentValues.get ( a );
-			row_sum = prod_user.getTotalPrice ( input );
-
-			prod = prod_user.getObject ( "product" );
-
-			if ( iter == box ) {
-				if ( input < 0 ) {
-					Utils.showNotification ( "Il valore immesso non è valido" );
-					box.setVal ( 0 );
-				}
-				else {
-					Label total_label;
-
-					/*
-						Se la quantita' immessa e' diversa da quella ordinata si limita a
-						mostrare una notifica, ma non blocca l'operazione in quanto puo'
-						succedere che avanzi qualche prodotto (ordinato per arrotondamento) e
-						si distribuisca arbitrariamente
-					*/
-					if ( prod.getBool ( "mutable_price" ) == false && input > prod_user.getFloat ( "quantity" ) )
-						Utils.showNotification ( "Hai immesso una quantità diversa da quella ordinata",
-										Notification.INFO );
-
-					total_label = ( Label ) main.getWidget ( i, 4 );
-					total_label.setText ( Utils.priceToString ( row_sum ) );
-				}
-			}
-
-			total_sum = row_sum + total_sum;
-		}
-
-		totalLabel.setVal ( total_sum );
-	}
-
-	private void newVariantInputToCheck ( FloatBox box ) {
-		int num_rows;
-		float input;
-		float row_sum;
-		float total_sum;
-		FloatWidget iter;
-		FloatBoxes parent;
-		ProductUser prod_user;
-
-		total_sum = 0;
-		num_rows = currentValues.size ();
-		parent = ( FloatBoxes ) box.getParent ();
-
-		for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
-			iter = ( FloatWidget ) main.getWidget ( i, 3 );
-			input = iter.getVal ();
-
-			prod_user = ( ProductUser ) currentValues.get ( a );
-			row_sum = prod_user.getTotalPrice ( input );
-
-			if ( iter == parent ) {
-				if ( input < 0 ) {
-					Utils.showNotification ( "Il valore immesso non è valido" );
-					box.setVal ( 0 );
-				}
-				else {
-					Label total_label;
-
-					total_label = ( Label ) main.getWidget ( i, 4 );
-					total_label.setText ( Utils.priceToString ( row_sum ) );
-				}
-			}
-
-			total_sum = row_sum + total_sum;
-		}
-
-		totalLabel.setVal ( total_sum );
-	}
-
-	private void shipAllVariants ( int row ) {
-		FlexTable list;
-		Label quantity_label;
-		FloatBoxes boxes;
-		FloatBox box;
-
-		list = ( FlexTable ) main.getWidget ( row, 2 );
-		boxes = ( FloatBoxes ) main.getWidget ( row, 3 );
-
-		for ( int i = 0; i < list.getRowCount (); i++ ) {
-			quantity_label = ( Label ) list.getWidget ( i, 1 );
-			box = ( FloatBox ) boxes.getWidget ( i );
-			box.setVal ( Integer.parseInt ( quantity_label.getText () ) );
-		}
+		header = new Label ( "Prezzo Totale" );
+		hor.add ( header );
+		hor.setCellWidth ( header, "20%" );
 	}
 
 	private Button createAutoCompleteButton () {
@@ -156,33 +66,14 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		ret = new Button ( "Consegna Tutto" );
 		ret.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
-				int num_rows;
-				float input;
-				float row_sum;
 				float total_sum;
-				Label total_label;
-				FloatWidget iter;
-				ProductUser prod_user;
+				ProductDeliveryCell row;
 
 				total_sum = 0;
-				num_rows = currentValues.size ();
 
-				for ( int a = 0, i = 1; a < num_rows; a++, i++ ) {
-					iter = ( FloatWidget ) main.getWidget ( i, 3 );
-					prod_user = ( ProductUser ) currentValues.get ( a );
-
-					input = prod_user.getFloat ( "quantity" );
-
-					row_sum = prod_user.getTotalPrice ( input );
-					total_label = ( Label ) main.getWidget ( i, 4 );
-					total_label.setText ( Utils.priceToString ( row_sum ) );
-
-					if ( iter instanceof FloatBox == true )
-						iter.setVal ( input );
-					else
-						shipAllVariants ( i );
-
-					total_sum = row_sum + total_sum;
+				for ( int i = 1; i < main.getWidgetCount () - 2; i++ ) {
+					row = ( ProductDeliveryCell ) main.getWidget ( i );
+					total_sum = total_sum + row.shipAll ();
 				}
 
 				totalLabel.setVal ( total_sum );
@@ -192,227 +83,59 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		return ret;
 	}
 
-	private void hookCalculator ( ProductUser prod, FloatBox box ) {
-		int pieces;
-		float unit;
-		final ScreenCalculator calc;
+	private void upgradeTotal () {
+		float total_sum;
+		ProductUser prod;
+		ProductDeliveryCell row;
 
-		unit = prod.getObject ( "product" ).getFloat ( "unit_size" );
-		if ( unit != 0 ) {
-			pieces = Math.round ( prod.getFloat ( "quantity" ) / unit );
+		total_sum = 0;
 
-			if ( pieces > 1 ) {
-				box.addStyleName ( "calculator-addicted" );
+		for ( int i = 1; i < main.getWidgetCount () - 2; i++ ) {
+			row = ( ProductDeliveryCell ) main.getWidget ( i );
 
-				calc = new ScreenCalculator ( pieces );
-				calc.setText ( prod.getObject ( "product" ).getString ( "name" ) );
-				calc.setTarget ( box );
-
-				box.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-						calc.center ();
-						calc.show ();
-					}
-
-					public void onLostFocus ( Widget sender ) {
-						/*
-							dummy
-						*/
-					}
-				} );
-			}
+			prod = ( ProductUser ) row.getReferenceProduct ();
+			total_sum += prod.getTotalPrice ( row.getCurrentQuantity () );
 		}
+
+		totalLabel.setVal ( total_sum );
 	}
 
-	private Widget [] doVariantsList ( ArrayList variants ) {
-		int num;
-		int num_comps;
-		int found;
-		String check;
-		String label;
-		ArrayList components;
-		Hidden check_placeholder;
-		Label counter;
-		Label l;
-		FlexTable list;
-		FloatBoxes inputs;
-		FloatBox del;
-		FromServer value;
-		ProductUserVariant variant;
-		ProductUserVariantComponent component;
-		Widget ret [];
+	private void bottomLine ( VerticalPanel main, float price_total ) {
+		Label filler;
+		HorizontalPanel bottom;
+		Widget button;
 
-		list = new FlexTable ();
-		list.setStyleName ( "size-extended" );
+		bottom = new HorizontalPanel ();
+		bottom.setWidth ( "100%" );
+		main.add ( bottom );
 
-		inputs = new FloatBoxes ();
-		inputs.setHeight ( "100%" );
+		/*
+			Le due label vuote servono solo a far quadrare i conti con gli
+			allineamenti, saranno comunque presto rimpiazzate da contenuti
+		*/
 
-		num = variants.size ();
+		filler = new Label ();
+		bottom.add ( filler );
+		bottom.setCellWidth ( filler, "40%" );
 
-		for ( int i = 0; i < num; i++ ) {
-			check = "";
-			label = "";
+		filler = new Label ();
+		bottom.add ( filler );
+		bottom.setCellWidth ( filler, "20%" );
 
-			variant = ( ProductUserVariant ) variants.get ( i );
-			components = variant.getArray ( "components" );
+		button = createAutoCompleteButton ();
+		bottom.add ( button );
+		bottom.setCellVerticalAlignment ( button, HasVerticalAlignment.ALIGN_MIDDLE );
+		bottom.setCellWidth ( button, "20%" );
 
-			Collections.sort ( components, new Comparator () {
-				public int compare ( Object first, Object second ) {
-					FromServer tmp;
-					String name_first;
-					String name_second;
-
-					tmp = ( FromServer ) first;
-					name_first = tmp.getObject ( "variant" ).getString ( "name" );
-					tmp = ( FromServer ) second;
-					name_second = tmp.getObject ( "variant" ).getString ( "name" );
-
-					return name_first.compareTo ( name_second );
-				}
-
-				public boolean equals ( Object obj ) {
-					return false;
-				}
-			} );
-
-			num_comps = components.size ();
-
-			for ( int a = 0; a < num_comps; a++ ) {
-				component = ( ProductUserVariantComponent ) components.get ( a );
-				value = component.getObject ( "value" );
-				check = check + Integer.toString ( value.getLocalID () ) + ":";
-
-				/*
-					Qui costruisco la stringa da visualizzare in ogni caso, se poi salta fuori
-					che una variante come questa e' gia' presente in tabella la butto
-				*/
-				label = label + component.getObject ( "variant" ).getString ( "name" ) + ": " + value.getString ( "name" );
-
-				if ( a != num_comps - 1 )
-					label = label + ", ";
-			}
-
-			found = -1;
-
-			for ( int a = 0; a < list.getRowCount (); a++ ) {
-				check_placeholder = ( Hidden ) list.getWidget ( a, 0 );
-				if ( check == check_placeholder.getName () ) {
-					found = a;
-					break;
-				}
-			}
-
-			if ( found == -1 ) {
-				found = list.getRowCount ();
-				list.setWidget ( found, 0, new Hidden ( check ) );
-
-				list.setWidget ( found, 1, new Label ( "1" ) );
-				list.setWidget ( found, 2, new Label ( label ) );
-
-				del = inputs.addBox ();
-
-				del.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-						/* dummy */
-					}
-
-					public void onLostFocus ( Widget sender ) {
-						newVariantInputToCheck ( ( FloatBox ) sender );
-					}
-				} );
-
-				/*
-					Orrore e raccapriccio...
-					Per qualche problema non identificato (imputabile o all'elaborazione del DOM
-					Firefox o a qualche proprieta' CSS) la FlexTable in list non viene
-					visualizzata con una altezza al 100% rispetto alla cella che la contiene, e
-					dunque risulta uno spazio vuoto sopra e sotto. Questo pero' disallinea le
-					etichette che si stanno qui piazzando con le caselle di input numerico in
-					inputs (che stanno in tutt'altro contenitore).
-					Ho pertanto forzato l'altezza degli <input> a 25px, e lo stesso faccio qui a
-					mano con le righe della tabella. In questo modo il DOM e' forzato a
-					visualizzare il tutto alto uguale, e pertanto allineato.
-					Sarebbe assai meglio far fare questo lavoro al CSS...
-				*/
-				list.getRowFormatter ().setStyleName ( found, "high-as-input" );
-			}
-			else {
-				counter = ( Label ) list.getWidget ( found, 1 );
-				counter.setText ( Integer.toString ( Integer.parseInt ( counter.getText () ) + 1 ) );
-
-				del = ( FloatBox ) inputs.getWidget ( found );
-			}
-
-			if ( variant.getBool ( "delivered" ) == true )
-				del.setVal ( del.getVal () + 1 );
+		if ( totalLabel == null ) {
+			totalLabel = new PriceViewer ();
+			totalLabel.setStyleName ( "bigger-text" );
 		}
 
-		ret = new Widget [ 2 ];
-		ret [ 0 ] = list;
-		ret [ 1 ] = inputs;
-
-		return ret;
-	}
-
-	private void deliverVariants ( ArrayList variants, FlexTable list, FloatBoxes quantities ) {
-		int variants_num;
-		float found;
-		boolean skip;
-		int [] num_ids;
-		String [] ids;
-		ArrayList components;
-		Hidden check;
-		FloatBox quantity;
-		ProductUserVariant var;
-		ProductUserVariantComponent comp;
-
-		variants_num = variants.size ();
-
-		for ( int a = 0; a < variants_num; a++ ) {
-			var = ( ProductUserVariant ) variants.get ( a );
-			var.setBool ( "delivered", false );
-		}
-
-		for ( int i = 0; i < list.getRowCount (); i++ ) {
-			quantity = ( FloatBox ) quantities.getWidget ( i );
-			if ( quantity.getVal () == 0 )
-				continue;
-
-			check = ( Hidden ) list.getWidget ( i, 0 );
-
-			ids = check.getName ().split ( ":" );
-			num_ids = new int [ ids.length ];
-
-			for ( int a = 0; a < ids.length; a++ )
-				num_ids [ a ] = Integer.parseInt ( ids [ a ] );
-
-			found = 0;
-
-			for ( int a = 0; a < variants_num; a++ ) {
-				skip = false;
-
-				var = ( ProductUserVariant ) variants.get ( a );
-				components = var.getArray ( "components" );
-
-				for ( int e = 0; e < components.size (); e++ ) {
-					comp = ( ProductUserVariantComponent ) components.get ( e );
-
-					if ( comp.getObject ( "value" ).getLocalID () != num_ids [ e ] ) {
-						skip = true;
-						break;
-					}
-				}
-
-				if ( skip == false ) {
-					var.setBool ( "delivered", true );
-					found = found + 1;
-
-					if ( found == quantity.getVal () )
-						break;
-				}
-			}
-		}
+		totalLabel.setVal ( price_total );
+		bottom.add ( totalLabel );
+		bottom.setCellVerticalAlignment ( totalLabel, HasVerticalAlignment.ALIGN_MIDDLE );
+		bottom.setCellWidth ( totalLabel, "20%" );
 	}
 
 	/****************************************************************** FromServerArray */
@@ -422,104 +145,56 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 	}
 
 	public void setElements ( ArrayList elements ) {
-		int i;
-		int e;
-		String symbol;
-		float delivered;
-		float price_product;
+		int rows;
+		boolean found;
 		float price_total;
-		ArrayList variants;
 		ProductUser prod_user;
+		ProductDeliveryCell row;
 		FromServer prod;
-		FromServer measure;
-		FloatBox del;
-		FlexTable.FlexCellFormatter formatter;
-		Widget variants_widgets [];
 
-		currentValues = elements;
 		price_total = 0;
+		rows = main.getWidgetCount () - 1;
 
-		formatter = main.getFlexCellFormatter ();
+		for ( int i = 0; i < rows; i++ )
+			main.remove ( 1 );
 
-		for ( i = 0; i < main.getRowCount () - 1; i++ )
-			main.removeRow ( 1 );
-
-		/*
-			Questo e' per i casi in cui la lista dei prodotti viene aggiornata
-			(magari perche' e' cambiato l'ordine) ed il colspan della cella in cui si
-			trovava la riga che separa il totale va invalidato (per poi essere
-			ri-settato quando si ri-piazza tale riga)
-		*/
-		main.getFlexCellFormatter ().setColSpan ( 1, 0, 1 );
-
-		for ( e = 1, i = 0; i < elements.size (); i++ ) {
+		for ( int i = 0; i < elements.size (); i++ ) {
 			prod_user = ( ProductUser ) elements.get ( i );
 
 			prod = prod_user.getObject ( "product" );
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			measure = prod.getObject ( "measure" );
-			if ( measure != null )
-				symbol = " " + measure.getString ( "name" );
-			else
-				symbol = "";
+			row = null;
+			found = false;
 
-			delivered = prod_user.getFloat ( "delivered" );
-			variants = prod_user.getArray ( "variants" );
+			for ( int e = 1; e < main.getWidgetCount (); e++ ) {
+				row = ( ProductDeliveryCell ) main.getWidget ( e );
+				if ( prod.equals ( row.getReferenceProduct ().getObject ( "product" ) ) == true ) {
+					found = true;
+					break;
+				}
+			}
 
-			main.setWidget ( e, 0, new Hidden ( "id", Integer.toString ( prod.getLocalID () ) ) );
-			main.setWidget ( e, 1, new Label ( prod.getString ( "name" ) ) );
+			if ( found == false ) {
+				row = new ProductDeliveryCell ();
 
-			if ( variants == null || variants.size () == 0 ) {
-				main.setWidget ( e, 2, new Label ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + symbol ) );
-
-				del = new FloatBox ();
-				del.setVal ( delivered );
-				main.setWidget ( e, 3, del );
-
-				hookCalculator ( prod_user, del );
-
-				del.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-						/* dummy */
-					}
-
-					public void onLostFocus ( Widget sender ) {
-						newInputToCheck ( ( FloatBox ) sender );
+				row.addChangeListener ( new ChangeListener () {
+					public void onChange ( Widget sender ) {
+						upgradeTotal ();
 					}
 				} );
-			}
-			else {
-				variants_widgets = doVariantsList ( variants );
-				main.setWidget ( e, 2, variants_widgets [ 0 ] );
-				main.setWidget ( e, 3, variants_widgets [ 1 ] );
+
+				main.add ( row );
 			}
 
-			price_product = prod_user.getTotalPrice ( delivered );
-			main.setWidget ( e, 4, new Label ( Utils.priceToString ( price_product ) ) );
-			price_total = price_total + price_product;
+			row.addProductUser ( prod_user );
 
-			formatter.setVerticalAlignment ( e, 1, HasVerticalAlignment.ALIGN_TOP );
-			formatter.setVerticalAlignment ( e, 4, HasVerticalAlignment.ALIGN_TOP );
-
-			e++;
+			price_total += prod_user.getTotalPrice ( prod_user.getFloat ( "delivered" ) );
 		}
 
-		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( e, 0, 5 );
-
-		e++;
-
-		main.setWidget ( e, 3, createAutoCompleteButton () );
-
-		if ( totalLabel == null ) {
-			totalLabel = new PriceViewer ();
-			totalLabel.setStyleName ( "bigger-text" );
-		}
-
-		totalLabel.setVal ( price_total );
-		main.setWidget ( e, 4, totalLabel );
+		main.add ( new HTML ( "<hr>" ) );
+		bottomLine ( main, price_total );
 	}
 
 	public void removeElement ( FromServer element ) {
@@ -527,22 +202,17 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 	}
 
 	public ArrayList getElements () {
-		ArrayList variants;
-		FloatWidget del;
-		FromServer produser;
+		ArrayList ret;
+		ProductDeliveryCell row;
 
-		for ( int i = 0; i < currentValues.size (); i++ ) {
-			del = ( FloatWidget ) main.getWidget ( i + 1, 3 );
-			produser = ( FromServer ) currentValues.get ( i );
-			produser.setFloat ( "delivered", del.getVal () );
+		ret = new ArrayList ();
 
-			variants = produser.getArray ( "variants" );
-
-			if ( variants != null && variants.size () != 0 )
-				deliverVariants ( variants, ( FlexTable ) main.getWidget ( i + 1, 2 ), ( FloatBoxes ) main.getWidget ( i + 1, 3 ) );
+		for ( int i = 1; i < main.getWidgetCount () - 2; i++ ) {
+			row = ( ProductDeliveryCell ) main.getWidget ( i );
+			ret.addAll ( row.getAlignedProducts () );
 		}
 
-		return currentValues;
+		return ret;
 	}
 
 	public void refreshElement ( FromServer element ) {

@@ -44,4 +44,25 @@ public class ProductUserVariant extends FromServer {
 
 		return 0;
 	}
+
+	public String getTextSummary () {
+		int num;
+		String ret;
+		ArrayList components;
+		FromServer component;
+
+		components = getArray ( "components" );
+		num = components.size ();
+		ret = "";
+
+		for ( int i = 0; i < num; i++ ) {
+			component = ( FromServer ) components.get ( i );
+			ret = ret + component.getObject ( "variant" ).getString ( "name" ) + ": " + component.getObject ( "value" ).getString ( "name" );
+
+			if ( i != num - 1 )
+				ret += ", ";
+		}
+
+		return ret;
+	}
 }

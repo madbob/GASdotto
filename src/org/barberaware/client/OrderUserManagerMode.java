@@ -18,25 +18,9 @@
 package org.barberaware.client;
 
 import java.util.*;
+
 import com.google.gwt.user.client.ui.*;
 
-public class SystemConf extends FromServer {
-	public SystemConf () {
-		super ();
-
-		/*
-			Un attributo "name" non dovrebbe servire a nulla, se non a fare arrabbiare il FromServerForm
-			che viene costruito in SystemPanel per riassumere le informazioni dell'applicazione
-		*/
-		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
-			public String retriveString ( FromServer obj ) {
-				return "Informazioni Generali";
-			}
-		} );
-
-		addAttribute ( "gasdotto_main_version", FromServer.STRING );
-		addAttribute ( "gasdotto_commit_version", FromServer.STRING );
-		addAttribute ( "gasdotto_build_date", FromServer.DATE );
-		addAttribute ( "has_file", FromServer.BOOLEAN );
-	}
+public interface OrderUserManagerMode {
+	public void upgradeProductsList ( ArrayList products );
 }

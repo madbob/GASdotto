@@ -129,4 +129,22 @@ public class ProductUser extends FromServer {
 
 		return ret;
 	}
+
+	public static float sumProductUserArray ( ArrayList products ) {
+		float total;
+		ProductUser prod;
+
+		total = 0;
+
+		for ( int i = 0; i < products.size (); i++ ) {
+			prod = ( ProductUser ) products.get ( i );
+
+			if ( prod.getObject ( "product" ).getBool ( "available" ) == false )
+				continue;
+
+			total += prod.getTotalPrice ();
+		}
+
+		return total;
+	}
 }

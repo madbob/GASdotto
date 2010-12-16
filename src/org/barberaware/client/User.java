@@ -30,8 +30,8 @@ public class User extends FromServer {
 	public User () {
 		super ();
 
-		addFakeAttribute ( "name", FromServer.STRING, new StringFromObjectClosure () {
-			public String retrive ( FromServer obj ) {
+		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retriveString ( FromServer obj ) {
 				String name;
 				String surname;
 

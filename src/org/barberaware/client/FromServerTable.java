@@ -367,7 +367,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 	public ArrayList getElements () {
 		syncRowsContents ();
-		return Utils.dupliacateFromServerArray ( rows );
+		return Utils.duplicateFromServerArray ( rows );
 	}
 
 	private int retrieveElementRow ( FromServer element ) {
