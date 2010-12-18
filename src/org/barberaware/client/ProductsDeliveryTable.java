@@ -58,6 +58,8 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		header = new Label ( "Prezzo Totale" );
 		hor.add ( header );
 		hor.setCellWidth ( header, "20%" );
+
+		totalLabel = null;
 	}
 
 	private Button createAutoCompleteButton () {
@@ -87,6 +89,9 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		float total_sum;
 		ProductUser prod;
 		ProductDeliveryCell row;
+
+		if ( totalLabel == null )
+			return;
 
 		total_sum = 0;
 

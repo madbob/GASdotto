@@ -26,11 +26,11 @@ import com.allen_sauer.gwt.log.client.Log;
 public class ProductDeliveryCell extends Composite implements SourcesChangeEvents {
 	private HorizontalPanel			main;
 
-	private float				currentQuantity;
+	private float				currentQuantity		= 0;
 	private Widget				quantityLabel;
-	private float				currentDelivery;
+	private float				currentDelivery		= 0;
 	private ProductDeliveryEditableCell	box;
-	private float				currentPrice;
+	private float				currentPrice		= 0;
 	private PriceViewer			priceLabel;
 
 	private ProductUser			referenceProd		= null;
@@ -155,12 +155,9 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				symbol = "";
 
 			if ( first_round == true ) {
-				currentQuantity = prod_user.getFloat ( "quantity" );
 				quantityLabel = new Label ();
 				main.add ( quantityLabel );
 				setCell ( quantityLabel, "20%" );
-
-				currentDelivery = prod_user.getFloat ( "delivered" );
 
 				if ( prod.getFloat ( "unit_size" ) != 0 )
 					box = new ProductDeliveryEditablePiecesCell ();
@@ -169,36 +166,39 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 
 				main.add ( ( Widget ) box );
 				setCell ( ( Widget ) box, "20%" );
-
-				box.addChangeListener ( new ChangeListener () {
-					public void onChange ( Widget sender ) {
-						newInputToCheck ();
-						triggerChange ();
-					}
-				} );
-
-				currentPrice = referenceProd.getTotalPrice ( currentDelivery );
-				priceLabel = new PriceViewer ();
-				main.add ( priceLabel );
-				setCell ( priceLabel, "20%" );
 			}
-			else {
-				currentQuantity += prod_user.getFloat ( "quantity" );
-				currentDelivery += prod_user.getFloat ( "delivered" );
-				currentPrice = referenceProd.getTotalPrice ( currentDelivery );
-			}
+
+			currentQuantity += prod_user.getFloat ( "quantity" );
+			currentDelivery += prod_user.getFloat ( "delivered" );
+			currentPrice = referenceProd.getTotalPrice ( currentDelivery );
 
 			( ( Label ) quantityLabel ).setText ( Utils.floatToString ( currentQuantity ) + symbol );
 		}
 		else {
 			if ( first_round == true ) {
-				box = new ProductDeliveryEditableVariantsCell ();
 				quantityLabel = new FlexTable ();
 				main.add ( quantityLabel );
 				setCell ( quantityLabel, "20%" );
+
+				box = new ProductDeliveryEditableVariantsCell ();
+				main.add ( ( Widget ) box );
+				setCell ( ( Widget ) box, "20%" );
 			}
 
 			quantifyVariants ( variants );
+		}
+
+		if ( first_round == true ) {
+			priceLabel = new PriceViewer ();
+			main.add ( priceLabel );
+			setCell ( priceLabel, "20%" );
+
+			box.addChangeListener ( new ChangeListener () {
+				public void onChange ( Widget sender ) {
+					newInputToCheck ();
+					triggerChange ();
+				}
+			} );
 		}
 
 		priceLabel.setVal ( currentPrice );

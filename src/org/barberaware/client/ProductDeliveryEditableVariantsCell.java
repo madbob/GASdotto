@@ -68,7 +68,7 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 				id = ( Hidden ) main.getWidget ( i, 0 );
 
 				if ( id.getName () == id_variant ) {
-					box = ( FloatBox ) main.getWidget ( i, 0 );
+					box = ( FloatBox ) main.getWidget ( i, 1 );
 					box.setVal ( box.getVal () + 1 );
 
 					found = true;
@@ -77,7 +77,7 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 			}
 
 			if ( found == false ) {
-				row = main.getRowCount () - 1;
+				row = rows_num;
 				main.insertRow ( row );
 				rows_num++;
 
@@ -92,7 +92,7 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 					}
 				} );
 
-				main.setWidget ( row, 0, box );
+				main.setWidget ( row, 1, box );
 			}
 		}
 

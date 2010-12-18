@@ -33,6 +33,65 @@ class DeliveryReport extends TCPDF {
 	}
 }
 
+function aggregate_variants ( $variants ) {
+	$tmp_variants = array ();
+	$ret_quantities = array ();
+
+	foreach ( $variants as $var ) {
+		$exists = false;
+		$index = 0;
+
+		foreach ( $tmp_variants as $test ) {
+			for ( $i = 0; $i < count ( $var->components ); $i++ ) {
+				$equals = true;
+
+				/*
+					I componenti si assumono gia' ordinati per nome
+				*/
+
+				$var_comp = $var->components [ $i ];
+				$test_comp = $test->components [ $i ];
+
+				if ( $var_comp->value->id != $test_comp->value->id ) {
+					$equals = false;
+					break;
+				}
+			}
+
+			if ( $equals == true ) {
+				$exists = true;
+				break;
+			}
+
+			$index++;
+		}
+
+		if ( $exists == false ) {
+			$tmp_variants [] = $var;
+			$ret_quantities [] = 1;
+		}
+		else {
+			$ret_quantities [ $i ] = $ret_quantities [ $i ] + 1;
+		}
+	}
+
+	$ret_variants = array ();
+
+	foreach ( $tmp_variants as $var ) {
+		$desc = array ();
+
+		foreach ( $var->components as $comp )
+			$desc [] = $comp->variant->name . ': ' . $comp->value->name;
+
+		$ret_variants [] = join ( '; ', $desc );
+		unset ( $desc );
+	}
+
+	unset ( $tmp_variants );
+
+	return array ( $ret_variants, $ret_quantities );
+}
+
 $id = $_GET [ 'id' ];
 if ( isset ( $id ) == false )
 	error_exit ( "Richiesta non specificata" );
@@ -51,6 +110,7 @@ if ( $format == 'csv' ) {
 	$inrow_separator = ';';
 	$string_begin = '"';
 	$string_end = '"';
+	$content_sep = ' - ';
 }
 else if ( $format == 'pdf' ) {
 	$block_begin = '<table cellspacing="0" cellpadding="1" border="1" width="100%">';
@@ -62,6 +122,7 @@ else if ( $format == 'pdf' ) {
 	$inrow_separator = '</td><td width="25%">';
 	$string_begin = '';
 	$string_end = '';
+	$content_sep = '<br />';
 }
 else {
 	error_exit ( "Formato non valido" );
@@ -112,15 +173,39 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				quantita' precedentemente assegnate in fase di prezzatura
 			*/
 			if ( $order_user->status == 3 )
-				$prod_user->quantity = $prod_user->delivered;
+				$param = 'delivered';
+			else
+				$param = 'quantity';
+
+			$quantity = $prod_user->$param;
+			$variants = $prod_user->variants;
+
+			if ( count ( $order_user->friends ) != 0 ) {
+				foreach ( $order_user->friends as $friend ) {
+					foreach ( $friend->products as $fprod ) {
+						if ( $fprod->product == $prod_user->product ) {
+							$quantity += $fprod->$param;
+							array_merge ( $variants, $fprod->variants );
+							break;
+						}
+					}
+				}
+			}
 
 			$unit = $prod->getAttribute ( "unit_size" )->value;
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
 			if ( $unit <= 0.0 ) {
-				$q = $prod_user->quantity;
+				$q = $quantity;
 				$q = comma_format ( $q );
+
+				if ( is_array ( $prod_user->variants ) == true ) {
+					list ( $variants, $quantities ) = aggregate_variants ( $variants );
+
+					for ( $j = 0; $j < count ( $variants ); $j++ )
+						$q .= $content_sep . ( $quantities [ $j ] ) . ' ' . ( $variants [ $j ] );
+				}
 			}
 			else {
 				/*
@@ -131,18 +216,18 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 					effettivamente consegnata/da consegnare
 				*/
 				if ( $order_user->status == 0 ) {
-					$q = ( $prod_user->quantity / $unit );
+					$q = ( $quantity / $unit );
 					$q = ( comma_format ( $q ) ) . ' pezzi';
 				}
 				else {
-					$q = $prod_user->quantity;
+					$q = $quantity;
 					$measure = $prod->getAttribute ( "measure" )->value;
 					$q = ( comma_format ( $q ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
 				}
 			}
 
-			$quprice = ( $prod_user->quantity * $uprice );
-			$qsprice = ( $prod_user->quantity * $sprice );
+			$quprice = ( $quantity * $uprice );
+			$qsprice = ( $quantity * $sprice );
 
 			$user_total += sum_percentage ( $quprice, $prod->getAttribute ( "surplus" )->value ) + $qsprice;
 
