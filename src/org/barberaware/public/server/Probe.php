@@ -101,9 +101,10 @@ class Probe extends FromServer {
 
 	private function write_config ( $obj ) {
 		$f = fopen ( "./config.php", "w" );
+		list ( $dbname, $dbtype ) = explode ( '/', $obj->dbdriver );
 
 		fwrite ( $f, "<?php\n" );
-		fwrite ( $f, sprintf ( "\$dbdriver = \"%s\";\n", $obj->dbdriver ) );
+		fwrite ( $f, sprintf ( "\$dbdriver = \"%s\";\n", $dbtype ) );
 		fwrite ( $f, sprintf ( "\$dbuser = \"%s\";\n", $obj->dbuser ) );
 		fwrite ( $f, sprintf ( "\$dbpassword = \"%s\";\n", $obj->dbpassword ) );
 		fwrite ( $f, sprintf ( "\$dbname = \"%s\";\n", $obj->dbname ) );

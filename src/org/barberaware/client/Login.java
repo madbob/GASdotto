@@ -214,12 +214,12 @@ public class Login extends Composite {
 		contents.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
 		contents.add ( new Label ( "Se hai dimenticato la tua password, da qui puoi resettarla e riceverne una nuova." ) );
-		contents.add ( new Label ( "Immetti qui il tuo indirizzo mail e clicca 'Resetta Password': una nuova password verrà automaticamente generata, e ti sarà spedita via posta elettronica." ) );
+		contents.add ( new Label ( "Immetti il tuo indirizzo mail e clicca 'Resetta Password': una nuova password verrà automaticamente generata, e ti sarà spedita." ) );
 
 		bar = new HorizontalPanel ();
 		contents.add ( bar );
 
-		bar.add ( new Label ( "Il tuo indirizzo mail" ) );
+		bar.add ( new Label ( "Il tuo indirizzo mail: " ) );
 
 		recoveryMail = new TextBox ();
 		recoveryMail.setVisibleLength ( 20 );
