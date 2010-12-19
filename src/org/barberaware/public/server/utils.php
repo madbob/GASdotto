@@ -301,11 +301,14 @@ function unique_filesystem_name ( $folder, $name ) {
 
 /****************************************************************** mail */
 
-function my_send_mail ( $recipients, $subject, $body, $html = null ) {
+function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
+	global $current_user;
+
 	$gas = new GAS ();
 	$gas->readFromDB ( 1 );
 	$mailconf = $gas->getAttribute ( 'mail_conf' )->value;
 	$name = $gas->getAttribute ( 'name' )->value;
+	unset ( $gas );
 
 	list ( $from, $username, $password, $host, $port, $ssl ) = explode ( '::', $mailconf );
 
@@ -314,6 +317,13 @@ function my_send_mail ( $recipients, $subject, $body, $html = null ) {
 
 	$mysubject = '[' . $name . '] ' . $subject;
 	$headers = array ( 'From' => $from, 'Subject' => $mysubject );
+
+	if ( $current_user != -1 ) {
+		$sender = new User ();
+		$sender->readFromDB ( $current_user );
+		$headers [ 'Reply-To' ] = $sender->getAttribute ( 'mail' )->value;
+		unset ( $sender );
+	}
 
 	if ( $html != null ) {
 		$message = new Mail_mime ();
@@ -344,6 +354,10 @@ function my_send_mail ( $recipients, $subject, $body, $html = null ) {
 				$end = $tot;
 
 			$recipients_part = array_slice ( $recipients, $i, $end );
+
+			if ( $public == true )
+				$headers [ 'To' ] = ( join ( ', ', $recipients_part ) );
+
 			$ret = $smtp->send ( $recipients_part, $headers, $body );
 
 			if ( PEAR::isError ( $ret ) )
@@ -353,6 +367,9 @@ function my_send_mail ( $recipients, $subject, $body, $html = null ) {
 		return null;
 	}
 	else {
+		if ( $public == true )
+			$headers [ 'To' ] = ( join ( ', ', $recipients ) );
+
 		$ret = $smtp->send ( $recipients, $headers, $body );
 
 		if ( PEAR::isError ( $ret ) )

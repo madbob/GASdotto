@@ -92,7 +92,7 @@ class Notification extends FromServer {
 			unset ( $gas );
 		}
 
-		my_send_mail ( $dests, $obj->name, $obj->description );
+		my_send_mail ( $dests, $obj->name, false, $obj->description );
 	}
 
 	public function save ( $obj ) {

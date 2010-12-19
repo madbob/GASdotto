@@ -125,7 +125,7 @@ public class OrdersEditPanel extends GenericPanel {
 						form.setExtraWidget ( "mail_summary", container );
 						form.insert ( container, 1 );
 
-						text = "Questo ordine è stato chiuso. Clicca il bottone per inviare una mail di riscontro a coloro che hanno effettuato una prenotazione.";
+						text = "Questo ordine è stato chiuso. Clicca il bottone per inviare una mail di riscontro a coloro che hanno effettuato una prenotazione ed ancora non hanno ritirato la merce.";
 
 						sent = ord.getDate ( "mail_summary_sent" );
 						if ( sent != null )

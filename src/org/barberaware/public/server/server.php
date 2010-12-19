@@ -73,7 +73,7 @@ else if ( $type == "Reset" ) {
 		$notice .= sprintf ( "Con essa potrai accedere nuovamente alle informazioni del tuo GAS. Ti suggeriamo di cambiarla al più presto dal pannello 'Profilo Utente'.\n" );
 		$notice .= sprintf ( "\n" );
 
-		my_send_mail ( array ( $mail ), "Password resettata", $notice );
+		my_send_mail ( array ( $mail ), "Password resettata", true, $notice );
 	}
 }
 

@@ -234,6 +234,13 @@ class Order extends FromServer {
 					$orderusers = get_orderuser_by_order ( $test );
 
 					foreach ( $orderusers as $ou ) {
+						/*
+							Feature #170: non si invia mail di
+							riepilogo a chi ha gia' ritirato l'ordine
+						*/
+						if ( $ou->status == 2 )
+							continue;
+
 						$user_products = $ou->products;
 						if ( is_array ( $user_products ) == false )
 							continue;
@@ -254,6 +261,8 @@ class Order extends FromServer {
 						$text = sprintf ( "Di seguito il riassunto dei prodotti che hai ordinato presso %s insieme agli altri membri di %s.\n\n",
 									$supplier->getAttribute ( 'name' )->value, $gas->getAttribute ( 'name' )->value );
 
+						$extra_notify = '';
+
 						$html = '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
 						$html .= '<body><p>' . $text . '</p><br /><table><tr><td>Prodotto</td><td>Quantità</td><td>Prezzo</td><td>Prezzo Trasporto</td></tr>';
 
@@ -263,30 +272,45 @@ class Order extends FromServer {
 
 							if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
 								if ( $ou->status == 3 )
-									$prod_user->quantity = $prod_user->delivered;
+									$param = 'delivered';
+								else
+									$param = 'quantity';
+
+								$quantity = $prod_user->$param;
+
+								if ( count ( $ou->friends ) != 0 ) {
+									foreach ( $ou->friends as $friend ) {
+										foreach ( $friend->products as $fprod ) {
+											if ( $fprod->product == $prod_user->product ) {
+												$quantity += $fprod->$param;
+												break;
+											}
+										}
+									}
+								}
 
 								$unit = $prod->getAttribute ( "unit_size" )->value;
 								$uprice = $prod->getAttribute ( "unit_price" )->value;
 								$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
 								if ( $unit <= 0.0 ) {
-									$q = $prod_user->quantity;
-									$q = comma_format ( $q );
+									$q = comma_format ( $quantity );
 								}
 								else {
-									if ( $order_user->status == 0 ) {
-										$q = ( $prod_user->quantity / $unit );
+									if ( $ou->status == 0 ) {
+										$q = ( $quantity / $unit );
 										$q = ( comma_format ( $q ) ) . ' pezzi';
+										$extra_notify = "l'importo reale di questo ordine dipende dal peso effettivo dei prodotti consegnati; il totale qui riportato è solo indicativo";
 									}
 									else {
-										$q = $prod_user->quantity;
 										$measure = $prod->getAttribute ( "measure" )->value;
-										$q = ( comma_format ( $q ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
+										$q = ( comma_format ( $quantity ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
+										$extra_notify = "quantità ed importo indicati sono quelli effettivi";
 									}
 								}
 
-								$quprice = ( $prod_user->quantity * $uprice );
-								$qsprice = ( $prod_user->quantity * $sprice );
+								$quprice = ( $quantity * $uprice );
+								$qsprice = ( $quantity * $sprice );
 
 								$user_total += sum_percentage ( $quprice, $prod->getAttribute ( "surplus" )->value ) + $qsprice;
 
@@ -305,11 +329,15 @@ class Order extends FromServer {
 
 						$user_total = format_price ( round ( $user_total, 2 ) );
 
-						$text .= "\nPer un totale di " . $user_total . ".\n";
-						$text .= "\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
+						$text .= "\nPer un totale di " . $user_total;
+						if ( $extra_notify != '' )
+							$text .= ' (' . $extra_notify . ')';
+						$text .= ".\n\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
 
-						$html .= '</table><p>Per un totale di ' . $user_total . '</p>';
-						$html .= '<p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
+						$html .= '</table><p>Per un totale di ' . $user_total;
+						if ( $extra_notify != '' )
+							$html .= ' (' . $extra_notify . ')';
+						$html .= '.</p><p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
 
 						foreach ( $supplier->getAttribute ( 'references' )->value as $ref ) {
 							if ( ( $ref->getAttribute ( 'mail' )->value != "" ) )
@@ -323,7 +351,7 @@ class Order extends FromServer {
 
 						$html .= '</ul></body></html>';
 
-						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, $text, $html );
+						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, true, $text, $html );
 					}
 
 					unset ( $orderusers );
