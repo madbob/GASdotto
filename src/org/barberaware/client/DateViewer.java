@@ -22,17 +22,27 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class DateViewer extends Label implements DateWidget {
+	private boolean		doHour			= false;
 	private Date		currentDate		= null;
+
+	public void showHour ( boolean show ) {
+		doHour = show;
+	}
 
 	/****************************************************************** DateWidget */
 
 	public void setValue ( Date date ) {
 		currentDate = date;
 
-		if ( date == null )
+		if ( date == null ) {
 			setText ( "Mai" );
-		else
-			setText ( Utils.printableDate ( date ) );
+		}
+		else {
+			if ( doHour == false )
+				setText ( Utils.printableDate ( date ) );
+			else
+				setText ( Utils.printableDateHour ( date ) );
+		}
 	}
 
 	public Date getValue () {

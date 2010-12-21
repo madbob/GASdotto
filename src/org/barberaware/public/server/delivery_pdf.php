@@ -130,6 +130,8 @@ else
 	array_push ( $header, 'Totale Pagato' );
 
 array_push ( $header, 'Stato Consegna' );
+array_push ( $header, 'Data' );
+array_push ( $header, 'Referente' );
 array_push ( $header, 'Utenti' );
 
 /*
@@ -247,6 +249,17 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$row [] = 'Prezzato<br />';
 	else
 		$row [] = '<br />';
+
+	if ( $order_user->deliverydate != null && $order_user->deliverydate != '' )
+		$row [] = format_date ( $order_user->deliverydate );
+	else
+		$row [] = '';
+
+	$reference = $order_user->deliveryperson;
+	if ( property_exists ( $reference, 'surname' ) )
+		$row [] = sprintf ( "%s<br />%s", $reference->surname, $reference->firstname );
+	else
+		$row [] = '';
 
 	/*
 		Il nome dell'utente viene messo sia all'inizio che alla fine della riga per

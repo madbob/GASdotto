@@ -352,6 +352,7 @@ class Order extends FromServer {
 						$html .= '</ul></body></html>';
 
 						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, true, $text, $html );
+						unset ( $dests );
 					}
 
 					unset ( $orderusers );

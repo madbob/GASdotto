@@ -369,6 +369,13 @@ public class Utils {
 		}
 	}
 
+	public static String printableDateHour ( Date d ) {
+		if ( d == null )
+			return "Non settato";
+		else
+			return printableDate ( d ) + " " + d.getHours () + ":" + d.getMinutes () + ":" + d.getSeconds ();
+	}
+
 	/****************************************************** json */
 
 	public static JSONArray JSONArrayRemove ( JSONArray array, int index ) {

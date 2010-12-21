@@ -68,6 +68,8 @@ public class OrderUser extends FromServer {
 		addAttribute ( "baseorder", FromServer.OBJECT, Order.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
 		addAttribute ( "friends", FromServer.ARRAY, OrderUserFriend.class );
+		addAttribute ( "deliverydate", FromServer.DATE );
+		addAttribute ( "deliveryperson", FromServer.OBJECT, User.class );
 		addAttribute ( "status", FromServer.INTEGER );
 
 		setInt ( "status", TO_DELIVER );

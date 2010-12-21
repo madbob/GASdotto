@@ -69,6 +69,8 @@ else
 	$products_names [] = "Pagato";
 
 $products_names [] = "Stato Consegna";
+$products_names [] = "Data";
+$products_names [] = "Referente";
 $output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n\n";
 
 $products_sums = array ();
@@ -165,11 +167,20 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$output .= format_price ( round ( $shipped_total, 2 ), false ) . ';';
 
 	if ( $order_user->status == 1 )
-		$output .= 'Parzialmente Consegnato';
+		$output .= 'Parzialmente Consegnato;';
 	else if ( $order_user->status == 2 )
-		$output .= 'Consegnato';
+		$output .= 'Consegnato;';
 	else if ( $order_user->status == 3 )
-		$row [] = 'Prezzato';
+		$output .= 'Prezzato;';
+
+	if ( $order_user->deliverydate != null && $order_user->deliverydate != '' )
+		$output .= format_date ( $order_user->deliverydate ) . ';';
+	else
+		$output .= ';';
+
+	$reference = $order_user->deliveryperson;
+	if ( property_exists ( $reference, 'surname' ) )
+		$output .= sprintf ( "\"%s %s\"", $reference->surname, $reference->firstname );
 
 	$output .= "\n";
 }

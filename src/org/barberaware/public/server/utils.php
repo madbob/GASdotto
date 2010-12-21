@@ -67,13 +67,6 @@ function search_in_array ( $array, $val ) {
 	return -1;
 }
 
-function format_price ( $price, $symbol = true ) {
-	if ( $symbol == true )
-		return "€ " . number_format ( $price, 2, ',', '' );
-	else
-		return number_format ( $price, 2, ',', '' );
-}
-
 /****************************************************************** db management */
 
 function query_and_check ( $query, $error ) {
@@ -183,6 +176,19 @@ function comma_format ( $a ) {
 		return number_format ( $a, $decimal - 1, ',', '' );
 	else
 		return $a;
+}
+
+function format_price ( $price, $symbol = true ) {
+	if ( $symbol == true )
+		return "€ " . number_format ( $price, 2, ',', '' );
+	else
+		return number_format ( $price, 2, ',', '' );
+}
+
+function format_date ( $dbdate ) {
+	$months = array ( 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre' );
+	list ( $year, $month, $day ) = explode ( '-', $dbdate );
+	return $day . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
 }
 
 function sort_product_by_name ( $first, $second ) {
@@ -356,7 +362,7 @@ function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 			$recipients_part = array_slice ( $recipients, $i, $end );
 
 			if ( $public == true )
-				$headers [ 'To' ] = ( join ( ', ', $recipients_part ) );
+				$headers [ 'To' ] = '<' . ( join ( '>, <', $recipients_part ) ) . '>';
 
 			$ret = $smtp->send ( $recipients_part, $headers, $body );
 
@@ -368,7 +374,7 @@ function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 	}
 	else {
 		if ( $public == true )
-			$headers [ 'To' ] = ( join ( ', ', $recipients ) );
+			$headers [ 'To' ] = '<' . ( join ( '>, <', $recipients ) ) . '>';
 
 		$ret = $smtp->send ( $recipients, $headers, $body );
 

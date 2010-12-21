@@ -40,9 +40,18 @@ public class DeliverySummary extends Composite {
 	}
 
 	private void commonActionsOnEdit ( FromServerForm row ) {
+		DateViewer deliverydate;
+		NameLabelWidget deliveryperson;
 		FromServer uorder;
 
 		uorder = row.getObject ();
+
+		deliverydate = ( DateViewer ) row.retriveInternalWidget ( "deliverydate" );
+		deliverydate.setValue ( new Date ( System.currentTimeMillis () ) );
+
+		deliveryperson = ( NameLabelWidget ) row.retriveInternalWidget ( "deliveryperson" );
+		deliveryperson.setValue ( Session.getUser () );
+
 		main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
 		row.savingObject ();
 		row.open ( false );
@@ -51,6 +60,7 @@ public class DeliverySummary extends Composite {
 	public void addOrder ( OrderUser uorder ) {
 		final FromServerForm row;
 		FromServer user;
+		HorizontalPanel informations;
 		CustomCaptionPanel frame;
 		StringLabel phone;
 		ProductsDeliveryTable products;
@@ -94,8 +104,14 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
+		informations = new HorizontalPanel ();
+		informations.setWidth ( "100%" );
+		row.add ( informations );
+
+		/* utente */
+
 		frame = new CustomCaptionPanel ( "Informazioni Utente" );
-		row.add ( frame );
+		informations.add ( frame );
 
 		phone = new StringLabel ();
 		phone.setValue ( user.getString ( "phone" ) );
@@ -106,6 +122,16 @@ public class DeliverySummary extends Composite {
 		phone.setValue ( user.getString ( "mobile" ) );
 		row.setExtraWidget ( "mobile", phone );
 		frame.addPair ( "Cellulare", phone );
+
+		/* ordine */
+
+		frame = new CustomCaptionPanel ( "Informazioni Ordine" );
+		informations.add ( frame );
+
+		frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
+		frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
+
+		/* prodotti */
 
 		products = new ProductsDeliveryTable ();
 		row.add ( row.getPersonalizedWidget ( "allproducts", products ) );

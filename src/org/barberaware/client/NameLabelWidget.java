@@ -32,7 +32,11 @@ public class NameLabelWidget extends Label implements ObjectWidget {
 
 	public void setValue ( FromServer element ) {
 		el = element;
-		setText ( element.getString ( "name" ) );
+
+		if ( element == null || element.isValid () == false )
+			setText ( "Nessuno" );
+		else
+			setText ( element.getString ( "name" ) );
 	}
 
 	public FromServer getValue () {

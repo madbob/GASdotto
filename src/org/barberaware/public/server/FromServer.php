@@ -41,7 +41,10 @@ class FromServerAttribute {
 	}
 
 	public function traslate_field ( $parent, $value ) {
-		list ( $type, $objtype ) = explode ( "::", $this->type );
+		if ( strstr ( $this->type, '::' ) == false )
+			$type = $this->type;
+		else
+			list ( $type, $objtype ) = explode ( '::', $this->type );
 
 		switch ( $type ) {
 			case "STRING":
@@ -121,7 +124,10 @@ class FromServerAttribute {
 	}
 
 	public function export_field ( $parent, $filter, $compress ) {
-		list ( $type, $objtype ) = explode ( "::", $this->type );
+		if ( strstr ( $this->type, '::' ) == false )
+			$type = $this->type;
+		else
+			list ( $type, $objtype ) = explode ( '::', $this->type );
 
 		switch ( $type ) {
 			case "STRING":
@@ -249,8 +255,8 @@ abstract class FromServer {
 
 		$token = $this->tablename . "::" . $id;
 
-		$ret = $cache [ $token ];
-		if ( isset ( $ret ) ) {
+		if ( array_key_exists ( $token, $cache ) && isset ( $cache [ $token ] ) ) {
+			$ret = $cache [ $token ];
 			$this->attributes = $ret->attributes;
 			return;
 		}
@@ -347,7 +353,10 @@ abstract class FromServer {
 	}
 
 	protected function attr_to_db ( $attr ) {
-		list ( $type, $objtype ) = explode ( "::", $attr->type );
+		if ( strstr ( $attr->type, '::' ) == false )
+			$type = $attr->type;
+		else
+			list ( $type, $objtype ) = explode ( '::', $attr->type );
 
 		switch ( $type ) {
 			case "STRING":
@@ -387,7 +396,11 @@ abstract class FromServer {
 		if ( $fresh == true ) {
 			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 				$attr = $this->attributes [ $i ];
-				list ( $type, $objtype ) = explode ( "::", $attr->type );
+
+				if ( strstr ( $attr->type, '::' ) == false )
+					$type = $attr->type;
+				else
+					list ( $type, $objtype ) = explode ( '::', $attr->type );
 
 				if ( $type == "ARRAY" ) {
 					$name = $attr->name;
@@ -413,7 +426,11 @@ abstract class FromServer {
 		else {
 			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 				$attr = $this->attributes [ $i ];
-				list ( $type, $objtype ) = explode ( "::", $attr->type );
+
+				if ( strstr ( $attr->type, '::' ) == false )
+					$type = $attr->type;
+				else
+					list ( $type, $objtype ) = explode ( '::', $attr->type );
 
 				if ( $type == "ARRAY" ) {
 					$name = $attr->name;
@@ -576,7 +593,11 @@ abstract class FromServer {
 
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
-			list ( $type, $objtype ) = explode ( "::", $attr->type );
+
+			if ( strstr ( $attr->type, '::' ) == false )
+				$type = $attr->type;
+			else
+				list ( $type, $objtype ) = explode ( '::', $attr->type );
 
 			if ( $type == "ARRAY" ) {
 				$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d",
