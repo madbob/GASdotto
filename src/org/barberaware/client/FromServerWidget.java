@@ -127,13 +127,13 @@ public class FromServerWidget extends Composite {
 			( ( FloatWidget ) wid ).setVal ( object.getFloat ( name ) );
 
 		else if ( type == FromServer.PERCENTAGE )
-			( ( PercentageBox ) wid ).setValue ( object.getString ( name ) );
+			( ( PercentageWidget ) wid ).setValue ( object.getString ( name ) );
 
 		else if ( type == FromServer.DATE )
 			( ( DateWidget ) wid ).setValue ( object.getDate ( name ) );
 
 		else if ( type == FromServer.BOOLEAN )
-			( ( BooleanSelector ) wid ).setDown ( object.getBool ( name ) );
+			( ( BooleanWidget ) wid ).setValue ( object.getBool ( name ) );
 
 		else if ( type == FromServer.ADDRESS )
 			( ( AddressWidget ) wid ).setValue ( object.getAddress ( name ) );
@@ -162,13 +162,13 @@ public class FromServerWidget extends Composite {
 			object.setFloat ( name, ( ( FloatWidget ) wid ).getVal () );
 
 		else if ( type == FromServer.PERCENTAGE )
-			object.setString ( name, ( ( PercentageBox ) wid ).getValue () );
+			object.setString ( name, ( ( PercentageWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.DATE )
 			object.setDate ( name, ( ( DateWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.BOOLEAN )
-			object.setBool ( name, ( ( BooleanSelector ) wid ).isDown () );
+			object.setBool ( name, ( ( BooleanWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.ADDRESS )
 			object.setAddress ( name, ( ( AddressWidget ) wid ).getValue () );
@@ -200,7 +200,7 @@ public class FromServerWidget extends Composite {
 			ret = object.getFloat ( name ) == ( ( FloatWidget ) wid ).getVal ();
 
 		else if ( type == FromServer.PERCENTAGE )
-			ret = object.getString ( name ).equals ( ( ( PercentageBox ) wid ).getValue () );
+			ret = object.getString ( name ).equals ( ( ( PercentageWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.DATE ) {
 			Date newer;
@@ -218,7 +218,7 @@ public class FromServerWidget extends Composite {
 		}
 
 		else if ( type == FromServer.BOOLEAN )
-			ret = object.getBool ( name ) == ( ( BooleanSelector ) wid ).isDown ();
+			ret = object.getBool ( name ) == ( ( BooleanWidget ) wid ).getValue ();
 
 		else if ( type == FromServer.ADDRESS )
 			ret = object.getAddress ( name ).equals ( ( ( AddressWidget ) wid ).getValue () );

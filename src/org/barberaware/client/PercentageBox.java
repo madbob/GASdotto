@@ -21,7 +21,7 @@ import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
 
-public class PercentageBox extends TextBox {
+public class PercentageBox extends TextBox implements PercentageWidget {
 	private boolean		valid;
 
 	public PercentageBox () {
@@ -83,6 +83,8 @@ public class PercentageBox extends TextBox {
 		setVisibleLength ( 6 );
 	}
 
+	/****************************************************************** PercentageWidget */
+
 	public void setValue ( String value ) {
 		if ( value.length () == 0 )
 			setText ( "0" );
@@ -96,4 +98,6 @@ public class PercentageBox extends TextBox {
 		else
 			return "0";
 	}
+
+
 }

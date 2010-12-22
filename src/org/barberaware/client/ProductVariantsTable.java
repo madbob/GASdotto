@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2009/2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,36 +17,30 @@
 
 package org.barberaware.client;
 
+import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class FloatViewer extends Label implements FloatWidget {
-	private float		val;
-	private String		defaultString;
+public class ProductVariantsTable extends FromServerTable {
+	public ProductVariantsTable ( boolean editable ) {
+		addColumn ( "Nome", "name", false );
+		addColumn ( "Opzioni", "values", new WidgetFactoryCallback () {
+			public Widget create () {
+				return new NamesLabelsWidget ();
+			}
+		} );
 
-	public FloatViewer () {
-		defaultString = null;
-		setVal ( 0 );
-	}
+		if ( editable == true ) {
+			addColumn ( "Elimina", FromServerTable.TABLE_REMOVE, null);
+			addColumn ( "Modifica", FromServerTable.TABLE_EDIT, new WidgetFactoryCallback () {
+				public Widget create () {
+					return new ProductVariantEditor ( false );
+				}
+			} );
+		}
 
-	public void onZero ( String defstring ) {
-		defaultString = defstring;
-	}
-
-	/****************************************************************** FloatWidget */
-
-	public void setVal ( float v ) {
-		if ( v == 0 && defaultString != null )
-			setText ( defaultString );
-		else
-			setText ( Float.toString ( v ) );
-
-		val = v;
-	}
-
-	public float getVal () {
-		return val;
+		setEmptyWarning ( "Non ci sono varianti per questo prodotto" );
 	}
 }

@@ -99,25 +99,11 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 				private Widget doVariantsPanel ( FromServerForm ver, FromServer product ) {
 					VerticalPanel main;
 					HorizontalPanel buttons;
-					final FromServerTable variants;
+					final ProductVariantsTable variants;
 
 					main = new VerticalPanel ();
 
-					variants = new FromServerTable ();
-					variants.addColumn ( "Nome", "name", false );
-					variants.addColumn ( "Opzioni", "values", new WidgetFactoryCallback () {
-						public Widget create () {
-							return new NamesLabelsWidget ();
-						}
-					} );
-					variants.addColumn ( "Elimina", FromServerTable.TABLE_REMOVE, null);
-					variants.addColumn ( "Modifica", FromServerTable.TABLE_EDIT, new WidgetFactoryCallback () {
-						public Widget create () {
-							return new ProductVariantEditor ( false );
-						}
-					} );
-
-					variants.setEmptyWarning ( "Non ci sono varianti per questo prodotto" );
+					variants = new ProductVariantsTable ( true );
 					main.add ( ver.getPersonalizedWidget ( "variants", variants ) );
 
 					buttons = new HorizontalPanel ();

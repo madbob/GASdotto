@@ -53,6 +53,8 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 					CustomCaptionPanel frame;
 					CaptionPanel sframe;
 					StringLabel desc;
+					FloatViewer viewer;
+					ProductVariantsTable variants;
 
 					if ( product.getBool ( "archived" ) == true )
 						return null;
@@ -73,6 +75,12 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 					frame.addPair ( "Categoria", ver.getPersonalizedWidget ( "category", new NameLabelWidget () ) );
 					frame.addPair ( "Unità di misura", ver.getPersonalizedWidget ( "measure", new NameLabelWidget () ) );
 
+					viewer = new FloatViewer ();
+					viewer.onZero ( "Non Definito" );
+					frame.addPair ( "Pezzatura", ver.getPersonalizedWidget ( "unit_size", viewer ) );
+
+					frame.addPair ( "Ordinabile", ver.getPersonalizedWidget ( "available", new BooleanViewer () ) );
+
 					/* seconda colonna */
 
 					frame = new CustomCaptionPanel ( "Prezzo" );
@@ -81,16 +89,31 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 
 					frame.addPair ( "Prezzo Unitario", ver.getPersonalizedWidget ( "unit_price", new PriceViewer () ) );
 					frame.addPair ( "Prezzo Trasporto", ver.getPersonalizedWidget ( "shipping_price", new PriceViewer () ) );
+					frame.addPair ( "Prezzo Variabile", ver.getPersonalizedWidget ( "mutable_price", new BooleanViewer () ) );
 
-					if ( product.getFloat ( "minimum_order" ) != 0 )
-						frame.addPair ( "Minimo per Utente", ver.getPersonalizedWidget ( "minimum_order", new FloatViewer () ) );
-					if ( product.getFloat ( "multiple_order" ) != 0 )
-						frame.addPair ( "Multiplo per Utente", ver.getPersonalizedWidget ( "multiple_order", new FloatViewer () ) );
+					frame.addPair ( "Sovrapprezzo (€/%)", ver.getPersonalizedWidget ( "surplus", new PercentageViewer () ) );
+
+					viewer = new FloatViewer ();
+					viewer.onZero ( "Non Definito" );
+					frame.addPair ( "Dimensione Stock", ver.getPersonalizedWidget ( "stock_size", viewer ) );
+
+					viewer = new FloatViewer ();
+					viewer.onZero ( "Non Definito" );
+					frame.addPair ( "Minimo per Utente", ver.getPersonalizedWidget ( "minimum_order", viewer ) );
+
+					viewer = new FloatViewer ();
+					viewer.onZero ( "Non Definito" );
+					frame.addPair ( "Multiplo per Utente", ver.getPersonalizedWidget ( "multiple_order", viewer ) );
 
 					sframe = new CaptionPanel ( "Descrizione" );
 					desc = new StringLabel ();
 					desc.setDefault ( "Non è stata settata alcuna descrizione" );
 					sframe.add ( ver.getPersonalizedWidget ( "description", desc ) );
+					ver.add ( sframe );
+
+					sframe = new CaptionPanel ( "Varianti" );
+					variants = new ProductVariantsTable ( false );
+					sframe.add ( ver.getPersonalizedWidget ( "variants", variants ) );
 					ver.add ( sframe );
 
 					return ver;

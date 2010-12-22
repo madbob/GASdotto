@@ -119,8 +119,8 @@ public class SystemPanel extends GenericPanel {
 				BooleanSelector myself;
 
 				myself = ( BooleanSelector ) sender;
-				mailConf.setEnabled ( myself.isDown () );
-				mailList.setEnabled ( myself.isDown () );
+				mailConf.setEnabled ( myself.getValue () );
+				mailList.setEnabled ( myself.getValue () );
 			}
 		} );
 		frame.addPair ( "Abilita Notifiche Mail", ver.getPersonalizedWidget ( "use_mail", mail ) );

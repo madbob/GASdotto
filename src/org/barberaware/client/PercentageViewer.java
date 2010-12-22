@@ -17,36 +17,25 @@
 
 package org.barberaware.client;
 
-import com.google.gwt.user.client.*;
+import java.util.*;
+import java.lang.*;
 import com.google.gwt.user.client.ui.*;
 
-import com.allen_sauer.gwt.log.client.Log;
-
-public class FloatViewer extends Label implements FloatWidget {
-	private float		val;
-	private String		defaultString;
-
-	public FloatViewer () {
-		defaultString = null;
-		setVal ( 0 );
+public class PercentageViewer extends Label implements PercentageWidget {
+	public PercentageViewer () {
+		setText ( "0" );
 	}
 
-	public void onZero ( String defstring ) {
-		defaultString = defstring;
-	}
+	/****************************************************************** PercentageWidget */
 
-	/****************************************************************** FloatWidget */
-
-	public void setVal ( float v ) {
-		if ( v == 0 && defaultString != null )
-			setText ( defaultString );
+	public void setValue ( String value ) {
+		if ( value == null || value.length () == 0 )
+			setText ( "0" );
 		else
-			setText ( Float.toString ( v ) );
-
-		val = v;
+			setText ( value );
 	}
 
-	public float getVal () {
-		return val;
+	public String getValue () {
+		return getText ();
 	}
 }

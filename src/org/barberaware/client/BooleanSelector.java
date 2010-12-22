@@ -20,12 +20,11 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
-public class BooleanSelector extends ToggleButton implements SourcesChangeEvents {
+public class BooleanSelector extends ToggleButton implements SourcesChangeEvents, BooleanWidget {
 	private boolean				currentState;
 	private ChangeListenerCollection	changeCallbacks;
 
 	public BooleanSelector () {
-		// super ( new Image ( "images/boolean_false.png" ), new Image ( "images/boolean_true.png" ) );
 		super ( "NO", "SI" );
 		setStyleName ( "boolean-selector" );
 
@@ -58,11 +57,6 @@ public class BooleanSelector extends ToggleButton implements SourcesChangeEvents
 		} );
 	}
 
-	public void setDown ( boolean down ) {
-		currentState = down;
-		super.setDown ( down );
-	}
-
 	private void checkChange ( BooleanSelector myself ) {
 		if ( currentState != myself.isDown () ) {
 			currentState = myself.isDown ();
@@ -70,6 +64,17 @@ public class BooleanSelector extends ToggleButton implements SourcesChangeEvents
 			if ( changeCallbacks != null )
 				changeCallbacks.fireChange ( this );
 		}
+	}
+
+	/****************************************************************** BooleanWidget */
+
+	public void setValue ( boolean value ) {
+		currentState = value;
+		super.setDown ( value );
+	}
+
+	public boolean getValue () {
+		return isDown ();
 	}
 
 	/****************************************************************** SourcesChangeEvents */
