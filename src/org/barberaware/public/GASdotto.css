@@ -479,6 +479,10 @@ body {
 	margin-top:		10px;
 }
 
+.multirow-select {
+	height:			100%;
+}
+
 .big-error-dialog {
 	position:		absolute;
 	top:			0;

@@ -118,6 +118,7 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		dialog.setWidget ( pan );
 
 		list = new ListBox ();
+		list.addStyleName ( "multirow-select" );
 		list.setVisibleItemCount ( 20 );
 		list.setWidth ( "100%" );
 
