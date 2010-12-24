@@ -162,10 +162,15 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$order_user = $contents [ $i ];
 
 	$user_products = $order_user->products;
-	if ( is_array ( $user_products ) == false )
-		continue;
 
-	$user_products = sort_products_on_products ( $products, $user_products );
+	if ( is_array ( $user_products ) == false ) {
+		if ( is_array ( $order_user->friends ) == false )
+			continue;
+	}
+	else {
+		$user_products = sort_products_on_products ( $products, $user_products );
+	}
+
 	$user_total = 0;
 	$user_total_ship = 0;
 	$shipped_total = 0;
@@ -178,39 +183,52 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
-		$prod_user = $user_products [ $e ];
+		$prodid = $prod->getAttribute ( 'id' )->value;
+		$quantity = 0;
+		$delivered = 0;
 
-		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+		if ( is_array ( $user_products ) ) {
+			$prod_user = $user_products [ $e ];
+
+			if ( $prodid == $prod_user->product ) {
+				$quantity = $prod_user->quantity;
+				$delivered = $prod_user->delivered;
+			}
+		}
+
+		if ( count ( $order_user->friends ) != 0 ) {
+			foreach ( $order_user->friends as $friend ) {
+				foreach ( $friend->products as $fprod ) {
+					if ( $fprod->product == $prodid ) {
+						$quantity += $fprod->quantity;
+						$delivered += $fprod->delivered;
+						break;
+					}
+				}
+			}
+		}
+
+		if ( $quantity != 0 ) {
 			$unit = $prod->getAttribute ( "unit_size" )->value;
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
 			if ( $unit <= 0.0 )
-				$q = $prod_user->quantity;
+				$q = $quantity;
 			else
-				$q = round ( $prod_user->quantity / $unit );
+				$q = round ( $quantity / $unit );
 
 			$q = comma_format ( $q );
 
-			if ( $prod_user->delivered != 0 ) {
-				$d = comma_format ( $prod_user->delivered );
+			if ( $delivered != 0 ) {
+				$d = comma_format ( $delivered );
 				$q .= ' ( ' . $d . ' )';
-				$quantity = $prod_user->delivered;
-			}
-			else {
-				$quantity = $prod_user->quantity;
+				$quantity = $delivered;
 			}
 
 			$row [] = $q . '<br />';
 
-			/*
-			if ( $unit <= 0 )
-				$sum = ( $quantity * $sprice );
-			else
-				$sum = ( round ( $quantity / $unit ) * $sprice );
-			*/
 			$sum = ( $quantity * $sprice );
-
 			$shipping_price [ $a ] += $sum;
 			$user_total_ship += $sum;
 
@@ -219,13 +237,13 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$user_total += $sum;
 
 			if ( ( $_GET [ 'type' ] == 'saved' && $order_user->status == 3 ) || ( $_GET [ 'type' ] != 'saved' && $order_user->status != 3 ) ) {
-				$sum = ( $prod_user->delivered * $uprice ) + ( $prod_user->delivered * $sprice );
+				$sum = ( $delivered * $uprice ) + ( $delivered * $sprice );
 				$shipped_sums [ $a ] += $sum;
 				$shipped_total += $sum;
 			}
 
-			$quantities_sums [ $a ] += $prod_user->quantity;
-			$delivery_sums [ $a ] += $prod_user->delivered;
+			$quantities_sums [ $a ] += $quantity;
+			$delivery_sums [ $a ] += $delivered;
 
 			$e++;
 		}

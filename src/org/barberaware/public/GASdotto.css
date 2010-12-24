@@ -657,8 +657,6 @@ br {
 }
 
 .CalendarWidget {
-	border:			1px solid #ACA899;
-	background-color:	#FFFFFF;
 	text-align:		center;
 }
 
@@ -677,6 +675,7 @@ br {
 .CalendarWidget .table {
 	font:			10pt sans-serif;
 	text-align:		center;
+	width:			100%;
 }
 
 .CalendarWidget .weekheader {
@@ -707,4 +706,8 @@ br {
 
 .CalendarWidget .day .gwt-HTML {
 	border:			1px solid #C3D9FF;
+}
+
+.CalendarWidget input {
+	width:			100px;
 }

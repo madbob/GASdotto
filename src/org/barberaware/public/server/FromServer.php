@@ -368,8 +368,13 @@ abstract class FromServer {
 			case "INTEGER":
 			case "FLOAT":
 			case "BOOLEAN":
+				$ret = $attr->value;
+				break;
+
 			case "OBJECT":
 				$ret = $attr->value;
+				if ( $ret == -1 )
+					$ret = 'null';
 				break;
 
 			case "DATE":

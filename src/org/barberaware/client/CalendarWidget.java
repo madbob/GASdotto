@@ -86,11 +86,12 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 				head.setWidth ( "100%" );
 				bar.remove ( title );
 				head.add ( title );
+				head.setCellVerticalAlignment ( title, HasVerticalAlignment.ALIGN_MIDDLE );
 				head.add ( year );
 
 				bar.add ( head, DockPanel.CENTER );
-				bar.setCellHorizontalAlignment ( head, HasAlignment.ALIGN_CENTER );
-				bar.setCellVerticalAlignment ( head, HasAlignment.ALIGN_MIDDLE );
+				bar.setCellHorizontalAlignment ( head, HasHorizontalAlignment.ALIGN_CENTER );
+				bar.setCellVerticalAlignment ( head, HasVerticalAlignment.ALIGN_MIDDLE );
 				bar.setCellWidth ( head, "100%" );
 
 				year.addFocusListener ( new FocusListener () {

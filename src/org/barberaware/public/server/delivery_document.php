@@ -163,35 +163,41 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	$output .= $row_begin . 'Prodotto' . $inrow_separator . 'Quantità' . $inrow_separator . 'Prezzo Totale' . $inrow_separator . 'Prezzo Trasporto' . $row_end;
 
+	/*
+		Se l'ordine risulta gia' prezzato, riporto nel documento le
+		quantita' precedentemente assegnate in fase di prezzatura
+	*/
+	if ( $order_user->status == 3 )
+		$param = 'delivered';
+	else
+		$param = 'quantity';
+
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
-		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
-			/*
-				Se l'ordine risulta gia' prezzato, riporto nel documento le
-				quantita' precedentemente assegnate in fase di prezzatura
-			*/
-			if ( $order_user->status == 3 )
-				$param = 'delivered';
-			else
-				$param = 'quantity';
+		$prodid = $prod->getAttribute ( 'id' )->value;
+		$quantity = 0;
+		$variants = array ();
 
+		if ( $prodid == $prod_user->product ) {
 			$quantity = $prod_user->$param;
-			$variants = $prod_user->variants;
+			array_merge ( $variants, $prod_user->variants );
+		}
 
-			if ( count ( $order_user->friends ) != 0 ) {
-				foreach ( $order_user->friends as $friend ) {
-					foreach ( $friend->products as $fprod ) {
-						if ( $fprod->product == $prod_user->product ) {
-							$quantity += $fprod->$param;
-							array_merge ( $variants, $fprod->variants );
-							break;
-						}
+		if ( count ( $order_user->friends ) != 0 ) {
+			foreach ( $order_user->friends as $friend ) {
+				foreach ( $friend->products as $fprod ) {
+					if ( $fprod->product == $prodid ) {
+						$quantity += $fprod->$param;
+						array_merge ( $variants, $fprod->variants );
+						break;
 					}
 				}
 			}
+		}
 
+		if ( $quantity != 0 ) {
 			$unit = $prod->getAttribute ( "unit_size" )->value;
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;

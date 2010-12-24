@@ -110,7 +110,7 @@ class Probe extends FromServer {
 		fwrite ( $f, sprintf ( "\$dbname = \"%s\";\n", $obj->dbname ) );
 		fwrite ( $f, sprintf ( "\$dbhost = \"%s\";\n", $obj->dbhost ) );
 		fwrite ( $f, sprintf ( "\$session_key = \"%s\";\n", self::random_string () ) );
-		fwrite ( $f, "?>\n" );
+		fwrite ( $f, "?>" );
 
 		fclose ( $f );
 	}

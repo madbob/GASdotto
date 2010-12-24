@@ -101,7 +101,7 @@ class OrderUser extends FromServer {
 			Questo e' per evitare di salvare nel DB ordini vuoti, per cui non e'
 			stata settata alcuna quantita' di prodotti
 		*/
-		if ( count ( $obj->products ) == 0 ) {
+		if ( count ( $obj->products ) == 0 && count ( $obj->friends ) == 0 ) {
 			if ( $obj->id == -1 )
 				return -1;
 			else if ( $obj->id != -1 )
