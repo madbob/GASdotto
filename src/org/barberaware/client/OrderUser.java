@@ -21,6 +21,8 @@ import java.util.*;
 
 import com.google.gwt.user.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class OrderUser extends FromServer {
 	public static int	TO_DELIVER		= 0;
 	public static int	PARTIAL_DELIVERY	= 1;

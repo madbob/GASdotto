@@ -95,6 +95,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 	private boolean orderMatchesFill ( FromServer order, FlexTable table, int row ) {
 		boolean has;
+		int num;
 		float tot;
 		ArrayList products;
 		Label username;
@@ -105,9 +106,9 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		tot = 0;
 
 		products = order.getArray ( "allproducts" );
-		tot = products.size ();
+		num = products.size ();
 
-		for ( int i = 0; i < tot; i++ ) {
+		for ( int i = 0; i < num; i++ ) {
 			pu = ( FromServer ) products.get ( i );
 
 			if ( pu.getObject ( "product" ).equals ( targetProduct ) ) {

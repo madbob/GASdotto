@@ -44,7 +44,7 @@ public class HomePanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			private void fillTotalText ( Label total, OrderUser order ) {
-				total.setText ( " (hai ordinato " + Utils.priceToString ( order.getTotalPrice () ) + ")" );
+				total.setText ( " (hai ordinato " + Utils.priceToString ( order.getTotalPriceWithFriends () ) + ")" );
 			}
 
 			private void setOrderedText ( PlainFillBox panel, int index, OrderUser orderuser ) {
