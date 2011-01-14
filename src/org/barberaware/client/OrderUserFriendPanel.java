@@ -187,6 +187,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 			public void onClick ( Widget sender ) {
 				friends.remove ( sender.getParent ().getParent ().getParent ().getParent () );
 				friends.selectTab ( 0 );
+				updateTotal ();
 			}
 		} );
 		panel.add ( button, "Elimina" );
@@ -206,7 +207,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 			tabs = friends.getWidgetCount ();
 
 		for ( int i = 1; i < tabs; i++ )
-			friends.remove ( i );
+			friends.remove ( 1 );
 
 		products = currentValue.getArray ( "products" );
 		single.setElements ( products );

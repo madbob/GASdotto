@@ -43,6 +43,10 @@ public abstract class FromServerValidateCallback {
 	}-*/;
 
 	public static FromServerValidateCallback defaultMailValidationCallback () {
+		/**
+			TODO	Controllare che la mail sia univoca
+		*/
+
 		return
 			new FromServerValidateCallback () {
 				public boolean check ( FromServer object, String attribute, Widget widget ) {

@@ -27,6 +27,8 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 	private DeckPanel		deck;
 	private RadioButtons		buttons		= null;
 
+	private FromServer		baseOrder;
+
 	public OrderUserManager ( FromServer order, boolean editable ) {
 		boolean reference;
 		boolean freedit;
@@ -39,6 +41,7 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 
 		reference = ( ( ( Supplier ) order.getObject ( "supplier" ) ).iAmReference () );
 		freedit = reference && ( order.getInt ( "status" ) != Order.OPENED );
+		baseOrder = order;
 
 		if ( editable == true ) {
 			buttons = new RadioButtons ();
@@ -103,6 +106,24 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 		}
 	}
 
+	private FromServer findMine () {
+		ArrayList orders;
+		FromServer order;
+		FromServer me;
+
+		orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		me = Session.getUser ();
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			order = ( FromServer ) orders.get ( i );
+
+			if ( order.getObject ( "baseorder" ).equals ( baseOrder ) && order.getObject ( "baseuser" ).equals ( me ) )
+				return order;
+		}
+
+		return null;
+	}
+
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
@@ -110,14 +131,25 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 		ArrayList f;
 		ObjectWidget panel;
 
-		f = element.getArray ( "friends" );
+		if ( element == null )
+			element = findMine ();
 
-		if ( element.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
-			index = 2;
-		else if ( f != null && f.size () != 0 )
-			index = 1;
-		else
+		if ( element == null ) {
 			index = 0;
+		}
+		else {
+			if ( element.getObject ( "baseuser" ).equals ( Session.getUser () ) == false ) {
+				index = 2;
+			}
+			else {
+				f = element.getArray ( "friends" );
+
+				if ( f != null && f.size () != 0 )
+					index = 1;
+				else
+					index = 0;
+			}
+		}
 
 		panel = ( ObjectWidget ) deck.getWidget ( index );
 		panel.setValue ( element );

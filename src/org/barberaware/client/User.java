@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class User extends FromServer {
 	public static int	USER_COMMON		= 0;
 	public static int	USER_RESPONSABLE	= 1;
@@ -75,6 +77,8 @@ public class User extends FromServer {
 	}
 
 	public void checkUserPaying ( FromServerForm form ) {
+		long before_t;
+		long after_t;
 		Date last_pay;
 		Date gas_date;
 		Date now;
@@ -95,10 +99,18 @@ public class User extends FromServer {
 		}
 
 		now = new Date ( System.currentTimeMillis () );
+		gas_date.setYear ( now.getYear () );
 
-		if ( last_pay.getMonth () < gas_date.getMonth () || ( last_pay.getMonth () == gas_date.getMonth () && last_pay.getDay () < gas_date.getDay () ) )
-			bar.activate ( "paying" );
-		else if ( last_pay.getYear () < now.getYear () )
+		if ( last_pay.after ( gas_date ) == true ) {
+			before_t = last_pay.getTime ();
+			after_t = gas_date.getTime ();
+		}
+		else {
+			after_t = last_pay.getTime ();
+			before_t = gas_date.getTime ();
+		}
+
+		if ( ( after_t - before_t ) > ( 60 * 60 * 24 * 365 ) )
 			bar.activate ( "paying" );
 		else
 			bar.deactivate ( "paying" );

@@ -48,14 +48,23 @@ public class OrderUserPlainPanel extends Composite implements OrderUserManagerMo
 	public void setValue ( FromServer element ) {
 		ArrayList friends;
 
-		currentValue = element;
-		selection.setElements ( currentValue.getArray ( "products" ) );
+		if ( element == null ) {
+			currentValue = new OrderUser ();
+			currentValue.setObject ( "baseorder", baseOrder );
+			currentValue.setObject ( "baseuser", Session.getUser () );
 
-		friends = element.getArray ( "friends" );
-		if ( friends == null || friends.size () == 0 )
-			selection.setEditable ( true );
-		else
-			selection.setEditable ( false );
+			selection.setElements ( null );
+		}
+		else {
+			currentValue = element;
+			selection.setElements ( currentValue.getArray ( "products" ) );
+
+			friends = element.getArray ( "friends" );
+			if ( friends == null || friends.size () == 0 )
+				selection.setEditable ( true );
+			else
+				selection.setEditable ( false );
+		}
 	}
 
 	public FromServer getValue () {

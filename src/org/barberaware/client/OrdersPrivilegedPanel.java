@@ -49,15 +49,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object, 0 );
+				findAndAlign ( ( OrderUser ) object );
 			}
 
 			public void onModify ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object, 1 );
+				findAndAlign ( ( OrderUser ) object );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object, 2 );
+				findAndAlign ( ( OrderUser ) object );
 			}
 
 			protected String debugName () {
@@ -283,15 +283,23 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			public boolean onDelete ( final FromServerForm form ) {
-				FromServer uord;
+				FromServer obj;
+				OrderUserManager manager;
 
-				uord = form.getObject ();
-				if ( uord.isValid () ) {
-					uord.destroy ( new ServerResponse () {
+				manager = ( OrderUserManager ) form.retriveInternalWidget ( "informations" );
+
+				obj = manager.getValue ();
+				if ( obj == null )
+					return false;
+
+				if ( obj.isValid () ) {
+					obj.destroy ( new ServerResponse () {
 						public void onComplete ( JSONValue response ) {
 							form.open ( false );
 						}
 					} );
+
+					manager.setValue ( null );
 				}
 
 				return false;
@@ -341,7 +349,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	/*
 		action: gli stessi valori di syncLocalCache
 	*/
-	private void findAndAlign ( OrderUser uorder, int action ) {
+	private void findAndAlign ( OrderUser uorder ) {
 		int index;
 		FromServer order;
 		FromServerForm form;
