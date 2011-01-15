@@ -212,6 +212,14 @@ function get_product_name ( $product ) {
 	return ( $product->getAttribute ( "name" )->value ) . $code;
 }
 
+function get_product_measure_symbol ( $product ) {
+	$measure = $product->getAttribute ( "measure" )->value;
+	if ( $measure != null )
+		return $measure->getAttribute ( 'name' )->value;
+
+	return '';
+}
+
 function get_product_quantity_stocks ( $product, $quantity ) {
 	if ( $quantity > 0 ) {
 		$stock = $product->getAttribute ( "stock_size" )->value;

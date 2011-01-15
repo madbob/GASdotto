@@ -186,7 +186,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 $tot_price = 0;
 $tot_transport = 0;
-$output = "Prodotto;Quantità;Prezzo Totale;Prezzo Trasporto\n";
+$output = "Prodotto;Quantità;Unità Misura;Prezzo Totale;Prezzo Trasporto\n";
 
 for ( $i = 0; $i < count ( $references ); $i++ ) {
 	if ( $references [ $i ] [ 3 ] == 0 )
@@ -220,10 +220,11 @@ for ( $i = 0; $i < count ( $references ); $i++ ) {
 	}
 
 	$q = get_product_quantity_stocks ( $references [ $i ] [ 0 ], $references [ $i ] [ 3 ] );
+	$u = get_product_measure_symbol ( $references [ $i ] [ 0 ] );
 	$p = format_price ( round ( $references [ $i ] [ 4 ], 2 ), false );
 	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
 
-	$output .= $name . ';' . $q . ';' . $p . ';' . $s . "\n";
+	$output .= $name . ';' . $q . ';' . $u . ';' . $p . ';' . $s . "\n";
 
 	$tot_price += $references [ $i ] [ 4 ];
 	$tot_transport += $references [ $i ] [ 5 ];
