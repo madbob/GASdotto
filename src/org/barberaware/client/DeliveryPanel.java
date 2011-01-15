@@ -275,8 +275,8 @@ public class DeliveryPanel extends GenericPanel {
 		downloads.add ( files );
 
 		files = new LinksDialog ( "Riassunto Prodotti" );
-		files.addLink ( "CSV", "products_cvs.php?id=" + order.getLocalID () );
-		files.addLink ( "PDF", "products_pdf.php?id=" + order.getLocalID () );
+		files.addLink ( "CSV", "products_summary.php?format=csv&amp;id=" + order.getLocalID () );
+		files.addLink ( "PDF", "products_summary.php?format=pdf&amp;id=" + order.getLocalID () );
 		downloads.add ( files );
 
 		frame.add ( downloads );

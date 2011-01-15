@@ -1,7 +1,7 @@
 <?php
 
 /*  GASdotto
- *  Copyright (C) 2010 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,9 +19,90 @@
 
 require_once ( "utils.php" );
 
+function manage_product ( $prod, $prod_user, &$references, $a ) {
+	$unit = $prod->getAttribute ( "unit_size" )->value;
+	$uprice = $prod->getAttribute ( "unit_price" )->value;
+	$sprice = $prod->getAttribute ( "shipping_price" )->value;
+
+	if ( $unit <= 0.0 )
+		$q = $prod_user->quantity;
+	else
+		$q = ( $prod_user->quantity / $unit );
+
+	if ( is_array ( $references [ $a ] [ 1 ] ) == false ) {
+		$references [ $a ] [ 3 ] += $q;
+
+		$sum = $prod_user->quantity * $uprice;
+		$references [ $a ] [ 4 ] += $sum;
+
+		$sum = $prod_user->quantity * $sprice;
+		$references [ $a ] [ 5 ] += $sum;
+	}
+	else {
+		/*
+			Questo macello cosmico e' per tenere il conto di quante volte una variante e'
+			stata ordinata.
+			In ($references[$q][1]) e ($references[$q][2]) ci sono gli array con le
+			varianti ed i valori sinora trovati. Se uno di questi array (il primo) e'
+			vuoto, vuol dire che la combinazione che sto testando non e' ancora stata
+			trovata e dunque la immetto. Altrimenti verifico che la combinazione
+			varianti-valori sia la stessa della componente che sto maneggiando
+		*/
+		foreach ( $prod_user->variants as $v ) {
+			$found = false;
+
+			for ( $q = $a; $q < count ( $references ); $q++ ) {
+				if ( is_array ( $references [ $q ] [ 1 ] ) == false )
+					break;
+
+				if ( count ( $references [ $q ] [ 1 ] ) == 0 ) {
+					foreach ( $v->components as $c ) {
+						$references [ $q ] [ 1 ] [] = $c->variant->id;
+						$references [ $q ] [ 2 ] [] = $c->value->id;
+						$found = true;
+					}
+				}
+				else {
+					$found = true;
+					$comps = $v->components;
+
+					for ( $z = 0; $z < count ( $comps ); $z++ ) {
+						$c = $comps [ $z ];
+
+						if ( $references [ $q ] [ 1 ] [ $z ] != $c->variant->id ||
+								$references [ $q ] [ 2 ] [ $z ] != $c->value->id ) {
+							$found = false;
+							break;
+						}
+					}
+				}
+
+				if ( $found == true ) {
+					$references [ $q ] [ 3 ] += 1;
+					$references [ $q ] [ 4 ] += $uprice;
+					$references [ $q ] [ 5 ] += $sprice;
+					break;
+				}
+			}
+		}
+
+		$a--;
+	}
+
+	return $a;
+}
+
+global $emptycell;
+
 $id = $_GET [ 'id' ];
 if ( isset ( $id ) == false )
 	error_exit ( "Richiesta non specificata" );
+
+$format = $_GET [ 'format' ];
+if ( isset ( $format ) == false )
+	error_exit ( "Richiesta non specificata" );
+
+formatting_entities ( $format );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
@@ -35,6 +116,20 @@ $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
+
+/*
+	L'array "references" e' fatto per contenere altri array, uno per ogni possibile prodotto o variante di un
+	prodotto. Dunque se ci sono due prodotti, uno senza varianti ed uno con tre possibili valori di "colore", in
+	tutti si trovano quattro array. In ogni sotto-array ci sono le informazioni relative a quello specifico
+	elemento:
+
+	0: il Product di riferimento
+	1: l'array di varianti allegate al prodotto (o null se non ce ne sono)
+	2: l'array di valori assunti dalle varianti per questa specifica combinazione (o null se non ce ne sono)
+	3: la quantita' raccolta durante le varie iterazioni
+	4: il totale del prezzo dei prodotti in questa combinazione
+	5: il totale del prezzo di trasporto in questa combinazione
+*/
 
 $references = array ();
 
@@ -107,86 +202,50 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	for ( $a = 0, $e = 0; $a < count ( $references ); $a++ ) {
 		$prod = $references [ $a ] [ 0 ];
+		$prodid = $prod->getAttribute ( "id" )->value;
 		$prod_user = $user_products [ $e ];
 
-		if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
-			$unit = $prod->getAttribute ( "unit_size" )->value;
-			$uprice = $prod->getAttribute ( "unit_price" )->value;
-			$sprice = $prod->getAttribute ( "shipping_price" )->value;
+		if ( $prodid == $prod_user->product ) {
+			$a = manage_product ( $prod, $prod_user, $references, $a );
+			$e++;
+		}
+	}
 
-			if ( $unit <= 0.0 )
-				$q = $prod_user->quantity;
-			else
-				$q = ( $prod_user->quantity / $unit );
+	if ( count ( $order_user->friends ) != 0 ) {
+		$a = 0;
+		$prod = $references [ $a ] [ 0 ];
+		$prodid = $prod->getAttribute ( "id" )->value;
 
-			if ( is_array ( $references [ $a ] [ 1 ] ) == false ) {
-				$references [ $a ] [ 3 ] += $q;
-
-				$sum = $prod_user->quantity * $uprice;
-				$references [ $a ] [ 4 ] += $sum;
-
-				$sum = $prod_user->quantity * $sprice;
-				$references [ $a ] [ 5 ] += $sum;
-			}
-			else {
-				/*
-					Questo macello cosmico e' per tenere il conto di quante volte una variante e'
-					stata ordinata.
-					In ($references[$q][1]) e ($references[$q][2]) ci sono gli array con le
-					varianti ed i valori sinora trovati. Se uno di questi array (il primo) e'
-					vuoto, vuol dire che la combinazione che sto testando non e' ancora stata
-					trovata e dunque la immetto. Altrimenti verifico che la combinazione
-					varianti-valori sia la stessa della componente che sto maneggiando
-				*/
-				foreach ( $prod_user->variants as $v ) {
-					$found = false;
-
-					for ( $q = $a; $q < count ( $references ); $q++ ) {
-						if ( is_array ( $references [ $q ] [ 1 ] ) == false )
-							break;
-
-						if ( count ( $references [ $q ] [ 1 ] ) == 0 ) {
-							foreach ( $v->components as $c ) {
-								$references [ $q ] [ 1 ] [] = $c->variant->id;
-								$references [ $q ] [ 2 ] [] = $c->value->id;
-								$found = true;
-							}
-						}
-						else {
-							$found = true;
-							$comps = $v->components;
-
-							for ( $z = 0; $z < count ( $comps ); $z++ ) {
-								$c = $comps [ $z ];
-
-								if ( $references [ $q ] [ 1 ] [ $z ] != $c->variant->id ||
-										$references [ $q ] [ 2 ] [ $z ] != $c->value->id ) {
-									$found = false;
-									break;
-								}
-							}
-						}
-
-						if ( $found == true ) {
-							$references [ $q ] [ 3 ] += 1;
-							$references [ $q ] [ 4 ] += $uprice;
-							$references [ $q ] [ 5 ] += $sprice;
-							break;
-						}
+		while ( $a < count ( $references ) ) {
+			foreach ( $order_user->friends as $friend ) {
+				foreach ( $friend->products as $fprod ) {
+					if ( $fprod->product == $prodid ) {
+						manage_product ( $prod, $fprod, $references, $a );
+						break;
 					}
 				}
-
-				$a--;
 			}
 
-			$e++;
+			$prev_prodid = $prodid;
+
+			do {
+				$a++;
+
+				if ( $a >= count ( $references ) )
+					break;
+
+				$prod = $references [ $a ] [ 0 ];
+				$prodid = $prod->getAttribute ( "id" )->value;
+			} while ( $prev_prodid == $prodid );
 		}
 	}
 }
 
 $tot_price = 0;
 $tot_transport = 0;
-$output = "Prodotto;Quantità;Unità Misura;Prezzo Totale;Prezzo Trasporto\n";
+$data = array ();
+
+$headers = array ( 'Prodotto', 'Quantità', 'Unità Misura', 'Prezzo Totale', 'Prezzo Trasporto' );
 
 for ( $i = 0; $i < count ( $references ); $i++ ) {
 	if ( $references [ $i ] [ 3 ] == 0 )
@@ -224,7 +283,7 @@ for ( $i = 0; $i < count ( $references ); $i++ ) {
 	$p = format_price ( round ( $references [ $i ] [ 4 ], 2 ), false );
 	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
 
-	$output .= $name . ';' . $q . ';' . $u . ';' . $p . ';' . $s . "\n";
+	$data [] = array ( $name, $q, $u, $p, $s );
 
 	$tot_price += $references [ $i ] [ 4 ];
 	$tot_transport += $references [ $i ] [ 5 ];
@@ -232,10 +291,8 @@ for ( $i = 0; $i < count ( $references ); $i++ ) {
 
 $p = format_price ( round ( $tot_price, 2 ), false );
 $s = format_price ( round ( $tot_transport, 2 ), false );
-$output .= ';;' . $p . ';' . $s . "\n";
+$data [] = array ( $emptycell, $emptycell, $emptycell, $p, $s );
 
-header ( "Content-Type: plain/text" );
-header ( 'Content-Disposition: inline; filename="' . 'ordinazioni_' . $supplier_name . '_' . $shipping_date . '.csv' . '";' );
-echo $output;
+output_formatted_document ( 'Ordinazioni ' . $supplier_name . ' ' . $shipping_date, $headers, $data, $format );
 
 ?>

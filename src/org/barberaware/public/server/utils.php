@@ -293,6 +293,8 @@ function formatting_entities ( $format ) {
 	global $string_begin;
 	global $string_end;
 	global $content_sep;
+	global $onelinepadding;
+	global $emptycell;
 
 	if ( $format == 'csv' ) {
 		$block_begin = '';
