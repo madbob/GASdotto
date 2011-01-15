@@ -58,7 +58,7 @@ public class OrderSummary extends Composite implements Lockable {
 		main.setWidget ( 0, PRODUCT_TRANSPORT_COLUMN, new Label ( "Trasporto Unitario" ) );
 		main.setWidget ( 0, PRODUCT_OVERPRICE_COLUMN, new Label ( "Sovrapprezzo Unitario (€/%)" ) );
 		main.setWidget ( 0, PRODUCT_MEASURE_COLUMN, new Label ( "Unità Misura" ) );
-		main.setWidget ( 0, PRODUCT_STOCK_COLUMN, new Label ( "Stock" ) );
+		main.setWidget ( 0, PRODUCT_STOCK_COLUMN, new Label ( "Dimensione Confezione" ) );
 		main.setWidget ( 0, PRODUCT_ORDQUANT_COLUMN, new Label ( "Quantità Ordinata" ) );
 		main.setWidget ( 0, PRODUCT_TOTALPRICE_COLUMN, new Label ( "Totale Prezzo" ) );
 		main.setWidget ( 0, PRODUCT_TOTALTRANSPORT_COLUMN, new Label ( "Totale Trasporto" ) );

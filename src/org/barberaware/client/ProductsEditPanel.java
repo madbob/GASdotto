@@ -234,7 +234,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					*/
 
 					frame.addPair ( "Sovrapprezzo (€/%)", ver.getWidget ( "surplus" ) );
-					frame.addPair ( "Dimensione Stock", ver.getWidget ( "stock_size" ) );
+					frame.addPair ( "Dimensione Confezione", ver.getWidget ( "stock_size" ) );
 					frame.addPair ( "Minimo per Utente", ver.getWidget ( "minimum_order" ) );
 					frame.addPair ( "Multiplo per Utente", ver.getWidget ( "multiple_order" ) );
 
