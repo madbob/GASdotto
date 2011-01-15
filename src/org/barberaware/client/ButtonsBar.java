@@ -80,6 +80,7 @@ public class ButtonsBar extends Composite {
 		formatter = main.getRowFormatter ();
 		formatter.addStyleName ( 0, "icons" );
 		formatter.addStyleName ( 1, "help" );
+		formatter.setVisible ( 1, false );
 	}
 
 	public void add ( Widget button, String help ) {
@@ -92,11 +93,19 @@ public class ButtonsBar extends Composite {
 		if ( help != null ) {
 			label = new HTML ( help );
 			main.setWidget ( 1, col, label );
-			label.setVisible ( false );
 		}
 	}
 
+	public Widget getWidget ( int index ) {
+		return main.getWidget ( 0, index );
+	}
+
+	public int getWidgetCount () {
+		return main.getCellCount ( 0 );
+	}
+
 	private void showCells ( boolean show ) {
+		/*
 		int tot;
 		Widget wid;
 
@@ -106,5 +115,11 @@ public class ButtonsBar extends Composite {
 			wid = main.getWidget ( 1, i );
 			wid.setVisible ( show );
 		}
+		*/
+
+		HTMLTable.RowFormatter formatter;
+
+		formatter = main.getRowFormatter ();
+		formatter.setVisible ( 1, show );
 	}
 }

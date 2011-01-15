@@ -142,8 +142,10 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	}
 
 	public void setEditable ( boolean edit ) {
-		if ( editable == true )
+		if ( editable == true ) {
 			( ( FloatBox ) quantity ).setEnabled ( edit );
+			editableVariantsBoxes ( edit );
+		}
 	}
 
 	private void disposeConstraints ( FromServer prod, Widget quantity ) {
@@ -253,6 +255,27 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		}
 
 		return ret;
+	}
+
+	private void editableVariantsBoxes ( boolean edit ) {
+		HorizontalPanel row;
+		ListBox sel;
+
+		if ( variantsBoxes == null )
+			return;
+
+		for ( int i = 0; i < variantsBoxes.getWidgetCount (); i++ ) {
+			row = ( HorizontalPanel ) variantsBoxes.getWidget ( i );
+
+			/*
+				Bisogna saltare gli elementi Hidden piazzati nella riga per
+				identificare programmaticamente le varianti
+			*/
+			for ( int a = 3; a < row.getWidgetCount (); a = a + 3 ) {
+				sel = ( ListBox ) row.getWidget ( a );
+				sel.setEnabled ( edit );
+			}
+		}
 	}
 
 	private void doVariantsMainBox () {

@@ -253,12 +253,11 @@ public class DeliveryPanel extends GenericPanel {
 			}
 		} );
 
-		frame = new CaptionPanel ( "Stampa Report" );
+		frame = new CaptionPanel ( "Esporta Report" );
 		frame.addStyleName ( "print-reports-box" );
 		ver.add ( frame );
 
 		downloads = new HorizontalPanel ();
-		downloads.setStyleName ( "bottom-buttons" );
 
 		files = new LinksDialog ( "Ordinati e Consegnati" );
 		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "&amp;type=shipped" );

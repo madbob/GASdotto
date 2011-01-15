@@ -431,7 +431,7 @@ public class StatisticsPanel extends GenericPanel {
 
 	private void updateUsersLinks () {
 		usersFiles.emptyBox ();
-		usersFiles.addLink ( "CVS", linkTemplate ( "users", "csv", supplierStartDate, supplierEndDate, -1 ) );
+		usersFiles.addLink ( "CSV", linkTemplate ( "users", "csv", supplierStartDate, supplierEndDate, -1 ) );
 		usersFiles.addLink ( "PDF", linkTemplate ( "users", "pdf", supplierStartDate, supplierEndDate, -1 ) );
 	}
 
@@ -475,7 +475,7 @@ public class StatisticsPanel extends GenericPanel {
 
 	private void updateProductsLinks ( FromServer supp ) {
 		productsFiles.emptyBox ();
-		productsFiles.addLink ( "CVS", linkTemplate ( "products", "csv", productStartDate, productEndDate, supp.getLocalID () ) );
+		productsFiles.addLink ( "CSV", linkTemplate ( "products", "csv", productStartDate, productEndDate, supp.getLocalID () ) );
 		productsFiles.addLink ( "PDF", linkTemplate ( "products", "pdf", productStartDate, productEndDate, supp.getLocalID () ) );
 	}
 

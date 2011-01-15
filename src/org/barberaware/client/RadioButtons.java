@@ -23,68 +23,74 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class RadioButtons extends Composite implements SourcesChangeEvents {
-	private HorizontalPanel		main;
+public class RadioButtons extends ButtonsBar implements SourcesChangeEvents {
+	private int			selected		= -1;
 	private ArrayList		callbacks		= null;
 
 	public RadioButtons () {
-		main = new HorizontalPanel ();
-		main.addStyleName ( "radio-buttons" );
-		initWidget ( main );
+		addStyleName ( "radio-buttons" );
 	}
 
-	public void add ( Image up ) {
+	public void add ( Image up, String name ) {
 		ToggleButton toggle;
 
-		toggle = new ToggleButton ( up );
-		main.add ( toggle );
-
-		toggle.addClickListener ( new ClickListener () {
+		toggle = new ToggleButton ( up, new ClickListener () {
 			public void onClick ( Widget sender ) {
+				boolean found;
 				ToggleButton t;
 				ToggleButton iter;
 
 				t = ( ToggleButton ) sender;
+				found = false;
 
-				if ( t.isDown () ) {
-					DOM.eventCancelBubble ( DOM.eventGetCurrentEvent (), true );
-				}
-				else {
-					for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-						iter = ( ToggleButton ) main.getWidget ( i );
+				for ( int i = 0; i < getWidgetCount (); i++ ) {
+					iter = ( ToggleButton ) getWidget ( i );
+
+					if ( iter == t ) {
+						if ( selected != i ) {
+							selected = i;
+							found = true;
+							buttonUpDown ( iter, true );
+						}
+					}
+					else {
 						buttonUpDown ( iter, false );
 					}
-
-					buttonUpDown ( t, true );
-					triggerChange ();
 				}
+
+				if ( found == true )
+					triggerChange ();
 			}
 		} );
+
+		toggle.setDown ( false );
+		super.add ( toggle, name );
 	}
 
 	public int getToggled () {
-		ToggleButton iter;
-
-		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-			iter = ( ToggleButton ) main.getWidget ( i );
-			if ( iter.isDown () == true )
-				return i;
-		}
-
-		return -1;
+		return selected;
 	}
 
 	public void setToggled ( int index ) {
 		int i;
 		ToggleButton iter;
 
-		for ( i = 0; i < main.getWidgetCount (); i++ ) {
-			iter = ( ToggleButton ) main.getWidget ( i );
-			buttonUpDown ( iter, false );
-		}
+		if ( index != selected ) {
+			for ( i = 0; i < index; i++ ) {
+				iter = ( ToggleButton ) getWidget ( i );
+				buttonUpDown ( iter, false );
+			}
 
-		iter = ( ToggleButton ) main.getWidget ( index );
-		buttonUpDown ( iter, true );
+			iter = ( ToggleButton ) getWidget ( index );
+			buttonUpDown ( iter, true );
+
+			for ( i++; i < getWidgetCount (); i++ ) {
+				iter = ( ToggleButton ) getWidget ( i );
+				buttonUpDown ( iter, false );
+			}
+
+			selected = index;
+		}
 	}
 
 	private void buttonUpDown ( ToggleButton button, boolean down ) {

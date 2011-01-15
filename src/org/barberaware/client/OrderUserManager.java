@@ -48,10 +48,14 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 			main.add ( buttons );
 			main.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
 
-			buttons.add ( new Image ( "images/plain_order.png" ) );
-			buttons.add ( new Image ( "images/friends_order.png" ) );
-			if ( reference )
-				buttons.add ( new Image ( "images/multi_order.png" ) );
+			buttons.add ( new Image ( "images/plain_order.png" ), "Per me, " );
+			if ( reference ) {
+				buttons.add ( new Image ( "images/friends_order.png" ), "gli amici, " );
+				buttons.add ( new Image ( "images/multi_order.png" ), "e gli altri" );
+			}
+			else {
+				buttons.add ( new Image ( "images/friends_order.png" ), "e gli amici" );
+			}
 
 			buttons.addChangeListener ( new ChangeListener () {
 				public void onChange ( Widget sender ) {

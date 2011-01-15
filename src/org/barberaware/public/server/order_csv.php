@@ -122,6 +122,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			if ( $prodid == $prod_user->product ) {
 				$quantity = $prod_user->quantity;
 				$delivered = $prod_user->delivered;
+				$e++;
 			}
 		}
 
@@ -173,8 +174,6 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 			$quantities_sums [ $a ] += $quantity;
 			$delivery_sums [ $a ] += $delivered;
-
-			$e++;
 		}
 		else {
 			$output .= sprintf ( ";" );

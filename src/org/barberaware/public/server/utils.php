@@ -21,6 +21,7 @@ require_once ( "config.php" );
 require_once ( "JSON.php" );
 require_once ( "Mail.php" );
 require_once ( "Mail/mime.php" );
+require_once ( "tcpdf/tcpdf.php" );
 
 require_once ( "FromServer.php" );
 require_once ( "Session.php" );
@@ -199,6 +200,10 @@ function sort_orders_by_user ( $first, $second ) {
 	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 }
 
+function sort_friend_orders_by_user ( $first, $second ) {
+	return strcmp ( $first->friendname, $second->friendname );
+}
+
 function get_product_name ( $product ) {
 	$code = $product->getAttribute ( "code" )->value;
 	if ( $code != '' )
@@ -250,7 +255,16 @@ function sort_products_on_products ( $products, $user_products ) {
 		for ( $a = 0; $a < count ( $user_products ); $a++ ) {
 			$prod_user = $user_products [ $a ];
 
-			if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+			/*
+				Questo e' perche' possono arrivare prodotti "compressi" (espressi solo per mezzo
+				dell'ID) o meno (rappresentati dalla struttura completa)
+			*/
+			if ( isset ( $prod_user->product->id ) )
+				$id = $prod_user->product->id;
+			else
+				$id = $prod_user->product;
+
+			if ( $prod->getAttribute ( "id" )->value == $id ) {
 				$proxy [] = $prod_user;
 				break;
 			}
@@ -258,6 +272,137 @@ function sort_products_on_products ( $products, $user_products ) {
 	}
 
 	return $proxy;
+}
+
+function formatting_entities ( $format ) {
+	global $block_begin;
+	global $block_end;
+	global $row_begin;
+	global $row_end;
+	global $head_begin;
+	global $head_end;
+	global $inrow_separator;
+	global $string_begin;
+	global $string_end;
+	global $content_sep;
+
+	if ( $format == 'csv' ) {
+		$block_begin = '';
+		$block_end = "\n";
+		$row_begin = '';
+		$row_end = "\n";
+		$head_begin = $row_begin;
+		$head_end = $row_end;
+		$inrow_separator = ';';
+		$string_begin = '"';
+		$string_end = '"';
+		$content_sep = ' - ';
+		$onelinepadding = '';
+		$emptycell = '';
+	}
+	else if ( $format == 'pdf' ) {
+		$block_begin = '<table cellspacing="0" cellpadding="1" border="1" width="100%">';
+		$block_end = '</table><br /><br /><br />';
+		$row_begin = '<tr><td width="25%">';
+		$row_end = '</td></tr>';
+		$head_begin = '<tr><td colspan="4"><b>';
+		$head_end = '</b>' . $row_end;
+		$inrow_separator = '</td><td width="25%">';
+		$string_begin = '';
+		$string_end = '';
+		$onelinepadding = '<br />';
+		$emptycell = '<br />';
+	}
+	else {
+		error_exit ( "Formato non valido" );
+	}
+}
+
+class ExportDocument extends TCPDF {
+	public function ColoredTable ( $header, $data ) {
+		$this->SetFillColor ( 224, 235, 255 );
+		$this->SetTextColor ( 0 );
+		$this->SetDrawColor ( 128, 0, 0 );
+		$this->SetLineWidth ( 0.3 );
+		$this->SetFont ( 'helvetica', '', 7 );
+
+		$offset = 0;
+		$end = 0;
+		$tot = count ( $header );
+
+		do {
+			$this->AddPage ();
+
+			if ( $end + 10 > $tot )
+				$end = $tot;
+			else
+				$end = $end + 10;
+
+			if ( $tot <= 10 )
+				$width = 100;
+			else
+				$width = 10 * ( $end - $offset );
+
+			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . $width . '%"><tr>';
+			for ( $i = $offset; $i < $end; $i++ )
+				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
+			$html .= '</tr>';
+
+			foreach ( $data as $row ) {
+				$html .= '<tr>';
+
+				for ( $i = $offset; $i < $end; $i++ ) {
+					$val = $row [ $i ];
+					$html .= '<td>' . $val . '</td>';
+				}
+
+				$html .= '</tr>';
+			}
+
+			$html .= '</table>';
+
+			$this->writeHTML ( $html, true, false, false, false, 'C' );
+
+			$offset = $end;
+
+		} while ( $end < $tot );
+	}
+}
+
+function format_csv ( $headers, $data ) {
+	$output = join ( ';', $headers ) . "\n";
+
+	foreach ( $data as $row )
+		$output .= join ( ';', $row ) . "\n";
+
+	echo $output;
+}
+
+function output_formatted_document ( $title, $headers, $data, $format ) {
+	if ( $format == 'csv' ) {
+		header ( "Content-Type: plain/text" );
+		header ( 'Content-Disposition: inline; filename="' . $title . '.csv";' );
+		$output = format_csv ( $headers, $data );
+		echo $output;
+	}
+	else if ( $format == 'pdf' ) {
+		$pdf = new ExportDocument ( 'P', 'mm', 'A4', true, 'UTF-8', false );
+		$pdf->SetCreator ( 'TCPDF' );
+		$pdf->SetAuthor ( 'GASdotto' );
+		$pdf->SetTitle ( $title );
+		$pdf->SetSubject ( $title );
+		$pdf->SetHeaderData ( '', 0, $title );
+		$pdf->setHeaderFont ( Array ( 'helvetica', '', 10 ) );
+		$pdf->setFooterFont ( Array ( 'helvetica', '', 8 ) );
+		$pdf->SetDefaultMonospacedFont ( 'courier' );
+		$pdf->SetMargins ( 15, 27, 25, 15 );
+		$pdf->SetHeaderMargin ( 5 );
+		$pdf->SetFooterMargin ( 10 );
+		$pdf->SetAutoPageBreak ( true, 25 );
+		$pdf->setImageScale ( 1 );
+		$pdf->ColoredTable ( $headers, $data );
+		$pdf->Output ( $title . '.pdf', 'I' );
+	}
 }
 
 /****************************************************************** shortcuts */

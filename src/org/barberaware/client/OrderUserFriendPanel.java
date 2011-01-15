@@ -27,6 +27,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 	private ProductsUserSelection	single;
 	private FromServer		baseOrder;
 
+	private LinksDialog		files;
 	private TabPanel		friends;
 	private PriceViewer		totalWithFriends;
 
@@ -36,9 +37,18 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 
 	public OrderUserFriendPanel ( FromServer order, boolean edit, boolean freedit ) {
 		VerticalPanel main;
+		CaptionPanel frame;
 
 		main = new VerticalPanel ();
+		main.addStyleName ( "subelement" );
 		initWidget ( main );
+
+		frame = new CaptionPanel ( "Esporta Report" );
+		frame.addStyleName ( "print-reports-box" );
+		main.add ( frame );
+
+		files = new LinksDialog ( "Ordini per gli Amici" );
+		frame.add ( files );
 
 		friends = new TabPanel ();
 		main.add ( friends );
@@ -185,9 +195,11 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 
 		button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
-				friends.remove ( sender.getParent ().getParent ().getParent ().getParent () );
-				friends.selectTab ( 0 );
-				updateTotal ();
+				if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
+					friends.remove ( sender.getParent ().getParent ().getParent ().getParent () );
+					friends.selectTab ( 0 );
+					updateTotal ();
+				}
 			}
 		} );
 		panel.add ( button, "Elimina" );
@@ -285,6 +297,10 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 	public void setValue ( FromServer element ) {
 		currentValue = element;
 		setMultiOrder ();
+
+		files.emptyBox ();
+		files.addLink ( "CSV", "order_friends.php?format=csv&amp;id=" + element.getLocalID () );
+		files.addLink ( "PDF", "order_friends.php?format=pdf&amp;id=" + element.getLocalID () );
 	}
 
 	public FromServer getValue () {
