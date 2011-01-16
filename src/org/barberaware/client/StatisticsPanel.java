@@ -311,8 +311,10 @@ public class StatisticsPanel extends GenericPanel {
 		DataTable by_price;
 
 		num_items = array.size ();
-		if ( num_items == 0 )
+		if ( num_items == 0 ) {
+			Utils.showNotification ( "Non ci sono dati da visualizzare" );
 			return;
+		}
 
 		supplierData = DataTable.create ();
 		supplierData.addColumn ( AbstractDataTable.ColumnType.STRING, "fornitore" );
@@ -368,8 +370,10 @@ public class StatisticsPanel extends GenericPanel {
 		DataTable by_value;
 
 		num_items = array.size ();
-		if ( num_items == 0 )
+		if ( num_items == 0 ) {
+			Utils.showNotification ( "Non ci sono dati da visualizzare" );
 			return;
+		}
 
 		productData = DataTable.create ();
 		productData.addColumn ( AbstractDataTable.ColumnType.STRING, "prodotto" );

@@ -128,7 +128,8 @@ public class InstallForm extends Composite {
 				Di questo non ci sarebbe bisogno perche' il driver viene gia'
 				inizializzato nel Probe, ma male non fa
 			*/
-			probe.setString ( "dbdriver", drivers [ 0 ] );
+			drivers = drivers [ 0 ].split ( "/" );
+			probe.setString ( "dbdriver", drivers [ 1 ] );
 		}
 
 		db.addPair ( "Username", form.getWidget ( "dbuser" ) );

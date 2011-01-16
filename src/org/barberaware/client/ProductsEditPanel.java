@@ -145,22 +145,11 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					ver = new FromServerForm ( product );
 					ver.addStyleName ( "subform" );
 
-					/*
-
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public boolean onSave ( FromServerForm form ) {
-							FromServer obj;
-							FromServerWidget name;
-
-							obj = form.getObject ();
-							name = ( FromServerWidget ) form.getWidget ( "name" );
-							name.assign ( obj );
-							list.reSort ( obj );
-							return true;
+						public void onSaved ( FromServerForm form ) {
+							list.addElement ( form.getObject () );
 						}
 					} );
-
-					*/
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
