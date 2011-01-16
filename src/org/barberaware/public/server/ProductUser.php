@@ -27,6 +27,8 @@ class ProductUser extends FromServer {
 		$this->addAttribute ( "variants", "ARRAY::ProductUserVariant" );
 		$this->addAttribute ( "quantity", "FLOAT" );
 		$this->addAttribute ( "delivered", "FLOAT" );
+		$this->addAttribute ( "orderdate", "DATE" );
+		$this->addAttribute ( "orderperson", "OBJECT::User" );
 	}
 }
 

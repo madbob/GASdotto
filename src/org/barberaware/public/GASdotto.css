@@ -61,6 +61,11 @@ body {
 	height:			0px;
 }
 
+.collapsed {
+	visibility:		collapse;
+	width:			0%;
+}
+
 .main-header {
 	width:			100%;
 	height:			40px;
@@ -151,6 +156,10 @@ body {
 
 .subelement .gwt-TabBar .gwt-TabBarItem {
 	background-color:	#EAEEFF;
+}
+
+.subelement .gwt-TabBar .gwt-TabBarItem-selected {
+	border-bottom:		2px solid #EAEEFF;
 }
 
 .subform .element-summary div:hover {

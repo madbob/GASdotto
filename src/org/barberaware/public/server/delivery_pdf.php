@@ -140,22 +140,15 @@ array_push ( $header, 'Utenti' );
 
 $data = array ();
 
-$products_sums = array ();
-$quantities_sums = array ();
-$delivery_sums = array ();
-$shipped_sums = array ();
-$shipping_price = array ();
-
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$products_sums [] = 0;
-	$quantities_sums [] = 0;
-	$delivery_sums [] = 0;
-	$shipped_sums [] = 0;
-	$shipping_price [] = 0;
-}
+$products_sums = array_fill ( 0, count ( $products ), 0 );
+$quantities_sums = array_fill ( 0, count ( $products ), 0 );
+$delivery_sums = array_fill ( 0, count ( $products ), 0 );
+$shipped_sums = array_fill ( 0, count ( $products ), 0 );
+$shipping_price = array_fill ( 0, count ( $products ), 0 );
+$shipped_sums_by_date = array ();
 
 $contents = get_orderuser_by_order ( $order );
-usort ( $contents, "sort_orders_by_user" );
+usort ( $contents, "sort_orders_by_user_and_date" );
 
 for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$row = array ();
@@ -241,6 +234,15 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				$sum = ( $delivered * $uprice ) + ( $delivered * $sprice );
 				$shipped_sums [ $a ] += $sum;
 				$shipped_total += $sum;
+
+				if ( $order_user->deliverydate != null ) {
+					if ( isset ( $shipped_sums_by_date [ $order_user->deliverydate ] ) == false ) {
+						$arr = array_fill ( 0, count ( $products ), 0 );
+						$shipped_sums_by_date [ $order_user->deliverydate ] = $arr;
+					}
+
+					$shipped_sums_by_date [ $order_user->deliverydate ] [ $a ] += $sum;
+				}
 			}
 
 			$quantities_sums [ $a ] += $quantity;
@@ -391,6 +393,27 @@ $row [] = '<br />';
 $row [] = '<br />';
 $row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
 $data [] = $row;
+
+if ( count ( $shipped_sums_by_date ) > 1 ) {
+	foreach ( $shipped_sums_by_date as $date => $values ) {
+		$gran_total = 0;
+		$row = array ();
+		$row [] = 'Totale Pagato<br />il' . format_date ( $date );
+
+		foreach ( $values as $ps ) {
+			$r = round ( $ps, 2 );
+			$p = format_price ( $r, false );
+			$row [] = $p . '<br />';
+			$gran_total += $r;
+		}
+
+		$row [] = '<br />';
+		$row [] = '<br />';
+		$row [] = '<br />';
+		$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
+		$data [] = $row;
+	}
+}
 
 /*
 	Output

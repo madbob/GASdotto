@@ -73,22 +73,15 @@ $products_names [] = "Data";
 $products_names [] = "Referente";
 $output = ";" . join ( ";", $products_names ) . "\n;" . join ( ";", $products_prices ) . "\n\n";
 
-$products_sums = array ();
-$quantities_sums = array ();
-$delivery_sums = array ();
-$shipped_sums = array ();
-$shipping_price = array ();
-
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$products_sums [] = 0;
-	$quantities_sums [] = 0;
-	$delivery_sums [] = 0;
-	$shipped_sums [] = 0;
-	$shipping_price [] = 0;
-}
+$products_sums = array_fill ( 0, count ( $products ), 0 );
+$quantities_sums = array_fill ( 0, count ( $products ), 0 );
+$delivery_sums = array_fill ( 0, count ( $products ), 0 );
+$shipped_sums = array_fill ( 0, count ( $products ), 0 );
+$shipping_price = array_fill ( 0, count ( $products ), 0 );
+$shipped_sums_by_date = array ();
 
 $contents = get_orderuser_by_order ( $order );
-usort ( $contents, "sort_orders_by_user" );
+usort ( $contents, "sort_orders_by_user_and_date" );
 
 for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$order_user = $contents [ $i ];
@@ -170,6 +163,15 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				$sum = ( $delivered * $uprice ) + ( $delivered * $sprice );
 				$shipped_sums [ $a ] += $sum;
 				$shipped_total += $sum;
+
+				if ( $order_user->deliverydate != null ) {
+					if ( isset ( $shipped_sums_by_date [ $order_user->deliverydate ] ) == false ) {
+						$arr = array_fill ( 0, count ( $products ), 0 );
+						$shipped_sums_by_date [ $order_user->deliverydate ] = $arr;
+					}
+
+					$shipped_sums_by_date [ $order_user->deliverydate ] [ $a ] += $sum;
+				}
 			}
 
 			$quantities_sums [ $a ] += $quantity;
@@ -286,6 +288,24 @@ foreach ( $shipped_sums as $ps ) {
 	$gran_total += $r;
 }
 $output .= ";;;;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
+
+if ( count ( $shipped_sums_by_date ) > 1 ) {
+	print_r ( $shipped_sums_by_date );
+
+	foreach ( $shipped_sums_by_date as $date => $values ) {
+		$gran_total = 0;
+		$output .= "Totale Pagato il " . format_date ( $date );
+
+		foreach ( $values as $ps ) {
+			$r = round ( $ps, 2 );
+			$p = format_price ( $r, false );
+			$output .= ";" . $p;
+			$gran_total += $r;
+		}
+
+		$output .= ";;;;" . format_price ( round ( $gran_total, 2 ), false ) . "\n";
+	}
+}
 
 echo $output;
 

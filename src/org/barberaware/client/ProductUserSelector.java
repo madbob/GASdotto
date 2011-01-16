@@ -32,6 +32,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class ProductUserSelector extends Composite implements ObjectWidget {
 	private boolean					editable;
 	private boolean					freeEditable;
+	private float					originalQuantity;
 
 	private VerticalPanel				main;
 	private HorizontalPanel				firstRow;
@@ -41,7 +42,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private Label					measure;
 	private Label					effectiveQuantity;
 	private Label					constraints;
-	private FromServer				currentValue;
+	private ProductUser				currentValue;
 
 	private DelegatingChangeListenerCollection	changeListeners;
 
@@ -63,6 +64,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		editable = edit;
 		freeEditable = freeedit;
 		constraints = null;
+		originalQuantity = -1;
 
 		if ( edit == true ) {
 			qb = new FloatBox ();
@@ -507,7 +509,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		ArrayList variants;
 		FromServer prod;
 
-		currentValue = element;
+		currentValue = ( ProductUser ) element;
 
 		q = element.getFloat ( "quantity" );
 
@@ -517,6 +519,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			q = Math.round ( q / unit );
 
 		quantity.setVal ( q );
+		originalQuantity = q;
 		defineOnProduct ( prod );
 
 		variants = element.getArray ( "variants" );
@@ -542,6 +545,9 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 		if ( variantsBoxes != null && variantsBoxes.isVisible () == true )
 			currentValue.setArray ( "variants", retrieveVariants () );
+
+		if ( originalQuantity != q )
+			currentValue.setCurrentUser ();
 
 		return currentValue;
 	}

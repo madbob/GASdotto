@@ -52,6 +52,13 @@ public class ProductUser extends FromServer {
 		addAttribute ( "variants", FromServer.ARRAY, ProductUserVariant.class );
 		addAttribute ( "quantity", FromServer.FLOAT );
 		addAttribute ( "delivered", FromServer.FLOAT );
+		addAttribute ( "orderdate", FromServer.DATE );
+		addAttribute ( "orderperson", FromServer.OBJECT, User.class );
+	}
+
+	public void setCurrentUser () {
+		setDate ( "orderdate", new Date ( System.currentTimeMillis () ) );
+		setObject ( "orderperson", Session.getUser () );
 	}
 
 	public float getTotalPrice ( float quantity ) {

@@ -200,6 +200,24 @@ function sort_orders_by_user ( $first, $second ) {
 	return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 }
 
+function sort_orders_by_user_and_date ( $first, $second ) {
+	if ( $first->deliverydate != null && $second->deliverydate != null ) {
+		if ( $first->deliverydate == $second->deliverydate )
+			return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
+		else
+			return strcmp ( $first->deliverydate, $second->deliverydate );
+	}
+	else if ( $first->deliverydate == null && $second->deliverydate == null ) {
+		return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
+	}
+	else if ( $first->deliverydate == null ) {
+		return 1;
+	}
+	else if ( $second->deliverydate == null ) {
+		return -1;
+	}
+}
+
 function sort_friend_orders_by_user ( $first, $second ) {
 	return strcmp ( $first->friendname, $second->friendname );
 }

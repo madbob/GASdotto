@@ -27,6 +27,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 	private FlexTable		main;
 	private boolean			editable;
 	private boolean			freeEditable;
+	private boolean			enableShowDetails;
+	private boolean			showingPrices;
 
 	/*
 		Il dialog per le descrizioni dei prodotti viene creato la
@@ -42,16 +44,74 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 	public ProductsUserSelection ( ArrayList products, boolean edit, boolean freeedit ) {
 		int num_products;
+		FocusPanel container;
 		Product prod;
+
+		container = new FocusPanel ();
+		container.addMouseListener ( new MouseListener () {
+			public void onMouseDown ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+
+			public void onMouseEnter ( Widget sender ) {
+				/* dummy */
+			}
+
+			public void onMouseLeave ( Widget sender ) {
+				/* dummy */
+			}
+
+			public void onMouseMove ( Widget sender, int x, int y ) {
+				int width;
+				Label label;
+
+				if ( enableShowDetails == false )
+					return;
+
+				width = main.getOffsetWidth ();
+
+				if ( x > ( ( width * 80 ) / 100 ) ) {
+					if ( showingPrices == true ) {
+						for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
+							label = ( Label ) main.getWidget ( i, 2 );
+							label.addStyleName ( "hidden" );
+							label = ( Label ) main.getWidget ( i, 3 );
+							label.removeStyleName ( "hidden" );
+						}
+
+						showingPrices = false;
+					}
+				}
+				else {
+					if ( showingPrices == false ) {
+						for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
+							label = ( Label ) main.getWidget ( i, 2 );
+							label.removeStyleName ( "hidden" );
+							label = ( Label ) main.getWidget ( i, 3 );
+							label.addStyleName ( "hidden" );
+						}
+
+						showingPrices = true;
+					}
+				}
+			}
+
+			public void onMouseUp ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+		} );
+		initWidget ( container );
 
 		main = new FlexTable ();
 		main.setStyleName ( "products-selection" );
-		initWidget ( main );
 		main.setWidth ( "100%" );
 		main.setCellSpacing ( 5 );
+		container.add ( main );
 
 		editable = edit;
 		freeEditable = freeedit;
+		enableShowDetails = false;
+		showingPrices = true;
 
 		addTotalRow ();
 
@@ -281,7 +341,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 		sel = new ProductUserSelector ( product, editable, freeEditable );
 		main.setWidget ( row, 1, sel );
-		formatter.setWidth ( row, 1, "50%" );
+		formatter.setWidth ( row, 1, "40%" );
 		formatter.setVerticalAlignment ( row, 1, HasVerticalAlignment.ALIGN_TOP );
 
 		if ( editable == true ) {
@@ -298,10 +358,18 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 		info_str = getPriceInfo ( product );
 		main.setWidget ( row, 2, new Label ( info_str ) );
-		formatter.setWidth ( row, 2, "20%" );
 		formatter.setVerticalAlignment ( row, 2, HasVerticalAlignment.ALIGN_TOP );
-
 		formatter.setHorizontalAlignment ( row, 2, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		/*
+			Ordinante
+		*/
+
+		pname = new Label ( "" );
+		pname.addStyleName ( "hidden" );
+		main.setWidget ( row, 3, pname );
+		formatter.setVerticalAlignment ( row, 3, HasVerticalAlignment.ALIGN_TOP );
+		formatter.setHorizontalAlignment ( row, 3, HasHorizontalAlignment.ALIGN_RIGHT );
 	}
 
 	private int getProductAddingPosition ( Product prod ) {
@@ -387,6 +455,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		int rows;
 		FromServer prod_internal;
 		boolean found;
+		String details_string;
+		Date details_date;
+		Label details;
 		ProductUserSelector selector;
 		HTMLTable.RowFormatter row_format;
 		FromServer prod;
@@ -399,7 +470,16 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 				selector.clear ();
 				selector.setVisible ( true );
+
+				/*
+					Volontariamente evito di re-inizializzare le Labels nella cella 3, riportanti
+					la data dell'ultima modifica, tanto il pannello non viene visualizzato
+					(enableShowDetails == false) e quando verra' visualizzato esse saranno
+					opportunamente riempite nell'else qui sotto
+				*/
 			}
+
+			enableShowDetails = false;
 		}
 		else {
 			row_format = main.getRowFormatter ();
@@ -420,6 +500,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 					continue;
 
 				found = false;
+				details_string = "";
 
 				for ( int a = 0; a < num_elements; a++ ) {
 					prod = ( FromServer ) elements.get ( a );
@@ -440,6 +521,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 						if ( editable == false )
 							row_format.setVisible ( i, true );
 
+						details_date = prod.getDate ( "orderdate" );
+						if ( details_date != null )
+							details_string = prod.getObject ( "orderperson" ).getString ( "name" ) + " - " +
+										Utils.printableDate ( details_date );
+
 						found = true;
 						break;
 					}
@@ -451,7 +537,12 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 					if ( editable == false )
 						row_format.setVisible ( i, false );
 				}
+
+				details = ( Label ) main.getWidget ( i, 3 );
+				details.setText ( details_string );
 			}
+
+			enableShowDetails = true;
 		}
 
 		updateTotal ();

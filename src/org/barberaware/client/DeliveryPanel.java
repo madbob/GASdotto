@@ -281,8 +281,6 @@ public class DeliveryPanel extends GenericPanel {
 
 		frame.add ( downloads );
 
-		ver.add ( new HTML ( "<hr>" ) );
-
 		summary = new DeliverySummary ();
 		ver.setExtraWidget ( "list", summary );
 		ver.add ( summary );

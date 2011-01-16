@@ -39,24 +39,6 @@ public class DeliverySummary extends Composite {
 		cleanUp ();
 	}
 
-	private void commonActionsOnEdit ( FromServerForm row ) {
-		DateViewer deliverydate;
-		NameLabelWidget deliveryperson;
-		FromServer uorder;
-
-		uorder = row.getObject ();
-
-		deliverydate = ( DateViewer ) row.retriveInternalWidget ( "deliverydate" );
-		deliverydate.setValue ( new Date ( System.currentTimeMillis () ) );
-
-		deliveryperson = ( NameLabelWidget ) row.retriveInternalWidget ( "deliveryperson" );
-		deliveryperson.setValue ( Session.getUser () );
-
-		main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
-		row.savingObject ();
-		row.open ( false );
-	}
-
 	public void addOrder ( OrderUser uorder ) {
 		final FromServerForm row;
 		FromServer user;
@@ -152,13 +134,6 @@ public class DeliverySummary extends Composite {
 		user.addRelatedInfo ( "DeliverySummary" + identifier, row );
 	}
 
-	private void setStatusIcon ( FromServerForm form, OrderUser order ) {
-		EmblemsBar bar;
-
-		bar = form.emblems ();
-		bar.activate ( "status", order.getInt ( "status" ) );
-	}
-
 	public void modOrder ( OrderUser uorder ) {
 		FromServerForm form;
 
@@ -209,6 +184,31 @@ public class DeliverySummary extends Composite {
 			form.invalidate ();
 			user.delRelatedInfo ( "DeliverySummary" + identifier );
 		}
+	}
+
+	private void commonActionsOnEdit ( FromServerForm row ) {
+		DateViewer deliverydate;
+		NameLabelWidget deliveryperson;
+		FromServer uorder;
+
+		uorder = row.getObject ();
+
+		deliverydate = ( DateViewer ) row.retriveInternalWidget ( "deliverydate" );
+		deliverydate.setValue ( new Date ( System.currentTimeMillis () ) );
+
+		deliveryperson = ( NameLabelWidget ) row.retriveInternalWidget ( "deliveryperson" );
+		deliveryperson.setValue ( Session.getUser () );
+
+		main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
+		row.savingObject ();
+		row.open ( false );
+	}
+
+	private void setStatusIcon ( FromServerForm form, OrderUser order ) {
+		EmblemsBar bar;
+
+		bar = form.emblems ();
+		bar.activate ( "status", order.getInt ( "status" ) );
 	}
 
 	private int getSortedIndex ( FromServer order, FromServer to_place ) {

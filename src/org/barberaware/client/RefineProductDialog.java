@@ -186,7 +186,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		float difference;
 		ArrayList products;
 		ArrayList products_user;
-		FromServer pu;
+		ProductUser pu;
 
 		tot = 0;
 		products_user = new ArrayList ();
@@ -195,7 +195,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		num = products.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			pu = ( FromServer ) products.get ( i );
+			pu = ( ProductUser ) products.get ( i );
 
 			if ( pu.getObject ( "product" ).equals ( targetProduct ) ) {
 				user_selected = pu.getFloat ( "quantity" );
@@ -210,23 +210,26 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 		if ( user_selected != tot ) {
 			if ( user_selected > tot ) {
-				pu = ( FromServer ) products_user.get ( 0 );
+				pu = ( ProductUser ) products_user.get ( 0 );
 				pu.setFloat ( "quantity", pu.getFloat ( "quantity" ) + ( user_selected - tot ) );
+				pu.setCurrentUser ();
 			}
 			else {
 				difference = tot - user_selected;
 				num = products_user.size ();
 
 				for ( int i = 0; i < num; i++ ) {
-					pu = ( FromServer ) products_user.get ( i );
+					pu = ( ProductUser ) products_user.get ( i );
 					user_selected = pu.getFloat ( "quantity" );
 
 					if ( user_selected >= difference ) {
 						pu.setFloat ( "quantity", pu.getFloat ( "quantity" ) - difference );
+						pu.setCurrentUser ();
 						break;
 					}
 					else {
 						pu.setFloat ( "quantity", 0 );
+						pu.setCurrentUser ();
 						difference = difference - user_selected;
 					}
 				}
