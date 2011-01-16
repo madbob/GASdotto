@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------[Readme]
 
-GASdotto 2.0.1
+GASdotto 2.1
 Roberto -MadBob- Guido
-Ottobre 2010
+Gennaio 2011
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -39,8 +39,8 @@ E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
 Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard web. Sono stati
 verificati:
-- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 3.6.9
-- Chromium		http://www.google.com/chrome			testato su versione 5.0.376
+- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 3.6.13
+- Chromium		http://www.google.com/chrome			testato su versione 9.0.597
 E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
 
 ---------------------------------------------------------------------[Compilazione e Installazione]
