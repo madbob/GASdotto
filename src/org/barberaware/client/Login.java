@@ -300,7 +300,8 @@ public class Login extends Composite {
 			passwordrecovery = new Hyperlink ();
 			passwordrecovery.setText ( "Hai perso la password? Clicca qui!" );
 			passwordrecovery.addStyleName ( "clickable" );
-			passwordrecovery.addStyleName ( "smaller-text" );
+			passwordrecovery.addStyleName ( "small-text" );
+			passwordrecovery.addStyleName ( "top-spaced" );
 
 			passwordrecovery.addClickListener ( new ClickListener () {
 				public void onClick ( Widget sender ) {
@@ -309,7 +310,7 @@ public class Login extends Composite {
 					recoveryDialog.show ();
 				}
 			} );
-			form.setWidget ( 2, 2, passwordrecovery );
+			form.setWidget ( 3, 1, passwordrecovery );
 		}
 
 		username.setFocus ( true );
