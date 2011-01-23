@@ -227,6 +227,7 @@ public class DeliveryPanel extends GenericPanel {
 		HorizontalPanel downloads;
 		final FromServerForm ver;
 		DeliverySummary summary;
+		CashCount cash;
 		LinksDialog files;
 
 		if ( hasOrders == false ) {
@@ -285,6 +286,12 @@ public class DeliveryPanel extends GenericPanel {
 		ver.setExtraWidget ( "list", summary );
 		ver.add ( summary );
 
+		ver.add ( new HTML ( "<hr style=\"margin-top: 20px; margin-bottom: 20px;\" />" ) );
+
+		cash = new CashCount ();
+		ver.setExtraWidget ( "cash", cash );
+		ver.add ( cash );
+
 		return ver;
 	}
 
@@ -296,18 +303,23 @@ public class DeliveryPanel extends GenericPanel {
 	*/
 	private void syncUserOrder ( FromServerForm ver, OrderUser uorder, int action ) {
 		DeliverySummary summary;
+		CashCount cash;
 
 		summary = ( DeliverySummary ) ver.retriveInternalWidget ( "list" );
+		cash = ( CashCount ) ver.retriveInternalWidget ( "cash" );
 
 		switch ( action ) {
 			case 0:
 				summary.addOrder ( uorder );
+				cash.addOrder ( uorder );
 				break;
 			case 1:
 				summary.modOrder ( uorder );
+				cash.modOrder ( uorder );
 				break;
 			case 2:
 				summary.delOrder ( uorder );
+				cash.delOrder ( uorder );
 				break;
 			default:
 				break;

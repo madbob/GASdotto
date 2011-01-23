@@ -41,7 +41,7 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		setText ( "Edita Variante" );
 
 		pan = new VerticalPanel ();
-		pan.setStyleName ( "variants-editor" );
+		pan.setStyleName ( "top-spaced" );
 		setWidget ( pan );
 
 		if ( new_item == true ) {

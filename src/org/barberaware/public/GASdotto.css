@@ -482,11 +482,7 @@ body {
 	text-align:		center;
 }
 
-.variants-editor {
-	margin:			10px;
-}
-
-.variants-editor .variant-values {
+.top-spaced {
 	width:			100%;
 	margin-top:		10px;
 }

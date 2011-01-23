@@ -137,7 +137,7 @@ public class ProductUser extends FromServer {
 		return ret;
 	}
 
-	public static float sumProductUserArray ( ArrayList products ) {
+	public static float sumProductUserArray ( ArrayList products, String param ) {
 		float total;
 		ProductUser prod;
 
@@ -149,7 +149,7 @@ public class ProductUser extends FromServer {
 			if ( prod.getObject ( "product" ).getBool ( "available" ) == false )
 				continue;
 
-			total += prod.getTotalPrice ();
+			total += prod.getTotalPrice ( prod.getFloat ( param ) );
 		}
 
 		return total;

@@ -97,7 +97,18 @@ public class OrderUser extends FromServer {
 		if ( products == null )
 			return 0;
 		else
-			return ProductUser.sumProductUserArray ( products );
+			return ProductUser.sumProductUserArray ( products, "quantity" );
+	}
+
+	public float getDeliveredPrice () {
+		ArrayList products;
+
+		products = getArray ( "products" );
+
+		if ( products == null )
+			return 0;
+		else
+			return ProductUser.sumProductUserArray ( products, "delivered" );
 	}
 
 	public float getTotalPriceWithFriends () {
@@ -111,6 +122,22 @@ public class OrderUser extends FromServer {
 		for ( int i = 0; i < friends.size (); i++ ) {
 			order = ( OrderUserFriend ) friends.get ( i );
 			total += order.getTotalPrice ();
+		}
+
+		return total;
+	}
+
+	public float getDeliveredPriceWithFriends () {
+		float total;
+		ArrayList friends;
+		OrderUserFriend order;
+
+		total = getDeliveredPrice ();
+		friends = getArray ( "friends" );
+
+		for ( int i = 0; i < friends.size (); i++ ) {
+			order = ( OrderUserFriend ) friends.get ( i );
+			total += order.getDeliveredPrice ();
 		}
 
 		return total;
