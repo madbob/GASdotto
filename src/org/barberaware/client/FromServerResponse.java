@@ -93,7 +93,16 @@ public class FromServerResponse extends ServerResponse {
 				}
 			}
 			else if ( type == ACTION_MODIFY ) {
-				server.triggerObjectModification ( reference );
+				if ( reference.alwaysReload () == true ) {
+					ObjectRequest params;
+
+					params = new ObjectRequest ( reference.getType () );
+					params.add ( "id", localID );
+					server.testObjectReceive ( params );
+				}
+				else {
+					server.triggerObjectModification ( reference );
+				}
 			}
 			else if ( type == ACTION_DELETE ) {
 				server.triggerObjectDeletion ( reference );

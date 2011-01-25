@@ -226,7 +226,11 @@ public class DeliverySummary extends Composite {
 
 		for ( i = 0; i < main.getWidgetCount (); i++ ) {
 			row = ( FromServerForm ) main.getWidget ( i );
+
 			o_iter = row.getObject ();
+			if ( o_iter == null )
+				continue;
+
 			status_iter = o_iter.getInt ( "status" );
 
 			if ( statusOrder [ status_iter ] > statusOrder [ status_to_place ] ) {

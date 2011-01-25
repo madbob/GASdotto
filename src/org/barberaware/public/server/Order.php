@@ -372,8 +372,16 @@ class Order extends FromServer {
 	}
 
 	public function destroy ( $obj ) {
-		$query = sprintf ( "DELETE FROM OrderUser WHERE baseorder = %d", $obj->id );
-		query_and_check ( $query, "Impossibile rimuovere ordini su ordine eliminato" );
+		$query = sprintf ( "SELECT id FROM OrderUser WHERE baseorder = %d", $obj->id );
+		$returned = query_and_check ( $query, "Impossibile rimuovere ordini su ordine eliminato" );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+
+		foreach ( $rows as $row ) {
+			$order = new OrderUser ();
+			$order->readFromDB ( $row [ 'id' ] );
+			$order->destroy_myself ();
+			unset ( $order );
+		}
 
 		parent::destroy ( $obj );
 		return $obj->id;

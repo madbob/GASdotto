@@ -49,15 +49,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object );
+				findAndAlign ( ( OrderUser ) object, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object );
+				findAndAlign ( ( OrderUser ) object, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object );
+				findAndAlign ( ( OrderUser ) object, 2 );
 			}
 
 			protected String debugName () {
@@ -287,8 +287,8 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				OrderUserManager manager;
 
 				manager = ( OrderUserManager ) form.retriveInternalWidget ( "informations" );
-
 				obj = manager.getValue ();
+
 				if ( obj == null )
 					return false;
 
@@ -299,7 +299,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						}
 					} );
 
-					manager.setValue ( null );
+					if ( obj.getObject ( "baseuser" ).equals ( Session.getUser () ) )
+						manager.clean ();
+					else
+						manager.setValue ( null );
 				}
 
 				return false;
@@ -346,10 +349,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		return ver;
 	}
 
-	/*
-		action: gli stessi valori di syncLocalCache
-	*/
-	private void findAndAlign ( OrderUser uorder ) {
+	private void findAndAlign ( OrderUser uorder, int action ) {
 		int index;
 		FromServer order;
 		FromServerForm form;
@@ -368,14 +368,23 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			insert ( form, index );
 		}
 
-		alignOrderRow ( form, uorder );
+		alignOrderRow ( form, uorder, action );
 	}
 
-	private void alignOrderRow ( FromServerForm ver, OrderUser uorder ) {
+	private void alignOrderRow ( FromServerForm ver, OrderUser uorder, int action ) {
+		FromServer order;
 		OrderUserManager manager;
 
-		manager = ( OrderUserManager ) ver.retriveInternalWidget ( "informations" );
-		manager.setValue ( uorder );
+		if ( action == 2 ) {
+			order = uorder.getObject ( "baseorder" );
+			uorder = new OrderUser ();
+			uorder.setObject ( "baseorder", order );
+			uorder.setObject ( "baseuser", Session.getUser () );
+		}
+		else {
+			manager = ( OrderUserManager ) ver.retriveInternalWidget ( "informations" );
+			manager.setValue ( uorder );
+		}
 
 		ver.setObject ( uorder );
 	}

@@ -128,12 +128,27 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 		return null;
 	}
 
+	public void clean () {
+		activateLayer ( 0, null );
+	}
+
+	private void activateLayer ( int index, FromServer element ) {
+		ObjectWidget panel;
+
+		panel = ( ObjectWidget ) deck.getWidget ( index );
+		panel.setValue ( element );
+
+		deck.showWidget ( index );
+
+		if ( buttons != null )
+			buttons.setToggled ( index );
+	}
+
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
 		int index;
 		ArrayList f;
-		ObjectWidget panel;
 
 		if ( element == null )
 			element = findMine ();
@@ -155,13 +170,7 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 			}
 		}
 
-		panel = ( ObjectWidget ) deck.getWidget ( index );
-		panel.setValue ( element );
-
-		deck.showWidget ( index );
-
-		if ( buttons != null )
-			buttons.setToggled ( index );
+		activateLayer ( index, element );
 	}
 
 	public FromServer getValue () {

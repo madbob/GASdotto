@@ -612,7 +612,7 @@ abstract class FromServer {
 		}
 	}
 
-	private function destroy_myself () {
+	public function destroy_myself () {
 		$attr = $this->getAttribute ( "id" );
 		$id = $attr->value;
 
