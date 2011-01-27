@@ -24,6 +24,7 @@ function format_order ( $order, $is_friend ) {
 	global $products_sums;
 	global $quantities_sums;
 	global $shipping_price;
+	global $existing_products;
 
 	global $string_begin;
 	global $string_end;
@@ -49,6 +50,9 @@ function format_order ( $order, $is_friend ) {
 		$row [] = sprintf ( "$string_begin%s %s$string_end", $order->baseuser->surname, $order->baseuser->firstname );
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+		if ( $existing_products [ $a ] == false )
+			continue;
+
 		$prod = $products [ $a ];
 
 		$prodid = $prod->getAttribute ( 'id' )->value;
@@ -96,10 +100,37 @@ function format_order ( $order, $is_friend ) {
 	return $row;
 }
 
+function search_existing ( $order ) {
+	global $products;
+	global $existing_products;
+
+	$user_products = $order->products;
+
+	if ( is_array ( $user_products ) == false )
+		return;
+	else
+		$user_products = sort_products_on_products ( $products, $user_products );
+
+	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+		$prod = $products [ $a ];
+
+		$prodid = $prod->getAttribute ( 'id' )->value;
+		$prod_user = $user_products [ $e ];
+
+		if ( $prodid == $prod_user->product->id ) {
+			if ( $prod_user->quantity > 0 )
+				$existing_products [ $a ] = true;
+
+			$e++;
+		}
+	}
+}
+
 global $products;
 global $products_sums;
 global $quantities_sums;
 global $shipping_price;
+global $existing_products;
 
 global $string_begin;
 global $string_end;
@@ -119,6 +150,10 @@ formatting_entities ( $format );
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
+/*
+	Inizializzazioni assortite
+*/
+
 $order_user = new OrderUser ();
 $order_user->readFromDB ( $id );
 
@@ -126,10 +161,65 @@ $order = $order_user->getAttribute ( "baseorder" )->value;
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
+$data = array ();
+
+$products_sums = array ();
+$quantities_sums = array ();
+$shipping_price = array ();
+$existing_products = array ();
+
+for ( $i = 0; $i < count ( $products ); $i++ ) {
+	$products_sums [] = 0;
+	$quantities_sums [] = 0;
+	$shipping_price [] = 0;
+	$existing_products [] = false;
+}
+
+$order_user = $order_user->exportable ();
+
+$contents = $order_user->friends;
+usort ( $contents, "sort_friend_orders_by_user" );
+
+/*
+	Verifico quali prodotti sono contemplati tra tutti gli ordini. Serve a sapere quali
+	casella saltare in toto e quali lasciare in bianco per incolonnare il tutto
+	(bug #189: contemplare solo i prodotti ordinati)
+*/
+
+search_existing ( $order_user );
+
+for ( $i = 0; $i < count ( $contents ); $i++ ) {
+	$order_friend = $contents [ $i ];
+	search_existing ( $order_friend );
+}
+
+/*
+	Formatto il documento riga per riga, utente per utente
+*/
+
+$row = format_order ( $order_user, false );
+if ( $row != null )
+	$data [] = $row;
+
+for ( $i = 0; $i < count ( $contents ); $i++ ) {
+	$order_friend = $contents [ $i ];
+
+	$row = format_order ( $order_friend, true );
+	if ( $row != null )
+		$data [] = $row;
+}
+
+/*
+	Creo l'header, includendo solo i prodotti che sono stati ordinati da qualcuno
+*/
+
 $headers = array ();
 $headers [] = $emptycell;
 
 for ( $i = 0; $i < count ( $products ); $i++ ) {
+	if ( $existing_products [ $i ] == false )
+		continue;
+
 	$prod = $products [ $i ];
 	$name = sprintf ( "$string_begin%s$string_end", $prod->getAttribute ( "name" )->value );
 
@@ -140,7 +230,6 @@ for ( $i = 0; $i < count ( $products ); $i++ ) {
 		$symbol = "";
 
 	$price = ( format_price ( $prod->getAttribute ( "unit_price" )->value, false ) ) . $symbol;
-
 	$headers [] = sprintf ( "%s%s%s", $name, $content_sep, $price );
 }
 
@@ -148,38 +237,16 @@ $headers [] = "Totale Prezzo Prodotti";
 $headers [] = "Totale Prezzo Trasporto";
 $headers [] = "Totale";
 
-$data = array ();
-
-$products_sums = array ();
-$quantities_sums = array ();
-$shipping_price = array ();
-
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$products_sums [] = 0;
-	$quantities_sums [] = 0;
-	$shipping_price [] = 0;
-}
-
-$order_user = $order_user->exportable ();
-
-$row = format_order ( $order_user, false );
-if ( $row != null )
-	$data [] = $row;
-
-$contents = $order_user->friends;
-usort ( $contents, "sort_friend_orders_by_user" );
-
-for ( $i = 0; $i < count ( $contents ); $i++ ) {
-	$order_friend = $contents [ $i ];
-
-	$row = format_order ( $order_friend, true );
-	if ( $row != null )
-		$data [] = $row;
-}
+/*
+	Somme complessive
+*/
 
 $row = array ();
 $row [] = "Quantita' Totali";
 for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
+	if ( $existing_products [ $i ] == false )
+		continue;
+
 	$qs = $quantities_sums [ $i ];
 	$q = comma_format ( $qs );
 	$row [] = $q . $onelinepadding;
@@ -189,7 +256,11 @@ $data [] = $row;
 $row = array ();
 $gran_total = 0;
 $row [] = "Totale Prezzo Prodotti";
-foreach ( $products_sums as $ps ) {
+for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
+	if ( $existing_products [ $i ] == false )
+		continue;
+
+	$ps = $products_sums [ $i ];
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
 	$row [] = $p . $onelinepadding;
@@ -201,7 +272,11 @@ $data [] = $row;
 $row = array ();
 $gran_total = 0;
 $row [] = "Totale Prezzo Trasporto";
-foreach ( $shipping_price as $ps ) {
+for ( $i = 0; $i < count ( $shipping_price ); $i++ ) {
+	if ( $existing_products [ $i ] == false )
+		continue;
+
+	$ps = $shipping_price [ $i ];
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
 	$row [] = $p . $onelinepadding;
@@ -215,6 +290,9 @@ $row = array ();
 $gran_total = 0;
 $row [] = "Totale Prodotti + Trasporto";
 for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
+	if ( $existing_products [ $i ] == false )
+		continue;
+
 	$ps = $products_sums [ $i ] + $shipping_price [ $i ];
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
