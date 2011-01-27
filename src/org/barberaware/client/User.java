@@ -102,15 +102,21 @@ public class User extends FromServer {
 		gas_date.setYear ( now.getYear () );
 
 		if ( last_pay.after ( gas_date ) == true ) {
-			before_t = last_pay.getTime ();
-			after_t = gas_date.getTime ();
-		}
-		else {
 			after_t = last_pay.getTime ();
 			before_t = gas_date.getTime ();
 		}
+		else {
+			before_t = last_pay.getTime ();
+			after_t = gas_date.getTime ();
+		}
 
-		if ( ( after_t - before_t ) > ( 60 * 60 * 24 * 365 ) )
+		/*
+			Attenzione: se si mantenesse la misura in millisecondi il risultato di
+			1000 * 60 * 60 * 24 * 365 andrebbe in overflow ed i conti non tornerebbero.
+			A meno di appoggiarsi esplicitamente ad una variabile di tipo long
+		*/
+
+		if ( ( ( after_t - before_t ) / 1000 ) > ( 60 * 60 * 24 * 365 ) )
 			bar.activate ( "paying" );
 		else
 			bar.deactivate ( "paying" );
