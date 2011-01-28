@@ -206,7 +206,7 @@ public abstract class FromServerValidateCallback {
 						installazione, dove l'oggetto assegnato al form e' un Probe anziche'
 						uno User e non ha il parametro "login"
 					*/
-					if ( object == null || object.getAttributeType ( "login" ) == -1 )
+					if ( object == null || object.hasAttribute ( "login" ) == false )
 						return true;
 
 					username = object.getString ( "login" );

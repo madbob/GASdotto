@@ -43,17 +43,18 @@ verificati:
 - Chromium		http://www.google.com/chrome			testato su versione 9.0.597
 E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
 
----------------------------------------------------------------------[Compilazione e Installazione]
+-------------------------------------------------------------------------------------[Compilazione]
 
 I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository SVN
-raggiungibile con
+raggiungibile con il comando
 svn checkout svn://svn.barberaware.org/svnroot/gasdotto
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH
 - eseguire ./GASdotto-compile
+- il prodotto della compilazione si trovera' nella cartella www/org.barberaware.GASdotto/
 
-Dopodiche' si puo' procedere all'installazione vera e propria:
+------------------------------------------------------------------------------------[Installazione]
 
 - esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione,
 oppure la cartella gasdotto/ rinvenuta nel pacchetto binario, sul server web
@@ -64,8 +65,26 @@ utilizzare correttamente tutte le funzionalita' che prevedono il caricamento di 
 le foto degli utenti o documenti relativi ai fornitori
 - creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
 nuovo utente creato ad-hoc
-- accedere via browser alla cartella che contiene l'applicazione per avviare la procedura di
-installazione del DB
+- accedere via browser alla cartella che contiene l'applicazione per avviare la procedura guidata
+di installazione del DB
+
+------------------------------------------------------------------------------------[Aggiornamento]
+
+A partire dalla release 2.1 la procedura di upgrade da una versione precedente e' stata snellita e
+resa trasparente. Per procedere correttamente ed in modo sicuro si consiglia di:
+
+- spostare la cartella della vecchia versione in un luogo sicuro, ed effettuare una copia di
+backup del database
+- mettere la cartella della nuova versione al posto di quella vecchia, nello stesso path e con lo
+stesso nome
+- copiare il file server/config.php dalla cartella della vecchia versione a quella nuova
+- copiare tutto il contenuto della cartella uploads/ dalla vecchia cartella a quella nuova, per
+migrare gli eventuali files che sono stati caricati nel frattempo
+- accedere a GASdotto come sempre
+- la prima volta che verra' salvato un dato non contemplato dal precedente schema del database,
+automaticamente scattera' la procedura di aggiornamento. Essa non riporta alcuna segnalazione, la
+si potrebbe notare per un leggero ritardo nella fase di salvataggio che ha innescato il meccanismo
+(ma che si verifica una volta sola)
 
 -------------------------------------------------------------------------------------[Avvertimenti]
 
@@ -74,30 +93,11 @@ servizi che offrono spazio web gratuito o a basso costo. Se devi scegliere un tu
 per uno che non introduce banner pubblicitari in testa o al fondo delle pagine ospitate.
 
 Providers gia' identificati come non adeguati:
-- coolpage.biz
-- tophost.it
+- coolpage.biz (banners pubblicitari)
+- tophost.it (mancano alcune librerie PHP richieste)
 
 Sia che tu abbia problemi con questo genere di hosting, sia che la tua installazione venga
 conclusa con successo, faccelo sapere affinche' la lista condivisa venga aggiornata.
-
-------------------------------------------------------------------------------------[Aggiornamento]
-
-Qualora una installazione di GASdotto 1.0 o 1.1 sia gia' presente, e' possibile aggiornarla alla
-versione 2.0 con qualche semplice passaggio:
-
-- scompattare l'archivio compresso della release 2.0 nella stessa directory in cui si trova la
-cartella della versione precedente
-- accedere via browser alla prima pagina dell'applicazione per avviare la procedura di
-installazione del DB
-- selezionare la voce 'Importa da versione già installata'
-- copiare nell'apposita casella l'URL attraverso cui la precedente installazione e' raggiungibile
-sul server
-- qualora l'autorilevamento della configurazione non dovesse funzionare, immettere nell'apposito
-form i dati di autenticazione al database (sono reperibili nel file server/config.php della
-vecchia installazione)
-- terminato l'aggiornamento del database, e' consigliato rinominare la cartella della vecchia
-installazione con un qualsiasi altro nome oppure rimuoverla, e sostituirla con la cartella della
-nuova installazione
 
 -----------------------------------------------------------------------------------------[Sviluppo]
 

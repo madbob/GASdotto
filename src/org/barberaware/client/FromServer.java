@@ -201,6 +201,10 @@ public abstract class FromServer implements Comparator {
 			return -1;
 	}
 
+	public boolean hasAttribute ( String type ) {
+		return ( attributes.get ( type ) != null );
+	}
+
 	public String getString ( String name ) {
 		return getInternalAttribute ( name ).getString ( this );
 	}
