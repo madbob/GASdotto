@@ -244,11 +244,17 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		HorizontalPanel name_container;
 		TextBox name;
 		OrderUserFriend order;
+		ArrayList products;
 
 		ret = new ArrayList ();
 
 		for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
 			cell = ( VerticalPanel ) friends.getWidget ( i );
+
+			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
+			products = prod_sel.getElements ();
+			if ( products == null )
+				continue;
 
 			name_container = ( HorizontalPanel ) cell.getWidget ( 0 );
 
@@ -260,9 +266,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 
 			name = ( TextBox ) name_container.getWidget ( 2 );
 			order.setString ( "friendname", name.getText () );
-
-			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
-			order.setArray ( "products", prod_sel.getElements () );
+			order.setArray ( "products", products );
 
 			ret.add ( order );
 		}
