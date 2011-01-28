@@ -46,7 +46,7 @@ public class Login extends Composite {
 
 		if ( gas == null ) {
 			main.add ( new HTML ( "<p>Non è stato selezionato alcun Gruppo di Acquisto Solidale.</p>" ) );
-			main.add ( new HTML ( "<p><a href=\"http://gasdotto.barberaware.org\">Torna alla pagina principale</a></p>" ) );
+			main.add ( new HTML ( "<p><a href=\"http://gasdotto.net\">Torna alla pagina principale</a></p>" ) );
 		}
 
 		else {
@@ -68,7 +68,7 @@ public class Login extends Composite {
 
 			container.add ( doPresentationFooter ( gas ) );
 
-			logo = new HTML ( "<p style=\"margin-top: 50px;\"><a href=\"http://gasdotto.barberaware.org\"><img src=\"images/gasdotto_logo.png\" border=\"0\"></a></p>" );
+			logo = new HTML ( "<p style=\"margin-top: 50px;\"><a href=\"http://gasdotto.net\"><img src=\"images/gasdotto_logo.png\" border=\"0\"></a></p>" );
 			container.add ( logo );
 			container.setCellHorizontalAlignment ( logo, HasHorizontalAlignment.ALIGN_RIGHT );
 			container.setCellVerticalAlignment ( logo, HasVerticalAlignment.ALIGN_BOTTOM );

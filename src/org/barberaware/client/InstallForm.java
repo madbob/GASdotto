@@ -156,7 +156,7 @@ public class InstallForm extends Composite {
 
 		message = "<p>Installazione completata con successo.</p>";
 		message += "<p>Ricaricando <a href=\"GASdotto.html\">questa pagina</a> ti verrà presentato il pannello di login: entra nell'applicazione usando username 'root' e la password che hai definito nel passaggio precedente.</p>";
-		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.barberaware.org\">il sito del progetto</a>.</p>";
+		message += "<p>Per consigli ed indicazioni sull'uso di GASdotto visita <a href=\"http://gasdotto.net\">il sito del progetto</a>.</p>";
 		main.add ( new HTML ( message ) );
 	}
 }

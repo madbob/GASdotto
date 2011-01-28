@@ -36,7 +36,7 @@ public class Footer extends Composite {
 			main.setCellVerticalAlignment ( label, HasVerticalAlignment.ALIGN_MIDDLE );
 		}
 
-		label = new HTML ( "<p><a href=\"http://gasdotto.barberaware.org\">GASdotto</a> è software libero, rilasciato in licenza GPLv3.</p>" );
+		label = new HTML ( "<p><a href=\"http://gasdotto.net\">GASdotto</a> è software libero, rilasciato in licenza GPLv3.</p>" );
 		main.add ( label );
 		main.setCellVerticalAlignment ( label, HasVerticalAlignment.ALIGN_MIDDLE );
 	}
