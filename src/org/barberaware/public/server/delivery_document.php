@@ -182,7 +182,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 		if ( $prodid == $prod_user->product ) {
 			$quantity = $prod_user->$param;
-			array_merge ( $variants, $prod_user->variants );
+
+			if ( is_array ( $prod_user->variants ) )
+				array_merge ( $variants, $prod_user->variants );
+
+			$e++;
 		}
 
 		if ( count ( $order_user->friends ) != 0 ) {
@@ -190,7 +194,10 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				foreach ( $friend->products as $fprod ) {
 					if ( $fprod->product == $prodid ) {
 						$quantity += $fprod->$param;
-						array_merge ( $variants, $fprod->variants );
+
+						if ( is_array ( $fprod->variants ) )
+							array_merge ( $variants, $fprod->variants );
+
 						break;
 					}
 				}
@@ -244,8 +251,6 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$output .= ( sprintf ( "%s%s%s", $string_begin, $prod->getAttribute ( "name" )->value, $string_end ) );
 			$output .= $inrow_separator . $q . $inrow_separator . $quprice . $inrow_separator . $qsprice;
 			$output .= $row_end;
-
-			$e++;
 		}
 	}
 
