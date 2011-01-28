@@ -24,52 +24,14 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class CashCount extends Composite {
-	private class CashCountCell extends HorizontalPanel {
-		public	float		tot;
-		public	Date		referenceDate;
-		private	Label		totLabel;
-
-		public CashCountCell ( Date t, boolean today ) {
-			Label h;
-
-			totLabel = new Label ();
-
-			if ( today == true ) {
-				h = new Label ( "Consegne di oggi: " );
-				add ( h );
-				totLabel.setStyleName ( "bigger-text" );
-			}
-			else {
-				h = new Label ( "Consegne del " + Utils.printableDate ( t ) + ": " );
-				add ( h );
-			}
-
-			setCellVerticalAlignment ( h, HasVerticalAlignment.ALIGN_MIDDLE );
-
-			totLabel.addStyleName ( "contents-on-right" );
-			add ( totLabel );
-			setCellVerticalAlignment ( totLabel, HasVerticalAlignment.ALIGN_MIDDLE );
-
-			referenceDate = t;
-			tot = 0;
-			totLabel.setText ( Utils.priceToString ( tot ) );
-		}
-
-		public void sum ( float price, boolean addict ) {
-			if ( addict == true )
-				tot = tot + price;
-			else
-				tot = tot - price;
-
-			totLabel.setText ( Utils.priceToString ( tot ) );
-		}
-	}
-
 	private HorizontalPanel		main;
 
+	private Date			now;
+	private float			tot;
+	private	Label			totLabel;
+
 	public CashCount () {
-		Date now;
-		CashCountCell cell;
+		Label text;
 
 		main = new HorizontalPanel ();
 		initWidget ( main );
@@ -78,21 +40,28 @@ public class CashCount extends Composite {
 		now = new Date ( System.currentTimeMillis () );
 		now = new Date ( now.getYear (), now.getMonth (), now.getDate () );
 
-		cell = new CashCountCell ( now, true );
-		main.add ( cell );
-		main.setCellVerticalAlignment ( cell, HasVerticalAlignment.ALIGN_MIDDLE );
+		text = new Label ( "Consegne di oggi: " );
+		main.add ( text );
+		main.setCellHorizontalAlignment ( text, HasHorizontalAlignment.ALIGN_LEFT );
+		main.setCellVerticalAlignment ( text, HasVerticalAlignment.ALIGN_MIDDLE );
+
+		totLabel = new Label ();
+		totLabel.setStyleName ( "bigger-text" );
+		totLabel.addStyleName ( "contents-on-right" );
+		main.add ( totLabel );
+		main.setCellHorizontalAlignment ( totLabel, HasHorizontalAlignment.ALIGN_LEFT );
+		main.setCellVerticalAlignment ( totLabel, HasVerticalAlignment.ALIGN_MIDDLE );
+
+		tot = 0;
+		totLabel.setText ( Utils.priceToString ( tot ) );
 	}
 
 	public void addOrder ( OrderUser uorder ) {
-		Date d;
-		CashCountCell cell;
-
-		d = checkEligibility ( uorder );
-		if ( d == null )
+		if ( checkEligibility ( uorder ) == false )
 			return;
 
-		cell = retrieveCell ( d );
-		cell.sum ( uorder.getDeliveredPriceWithFriends (), true );
+		tot += uorder.getDeliveredPriceWithFriends ();
+		totLabel.setText ( Utils.priceToString ( tot ) );
 	}
 
 	public void modOrder ( OrderUser uorder ) {
@@ -100,10 +69,11 @@ public class CashCount extends Composite {
 		OrderUser past_user_order;
 		ArrayList past_orders;
 
-		if ( checkEligibility ( uorder ) == null )
+		if ( checkEligibility ( uorder ) == false )
 			return;
 
-		resetCells ();
+		tot = 0;
+		totLabel.setText ( Utils.priceToString ( tot ) );
 
 		baseorder = uorder.getObject ( "baseorder" );
 		past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
@@ -122,73 +92,27 @@ public class CashCount extends Composite {
 	}
 
 	public void delOrder ( OrderUser uorder ) {
-		Date d;
-		CashCountCell cell;
-
-		d = checkEligibility ( uorder );
-		if ( d == null )
+		if ( checkEligibility ( uorder ) == false )
 			return;
 
-		cell = retrieveCell ( d );
-		cell.sum ( uorder.getDeliveredPriceWithFriends (), false );
+		tot -= uorder.getDeliveredPriceWithFriends ();
+		totLabel.setText ( Utils.priceToString ( tot ) );
 	}
 
-	private Date checkEligibility ( OrderUser uorder ) {
+	private boolean checkEligibility ( OrderUser uorder ) {
 		int status;
 		Date d;
+		Date dup_d;
 
 		d = uorder.getDate ( "deliverydate" );
 		if ( d == null )
-			return null;
+			return false;
 
 		status = uorder.getInt ( "status" );
 		if ( status != OrderUser.PARTIAL_DELIVERY && status != OrderUser.COMPLETE_DELIVERY )
-			return null;
+			return false;
 
-		return d;
-	}
-
-	private CashCountCell retrieveCell ( Date d ) {
-		boolean managed;
-		Date dup_d;
-		CashCountCell cell;
-
-		managed = false;
-		cell = null;
 		dup_d = new Date ( d.getYear (), d.getMonth (), d.getDate () );
-
-		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-			cell = ( CashCountCell ) main.getWidget ( i );
-
-			if ( cell.referenceDate.after ( dup_d ) ) {
-				cell = new CashCountCell ( dup_d, false );
-				main.insert ( cell, i );
-				main.setCellVerticalAlignment ( cell, HasVerticalAlignment.ALIGN_MIDDLE );
-				managed = true;
-				break;
-			}
-			else if ( cell.referenceDate.equals ( dup_d ) ) {
-				managed = true;
-				break;
-			}
-		}
-
-		if ( managed == false ) {
-			cell = new CashCountCell ( dup_d, false );
-			main.add ( cell );
-			main.setCellVerticalAlignment ( cell, HasVerticalAlignment.ALIGN_MIDDLE );
-		}
-
-		return cell;
-	}
-
-	private void resetCells () {
-		CashCountCell cell;
-
-		for ( int i = 0; i < main.getWidgetCount (); i++ ) {
-			cell = ( CashCountCell ) main.getWidget ( i );
-			cell.tot = 0;
-			cell.sum ( 0, true );
-		}
+		return dup_d.equals ( now );
 	}
 }

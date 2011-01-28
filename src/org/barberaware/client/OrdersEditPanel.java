@@ -312,7 +312,7 @@ public class OrdersEditPanel extends GenericPanel {
 								FromServer prod;
 								FromServerTable table;
 
-								Utils.getServer ().JSONToObjects ( response );
+								Utils.getServer ().responseToObjects ( response );
 
 								final_products = new ArrayList ();
 								products = Utils.getServer ().getObjectsFromCache ( "Product" );

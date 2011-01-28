@@ -22,8 +22,6 @@ import com.google.gwt.user.client.ui.*;
 
 public class ProductVariantValuesList extends FlexTable implements FromServerArray {
 	public ProductVariantValuesList () {
-		setStyleName ( "top-spaced" );
-
 		reset ();
 
 		addTableListener ( new TableListener () {

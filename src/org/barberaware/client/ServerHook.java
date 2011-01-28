@@ -201,7 +201,7 @@ public class ServerHook {
 
 		serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
-				JSONToObjects ( response );
+				responseToObjects ( response );
 				executingMonitor--;
 				nextObjectReceive ();
 			}
@@ -242,11 +242,12 @@ public class ServerHook {
 		}
 	}
 
-	public void JSONToObjects ( JSONValue response ) {
+	public void responseToObjects ( JSONValue response ) {
 		int i;
 		int num;
 		int existing;
 		JSONArray arr;
+		JSONObject obj;
 		FromServer tmp;
 
 		arr = response.isArray ();
@@ -255,16 +256,36 @@ public class ServerHook {
 			i = 0;
 			num = arr.size ();
 
-			tmp = FromServer.instance ( arr.get ( i ).isObject () );
+			obj = arr.get ( i ).isObject ();
+			tmp = lookupObject ( obj );
+			if ( tmp == null && num == 1 )
+				return;
+
 			triggerObjectBlockCreation ( tmp, true );
 			triggerObjectCreation ( tmp );
 
 			for ( i = 1; i < num; i++ ) {
-				tmp = FromServer.instance ( arr.get ( i ).isObject () );
-				triggerObjectCreation ( tmp );
+				obj = arr.get ( i ).isObject ();
+				tmp = lookupObject ( obj );
+				if ( tmp != null )
+					triggerObjectCreation ( tmp );
 			}
 
 			triggerObjectBlockCreation ( tmp, false );
+		}
+	}
+
+	private FromServer lookupObject ( JSONObject obj ) {
+		FromServer existing;
+
+		existing = getObjectFromCache ( obj.get ( "type" ).isString ().stringValue (), obj.get ( "id" ).isString ().stringValue () );
+
+		if ( existing == null ) {
+			return FromServer.instance ( obj );
+		}
+		else {
+			triggerObjectModification ( existing );
+			return null;
 		}
 	}
 
@@ -400,10 +421,14 @@ public class ServerHook {
 		che si e' sicuri essere gia' stati scaricati da un monitor
 	*/
 	public FromServer getObjectFromCache ( String type, int id ) {
+		return getObjectFromCache ( type, Integer.toString ( id ) );
+	}
+
+	public FromServer getObjectFromCache ( String type, String id ) {
 		ServerMonitor monitor;
 
 		monitor = getMonitor ( type );
-		return ( FromServer ) monitor.objects.get ( Integer.toString ( id ) );
+		return ( FromServer ) monitor.objects.get ( id );
 	}
 
 	public ArrayList getObjectsFromCache ( String type ) {
