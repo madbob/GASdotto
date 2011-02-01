@@ -74,7 +74,9 @@ public class MainStack extends Composite {
 		}
 
 		else {
-			add ( new UsersUneditablePanel () );
+			if ( Session.getGAS ().getBool ( "show_all_users" ) == true )
+				add ( new UsersUneditablePanel () );
+
 			add ( new SuppliersPanel () );
 			add ( new OrdersPrivilegedPanel () );
 			add ( new NotificationPanel () );

@@ -576,7 +576,7 @@ function parse_session_data () {
 		error_exit ( "Sessione non validata" );
 	}
 
-	list ( $session_id, $ip, $user_agent ) = explode ( '-', $session_serial, 4 );
+	list ( $session_id, $ip ) = explode ( '-', $session_serial, 4 );
 
 	if (  $ip != $_SERVER [ 'REMOTE_ADDR' ] ) {
 		setcookie ( 'gasdotto', "", 0, '/', '', 0 );

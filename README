@@ -22,6 +22,7 @@ Per compilare il tutto e' necessario:
 - Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v1.5.3
 - GWT-Log		http://code.google.com/p/gwt-log/				v2.5.2
 - GWT-Visualization	http://code.google.com/p/gwt-google-apis/wiki/Downloads?tm=2	v1.0.1
+- GWT-DND		http://code.google.com/p/gwt-dnd/				v2.5.6
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
 - PHP			http://php.net/					testato su versione 5.3.3

@@ -26,12 +26,19 @@ public class GAS extends FromServer {
 		addAttribute ( "name", FromServer.STRING );
 		addAttribute ( "mail", FromServer.STRING );
 		addAttribute ( "image", FromServer.STRING );
-		addAttribute ( "payments", FromServer.BOOLEAN );
-		addAttribute ( "payment_date", FromServer.DATE );
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "use_mail", FromServer.BOOLEAN );
 		addAttribute ( "mail_conf", FromServer.STRING );
 		addAttribute ( "mailinglist", FromServer.STRING );
+		addAttribute ( "payments", FromServer.BOOLEAN );
+		addAttribute ( "payment_date", FromServer.DATE );
+
+		/*
+			Parametri extra: non vengono immessi nel database sul server, ma salvati
+			in files testuali
+		*/
+		addAttribute ( "show_all_users", FromServer.BOOLEAN );
+		addAttribute ( "admin_power", FromServer.BOOLEAN );
 
 		setString ( "name", "Senza Nome" );
 	}

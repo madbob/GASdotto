@@ -40,7 +40,7 @@ class Probe extends FromServer {
 	public function get ( $request, $compress ) {
 		$this->getAttribute ( "servername" )->value = $_SERVER [ 'SERVER_NAME' ];
 		$this->getAttribute ( "newdb" )->value = true;
-		$this->getAttribute ( "writable" )->value = is_writable ( "./config.php" );
+		$this->getAttribute ( "writable" )->value = is_writable ( './' ) && is_writable ( './config.php' );
 
 		$drivers = PDO::getAvailableDrivers ();
 		$valid_drivers = array ();
@@ -114,15 +114,31 @@ class Probe extends FromServer {
 		fclose ( $f );
 	}
 
+	public static function default_extra_gas_options ( $id, $gas = null ) {
+		$rows = array ();
+		$extras = GAS::get_extra_options ();
+
+		foreach ( $extras as $name => $value )
+			$rows [] = $name . ' = ' . $value;
+
+		file_put_contents ( 'extra_options_' . $id, join ( "\n", $rows ) );
+	}
+
 	public function save ( $obj ) {
-		if ( is_writable ( "./config.php" ) == false )
+		if ( is_writable ( './' ) == false || is_writable ( './config.php' ) == false )
 			return "0";
 
 		self::write_config ( $obj );
 		install_main_db ();
 
+		/*
+			Inizializzo GAS
+		*/
+
 		$query = sprintf ( "INSERT INTO GAS ( name, mail ) VALUES ( '%s', '%s' )", $obj->gasname, $obj->gasmail );
 		query_and_check ( $query, "Impossibile salvare dati del GAS" );
+
+		self::default_extra_gas_options ( 1 );
 
 		/*
 			Inizializzo utente root

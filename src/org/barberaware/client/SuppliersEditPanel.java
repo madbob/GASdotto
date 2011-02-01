@@ -36,7 +36,8 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				supplier = ( Supplier ) supp;
 
-				if ( supp.isValid () == false || supplier.iAmReference () == true )
+				if ( supp.isValid () == false || supplier.iAmReference () == true ||
+						( Session.getGAS ().getBool ( "admin_power" ) == true && Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) )
 					ver = commonFormBuilder ( supp );
 				else
 					ver = new SupplierUneditableForm ( supplier );
@@ -265,7 +266,9 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		ver = new FromServerForm ( supplier );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
-		ver.emblems ().activate ( "iamreference" );
+
+		if ( supplier.iAmReference () == true )
+			ver.emblems ().activate ( "iamreference" );
 
 		tabs = new TabPanel ();
 		tabs.setWidth ( "100%" );

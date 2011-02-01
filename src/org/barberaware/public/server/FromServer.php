@@ -170,7 +170,7 @@ class FromServerAttribute {
 
 			case "ARRAY":
 				$elements_num = count ( $this->value );
-				if ( $avoid_defaults == true && $elements_num == 0 )
+				if ( $elements_num == 0 )
 					return null;
 
 				$ret = array ();
@@ -292,7 +292,7 @@ abstract class FromServer {
 				forzo l'esistenza di uno statement WHERE cui accodare gli altri
 				in AND
 			*/
-			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename, $check_query );
+			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename );
 		}
 
 		if ( isset ( $request ) && isset ( $request->id ) )

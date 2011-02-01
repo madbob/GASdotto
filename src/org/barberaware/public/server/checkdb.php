@@ -170,10 +170,13 @@ function create_table_class ( $obj ) {
 		if ( $attr->name == 'id' )
 			continue;
 
-		if ( strstr ( $attr->type, '::' ) == false )
+		if ( strstr ( $attr->type, '::' ) == false ) {
 			$type = $attr->type;
-		else
+			$objtype = null;
+		}
+		else {
 			list ( $type, $objtype ) = explode ( "::", $attr->type );
+		}
 
 		if ( $type == 'ARRAY' ) {
 			$tmp = new $objtype;

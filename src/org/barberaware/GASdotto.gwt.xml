@@ -12,13 +12,9 @@
       <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
       <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
 
-      <!-- add "import com.allen_sauer.gwt.log.client.Log;" in classes using debug capabilities -->
       <inherits name='com.allen_sauer.gwt.log.gwt-log-DEBUG' />
-
+      <inherits name='com.allen_sauer.gwt.dnd.gwt-dnd'/>
       <inherits name="com.google.gwt.visualization.Visualization" />
-
-      <!-- Other module inherits                                      -->
-
 
       <!-- Specify the app entry point class.                         -->
       <entry-point class='org.barberaware.client.GASdotto'/>

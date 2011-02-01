@@ -68,8 +68,8 @@ public class InstallForm extends Composite {
 				main.clear ();
 
 				if ( probe.getBool ( "writable" ) == false ) {
-					message = "<p>Il file server/config.php non è scrivibile da questa applicazione, e non è possibile modificare questa impostazione automaticamente.</p>";
-					message += "<p>Per favore, provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervenendo direttamente sul server.</p>";
+					message = "<p>La cartella server/ o il file server/config.php non sono modificabili da questa applicazione, e non è possibile sistemare questa impostazione automaticamente.</p>";
+					message += "<p>Provvedi a correggere manualmente questo problema. Probabilmente puoi farlo dall'interfaccia di file management del tuo servizio di hosting, oppure intervenendo direttamente sul server.</p>";
 					message += "<p>Quando hai fatto, torna su <a href=\"GASdotto.html\">questa pagina</a> per procedere nell'installazione.</p>";
 					main.add ( new HTML ( message ) );
 				}
