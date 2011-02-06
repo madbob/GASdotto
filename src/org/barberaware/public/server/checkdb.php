@@ -228,7 +228,7 @@ function test_class ( $class ) {
 			}
 
 			if ( $found == false ) {
-				$query = sprintf ( 'ALTER TABLE %s DROP COLUMN %s', $obj->tablename, $attr->name );
+				$query = sprintf ( 'ALTER TABLE %s DROP COLUMN %s', $obj->tablename, $meta [ 'name' ] );
 				local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
 			}
 			if ( $change != null ) {

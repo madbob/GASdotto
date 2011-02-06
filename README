@@ -11,7 +11,7 @@ fornitori, prodotti ed ordini in maniera condivisa.
 Lo scopo primario e' quello di automatizzare e formalizzare la procedura di raccolta degli ordini
 presso i membri del gruppo, i quali potranno svolgere le proprie ordinazioni su un unico canale e
 semplificare la vita dei responsabili.
-Per maggiori informazioni si consulti il sito http://gasdotto.barberaware.org
+Per maggiori informazioni si consulti il sito http://gasdotto.net
 
 ----------------------------------------------------------------------------------------[Requisiti]
 
@@ -48,7 +48,7 @@ E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
 
 I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository SVN
 raggiungibile con il comando
-svn checkout svn://svn.barberaware.org/svnroot/gasdotto
+git clone git://github.com/madbob/GASdotto.git
 
 - accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
 d'ambiente $CLASSPATH
@@ -102,6 +102,6 @@ conclusa con successo, faccelo sapere affinche' la lista condivisa venga aggiorn
 
 -----------------------------------------------------------------------------------------[Sviluppo]
 
-Il sito di riferimento del progetto e' http://gasdotto.barberaware.org
+Il sito di riferimento del progetto e' http://gasdotto.net
 I trackers e le informazioni per coloro che vogliono manipolare il codice e contribuire allo
 sviluppo si trovano presso http://barberaware.org/projects/gasdotto/

@@ -189,7 +189,12 @@ function format_price ( $price, $symbol = true ) {
 function format_date ( $dbdate ) {
 	$months = array ( 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre' );
 	list ( $year, $month, $day ) = explode ( '-', $dbdate );
-	return $day . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
+
+	/*
+		La variabile $day viene castata ad int per accertarsi di eliminare l'eventuale
+		zero posto dinnanzi ai giorni con una cifra sola
+	*/
+	return ( ( int ) $day ) . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
 }
 
 function sort_product_by_name ( $first, $second ) {
