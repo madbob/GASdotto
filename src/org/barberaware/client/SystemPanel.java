@@ -79,7 +79,6 @@ public class SystemPanel extends GenericPanel {
 		CaptionPanel sframe;
 		BooleanSelector mail;
 		DateSelector paydate;
-		DisclosurePanel advanced;
 
 		ver = new FromServerForm ( Session.getGAS () );
 
@@ -108,6 +107,8 @@ public class SystemPanel extends GenericPanel {
 		if ( Session.getSystemConf ().getBool ( "has_file" ) == true )
 			frame.addPair ( "Logo Homepage", ver.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
 
+		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
+
 		paydate = new DateSelector ();
 		paydate.ignoreYear ( true );
 		frame.addPair ( "Inizio Anno Sociale", ver.getPersonalizedWidget ( "payment_date", paydate ) );
@@ -135,16 +136,6 @@ public class SystemPanel extends GenericPanel {
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );
 		ver.add ( sframe );
-
-		advanced = new DisclosurePanel ( "Personalizzazioni Avanzate" );
-		ver.add ( advanced );
-
-		frame = new CustomCaptionPanel ( "Opzioni" );
-		advanced.add ( frame );
-
-		frame.addPair ( "Gli utenti pagano una quota annuale di iscrizione al gruppo", ver.getWidget ( "payments" ) );
-		frame.addPair ( "Tutti gli utenti possono consultare la lista degli altri soci, non solo ad amministratori e referenti", ver.getWidget ( "show_all_users" ) );
-		frame.addPair ( "Gli amministratori possono editare i prodotti dei fornitori anche se non ne sono referenti", ver.getWidget ( "admin_power" ) );
 
 		return ver;
 	}

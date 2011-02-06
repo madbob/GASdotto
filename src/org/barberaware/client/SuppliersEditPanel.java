@@ -36,8 +36,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				supplier = ( Supplier ) supp;
 
-				if ( supp.isValid () == false || supplier.iAmReference () == true ||
-						( Session.getGAS ().getBool ( "admin_power" ) == true && Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) )
+				if ( supp.isValid () == false || supplier.iAmReference () == true )
 					ver = commonFormBuilder ( supp );
 				else
 					ver = new SupplierUneditableForm ( supplier );

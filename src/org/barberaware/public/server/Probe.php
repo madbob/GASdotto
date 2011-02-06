@@ -114,16 +114,6 @@ class Probe extends FromServer {
 		fclose ( $f );
 	}
 
-	public static function default_extra_gas_options ( $id, $gas = null ) {
-		$rows = array ();
-		$extras = GAS::get_extra_options ();
-
-		foreach ( $extras as $name => $value )
-			$rows [] = $name . ' = ' . $value;
-
-		file_put_contents ( 'extra_options_' . $id, join ( "\n", $rows ) );
-	}
-
 	public function save ( $obj ) {
 		if ( is_writable ( './' ) == false || is_writable ( './config.php' ) == false )
 			return "0";
@@ -137,8 +127,6 @@ class Probe extends FromServer {
 
 		$query = sprintf ( "INSERT INTO GAS ( name, mail ) VALUES ( '%s', '%s' )", $obj->gasname, $obj->gasmail );
 		query_and_check ( $query, "Impossibile salvare dati del GAS" );
-
-		self::default_extra_gas_options ( 1 );
 
 		/*
 			Inizializzo utente root
