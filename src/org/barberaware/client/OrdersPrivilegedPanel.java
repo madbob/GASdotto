@@ -270,6 +270,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 			public boolean onSave ( FromServerForm form ) {
 				FromServer obj;
+				ArrayList products;
 				OrderUserManager manager;
 
 				manager = ( OrderUserManager ) form.retriveInternalWidget ( "informations" );
@@ -277,6 +278,18 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				obj = manager.getValue ();
 				if ( obj == null )
 					return false;
+
+				if ( obj.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+					manager.setValue ( null );
+
+				/*
+					Questo e' perche' in OrderUser.php un ordine senza prodotti viene comunque
+					eliminato, tanto vale farlo direttamente da qui e almeno lo cancello pure
+					dalla cache locale
+				*/
+				products = obj.getArray ( "products" );
+				if ( products == null || products.size () == 0 )
+					obj.destroy ( null );
 
 				form.setObject ( obj );
 				return true;

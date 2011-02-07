@@ -89,6 +89,24 @@ public class OrderUser extends FromServer {
 		return true;
 	}
 
+	public static FromServer findMine ( FromServer base ) {
+		ArrayList orders;
+		FromServer order;
+		FromServer me;
+
+		orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		me = Session.getUser ();
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			order = ( FromServer ) orders.get ( i );
+
+			if ( order.getObject ( "baseorder" ).equals ( base ) && order.getObject ( "baseuser" ).equals ( me ) )
+				return order;
+		}
+
+		return null;
+	}
+
 	public float getTotalPrice () {
 		ArrayList products;
 

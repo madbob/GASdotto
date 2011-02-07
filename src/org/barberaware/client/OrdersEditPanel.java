@@ -96,8 +96,10 @@ public class OrdersEditPanel extends GenericPanel {
 							OrderSummary complete_list;
 
 							complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
-							if ( complete_list != null )
-								complete_list.saveContents ();
+							if ( complete_list != null ) {
+								if ( complete_list.saveContents () == true )
+									form.getObject ().save ( null );
+							}
 						}
 					} );
 				}
@@ -171,6 +173,11 @@ public class OrdersEditPanel extends GenericPanel {
 							JSONArray products;
 							FlexTable container;
 							FromServer tmp;
+
+							if ( response.getText () == "" ) {
+								Utils.getServer ().dataArrived ();
+								return;
+							}
 
 							try {
 								jsonObject = JSONParser.parse ( response.getText () );
@@ -520,7 +527,6 @@ public class OrdersEditPanel extends GenericPanel {
 					return;
 
 				form = main.retrieveForm ( order );
-
 				if ( form != null ) {
 					summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
 					if ( summary != null )

@@ -38,12 +38,13 @@ public class OrderSummary extends Composite implements Lockable {
 	private int			PRODUCT_OVERPRICE_COLUMN	= 4;
 	private int			PRODUCT_MEASURE_COLUMN		= 5;
 	private int			PRODUCT_STOCK_COLUMN		= 6;
-	private int			PRODUCT_ORDQUANT_COLUMN		= 7;
-	private int			PRODUCT_TOTALPRICE_COLUMN	= 8;
-	private int			PRODUCT_TOTALTRANSPORT_COLUMN	= 9;
-	private int			PRODUCT_TOTALOVERPRICE_COLUMN	= 10;
-	private int			PRODUCT_SHIPQUANT_COLUMN	= 11;
-	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 12;
+	private int			PRODUCT_AVAILQUANT_COLUMN	= 7;
+	private int			PRODUCT_ORDQUANT_COLUMN		= 8;
+	private int			PRODUCT_TOTALPRICE_COLUMN	= 9;
+	private int			PRODUCT_TOTALTRANSPORT_COLUMN	= 10;
+	private int			PRODUCT_TOTALOVERPRICE_COLUMN	= 11;
+	private int			PRODUCT_SHIPQUANT_COLUMN	= 12;
+	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 13;
 
 	public OrderSummary ( Order order ) {
 		currentOrder = order;
@@ -59,6 +60,7 @@ public class OrderSummary extends Composite implements Lockable {
 		main.setWidget ( 0, PRODUCT_OVERPRICE_COLUMN, new Label ( "Sovrapprezzo Unitario (€/%)" ) );
 		main.setWidget ( 0, PRODUCT_MEASURE_COLUMN, new Label ( "Unità Misura" ) );
 		main.setWidget ( 0, PRODUCT_STOCK_COLUMN, new Label ( "Dimensione Confezione" ) );
+		main.setWidget ( 0, PRODUCT_AVAILQUANT_COLUMN, new Label ( "Quantità Disponibile" ) );
 		main.setWidget ( 0, PRODUCT_ORDQUANT_COLUMN, new Label ( "Quantità Ordinata" ) );
 		main.setWidget ( 0, PRODUCT_TOTALPRICE_COLUMN, new Label ( "Totale Prezzo" ) );
 		main.setWidget ( 0, PRODUCT_TOTALTRANSPORT_COLUMN, new Label ( "Totale Trasporto" ) );
@@ -207,14 +209,17 @@ public class OrderSummary extends Composite implements Lockable {
 		totalOverpriceLabel.setVal ( total_overprice );
 	}
 
-	public void saveContents () {
+	public boolean saveContents () {
 		int index;
+		boolean ret;
 		ArrayList products;
 		Product prod;
 		PriceBox price_unit;
 		PriceBox price_transport;
 		PercentageBox overprice;
+		FloatBox maxtotal;
 
+		ret = false;
 		products = currentOrder.getArray ( "products" );
 
 		for ( int i = 0; i < products.size (); i++ ) {
@@ -225,18 +230,24 @@ public class OrderSummary extends Composite implements Lockable {
 				price_unit = ( PriceBox ) main.getWidget ( index, PRODUCT_PRICE_COLUMN );
 				price_transport = ( PriceBox ) main.getWidget ( index, PRODUCT_TRANSPORT_COLUMN );
 				overprice = ( PercentageBox ) main.getWidget ( index, PRODUCT_OVERPRICE_COLUMN );
+				maxtotal = ( FloatBox ) main.getWidget ( index, PRODUCT_AVAILQUANT_COLUMN );
 
 				if ( prod.getFloat ( "unit_price" ) != price_unit.getVal () ||
 						prod.getFloat ( "shipping_price" ) != price_transport.getVal () ||
-						prod.getString ( "surplus" ) != overprice.getValue () ) {
+						prod.getString ( "surplus" ) != overprice.getValue () ||
+						prod.getFloat ( "total_max_order" ) != maxtotal.getVal () ) {
 
 					prod.setFloat ( "unit_price", price_unit.getVal () );
 					prod.setFloat ( "shipping_price", price_transport.getVal () );
 					prod.setString ( "surplus", overprice.getValue () );
-					prod.save ( null );
+					prod.setFloat ( "total_max_order", maxtotal.getVal () );
+					// prod.save ( null );
+					ret = true;
 				}
 			}
 		}
+
+		return ret;
 	}
 
 	private int searchProduct ( Product prod ) {
@@ -423,6 +434,7 @@ public class OrderSummary extends Composite implements Lockable {
 	private void setDataRow ( int index, Product product, float quantity, float delivered, float price, float price_details, float overprice, boolean new_row ) {
 		float stock;
 		Label lab;
+		FloatBox quan;
 		PriceBox box;
 		PercentageBox perc;
 
@@ -476,6 +488,10 @@ public class OrderSummary extends Composite implements Lockable {
 		lab = editableLabel ( index, PRODUCT_NAME_COLUMN, new_row );
 		lab.setText ( product.getString ( "name" ) );
 
+		quan = new FloatBox ();
+		quan.setVal ( product.getFloat ( "total_max_order" ) );
+		main.setWidget ( index, PRODUCT_AVAILQUANT_COLUMN, quan );
+
 		lab = editableLabel ( index, PRODUCT_ORDQUANT_COLUMN, new_row );
 		lab.setText ( Utils.floatToString ( quantity ) );
 
@@ -520,7 +536,7 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( e, 0, 12 );
+		main.getFlexCellFormatter ().setColSpan ( e, 0, 13 );
 
 		e++;
 

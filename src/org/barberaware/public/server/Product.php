@@ -34,6 +34,7 @@ class Product extends FromServer {
 		$this->addAttribute ( "measure", "OBJECT::Measure" );
 		$this->addAttribute ( "minimum_order", "FLOAT" );
 		$this->addAttribute ( "multiple_order", "FLOAT" );
+		$this->addAttribute ( "total_max_order", "FLOAT" );
 		$this->addAttribute ( "stock_size", "FLOAT" );
 		$this->addAttribute ( "unit_size", "FLOAT" );
 		$this->addAttribute ( "mutable_price", "BOOLEAN" );
@@ -46,19 +47,24 @@ class Product extends FromServer {
 	public function get ( $request, $compress ) {
 		$ret = array ();
 
-		if ( isset ( $request->supplier ) )
-			$tuning = sprintf ( " AND supplier = %d ", $request->supplier );
-		else
-			$tuning = "";
-
-		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND archived = false %s ORDER BY id",
-						$this->tablename, $ids, $tuning );
+		if ( isset ( $request->id ) ) {
+			$query = sprintf ( "SELECT id FROM %s WHERE id = %d", $this->tablename, $request->id );
 		}
 		else {
-			$query = sprintf ( "SELECT id FROM %s WHERE archived = false %s ORDER BY id",
-						$this->tablename, $tuning );
+			if ( isset ( $request->supplier ) )
+				$tuning = sprintf ( " AND supplier = %d ", $request->supplier );
+			else
+				$tuning = "";
+
+			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+				$ids = join ( ',', $request->has );
+				$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND archived = false %s ORDER BY id",
+							$this->tablename, $ids, $tuning );
+			}
+			else {
+				$query = sprintf ( "SELECT id FROM %s WHERE archived = false %s ORDER BY id",
+							$this->tablename, $tuning );
+			}
 		}
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );

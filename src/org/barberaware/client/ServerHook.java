@@ -258,7 +258,7 @@ public class ServerHook {
 
 			obj = arr.get ( i ).isObject ();
 			tmp = lookupObject ( obj );
-			if ( tmp == null || num == 1 )
+			if ( tmp == null )
 				return;
 
 			triggerObjectBlockCreation ( tmp, true );

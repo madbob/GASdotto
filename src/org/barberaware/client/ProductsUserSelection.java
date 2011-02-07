@@ -404,20 +404,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		sel = ( ProductUserSelector ) main.getWidget ( index, 1 );
 		sel.setProduct ( product );
 
-		/*
-			Prezzo
-		*/
-
 		info_str = getPriceInfo ( product );
 		lab = ( Label ) main.getWidget ( index, 2 );
-		lab.setText ( info_str );
-
-		/*
-			Informazioni aggiuntive
-		*/
-
-		info_str = product.getString ( "description" );
-		lab = ( Label ) main.getWidget ( index + 1, 0 );
 		lab.setText ( info_str );
 	}
 

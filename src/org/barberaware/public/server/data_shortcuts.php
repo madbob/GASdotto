@@ -20,16 +20,18 @@
 require_once ( "utils.php" );
 
 if ( !isset ( $_GET [ 'type' ] ) )
-	exit ( 0 );
+	error_exit ( "Richiesta non valida" );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
+
+$ret = null;
 
 switch ( $_GET [ 'type' ] ) {
 	case 'order_products_diff':
 		$order = $_GET [ 'order' ];
 		if ( !isset ( $order ) )
-			exit ( 0 );
+			error_exit ( "Richiesta non valida" );
 
 		$ord = new Order ();
 		$ord->readFromDB ( $order );
@@ -52,9 +54,48 @@ switch ( $_GET [ 'type' ] ) {
 			array_push ( $ret, $product->exportable () );
 		}
 
-		$json = new Services_JSON ();
-		echo $json->encode ( $ret ) . "\n";
 		break;
+
+	case 'available_quantity_yet':
+		$product = $_GET [ 'product' ];
+		if ( !isset ( $product ) )
+			error_exit ( "Richiesta non valida" );
+
+		$ret = new stdClass ();
+		$ret->index = $_GET [ 'index' ];
+
+		$prod = new Product ();
+		$prod->readFromDB ( $product );
+		$max_quantity = $prod->getAttribute ( 'total_max_order' )->value;
+
+		if ( $max_quantity == 0 ) {
+			$ret->quantity = "-1";
+		}
+		else {
+			$query = sprintf ( "SELECT SUM(quantity)
+						FROM ProductUser
+						WHERE product = %d AND
+							id IN (SELECT target FROM OrderUser_products)", $product );
+			$result = query_and_check ( $query, "Impossibile recuperare quantità sinora ordinata" );
+			$row = $result->fetchAll ( PDO::FETCH_NUM );
+			$quantity = $row [ 0 ] [ 0 ];
+
+			if ( $quantity > $max_quantity )
+				$ret->quantity = "0";
+			else
+				$ret->quantity = ( string ) ( $max_quantity - $quantity );
+		}
+
+		break;
+
+	default:
+		error_exit ( "Richiesta non valida" );
+		break;
+}
+
+if ( $ret != null ) {
+	$json = new Services_JSON ();
+	echo $json->encode ( $ret ) . "\n";
 }
 
 exit ( 0 );

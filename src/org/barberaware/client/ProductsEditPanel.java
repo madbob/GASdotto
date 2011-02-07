@@ -216,16 +216,11 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					frame.addPair ( "Prezzo Unitario", ver.getWidget ( "unit_price" ) );
 					frame.addPair ( "Prezzo Trasporto", ver.getWidget ( "shipping_price" ) );
 					frame.addPair ( "Prezzo Variabile", ver.getWidget ( "mutable_price" ) );
-
-					/**
-						TODO	Gestire in qualche modo strutturato le
-							motivazioni per i sovrapprezzi
-					*/
-
 					frame.addPair ( "Sovrapprezzo (€/%)", ver.getWidget ( "surplus" ) );
 					frame.addPair ( "Dimensione Confezione", ver.getWidget ( "stock_size" ) );
 					frame.addPair ( "Minimo per Utente", ver.getWidget ( "minimum_order" ) );
 					frame.addPair ( "Multiplo per Utente", ver.getWidget ( "multiple_order" ) );
+					frame.addPair ( "Massimo Ordinabile", ver.getWidget ( "total_max_order" ) );
 
 					sframe = new CaptionPanel ( "Descrizione" );
 					sframe.add ( ver.getWidget ( "description" ) );

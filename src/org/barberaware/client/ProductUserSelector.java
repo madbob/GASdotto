@@ -21,6 +21,8 @@ import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -33,6 +35,8 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private boolean					editable;
 	private boolean					freeEditable;
 	private float					originalQuantity;
+	private float					maxAvailable;
+	private boolean					hasMaxAvailable;
 
 	private VerticalPanel				main;
 	private HorizontalPanel				firstRow;
@@ -42,6 +46,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private Label					measure;
 	private Label					effectiveQuantity;
 	private Label					constraints;
+	private String					constraintsValue;
 	private ProductUser				currentValue;
 
 	private DelegatingChangeListenerCollection	changeListeners;
@@ -65,6 +70,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		freeEditable = freeedit;
 		constraints = null;
 		originalQuantity = -1;
+		maxAvailable = -1;
 
 		if ( edit == true ) {
 			qb = new FloatBox ();
@@ -72,16 +78,65 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 				public void onFocus ( Widget sender ) {
 					if ( constraints != null ) {
 						int index;
+						FromServer prod;
 
 						index = firstRow.getWidgetIndex ( sender );
-						firstRow.remove ( index + 1 );
-						firstRow.insert ( constraints, index + 1 );
+						prod = currentValue.getObject ( "product" );
+
+						if ( hasMaxAvailable == true ) {
+							Utils.getServer ().rawGet ( "data_shortcuts.php?type=available_quantity_yet&product=" + prod.getLocalID () + "&index=" + index, new RequestCallback () {
+								public void onError ( Request request, Throwable exception ) {
+									Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+								}
+
+								public void onResponseReceived ( Request request, Response response ) {
+									int row;
+									float quantity;
+									String text;
+									JSONValue jsonObject;
+									JSONObject data;
+
+									try {
+										jsonObject = JSONParser.parse ( response.getText () );
+										data = jsonObject.isObject ();
+										quantity = Float.parseFloat ( data.get ( "quantity" ).isString ().stringValue () );
+
+										if ( quantity <= 0 ) {
+											text = "Prodotto non più disponibile!";
+										}
+										else {
+											text = constraintsValue;
+											if ( text != "" )
+												text += "; ";
+											text += "Ancora disponibile: " + quantity;
+										}
+
+										constraints.setText ( text );
+										maxAvailable = quantity;
+
+										row = Integer.parseInt ( data.get ( "index" ).isString ().stringValue () );
+										firstRow.remove ( row + 1 );
+										firstRow.insert ( constraints, row + 1 );
+									}
+									catch ( com.google.gwt.json.client.JSONException e ) {
+										Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+									}
+
+									Utils.getServer ().dataArrived ();
+								}
+							} );
+						}
+						else {
+							firstRow.remove ( index + 1 );
+							firstRow.insert ( constraints, index + 1 );
+						}
 					}
 				}
 
 				public void onLostFocus ( Widget sender ) {
 					float val;
 					float input;
+					float relative_max;
 					FromServer prod;
 					Supplier supp;
 
@@ -114,6 +169,19 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 							Utils.showNotification ( "La quantità specificata non è multipla del valore consentito" );
 							undoChange ();
 							return;
+						}
+
+						if ( maxAvailable != -1 ) {
+							if ( currentValue.isValid () == true )
+								relative_max = maxAvailable + currentValue.getFloat ( "quantity" );
+							else
+								relative_max = maxAvailable;
+
+							if ( input > relative_max ) {
+								Utils.showNotification ( "La quantità specificata è superiore al massimo ancora disponibile" );
+								undoChange ();
+								return;
+							}
 						}
 					}
 
@@ -150,20 +218,27 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		}
 	}
 
-	private void disposeConstraints ( FromServer prod, Widget quantity ) {
+	private void disposeConstraints ( FromServer prod ) {
 		float min;
 		float mult;
+		float max;
 		String text;
 
+		text = "";
+		constraints = null;
 		min = prod.getFloat ( "minimum_order" );
 		mult = prod.getFloat ( "multiple_order" );
+		max = prod.getFloat ( "total_max_order" );
 
-		if ( min != 0 || mult != 0 ) {
-			text = "";
+		if ( max > 0 )
+			hasMaxAvailable = true;
+		else
+			hasMaxAvailable = false;
 
-			if ( min != 0 )
-				text = text + "Quantità minima: " + Utils.floatToString ( min );
-
+		if ( min != 0 || mult != 0 || max != 0 ) {
+			if ( min != 0 ) {
+				text = "Quantità minima: " + Utils.floatToString ( min );
+			}
 			if ( mult != 0 ) {
 				if ( text != "" )
 					text = text + "; ";
@@ -173,9 +248,8 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			constraints = new Label ( text );
 			constraints.addStyleName ( "contents-on-right" );
 		}
-		else {
-			constraints = null;
-		}
+
+		constraintsValue = text;
 	}
 
 	private void undoChange () {
@@ -313,7 +387,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		}
 
 		if ( editable == true ) {
-			disposeConstraints ( prod, ( FloatBox ) quantity );
+			disposeConstraints ( prod );
 
 			variants = prod.getArray ( "variants" );
 

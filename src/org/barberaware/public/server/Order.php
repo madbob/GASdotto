@@ -35,70 +35,75 @@ class Order extends FromServer {
 	}
 
 	public function get ( $request, $compress ) {
-		/*
-			Non e' particolarmente efficiente fare il check sullo stato degli ordini
-			ad ogni interrogazione, ma l'alternativa sarebbe piazzare uno script in
-			cron rendendo piu' problematico il deploy dell'applicazione.
-		*/
-		/*
-			La data su cui viene confrontato l'ordine per la chiusura e' "oggi + 1",
-			per far quadrare i conti sui timestamp calcolati sulle ore
-		*/
-		$query = sprintf ( "UPDATE %s SET status = 1 WHERE status = 0 AND enddate %s < NOW()", $this->tablename, db_date_plus_one () );
-		query_and_check ( $query, "Impossibile chiudere vecchi ordini" );
+		$ret = array ();
 
-		/*
-			Questo e' per aprire gli ordini che sono stati creati con data di inizio
-			nel futuro
-		*/
-		$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 2 AND startdate %s < NOW() AND enddate %s > NOW()",
-		                    $this->tablename, db_date_plus_one (), db_date_plus_one () );
-		query_and_check ( $query, "Impossibile aprire ordini sospesi" );
-
-		/**
-			TODO	Settare status ordini con ciclicita'
-		*/
-
-		if ( isset ( $request->status ) ) {
-			if ( ( string ) $request->status == "any" ) {
-				/*
-					Aggiungo una condizione sempre vera giusto per
-					concatenare poi gli altri pezzi della query correttamente
-				*/
-				$query = sprintf ( "SELECT id FROM %s WHERE id > 0 ", $this->tablename );
-			}
-			else {
-				$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
-			}
+		if ( isset ( $request->id ) ) {
+			$query = sprintf ( "SELECT id FROM %s WHERE id = %d", $this->tablename, $request->id );
 		}
 		else {
 			/*
-				Gli ordini con status = 3 ("consegnato") non sono piu' esposti
-				all'applicazione, vengono conservati solo ad uso statistico
+				Non e' particolarmente efficiente fare il check sullo stato degli ordini
+				ad ogni interrogazione, ma l'alternativa sarebbe piazzare uno script in
+				cron rendendo piu' problematico il deploy dell'applicazione.
 			*/
-			$query = sprintf ( "SELECT id FROM %s WHERE status != 3 ", $this->tablename );
+			/*
+				La data su cui viene confrontato l'ordine per la chiusura e' "oggi + 1",
+				per far quadrare i conti sui timestamp calcolati sulle ore
+			*/
+			$query = sprintf ( "UPDATE %s SET status = 1 WHERE status = 0 AND enddate %s < NOW()", $this->tablename, db_date_plus_one () );
+			query_and_check ( $query, "Impossibile chiudere vecchi ordini" );
+
+			/*
+				Questo e' per aprire gli ordini che sono stati creati con data di inizio
+				nel futuro
+			*/
+			$query = sprintf ( "UPDATE %s SET status = 0 WHERE status = 2 AND startdate %s < NOW() AND enddate %s > NOW()",
+					$this->tablename, db_date_plus_one (), db_date_plus_one () );
+			query_and_check ( $query, "Impossibile aprire ordini sospesi" );
+
+			/**
+				TODO	Settare status ordini con ciclicita'
+			*/
+
+			if ( isset ( $request->status ) ) {
+				if ( ( string ) $request->status == "any" ) {
+					/*
+						Aggiungo una condizione sempre vera giusto per
+						concatenare poi gli altri pezzi della query correttamente
+					*/
+					$query = sprintf ( "SELECT id FROM %s WHERE id > 0 ", $this->tablename );
+				}
+				else {
+					$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
+				}
+			}
+			else {
+				/*
+					Gli ordini con status = 3 ("consegnato") non sono piu' esposti
+					all'applicazione, vengono conservati solo ad uso statistico
+				*/
+				$query = sprintf ( "SELECT id FROM %s WHERE status != 3 ", $this->tablename );
+			}
+
+			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+				$ids = join ( ',', $request->has );
+				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
+			}
+
+			if ( isset ( $request->supplier ) )
+				$query .= sprintf ( "AND supplier = %d ", $request->supplier );
+
+			if ( isset ( $request->startdate ) )
+				$query .= sprintf ( "AND startdate > DATE('%s') ", $request->startdate );
+
+			if ( isset ( $request->enddate ) )
+				$query .= sprintf ( "AND enddate < DATE('%s') ", $request->enddate );
+
+			$query .= "ORDER BY id DESC";
+
+			if ( isset ( $request->query_limit ) )
+				$query .= sprintf ( " LIMIT %d", $request->query_limit );
 		}
-
-		$ret = array ();
-
-		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-			$ids = join ( ',', $request->has );
-			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
-		}
-
-		if ( isset ( $request->supplier ) )
-			$query .= sprintf ( "AND supplier = %d ", $request->supplier );
-
-		if ( isset ( $request->startdate ) )
-			$query .= sprintf ( "AND startdate > DATE('%s') ", $request->startdate );
-
-		if ( isset ( $request->enddate ) )
-			$query .= sprintf ( "AND enddate < DATE('%s') ", $request->enddate );
-
-		$query .= "ORDER BY id DESC";
-
-		if ( isset ( $request->query_limit ) )
-			$query .= sprintf ( " LIMIT %d", $request->query_limit );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
@@ -222,7 +227,7 @@ class Order extends FromServer {
 				$test = new Order ();
 				$test->readFromDB ( $obj->id );
 
-				if ( $test->getAttribute ( 'mail_summary_sent' )->value != $obj->mail_summary_sent ) {
+				if ( format_date ( $test->getAttribute ( 'mail_summary_sent' )->value ) != format_date ( $obj->mail_summary_sent ) ) {
 					$products = $test->getAttribute ( 'products' )->value;
 					usort ( $products, 'sort_product_by_name' );
 
@@ -266,29 +271,33 @@ class Order extends FromServer {
 						$html = '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
 						$html .= '<body><p>' . $text . '</p><br /><table><tr><td>Prodotto</td><td>Quantità</td><td>Prezzo</td><td>Prezzo Trasporto</td></tr>';
 
+						if ( $ou->status == 3 )
+							$param = 'delivered';
+						else
+							$param = 'quantity';
+
 						for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 							$prod = $products [ $a ];
 							$prod_user = $user_products [ $e ];
+							$quantity = 0;
 
 							if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
-								if ( $ou->status == 3 )
-									$param = 'delivered';
-								else
-									$param = 'quantity';
-
 								$quantity = $prod_user->$param;
+								$e++;
+							}
 
-								if ( count ( $ou->friends ) != 0 ) {
-									foreach ( $ou->friends as $friend ) {
-										foreach ( $friend->products as $fprod ) {
-											if ( $fprod->product == $prod_user->product ) {
-												$quantity += $fprod->$param;
-												break;
-											}
+							if ( count ( $ou->friends ) != 0 ) {
+								foreach ( $ou->friends as $friend ) {
+									foreach ( $friend->products as $fprod ) {
+										if ( $fprod->product == $prod_user->product ) {
+											$quantity += $fprod->$param;
+											break;
 										}
 									}
 								}
+							}
 
+							if ( $quantity != 0 ) {
 								$unit = $prod->getAttribute ( "unit_size" )->value;
 								$uprice = $prod->getAttribute ( "unit_price" )->value;
 								$sprice = $prod->getAttribute ( "shipping_price" )->value;
@@ -322,8 +331,6 @@ class Order extends FromServer {
 
 								$html .= '<tr><td>' . ( $prod->getAttribute ( "name" )->value );
 								$html .= '</td><td>' . $q . '</td><td>' . $quprice . '</td><td>' . $qsprice . '</td></tr>';
-
-								$e++;
 							}
 						}
 

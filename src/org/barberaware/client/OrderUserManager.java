@@ -110,24 +110,6 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 		}
 	}
 
-	private FromServer findMine () {
-		ArrayList orders;
-		FromServer order;
-		FromServer me;
-
-		orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
-		me = Session.getUser ();
-
-		for ( int i = 0; i < orders.size (); i++ ) {
-			order = ( FromServer ) orders.get ( i );
-
-			if ( order.getObject ( "baseorder" ).equals ( baseOrder ) && order.getObject ( "baseuser" ).equals ( me ) )
-				return order;
-		}
-
-		return null;
-	}
-
 	public void clean () {
 		activateLayer ( 0, null );
 	}
@@ -151,13 +133,18 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 		ArrayList f;
 
 		if ( element == null )
-			element = findMine ();
+			element = OrderUser.findMine ( baseOrder );
 
 		if ( element == null ) {
 			index = 0;
 		}
 		else {
 			if ( element.getObject ( "baseuser" ).equals ( Session.getUser () ) == false ) {
+				if ( deck.getWidgetCount () == 2 ) {
+					setValue ( null );
+					return;
+				}
+
 				index = 2;
 			}
 			else {
@@ -175,6 +162,7 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 
 	public FromServer getValue () {
 		int index;
+		FromServer ret;
 		ObjectWidget panel;
 
 		index = deck.getVisibleWidget ();

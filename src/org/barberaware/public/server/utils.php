@@ -650,7 +650,14 @@ function perform_authentication ( $userid ) {
 					$old_now, $userid );
 	query_and_check ( $query, "Impossibile sincronizzare sessioni" );
 
-	$session_id = substr ( md5 ( time () ), 0, 20 );
+	do {
+		$session_id = substr ( md5 ( time () ), 0, 20 );
+
+		$query = sprintf ( "SELECT COUNT(id) FROM current_sessions WHERE session_id = '%s'", $session_id );
+		$result = query_and_check ( $query, "Impossibile salvare sessione" );
+		$row = $result->fetchAll ( PDO::FETCH_NUM );
+	} while ( $row [ 0 ] [ 0 ] != 0 && sleep ( 1 ) == 0 );
+
 	$now = date ( "Y-m-d", time () );
 
 	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )
