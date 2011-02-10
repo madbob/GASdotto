@@ -278,10 +278,11 @@ class Order extends FromServer {
 
 						for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 							$prod = $products [ $a ];
+							$prodid = $prod->getAttribute ( "id" )->value;
 							$prod_user = $user_products [ $e ];
 							$quantity = 0;
 
-							if ( $prod->getAttribute ( "id" )->value == $prod_user->product ) {
+							if ( $prodid == $prod_user->product ) {
 								$quantity = $prod_user->$param;
 								$e++;
 							}
@@ -289,7 +290,7 @@ class Order extends FromServer {
 							if ( count ( $ou->friends ) != 0 ) {
 								foreach ( $ou->friends as $friend ) {
 									foreach ( $friend->products as $fprod ) {
-										if ( $fprod->product == $prod_user->product ) {
+										if ( $fprod->product == $prodid ) {
 											$quantity += $fprod->$param;
 											break;
 										}

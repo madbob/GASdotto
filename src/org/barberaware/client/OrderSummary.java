@@ -664,14 +664,10 @@ public class OrderSummary extends Composite implements Lockable {
 	/****************************************************************** Lockable */
 
 	public void unlock () {
-		locked = false;
-
-		/*
 		if ( locked == true ) {
 			locked = false;
 			fillList ();
 			syncOrders ();
 		}
-		*/
 	}
 }
