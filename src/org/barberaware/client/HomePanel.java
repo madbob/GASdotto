@@ -53,6 +53,7 @@ public class HomePanel extends GenericPanel {
 				total = new Label ();
 				fillTotalText ( total, orderuser );
 				total.setStyleName ( "highlight-text" );
+				total.addStyleName ( "small-text" );
 				panel.getTable ().setWidget ( index, 3, total );
 			}
 

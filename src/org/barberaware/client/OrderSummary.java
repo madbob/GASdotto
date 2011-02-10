@@ -516,6 +516,7 @@ public class OrderSummary extends Composite implements Lockable {
 		float stock;
 		float max_avail;
 		float transport;
+		float unit_size;
 		String surplus;
 		Label lab;
 		FloatBox quan;
@@ -605,9 +606,22 @@ public class OrderSummary extends Composite implements Lockable {
 		lab = editableLabel ( index, PRODUCT_SHIPQUANT_COLUMN, new_row );
 		lab.setText ( Utils.floatToString ( delivered ) );
 
-		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) ) {
-			hasConstraints = true;
-			addManualAdjustIcon ( index, product );
+		if ( ( stock != 0 ) && ( quantity != 0 ) ) {
+			unit_size = product.getFloat ( "unit_size" );
+			if ( unit_size <= 0 )
+				unit_size = stock;
+			else
+				unit_size = Utils.roundNumber ( stock * unit_size );
+
+			quantity = Utils.roundNumber ( Utils.roundNumber ( quantity ) % unit_size );
+
+			if ( quantity != 0 ) {
+				hasConstraints = true;
+				addManualAdjustIcon ( index, product );
+			}
+			else {
+				removeManualAdjustIcon ( index );
+			}
 		}
 		else {
 			removeManualAdjustIcon ( index );

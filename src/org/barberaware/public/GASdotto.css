@@ -216,7 +216,6 @@ body {
 
 .elements-table input, select {
 	margin:			1px;
-	padding:		2px;
 	float:			none;
 	height:			25px;
 }
@@ -411,7 +410,6 @@ body {
 }
 
 .highlight-text {
-	font-size:		15px;
 	color:			#FF0000;
 }
 

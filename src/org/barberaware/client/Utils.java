@@ -180,6 +180,14 @@ public class Utils {
 		return ( float ) floatFormatter.parse ( s );
 	}
 
+	/*
+		Ispirato da
+		http://forums.devarticles.com/javascript-development-22/javascript-to-round-to-2-decimal-places-36190.html
+	*/
+	public static float roundNumber ( float num ) {
+		return ( float ) Math.round ( num * 100 ) / ( float ) 100;
+	}
+
 	/****************************************************** classi */
 
 	public static String classFinalName ( String name ) {
