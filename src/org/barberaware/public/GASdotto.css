@@ -214,6 +214,13 @@ body {
 	margin:			0px;
 }
 
+.elements-table input, select {
+	margin:			1px;
+	padding:		2px;
+	float:			none;
+	height:			25px;
+}
+
 .elements-table .table-header {
 	text-align:		center;
 	vertical-align:		bottom;

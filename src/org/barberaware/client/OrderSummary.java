@@ -32,6 +32,12 @@ public class OrderSummary extends Composite implements Lockable {
 	private PriceViewer		totalOverpriceLabel;
 	private ArrayList		ordersUsers;
 
+	private boolean			hasTransport;
+	private boolean			hasSurplus;
+	private boolean			hasStock;
+	private boolean			hasMaxAvailable;
+	private boolean			hasConstraints;
+
 	private int			PRODUCT_NAME_COLUMN		= 1;
 	private int			PRODUCT_PRICE_COLUMN		= 2;
 	private int			PRODUCT_TRANSPORT_COLUMN	= 3;
@@ -241,7 +247,6 @@ public class OrderSummary extends Composite implements Lockable {
 					prod.setFloat ( "shipping_price", price_transport.getVal () );
 					prod.setString ( "surplus", overprice.getValue () );
 					prod.setFloat ( "total_max_order", maxtotal.getVal () );
-					// prod.save ( null );
 					ret = true;
 				}
 			}
@@ -267,12 +272,86 @@ public class OrderSummary extends Composite implements Lockable {
 		return -1;
 	}
 
+	private void initHiddenColumns () {
+		hasTransport = false;
+		hasSurplus = false;
+		hasStock = false;
+		hasMaxAvailable = false;
+		hasConstraints = false;
+	}
+
+	private void checkHiddenColumns () {
+		Widget widget;
+		Widget widget2;
+
+		for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
+			widget = main.getWidget ( i, PRODUCT_TRANSPORT_COLUMN );
+			widget2 = main.getWidget ( i, PRODUCT_TOTALTRANSPORT_COLUMN );
+
+			if ( hasTransport == false ) {
+				widget.addStyleName ( "hidden" );
+				widget2.addStyleName ( "hidden" );
+			}
+			else {
+				widget.removeStyleName ( "hidden" );
+				widget2.removeStyleName ( "hidden" );
+			}
+
+			widget = main.getWidget ( i, PRODUCT_STOCK_COLUMN );
+
+			if ( widget != null ) {
+				if ( hasStock == false )
+					widget.addStyleName ( "hidden" );
+				else
+					widget.removeStyleName ( "hidden" );
+			}
+
+			widget = main.getWidget ( i, PRODUCT_AVAILQUANT_COLUMN );
+
+			if ( hasMaxAvailable == false )
+				widget.addStyleName ( "hidden" );
+			else
+				widget.removeStyleName ( "hidden" );
+
+			widget = main.getWidget ( i, PRODUCT_OVERPRICE_COLUMN );
+			widget2 = main.getWidget ( i, PRODUCT_TOTALOVERPRICE_COLUMN );
+
+			if ( hasSurplus == false ) {
+				widget.addStyleName ( "hidden" );
+				widget2.addStyleName ( "hidden" );
+			}
+			else {
+				widget.removeStyleName ( "hidden" );
+				widget2.removeStyleName ( "hidden" );
+			}
+
+			widget = main.getWidget ( i, PRODUCT_NOTIFICATIONS_COLUMN );
+
+			if ( hasConstraints == false )
+				widget.addStyleName ( "hidden" );
+			else
+				widget.removeStyleName ( "hidden" );
+		}
+
+		if ( hasTransport == false )
+			totalshipLabel.addStyleName ( "hidden" );
+		else
+			totalshipLabel.removeStyleName ( "hidden" );
+
+		if ( hasSurplus == false )
+			totalOverpriceLabel.addStyleName ( "hidden" );
+		else
+			totalOverpriceLabel.removeStyleName ( "hidden" );
+	}
+
 	private void syncTable ( ArrayList products, float [] quantities, float [] delivered,
 					float [] prices, float [] prices_details, float [] overprices_details ) {
 		int i;
 		int e;
 		boolean new_row;
 		Product product;
+
+		initHiddenColumns ();
 
 		for ( i = 0; i < products.size (); i++ ) {
 			product = ( Product ) products.get ( i );
@@ -293,6 +372,8 @@ public class OrderSummary extends Composite implements Lockable {
 			setDataRow ( e, product, quantities [ i ], delivered [ i ], prices [ i ],
 					prices_details [ i ], overprices_details [ i ], new_row );
 		}
+
+		checkHiddenColumns ();
 	}
 
 	private void addManualAdjustIcon ( int row, Product prod ) {
@@ -433,12 +514,29 @@ public class OrderSummary extends Composite implements Lockable {
 
 	private void setDataRow ( int index, Product product, float quantity, float delivered, float price, float price_details, float overprice, boolean new_row ) {
 		float stock;
+		float max_avail;
+		float transport;
+		String surplus;
 		Label lab;
 		FloatBox quan;
 		PriceBox box;
 		PercentageBox perc;
 
 		stock = product.getFloat ( "stock_size" );
+		if ( stock != 0 )
+			hasStock = true;
+
+		transport = product.getFloat ( "shipping_price" );
+		if ( transport > 0 )
+			hasTransport = true;
+
+		surplus = product.getString ( "surplus" );
+		if ( surplus != null && surplus != "0" )
+			hasSurplus = true;
+
+		max_avail = product.getFloat ( "total_max_order" );
+		if ( max_avail > 0 )
+			hasMaxAvailable = true;
 
 		if ( new_row == true ) {
 			main.setWidget ( index, 0, new Hidden ( Integer.toString ( product.getLocalID () ) ) );
@@ -456,7 +554,7 @@ public class OrderSummary extends Composite implements Lockable {
 			main.setWidget ( index, PRODUCT_PRICE_COLUMN, box );
 
 			box = new PriceBox ();
-			box.setVal ( product.getFloat ( "shipping_price" ) );
+			box.setVal ( transport );
 			box.addFocusListener ( new FocusListener () {
 				public void onFocus ( Widget sender ) {
 				}
@@ -468,7 +566,7 @@ public class OrderSummary extends Composite implements Lockable {
 			main.setWidget ( index, PRODUCT_TRANSPORT_COLUMN, box );
 
 			perc = new PercentageBox ();
-			perc.setValue ( product.getString ( "surplus" ) );
+			perc.setValue ( surplus );
 			perc.addFocusListener ( new FocusListener () {
 				public void onFocus ( Widget sender ) {
 				}
@@ -489,7 +587,7 @@ public class OrderSummary extends Composite implements Lockable {
 		lab.setText ( product.getString ( "name" ) );
 
 		quan = new FloatBox ();
-		quan.setVal ( product.getFloat ( "total_max_order" ) );
+		quan.setVal ( max_avail );
 		main.setWidget ( index, PRODUCT_AVAILQUANT_COLUMN, quan );
 
 		lab = editableLabel ( index, PRODUCT_ORDQUANT_COLUMN, new_row );
@@ -507,10 +605,13 @@ public class OrderSummary extends Composite implements Lockable {
 		lab = editableLabel ( index, PRODUCT_SHIPQUANT_COLUMN, new_row );
 		lab.setText ( Utils.floatToString ( delivered ) );
 
-		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) )
+		if ( ( stock != 0 ) && ( quantity != 0 ) && ( quantity % stock != 0 ) ) {
+			hasConstraints = true;
 			addManualAdjustIcon ( index, product );
-		else
+		}
+		else {
 			removeManualAdjustIcon ( index );
+		}
 	}
 
 	private void fillList () {
@@ -522,6 +623,8 @@ public class OrderSummary extends Composite implements Lockable {
 		products = currentOrder.getArray ( "products" );
 		if ( products == null )
 			return;
+
+		initHiddenColumns ();
 
 		products = Utils.sortArrayByName ( products );
 
@@ -554,15 +657,21 @@ public class OrderSummary extends Composite implements Lockable {
 		main.setWidget ( e, PRODUCT_TOTALPRICE_COLUMN, totalLabel );
 		main.setWidget ( e, PRODUCT_TOTALTRANSPORT_COLUMN, totalshipLabel );
 		main.setWidget ( e, PRODUCT_TOTALOVERPRICE_COLUMN, totalOverpriceLabel );
+
+		checkHiddenColumns ();
 	}
 
 	/****************************************************************** Lockable */
 
 	public void unlock () {
+		locked = false;
+
+		/*
 		if ( locked == true ) {
 			locked = false;
 			fillList ();
 			syncOrders ();
 		}
+		*/
 	}
 }

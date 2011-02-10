@@ -517,14 +517,12 @@ public class OrdersEditPanel extends GenericPanel {
 		};
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			private void syncOrder ( OrderUser user ) {
-				FromServer order;
+			private boolean		lockNextRound	= false;
+			private ArrayList 	targetOrders	= new ArrayList ();
+
+			private void syncOrder ( FromServer order ) {
 				FromServerForm form;
 				OrderSummary summary;
-
-				order = user.getObject ( "baseorder" );
-				if ( order == null )
-					return;
 
 				form = main.retrieveForm ( order );
 				if ( form != null ) {
@@ -534,16 +532,56 @@ public class OrdersEditPanel extends GenericPanel {
 				}
 			}
 
+			private void manageRequest ( OrderUser user ) {
+				FromServer order;
+
+				order = user.getObject ( "baseorder" );
+				if ( order == null )
+					return;
+
+				if ( lockNextRound == true ) {
+					FromServer tmporder;
+
+					for ( int i = 0; i < targetOrders.size (); i++ ) {
+						tmporder = ( FromServer ) targetOrders.get ( i );
+						if ( tmporder.equals ( order ) )
+							return;
+					}
+
+					targetOrders.add ( order );
+					return;
+				}
+
+				syncOrder ( order );
+			}
+
+			public void onBlockBegin () {
+				lockNextRound = true;
+			}
+
+			public void onBlockEnd () {
+				FromServer tmporder;
+
+				lockNextRound = false;
+
+				for ( int i = 0; i < targetOrders.size (); i++ ) {
+					tmporder = ( FromServer ) targetOrders.get ( i );
+					syncOrder ( tmporder );
+				}
+
+				targetOrders.clear ();
+			}
+
 			public void onReceive ( FromServer object ) {
-				syncOrder ( ( OrderUser ) object );
+				manageRequest ( ( OrderUser ) object );
 			}
 
 			public void onModify ( FromServer object ) {
-				syncOrder ( ( OrderUser ) object );
+				manageRequest ( ( OrderUser ) object );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				syncOrder ( ( OrderUser ) object );
+				manageRequest ( ( OrderUser ) object );
 			}
 
 			protected String debugName () {
