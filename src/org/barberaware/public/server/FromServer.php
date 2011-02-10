@@ -91,6 +91,7 @@ class FromServerAttribute {
 
 				$existing = query_and_check ( $query, "Impossibile recuperare array per " . $parent->classname );
 				$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
+				unset ( $existing );
 
 				foreach ( $rows as $row ) {
 					$subobj = new $objtype;
@@ -264,6 +265,7 @@ abstract class FromServer {
 		$query = sprintf ( "SELECT * FROM %s WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
 			$attr = $this->attributes [ $i ];
@@ -307,6 +309,7 @@ abstract class FromServer {
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
@@ -445,6 +448,7 @@ abstract class FromServer {
 								$this->tablename, $name, $id );
 					$existing = query_and_check ( $query, "Impossibile recuperare lista per sincronizzare oggetto " . $this->classname );
 					$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
+					unset ( $existing );
 
 					/*
 						Procedimento:

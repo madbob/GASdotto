@@ -46,6 +46,7 @@ switch ( $_GET [ 'type' ] ) {
 
 		$result = query_and_check ( $query, "Impossibile recuperare differenza tra prodotti e ordine" );
 		$rows = $result->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $result );
 		$ret = array ();
 
 		foreach ( $rows as $row ) {
@@ -78,6 +79,7 @@ switch ( $_GET [ 'type' ] ) {
 							id IN (SELECT target FROM OrderUser_products)", $product );
 			$result = query_and_check ( $query, "Impossibile recuperare quantità sinora ordinata" );
 			$row = $result->fetchAll ( PDO::FETCH_NUM );
+			unset ( $result );
 			$quantity = $row [ 0 ] [ 0 ];
 
 			if ( $quantity > $max_quantity )

@@ -82,8 +82,8 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 						$supplier [ "id" ], $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
 	$tot = $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 
 	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
 				FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
@@ -93,8 +93,8 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 						$supplier [ "id" ], $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
 	$price = $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 
 	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
 				FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
@@ -105,8 +105,8 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 						$supplier [ "id" ], $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
 	$price += $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 
 	if ( count ( $price ) == 0 )
 		$p = 0;
@@ -134,8 +134,8 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
 	$tot = $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 
 	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
 				FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
@@ -145,8 +145,8 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
 	$price = $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 
 	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
 				FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
@@ -157,8 +157,8 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
 	$price += $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 
 	return array ( $tot, $price );
 }
@@ -167,6 +167,7 @@ function products_data ( $supplier, $startdate, $enddate ) {
 	$query = sprintf ( "SELECT name, id FROM Product WHERE supplier = %d AND previous_description = 0 ORDER BY name", $supplier );
 	$returned = query_and_check ( $query, "Impossibile recuperare lista prodotti" );
 	$products = $returned->fetchAll ( PDO::FETCH_NUM );
+	unset ( $returned );
 
 	$ret = array ();
 
@@ -204,13 +205,13 @@ function products_data ( $supplier, $startdate, $enddate ) {
 
 			$returned = query_and_check ( $query, "Impossibile recuperare numero utenti per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $returned );
 			$tot += count ( $array );
 
 			foreach ( $array as $u )
 				$managed_users [] = $u [ 0 ];
 
 			unset ( $query );
-			unset ( $returned );
 			unset ( $array );
 
 			$query = sprintf ( "SELECT DISTINCT(OrderUser.baseuser) FROM OrderUser, Orders, OrderUserFriend, OrderUser_friends, OrderUserFriend_products, ProductUser
@@ -223,13 +224,13 @@ function products_data ( $supplier, $startdate, $enddate ) {
 
 			$returned = query_and_check ( $query, "Impossibile recuperare numero utenti per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $returned );
 			$tot += count ( $array );
 
 			foreach ( $array as $u )
 				$managed_users [] = $u [ 0 ];
 
 			unset ( $query );
-			unset ( $returned );
 			unset ( $array );
 
 			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
@@ -240,11 +241,12 @@ function products_data ( $supplier, $startdate, $enddate ) {
 
 			$returned = query_and_check ( $query, "Impossibile recuperare valore per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $returned );
+
 			if ( count ( $array ) == 1 )
 				$val += $array [ 0 ] [ 0 ];
 
 			unset ( $query );
-			unset ( $returned );
 			unset ( $array );
 
 			$query = sprintf ( "SELECT SUM(ProductUser.quantity) * Product.unit_price FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
@@ -256,11 +258,12 @@ function products_data ( $supplier, $startdate, $enddate ) {
 
 			$returned = query_and_check ( $query, "Impossibile recuperare valore per prodotto" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $returned );
+
 			if ( count ( $array ) == 1 )
 				$val += $array [ 0 ] [ 0 ];
 
 			unset ( $query );
-			unset ( $returned );
 			unset ( $array );
 
 			$query = sprintf ( "FROM Product WHERE previous_description = %d", $id );
@@ -269,10 +272,10 @@ function products_data ( $supplier, $startdate, $enddate ) {
 
 			$returned = query_and_check ( "SELECT id " . $query, "Impossibile recuperare prodotto successivo" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $returned );
 			$id = $array [ 0 ] [ 0 ];
 
 			unset ( $query );
-			unset ( $returned );
 			unset ( $array );
 		}
 
@@ -280,7 +283,6 @@ function products_data ( $supplier, $startdate, $enddate ) {
 	}
 
 	unset ( $query );
-	unset ( $returned );
 	unset ( $products );
 	return $ret;
 }
@@ -289,8 +291,8 @@ function list_suppliers () {
 	$query = sprintf ( "SELECT id, name FROM Supplier ORDER BY name ASC" );
 	$returned = query_and_check ( $query, "Impossibile recuperare fornitori" );
 	$rows_suppliers = $returned->fetchAll ( PDO::FETCH_ASSOC );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 	return $rows_suppliers;
 }
 
@@ -298,8 +300,8 @@ function list_users () {
 	$query = sprintf ( "SELECT id, firstname, surname FROM Users ORDER BY surname, firstname DESC" );
 	$returned = query_and_check ( $query, "Impossibile recuperare utenti" );
 	$rows_users = $returned->fetchAll ( PDO::FETCH_ASSOC );
-	unset ( $query );
 	unset ( $returned );
+	unset ( $query );
 	return $rows_users;
 }
 

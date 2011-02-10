@@ -21,6 +21,6 @@ $dbdriver		= "pgsql";
 $dbuser			= "root";
 $dbpassword		= "pippo";
 $session_key		= "0tfvb9876tgbnouyhgfvbn";
-$dbname			= "gasdotto_test_8";
+$dbname			= "gasdotto_test_9";
 
 ?>

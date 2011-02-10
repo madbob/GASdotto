@@ -107,6 +107,7 @@ class Order extends FromServer {
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
@@ -157,6 +158,7 @@ class Order extends FromServer {
 
 			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $ref->classname );
 			$rows = $returned->fetchAll ( PDO::FETCH_NUM );
+			unset ( $returned );
 
 			/*
 				Se sto creando un nuovo ordine, duplico tutti i prodotti
@@ -383,6 +385,7 @@ class Order extends FromServer {
 		$query = sprintf ( "SELECT id FROM OrderUser WHERE baseorder = %d", $obj->id );
 		$returned = query_and_check ( $query, "Impossibile rimuovere ordini su ordine eliminato" );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		foreach ( $rows as $row ) {
 			$order = new OrderUser ();

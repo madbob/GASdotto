@@ -628,6 +628,8 @@ function check_session () {
 	$result = query_and_check ( $query, "Impossibile identificare sessione aperta" );
 
 	$row = $result->fetchAll ( PDO::FETCH_NUM );
+	unset ( $result );
+
 	/*
 		Nella tabella "current_sessions" il campo "username" contiene l'ID dell'utente.
 		Triste scelta di nome...
@@ -656,6 +658,7 @@ function perform_authentication ( $userid ) {
 		$query = sprintf ( "SELECT COUNT(id) FROM current_sessions WHERE session_id = '%s'", $session_id );
 		$result = query_and_check ( $query, "Impossibile salvare sessione" );
 		$row = $result->fetchAll ( PDO::FETCH_NUM );
+		unset ( $result );
 	} while ( $row [ 0 ] [ 0 ] != 0 && sleep ( 1 ) == 0 );
 
 	$now = date ( "Y-m-d", time () );

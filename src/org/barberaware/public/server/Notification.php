@@ -43,6 +43,7 @@ class Notification extends FromServer {
 		$query = sprintf ( "SELECT id FROM %s WHERE enddate < DATE('%s')", $this->tablename, date ( "Y-m-d" ) );
 		$returned = query_and_check ( $query, "Impossibile eliminare vecchie notifiche" );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		foreach ( $rows as $row ) {
 			$query = sprintf ( "DELETE FROM %s_recipent WHERE parent = %d", $this->tablename, $row [ 'id' ] );
@@ -72,6 +73,7 @@ class Notification extends FromServer {
 		$query .= sprintf ( "%s.id = %s.parent ORDER BY startdate DESC", $this->tablename, $references );
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;

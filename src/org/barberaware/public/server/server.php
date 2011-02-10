@@ -93,6 +93,7 @@ else {
 							$query = "SELECT id, privileges " . $query;
 							$returned = query_and_check ( $query, "Impossibile recuperare utente" );
 							$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
+							unset ( $returned );
 
 							/*
 								Gli utenti con account marcato come "cessato" non
@@ -106,6 +107,7 @@ else {
 									$query = "SELECT * " . $query;
 									$returned = query_and_check ( $query, "Impossibile validare utente" );
 									$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
+									unset ( $returned );
 
 									$id = $row [ 0 ] [ 'username' ];
 

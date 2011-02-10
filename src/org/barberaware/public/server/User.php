@@ -64,6 +64,7 @@ class User extends FromServer {
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		unset ( $returned );
 
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
