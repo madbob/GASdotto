@@ -33,6 +33,7 @@ public class OpenedOrdersList extends OrdersList {
 	protected void checkExistingOrders ( FromServer supplier ) {
 		ArrayList list;
 		FromServer ord;
+		FromServer supp;
 		int supp_id;
 
 		list = Utils.getServer ().getObjectsFromCache ( "Order" );
@@ -40,8 +41,9 @@ public class OpenedOrdersList extends OrdersList {
 
 		for ( int i = 0; i < list.size (); i++ ) {
 			ord = ( FromServer ) list.get ( i );
+			supp = ord.getObject ( "supplier" );
 
-			if ( ord.getObject ( "supplier" ).getLocalID () == supp_id )
+			if ( supp != null && supp.getLocalID () == supp_id )
 				addOrder ( ( Order ) ord );
 		}
 	}

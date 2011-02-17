@@ -256,7 +256,7 @@ body {
 	margin:			0px;
 	width:			186px;
 	height:			32px;
-	background:		#FFFFFF url('images/new_button.png') no-repeat scroll 0pt 0pt;
+	background:		url('images/new_button.png') no-repeat scroll 0 0 transparent;
 	text-align:		right;
 	font-size:		13px;
 	font-weight:		bold;
