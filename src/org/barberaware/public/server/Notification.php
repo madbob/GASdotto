@@ -41,15 +41,19 @@ class Notification extends FromServer {
 			Elimino le notifiche oramai scadute
 		*/
 		$query = sprintf ( "SELECT id FROM %s WHERE enddate < DATE('%s')", $this->tablename, date ( "Y-m-d" ) );
-		$returned = query_and_check ( $query, "Impossibile eliminare vecchie notifiche" );
+		$returned = query_and_check ( $query, "Impossibile identificare vecchie notifiche" );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 		unset ( $returned );
 
-		foreach ( $rows as $row ) {
-			$query = sprintf ( "DELETE FROM %s_recipent WHERE parent = %d", $this->tablename, $row [ 'id' ] );
-			query_and_check ( $query, "Impossibile eliminare vecchie notifiche" );
-			$query = sprintf ( "DELETE FROM %s WHERE id = %d", $this->tablename, $row [ 'id' ] );
-			query_and_check ( $query, "Impossibile eliminare vecchie notifiche" );
+		if ( count ( $rows ) != 0 ) {
+			$tmp = new Notification ();
+
+			foreach ( $rows as $row ) {
+				$tmp->readFromDB ( $row [ 'id' ] );
+				$tmp->destroy_myself ();
+			}
+
+			unset ( $tmp );
 		}
 
 		$ret = array ();

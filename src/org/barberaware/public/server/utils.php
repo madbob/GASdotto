@@ -164,6 +164,16 @@ function connect_to_the_database () {
 	}
 }
 
+function get_from_server_classes () {
+	$ret = array ();
+
+	foreach ( get_declared_classes () as $classname )
+		if ( in_array ( 'FromServer', class_parents ( $classname ) ) )
+			$ret [] = $classname;
+
+	return $ret;
+}
+
 /****************************************************************** formatting */
 
 function comma_format ( $a ) {

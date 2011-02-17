@@ -164,7 +164,8 @@ function create_table_class ( $obj ) {
 	$columns = array ();
 	$extras = array ();
 
-	$query = sprintf ( 'CREATE TABLE %s ( id serial primary key, ', $obj->tablename );
+	$query = sprintf ( 'CREATE TABLE %s ( ', $obj->tablename );
+	$columns [] = "id serial primary key";
 
 	foreach ( $obj->attributes as $attr ) {
 		if ( $attr->name == 'id' )

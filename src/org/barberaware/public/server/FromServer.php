@@ -597,6 +597,12 @@ abstract class FromServer {
 	}
 
 	private function destroy_related () {
+		/*
+			Sicuramente usare "ON DELETE CASCADE" sul database sarebbe piu'
+			efficiente, ma rischierebbe di essere meno flessibile nei confronti delle
+			query autogenerate in checkdb.php
+		*/
+
 		$attr = $this->getAttribute ( "id" );
 		$id = $attr->value;
 
@@ -613,6 +619,39 @@ abstract class FromServer {
 						$this->tablename, $attr->name, $id );
 				query_and_check ( $query, "Impossibile eliminare oggetti correlati a " . $this->classname );
 			}
+		}
+
+		$classes = get_from_server_classes ();
+
+		foreach ( $classes as $class ) {
+			$tmp = new $class;
+
+			for ( $i = 0; $i < count ( $tmp->attributes ); $i++ ) {
+				$attr = $tmp->attributes [ $i ];
+
+				if ( strstr ( $attr->type, '::' ) == true ) {
+					list ( $type, $objtype ) = explode ( '::', $attr->type );
+
+					if ( $objtype == $this->classname ) {
+						if ( $type == "OBJECT" ) {
+							$query = sprintf ( "SELECT id FROM %s WHERE %s = %d", $tmp->tablename, $attr->name, $id );
+							$existing = query_and_check ( $query, "Impossibile trovare oggetti correlati a " . $this->classname );
+							$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
+
+							foreach ( $rows as $row ) {
+								$tmp->readFromDB ( $row [ 'id' ] );
+								$tmp->destroy_myself ();
+							}
+						}
+						else if ( $type == "ARRAY" ) {
+							$query = sprintf ( "DELETE FROM %s_%s WHERE target = %d", $tmp->tablename, $attr->name, $id );
+							query_and_check ( $query, "Impossibile eliminare oggetti correlati a " . $this->classname );
+						}
+					}
+				}
+			}
+
+			unset ( $tmp );
 		}
 	}
 
