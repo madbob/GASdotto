@@ -188,11 +188,8 @@ public class SystemPanel extends GenericPanel {
 		fields.setWidget ( 0, 0, new Label ( "Versione" ) );
 		fields.setWidget ( 0, 1, ver.getPersonalizedWidget ( "gasdotto_main_version", new StringLabel () ) );
 
-		fields.setWidget ( 1, 0, new Label ( "Commit" ) );
-		fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "gasdotto_commit_version", new StringLabel () ) );
-
-		fields.setWidget ( 2, 0, new Label ( "Data Compilazione" ) );
-		fields.setWidget ( 2, 1, ver.getPersonalizedWidget ( "gasdotto_build_date", new DateViewer () ) );
+		fields.setWidget ( 1, 0, new Label ( "Data Compilazione" ) );
+		fields.setWidget ( 1, 1, ver.getPersonalizedWidget ( "gasdotto_build_date", new DateViewer () ) );
 
 		return ver;
 	}
