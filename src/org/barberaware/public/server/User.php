@@ -79,7 +79,7 @@ class User extends FromServer {
 		$newly_created = ( $obj->id == -1 );
 		$id = parent::save ( $obj );
 
-		if ( $obj->password != "" || $newly_created ) {
+		if ( property_exists ( $obj, 'password' ) && ( $obj->password != "" || $newly_created ) ) {
 			$password = md5 ( $obj->password );
 
 			if ( $newly_created )

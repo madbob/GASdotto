@@ -364,22 +364,22 @@ function test_static_tables () {
 }
 
 function check_db_schema () {
-	test_class ( GAS );
-	test_class ( User );
-	test_class ( CustomFile );
-	test_class ( Notification );
-	test_class ( Supplier );
-	test_class ( Measure );
-	test_class ( Category );
-	test_class ( ProductVariantValue );
-	test_class ( ProductVariant );
-	test_class ( Product );
-	test_class ( Order );
-	test_class ( ProductUserVariantComponent );
-	test_class ( ProductUserVariant );
-	test_class ( ProductUser );
-	test_class ( OrderUserFriend );
-	test_class ( OrderUser );
+	test_class ( 'GAS' );
+	test_class ( 'User' );
+	test_class ( 'CustomFile' );
+	test_class ( 'Notification' );
+	test_class ( 'Supplier' );
+	test_class ( 'Measure' );
+	test_class ( 'Category' );
+	test_class ( 'ProductVariantValue' );
+	test_class ( 'ProductVariant' );
+	test_class ( 'Product' );
+	test_class ( 'Order' );
+	test_class ( 'ProductUserVariantComponent' );
+	test_class ( 'ProductUserVariant' );
+	test_class ( 'ProductUser' );
+	test_class ( 'OrderUserFriend' );
+	test_class ( 'OrderUser' );
 
 	test_static_tables ();
 }
@@ -408,13 +408,15 @@ function target_connect_to_the_database () {
 			$dbport = 5432;
 	}
 
-	try {
+	// try {
 		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
 		return true;
+	/*
 	}
 	catch ( PDOException $e ) {
 		return false;
 	}
+	*/
 }
 
 function install_main_db () {

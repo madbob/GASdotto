@@ -72,9 +72,15 @@ class FromServerAttribute {
 				break;
 
 			case "OBJECT":
-				$obj = new $objtype;
-				$obj->readFromDB ( $value );
-				return $obj;
+				if ( $value != null ) {
+					$obj = new $objtype;
+					$obj->readFromDB ( $value );
+					return $obj;
+				}
+				else {
+					return null;
+				}
+
 				break;
 
 			case "ARRAY":
@@ -110,18 +116,23 @@ class FromServerAttribute {
 	}
 
 	private static function filter_object ( $object, $filter, $compress ) {
-		if ( $filter != null ) {
-			$id_name = 'has_' . $object->classname;
+		if ( $object != null ) {
+			if ( $filter != null ) {
+				$id_name = 'has_' . $object->classname;
 
-			if ( isset ( $filter->$id_name ) ) {
-				$id = $object->getAttribute ( "id" )->value;
+				if ( isset ( $filter->$id_name ) ) {
+					$id = $object->getAttribute ( "id" )->value;
 
-				if ( search_in_array ( $filter->$id_name, $id ) != -1 )
-					return $id . "";
+					if ( search_in_array ( $filter->$id_name, $id ) != -1 )
+						return $id . "";
+				}
 			}
-		}
 
-		return $object->exportable ( $filter, $compress );
+			return $object->exportable ( $filter, $compress );
+		}
+		else {
+			return null;
+		}
 	}
 
 	public function export_field ( $parent, $filter, $compress ) {
@@ -271,9 +282,12 @@ abstract class FromServer {
 			$attr = $this->attributes [ $i ];
 
 			if ( isset ( $row [ 0 ] [ $attr->name ] ) )
-				$attr->value = $attr->traslate_field ( $this, $row [ 0 ] [ $attr->name ] );
+				$val = $attr->traslate_field ( $this, $row [ 0 ] [ $attr->name ] );
 			else
-				$attr->value = $attr->traslate_field ( $this, null );
+				$val = $attr->traslate_field ( $this, null );
+
+			if ( $val != null )
+				$attr->value = $val;
 		}
 
 		$cache [ $token ] = $this;
@@ -412,6 +426,10 @@ abstract class FromServer {
 
 				if ( $type == "ARRAY" ) {
 					$name = $attr->name;
+
+					if ( property_exists ( $obj, $name ) == false )
+						continue;
+
 					$arr = $obj->$name;
 
 					for ( $a = 0; $a < count ( $arr ); $a++ ) {

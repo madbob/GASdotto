@@ -197,14 +197,19 @@ function format_price ( $price, $symbol = true ) {
 }
 
 function format_date ( $dbdate ) {
-	$months = array ( 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre' );
-	list ( $year, $month, $day ) = explode ( '-', $dbdate );
+	if ( $dbdate == null || $dbdate == '' ) {
+		return '';
+	}
+	else {
+		$months = array ( 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre' );
+		list ( $year, $month, $day ) = explode ( '-', $dbdate );
 
-	/*
-		La variabile $day viene castata ad int per accertarsi di eliminare l'eventuale
-		zero posto dinnanzi ai giorni con una cifra sola
-	*/
-	return ( ( int ) $day ) . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
+		/*
+			La variabile $day viene castata ad int per accertarsi di eliminare l'eventuale
+			zero posto dinnanzi ai giorni con una cifra sola
+		*/
+		return ( ( int ) $day ) . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
+	}
 }
 
 function sort_product_by_name ( $first, $second ) {
@@ -578,9 +583,10 @@ function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 function parse_session_data () {
 	global $session_key;
 
-	$session_data = $_COOKIE [ 'gasdotto' ];
-	if ( !isset ( $session_data ) )
+	if ( array_key_exists ( 'gasdotto', $_COOKIE ) == false )
 		return false;
+
+	$session_data = $_COOKIE [ 'gasdotto' ];
 
 	list ( $session_serial, $hash ) = explode ( '-*-', $session_data );
 	$session_serial = base64_decode ( $session_serial );

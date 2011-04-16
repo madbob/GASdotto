@@ -242,7 +242,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	private FromServerForm doOrderRow ( Order order, boolean editable ) {
 		final FromServerForm ver;
-		HorizontalPanel pan;
 		OrderUser uorder;
 		OrderUserManager manager;
 
