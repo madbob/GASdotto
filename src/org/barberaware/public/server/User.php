@@ -40,6 +40,7 @@ class User extends FromServer {
 		$this->addAttribute ( "photo", "STRING" );
 		$this->addAttribute ( "lastlogin", "DATE" );
 		$this->addAttribute ( "leaving_date", "DATE" );
+		$this->addAttribute ( "bank_account", "STRING" );
 
 		$this->setSorting ( "surname" );
 	}

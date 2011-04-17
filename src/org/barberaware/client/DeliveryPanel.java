@@ -280,6 +280,12 @@ public class DeliveryPanel extends GenericPanel {
 		files.addLink ( "PDF", "products_summary.php?format=pdf&amp;id=" + order.getLocalID () );
 		downloads.add ( files );
 
+		if ( Session.getGAS ().getBool ( "use_rid" ) ) {
+			files = new LinksDialog ( "Genera RID" );
+			files.addLink ( "RID", "rid_generator.php?id=" + order.getLocalID () );
+			downloads.add ( files );
+		}
+
 		frame.add ( downloads );
 
 		summary = new DeliverySummary ();

@@ -228,6 +228,10 @@ public class UsersPanel extends GenericPanel {
 
 					frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
 					form.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
+
+					if ( Session.getGAS ().getBool ( "use_rid" ) )
+						frame.addPair ( "Conto Corrente", form.getPersonalizedWidget ( "bank_account", new BankAccountBox () ) );
+
 					frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 				}
 

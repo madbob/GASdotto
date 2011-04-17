@@ -250,10 +250,13 @@ function test_class ( $class ) {
 				}
 
 			if ( $ok == false ) {
-				if ( strstr ( $attr->type, '::' ) == false )
+				if ( strstr ( $attr->type, '::' ) == false ) {
 					$type = $attr->type;
-				else
+					$objtype = null;
+				}
+				else {
 					list ( $type, $objtype ) = explode ( '::', $attr->type );
+				}
 
 				if ( $type == 'ARRAY' ) {
 					$query = sprintf ( 'SELECT * FROM %s_%s', $obj->tablename, $attr->name );
@@ -408,15 +411,13 @@ function target_connect_to_the_database () {
 			$dbport = 5432;
 	}
 
-	// try {
+	try {
 		$db = new PDO ( $dbdriver . ':host=' . $dbhost . ';dbname=' . $dbname . ';port=' . $dbport, $dbuser, $dbpassword );
 		return true;
-	/*
 	}
 	catch ( PDOException $e ) {
 		return false;
 	}
-	*/
 }
 
 function install_main_db () {

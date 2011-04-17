@@ -72,6 +72,7 @@ public class User extends FromServer {
 		addAttribute ( "photo", FromServer.STRING );
 		addAttribute ( "lastlogin", FromServer.DATE );
 		addAttribute ( "leaving_date", FromServer.DATE );
+		addAttribute ( "bank_account", FromServer.STRING );
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
 	}

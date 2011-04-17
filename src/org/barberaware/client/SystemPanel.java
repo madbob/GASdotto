@@ -28,6 +28,7 @@ public class SystemPanel extends GenericPanel {
 	private FormCluster		measures;
 	private MailConfigurator	mailConf;
 	private DummyTextBox		mailList;
+	private RIDConfigurator		ridConf;
 
 	public SystemPanel () {
 		super ();
@@ -78,6 +79,7 @@ public class SystemPanel extends GenericPanel {
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
 		BooleanSelector mail;
+		BooleanSelector rid;
 		DateSelector paydate;
 
 		ver = new FromServerForm ( Session.getGAS () );
@@ -128,6 +130,21 @@ public class SystemPanel extends GenericPanel {
 		mailConf = new MailConfigurator ();
 		frame.addPair ( "Configurazione Mail", ver.getPersonalizedWidget ( "mail_conf", mailConf ) );
 		mailConf.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
+
+		rid = new BooleanSelector ();
+		rid.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				BooleanSelector myself;
+
+				myself = ( BooleanSelector ) sender;
+				ridConf.setEnabled ( myself.getValue () );
+			}
+		} );
+		frame.addPair ( "Abilita Pagamenti RID", ver.getPersonalizedWidget ( "use_rid", rid ) );
+
+		ridConf = new RIDConfigurator ();
+		frame.addPair ( "Configurazione RID", ver.getPersonalizedWidget ( "rid_conf", ridConf ) );
+		ridConf.setEnabled ( Session.getGAS ().getBool ( "use_rid" ) );
 
 		mailList = new DummyTextBox ();
 		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );

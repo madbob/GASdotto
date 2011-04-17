@@ -32,5 +32,7 @@ class GAS extends FromServer {
 		$this->addAttribute ( "use_mail", "BOOLEAN" );
 		$this->addAttribute ( "mail_conf", "STRING" );
 		$this->addAttribute ( "mailinglist", "STRING" );
+		$this->addAttribute ( "use_rid", "BOOLEAN" );
+		$this->addAttribute ( "rid_conf", "STRING" );
 	}
 }
