@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderUserPlainPanel extends Composite implements OrderUserManagerMode, ObjectWidget {
 	private ProductsUserSelection	selection;
+	private DummyTextArea		notes;
 	private FromServer		baseOrder;
 
 	private boolean			editable;
@@ -41,6 +42,9 @@ public class OrderUserPlainPanel extends Composite implements OrderUserManagerMo
 
 		selection = new ProductsUserSelection ( baseOrder.getArray ( "products" ), edit, freedit );
 		main.add ( selection );
+
+		notes = new DummyTextArea ();
+		main.add ( notes );
 	}
 
 	/****************************************************************** ObjectWidget */
@@ -54,6 +58,7 @@ public class OrderUserPlainPanel extends Composite implements OrderUserManagerMo
 			currentValue.setObject ( "baseuser", Session.getUser () );
 
 			selection.setElements ( null );
+			notes.setValue ( "" );
 		}
 		else {
 			currentValue = element;
@@ -64,12 +69,16 @@ public class OrderUserPlainPanel extends Composite implements OrderUserManagerMo
 				selection.setEditable ( true );
 			else
 				selection.setEditable ( false );
+
+			notes.setValue ( currentValue.getString ( "notes" ) );
 		}
 	}
 
 	public FromServer getValue () {
-		if ( editable == true )
+		if ( editable == true ) {
 			currentValue.setArray ( "products", selection.getElements () );
+			currentValue.setString ( "notes", notes.getValue () );
+		}
 
 		return currentValue;
 	}

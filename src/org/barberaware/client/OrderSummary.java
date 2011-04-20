@@ -31,6 +31,7 @@ public class OrderSummary extends Composite implements Lockable {
 	private PriceViewer		totalshipLabel;
 	private PriceViewer		totalOverpriceLabel;
 	private ArrayList		ordersUsers;
+	private OrderNotesDialog	notes;
 
 	private boolean			hasTransport;
 	private boolean			hasSurplus;
@@ -53,12 +54,20 @@ public class OrderSummary extends Composite implements Lockable {
 	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 13;
 
 	public OrderSummary ( Order order ) {
+		VerticalPanel container;
+
 		currentOrder = order;
 		locked = true;
 
+		container = new VerticalPanel ();
+		initWidget ( container );
+
+		notes = new OrderNotesDialog ();
+		container.add ( notes );
+
 		main = new FlexTable ();
 		main.setStyleName ( "elements-table" );
-		initWidget ( main );
+		container.add ( main );
 
 		main.setWidget ( 0, PRODUCT_NAME_COLUMN, new Label ( "Prodotto" ) );
 		main.setWidget ( 0, PRODUCT_PRICE_COLUMN, new Label ( "Prezzo Unitario" ) );
@@ -213,6 +222,7 @@ public class OrderSummary extends Composite implements Lockable {
 		totalLabel.setVal ( total_price );
 		totalshipLabel.setVal ( total_ship_price );
 		totalOverpriceLabel.setVal ( total_overprice );
+		notes.setOrders ( ordersUsers );
 	}
 
 	public boolean saveContents () {

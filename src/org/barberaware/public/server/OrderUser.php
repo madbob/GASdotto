@@ -30,6 +30,7 @@ class OrderUser extends FromServer {
 		$this->addAttribute ( "deliverydate", "DATE" );
 		$this->addAttribute ( "deliveryperson", "OBJECT::User" );
 		$this->addAttribute ( "status", "INTEGER" );
+		$this->addAttribute ( "notes", "STRING" );
 
 		$this->enforceUserCheck ( "baseuser" );
 	}

@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderUserFriendPanel extends Composite implements OrderUserManagerMode, ObjectWidget {
 	private ProductsUserSelection	single;
+	private DummyTextArea		notes;
 	private FromServer		baseOrder;
 
 	private LinksDialog		files;
@@ -87,6 +88,10 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		}
 
 		friends.selectTab ( 0 );
+
+		notes = new DummyTextArea ();
+		notes.addStyleName ( "top-spaced" );
+		main.add ( notes );
 
 		addTotalRow ( main );
 	}
@@ -305,12 +310,15 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		files.emptyBox ();
 		files.addLink ( "CSV", "order_friends.php?format=csv&amp;id=" + element.getLocalID () );
 		files.addLink ( "PDF", "order_friends.php?format=pdf&amp;id=" + element.getLocalID () );
+
+		notes.setValue ( element.getString ( "notes" ) );
 	}
 
 	public FromServer getValue () {
 		if ( editable == true ) {
 			currentValue.setArray ( "products", single.getElements () );
 			currentValue.setArray ( "friends", retrieveFriendsOrders () );
+			currentValue.setString ( "notes", notes.getValue () );
 		}
 
 		return currentValue;

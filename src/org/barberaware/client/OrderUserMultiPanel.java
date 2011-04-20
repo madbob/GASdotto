@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderUserMultiPanel extends Composite implements ObjectWidget, OrderUserManagerMode, Lockable {
 	private ProductsUserSelection	selection;
+	private DummyTextArea		notes;
 	private UserSelector		user;
 	private Label			noedit;
 	private FromServer		baseOrder;
@@ -77,6 +78,9 @@ public class OrderUserMultiPanel extends Composite implements ObjectWidget, Orde
 
 		selection = new ProductsUserSelection ( baseOrder.getArray ( "products" ), edit, freedit );
 		main.add ( selection );
+
+		notes = new DummyTextArea ();
+		main.add ( notes );
 	}
 
 	private void retrieveCurrentOrderByUser () {
@@ -113,21 +117,26 @@ public class OrderUserMultiPanel extends Composite implements ObjectWidget, Orde
 		currentValue = element;
 		user.setValue ( currentValue.getObject ( "baseuser" ) );
 		selection.setElements ( currentValue.getArray ( "products" ) );
+		notes.setValue ( element.getString ( "notes" ) );
 
 		friends = element.getArray ( "friends" );
 		if ( friends == null || friends.size () == 0 ) {
 			noedit.setVisible ( false );
 			selection.setEditable ( true );
+			notes.setEnabled ( true );
 		}
 		else {
 			noedit.setVisible ( true );
 			selection.setEditable ( false );
+			notes.setEnabled ( false );
 		}
 	}
 
 	public FromServer getValue () {
-		if ( editable == true )
+		if ( editable == true ) {
 			currentValue.setArray ( "products", selection.getElements () );
+			currentValue.setString ( "notes", notes.getValue () );
+		}
 
 		return currentValue;
 	}

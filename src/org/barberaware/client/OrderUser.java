@@ -73,6 +73,7 @@ public class OrderUser extends FromServer {
 		addAttribute ( "deliverydate", FromServer.DATE );
 		addAttribute ( "deliveryperson", FromServer.OBJECT, User.class );
 		addAttribute ( "status", FromServer.INTEGER );
+		addAttribute ( "notes", FromServer.STRING );
 
 		setInt ( "status", TO_DELIVER );
 
