@@ -63,6 +63,16 @@ public class FromServerSelector extends ListBox implements ObjectWidget, Lockabl
 
 		for ( int i = 0; i < getItemCount (); ) {
 			id = Integer.parseInt ( getValue ( i ) );
+
+			/*
+				Questo e' per saltare l'eventuale elemento
+				"Tutti" aggiunto con addAllSelector()
+			*/
+			if ( id == -1 ) {
+				i++;
+				continue;
+			}
+
 			tmp = Utils.getServer ().getObjectFromCache ( type, id );
 
 			if ( filterCallback.checkObject ( tmp ) == false )

@@ -62,6 +62,16 @@ public abstract class OrdersHubWidget extends Composite {
 
 		supplier = new FromServerSelector ( "Supplier", true, true, false );
 		supplier.addAllSelector ();
+		supplier.addFilter ( new FromServerValidateCallback () {
+			public boolean checkObject ( FromServer object ) {
+				boolean ret;
+				Supplier supplier;
+
+				supplier = ( Supplier ) object;
+				ret = supplier.iAmReference ();
+				return ret;
+			}
+		} );
 		frame.addPair ( "Fornitore", supplier );
 
 		notice = new HTML ( "<p>In questa modalità di ricerca il pannello visualizza solo gli ordini compresi entro le date specificate qui a lato, ed effettuati presso il fornitore specificato.</p><p>Per tornare a visualizzare gli ordini aperti e in consegna, clicca la prima casella del box a fianco.</p>" );

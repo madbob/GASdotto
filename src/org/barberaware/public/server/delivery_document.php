@@ -172,7 +172,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	else
 		$param = 'quantity';
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+	for ( $a = 0, $e = 0; $a < count ( $products )  && $e < count ( $user_products ); $a++ ) {
 		$prod = $products [ $a ];
 		$prod_user = $user_products [ $e ];
 
@@ -189,7 +189,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$e++;
 		}
 
-		if ( count ( $order_user->friends ) != 0 ) {
+		if ( property_exists ( $order_user, 'friends' ) && count ( $order_user->friends ) != 0 ) {
 			foreach ( $order_user->friends as $friend ) {
 				foreach ( $friend->products as $fprod ) {
 					if ( $fprod->product == $prodid ) {
