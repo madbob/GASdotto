@@ -133,32 +133,37 @@ function users_data ( $user, $supplier, $startdate, $enddate ) {
 					OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
 						$user, $supplier, $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
-	$tot = $returned->fetchAll ( PDO::FETCH_NUM );
+	$tot = $returned->fetchColumn ();
 	unset ( $returned );
 	unset ( $query );
 
-	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
-				FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
-				WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
-					OrderUser_products.parent = OrderUser.id AND ProductUser.id = OrderUser_products.target AND
-					Product.id = ProductUser.product AND OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
-						$user, $supplier, $startdate, $enddate );
-	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
-	$price = $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $returned );
-	unset ( $query );
+	if ( $tot == 0 ) {
+		$price = 0;
+	}
+	else {
+		$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
+					FROM OrderUser, Orders, OrderUser_products, ProductUser, Product
+					WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
+						OrderUser_products.parent = OrderUser.id AND ProductUser.id = OrderUser_products.target AND
+						Product.id = ProductUser.product AND OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+							$user, $supplier, $startdate, $enddate );
+		$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
+		$price = $returned->fetchColumn ();
+		unset ( $returned );
+		unset ( $query );
 
-	$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
-				FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
-				WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
-					OrderUser_friends.parent = OrderUser.id AND OrderUser_friends.target = OrderUserFriend.id AND
-					OrderUserFriend_products.parent = OrderUserFriend.id AND ProductUser.id = OrderUserFriend_products.target AND
-					Product.id = ProductUser.product AND OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
-						$user, $supplier, $startdate, $enddate );
-	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
-	$price += $returned->fetchAll ( PDO::FETCH_NUM );
-	unset ( $returned );
-	unset ( $query );
+		$query = sprintf ( "SELECT SUM(Product.unit_price * ProductUser.quantity)
+					FROM OrderUser, Orders, OrderUser_friends, OrderUserFriend, OrderUserFriend_products, ProductUser, Product
+					WHERE OrderUser.baseuser = %d AND OrderUser.baseorder = Orders.id AND Orders.supplier = %d AND
+						OrderUser_friends.parent = OrderUser.id AND OrderUser_friends.target = OrderUserFriend.id AND
+						OrderUserFriend_products.parent = OrderUserFriend.id AND ProductUser.id = OrderUserFriend_products.target AND
+						Product.id = ProductUser.product AND OrderUser.status = 2 AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
+							$user, $supplier, $startdate, $enddate );
+		$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
+		$price += $returned->fetchColumn ();
+		unset ( $returned );
+		unset ( $query );
+	}
 
 	return array ( $tot, $price );
 }
@@ -287,8 +292,11 @@ function products_data ( $supplier, $startdate, $enddate ) {
 	return $ret;
 }
 
-function list_suppliers () {
-	$query = sprintf ( "SELECT id, name FROM Supplier ORDER BY name ASC" );
+function list_suppliers ( $startdate, $enddate ) {
+	$query = sprintf ( "SELECT id, name FROM Supplier
+				WHERE id IN (SELECT DISTINCT(supplier) FROM Orders WHERE startdate > '%s' AND enddate < '%s')
+				ORDER BY name ASC",
+					$startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare fornitori" );
 	$rows_suppliers = $returned->fetchAll ( PDO::FETCH_ASSOC );
 	unset ( $returned );
@@ -296,8 +304,13 @@ function list_suppliers () {
 	return $rows_suppliers;
 }
 
-function list_users () {
-	$query = sprintf ( "SELECT id, firstname, surname FROM Users ORDER BY surname, firstname DESC" );
+function list_users ( $startdate, $enddate ) {
+	$query = sprintf ( "SELECT id, firstname, surname FROM Users
+				WHERE id IN (SELECT DISTINCT(OrderUser.baseuser) FROM OrderUser, Orders
+						WHERE OrderUser.baseorder = Orders.id AND Orders.startdate > '%s' AND Orders.enddate < '%s')
+				ORDER BY surname, firstname DESC",
+					$startdate, $enddate );
+
 	$returned = query_and_check ( $query, "Impossibile recuperare utenti" );
 	$rows_users = $returned->fetchAll ( PDO::FETCH_ASSOC );
 	unset ( $returned );
@@ -340,21 +353,19 @@ if ( $graph == 0 ) {
 		$ret = ';';
 
 		if ( $type == 'users' ) {
-			$rows_suppliers = list_suppliers ();
-			$rows_users = list_users ();
-
-			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ )
-				$ret .= ( $rows_suppliers [ $i ] [ "name" ] ) . ' - Ordini;' . ( $rows_suppliers [ $i ] [ "name" ] ) . ' - Valore (in euro);';
-
-			$ret .= "Totale Ordini;Totale Valore\n";
+			$rows_suppliers = list_suppliers ( $startdate, $enddate );
+			$rows_users = list_users ( $startdate, $enddate );
 
 			$supplier_total_orders = array ();
 			$supplier_total_price = array ();
 
-			for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
+			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ ) {
+				$ret .= ( $rows_suppliers [ $i ] [ "name" ] ) . ' - Ordini;' . ( $rows_suppliers [ $i ] [ "name" ] ) . ' - Valore (in euro);';
 				$supplier_total_orders [] = 0;
 				$supplier_total_price [] = 0;
 			}
+
+			$ret .= "Totale Ordini;Totale Valore\n";
 
 			foreach ( $rows_users as $user ) {
 				$ret .= ( $user [ 'surname' ] ) . ' ' . ( $user [ 'firstname' ] ) . ';';
@@ -364,13 +375,13 @@ if ( $graph == 0 ) {
 				for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
 					list ( $tot, $price ) = users_data ( $user [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
 
-					if ( $price [ 0 ] [ 0 ] != "" ) {
-						$ret .= ( ( $tot [ 0 ] [ 0 ] ) . ';' . ( format_price ( $price [ 0 ] [ 0 ], false ) ) . ';' );
-						$total_orders += $tot [ 0 ] [ 0 ];
-						$total_price += $price [ 0 ] [ 0 ];
+					if ( $price != 0 && $price != '' ) {
+						$ret .= ( $tot . ';' . ( format_price ( $price, false ) ) . ';' );
+						$total_orders += $tot;
+						$total_price += $price;
 
 						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + 1;
-						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
+						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price;
 					}
 					else {
 						$ret .= ';;';
@@ -436,8 +447,8 @@ if ( $graph == 0 ) {
 		$header [] = "";
 
 		if ( $type == 'users' ) {
-			$rows_suppliers = list_suppliers ();
-			$rows_users = list_users ();
+			$rows_suppliers = list_suppliers ( $startdate, $enddate );
+			$rows_users = list_users ( $startdate, $enddate );
 
 			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ ) {
 				$header [] = $rows_suppliers [ $i ] [ "name" ];
@@ -565,7 +576,7 @@ if ( $graph == 0 ) {
 		$array = array ();
 
 		if ( $type == 'users' ) {
-			$rows_suppliers = list_suppliers ();
+			$rows_suppliers = list_suppliers ( $startdate, $enddate );
 			for ( $i = 0; $i < count ( $rows_suppliers ); $i++ )
 				$array [] = suppliers_data ( $rows_suppliers [ $i ], $startdate, $enddate );
 		}
