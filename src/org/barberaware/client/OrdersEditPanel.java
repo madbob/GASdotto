@@ -486,9 +486,13 @@ public class OrdersEditPanel extends GenericPanel {
 
 				protected void customModify ( FromServerForm form ) {
 					FromServer obj;
+					OrderSummary complete_list;
 
 					obj = form.getObject ();
 					form.emblems ().activate ( "status", obj.getInt ( "status" ) );
+
+					complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
+					complete_list.reFill ( ( Order ) obj );
 				}
 
 				protected int sorting ( FromServer first, FromServer second ) {

@@ -460,6 +460,10 @@ abstract class FromServer {
 
 				if ( $type == "ARRAY" ) {
 					$name = $attr->name;
+
+					if ( property_exists ( $obj, $name ) == false )
+						continue;
+
 					$arr = $obj->$name;
 
 					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY target ASC",

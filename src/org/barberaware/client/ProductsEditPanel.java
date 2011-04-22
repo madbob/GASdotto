@@ -24,6 +24,50 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ProductsEditPanel extends Composite implements FromServerArray, Lockable {
+	private class ProductInOrderDialog extends DialogBox {
+		public ProductInOrderDialog ( final FromServer product, final FromServer order ) {
+			VerticalPanel container;
+			HorizontalPanel buttons;
+			Button but;
+
+			container = new VerticalPanel ();
+
+			container.add ( new HTML ( "<p>C'é un ordine aperto per questo fornitore. " +
+					"Vuoi aggiungere questo nuovo prodotto all'interno di tale ordine?</p>" ) );
+
+			buttons = new HorizontalPanel ();
+			buttons.setWidth ( "100%" );
+			container.add ( buttons );
+
+			but = new Button ( "Si, aggiungilo", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					ArrayList products;
+
+					products = order.getArray ( "products" );
+					products.add ( product );
+					order.setArray ( "products", products );
+					order.save ( null );
+
+					hide ();
+				}
+			} );
+			buttons.add ( but );
+			buttons.setCellHorizontalAlignment ( but, HasHorizontalAlignment.ALIGN_CENTER );
+
+			but = new Button ( "No, non fare nulla", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					hide ();
+				}
+			} );
+			buttons.add ( but );
+			buttons.setCellHorizontalAlignment ( but, HasHorizontalAlignment.ALIGN_CENTER );
+
+			this.setText ( "Aggiungi Prodotto in Ordine" );
+			this.setWidget ( container );
+
+		}
+	}
+
 	private DeckPanel		main;
 
 	private FormCluster		list;
@@ -266,6 +310,9 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					}
 
 					table.addElement ( object );
+
+					if ( true_new == false )
+						askForExistingOrders ( object );
 				}
 
 				protected void customDelete ( FromServer object ) {
@@ -280,6 +327,29 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		} ) );
 
 		return list;
+	}
+
+	private void askForExistingOrders ( final FromServer object ) {
+		ArrayList orders;
+		Order ord;
+		DialogBox dialog;
+
+		orders = Utils.getServer ().getObjectsFromCache ( "Order" );
+
+		/*
+			TODO	Qui si assume che ci sia un solo ordine
+				aperto in un dato momento per il fornitore
+		*/
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( Order ) orders.get ( i );
+
+			if ( ord.getObject ( "supplier" ).equals ( supplier ) && ord.getInt ( "status" ) == Order.OPENED ) {
+				dialog = new ProductInOrderDialog ( object, ord );
+				dialog.center ();
+				dialog.show ();
+				break;
+			}
+		}
 	}
 
 	private void duplicateProduct () {
