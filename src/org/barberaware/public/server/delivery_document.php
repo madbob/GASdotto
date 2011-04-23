@@ -178,13 +178,19 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$quantity = 0;
+
+		/*
+			Comunque lo inizializzo, nel caso in cui non ci fosse
+			nessun prodotto dell'utente ma ce ne fossero per gli
+			amici (e dunque devo invocare array_merge())
+		*/
 		$variants = array ();
 
 		if ( $prodid == $prod_user->product ) {
 			$quantity = $prod_user->$param;
 
 			if ( is_array ( $prod_user->variants ) )
-				array_merge ( $variants, $prod_user->variants );
+				$variants = $prod_user->variants;
 
 			$e++;
 		}
@@ -196,7 +202,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 						$quantity += $fprod->$param;
 
 						if ( is_array ( $fprod->variants ) )
-							array_merge ( $variants, $fprod->variants );
+							$variants = array_merge ( $variants, $fprod->variants );
 
 						break;
 					}
@@ -213,7 +219,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				$q = $quantity;
 				$q = comma_format ( $q );
 
-				if ( is_array ( $prod_user->variants ) == true ) {
+				if ( count ( $variants ) != 0 ) {
 					list ( $variants, $quantities ) = aggregate_variants ( $variants );
 
 					for ( $j = 0; $j < count ( $variants ); $j++ )
