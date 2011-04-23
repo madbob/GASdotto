@@ -82,12 +82,9 @@ if ( isset ( $address ) == false )
 
 $ret = check_config ( $address );
 
-if ( $ret != null ) {
-	$json = new Services_JSON ();
-	echo $json->encode ( $ret ) . "\n";
-}
-else {
+if ( $ret != null )
+	echo json_encode ( $ret ) . "\n";
+else
 	error_exit ( "Impossibile parsare l'indirizzo mail" );
-}
 
 ?>

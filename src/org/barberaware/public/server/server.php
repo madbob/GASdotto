@@ -25,8 +25,7 @@ if ( isset ( $action ) == false )
 
 $ret = -1;
 $input = file_get_contents ( 'php://input', 1000000 );
-$json = new Services_JSON ();
-$obj = $json->decode ( $input );
+$obj = json_decode ( $input );
 $type = escape_string ( $obj->type );
 
 if ( $type == "Probe" ) {
@@ -195,6 +194,6 @@ else {
 	}
 }
 
-echo $json->encode ( $ret ) . "\n";
+echo json_encode ( $ret ) . "\n";
 
 ?>

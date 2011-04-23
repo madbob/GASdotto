@@ -18,7 +18,6 @@
  */
 
 require_once ( "config.php" );
-require_once ( "JSON.php" );
 require_once ( "Mail.php" );
 require_once ( "Mail/mime.php" );
 require_once ( "tcpdf/tcpdf.php" );
@@ -45,8 +44,7 @@ require_once ( "OrderUser.php" );
 require_once ( "Probe.php" );
 
 function error_exit ( $string ) {
-	$json = new Services_JSON ();
-	$output = $json->encode ( "Errore: " . $string );
+	$output = json_encode ( "Errore: " . $string );
 	print ( $output );
 	exit;
 }
@@ -157,8 +155,7 @@ function connect_to_the_database () {
 		return true;
 	}
 	catch ( PDOException $e ) {
-		$json = new Services_JSON ();
-		$output = $json->encode ( "no_db" );
+		$output = json_encode ( "no_db" );
 		print ( $output );
 		exit;
 	}

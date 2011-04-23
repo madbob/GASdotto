@@ -39,10 +39,12 @@ switch ( $_GET [ 'type' ] ) {
 		$tmp = new Product ();
 
 		$query = sprintf ( "SELECT id FROM %s
-					WHERE archived = false AND supplier = %d AND available = true AND
-					id NOT IN ( SELECT target FROM orders_products WHERE parent = %d ) AND
-					previous_description NOT IN ( SELECT target FROM orders_products WHERE parent = %d )",
-						$tmp->tablename, $ord->getAttribute ( 'supplier' )->value->getAttribute ( 'id' )->value, $order, $order );
+					WHERE supplier = %d AND
+						available = true AND
+						archived = false AND
+						previous_description = 0 AND
+						id NOT IN ( SELECT target FROM Orders_products )",
+					$tmp->tablename, $ord->getAttribute ( 'supplier' )->value->getAttribute ( 'id' )->value );
 
 		$result = query_and_check ( $query, "Impossibile recuperare differenza tra prodotti e ordine" );
 		$rows = $result->fetchAll ( PDO::FETCH_ASSOC );
@@ -95,10 +97,8 @@ switch ( $_GET [ 'type' ] ) {
 		break;
 }
 
-if ( $ret != null ) {
-	$json = new Services_JSON ();
-	echo $json->encode ( $ret ) . "\n";
-}
+if ( $ret != null )
+	echo json_encode ( $ret ) . "\n";
 
 exit ( 0 );
 

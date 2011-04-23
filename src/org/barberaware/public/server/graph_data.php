@@ -592,8 +592,7 @@ if ( $graph == 0 ) {
 		}
 
 		$ret->data = $array;
-		$json = new Services_JSON ();
-		echo $json->encode ( $ret ) . "\n";
+		echo json_encode ( $ret ) . "\n";
 	}
 }
 
