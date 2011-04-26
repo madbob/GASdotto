@@ -94,7 +94,7 @@ public class OrderUserManager extends Composite implements ObjectWidget {
 		main.add ( deck );
 
 		deck.add ( new OrderUserPlainPanel ( order, editable, freedit ) );
-		deck.add ( new OrderUserFriendPanel ( order, editable, freedit ) );
+		deck.add ( new OrderUserFriendPanel ( order, editable, freedit, true ) );
 		if ( reference )
 			deck.add ( new OrderUserMultiPanel ( order, editable, freedit ) );
 

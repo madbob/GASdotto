@@ -23,25 +23,26 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserMultiPanel extends Composite implements ObjectWidget, OrderUserManagerMode, Lockable {
-	private ProductsUserSelection	selection;
-	private DummyTextArea		notes;
+public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockable {
+	private VerticalPanel		main;
+	private OrderUserManagerMode	selection;
 	private UserSelector		user;
-	private Label			noedit;
 	private FromServer		baseOrder;
 
 	private boolean			editable;
+	private boolean			freeEditable;
 	private FromServer		currentValue;
 
 	public OrderUserMultiPanel ( FromServer order, boolean edit, boolean freedit ) {
 		Label header;
-		VerticalPanel main;
 		HorizontalPanel pan;
 
 		main = new VerticalPanel ();
+		main.setWidth ( "100%" );
 		initWidget ( main );
 
 		editable = edit;
+		freeEditable = freedit;
 		baseOrder = order;
 
 		pan = new HorizontalPanel ();
@@ -54,12 +55,6 @@ public class OrderUserMultiPanel extends Composite implements ObjectWidget, Orde
 
 		user = new UserSelector ();
 		pan.add ( user );
-
-		noedit = new Label ( "Questo ordine non può essere modificato perché contiene sotto-ordini" );
-		noedit.setStyleName ( "smaller-text" );
-		noedit.setVisible ( false );
-		pan.add ( noedit );
-		pan.setCellVerticalAlignment ( noedit, HasVerticalAlignment.ALIGN_MIDDLE );
 
 		user.addFilter ( new FromServerValidateCallback () {
 			public boolean checkObject ( FromServer object ) {
@@ -76,11 +71,9 @@ public class OrderUserMultiPanel extends Composite implements ObjectWidget, Orde
 			}
 		} );
 
-		selection = new ProductsUserSelection ( baseOrder.getArray ( "products" ), edit, freedit );
+		selection = new OrderUserPlainPanel ( baseOrder, edit, freedit );
+		selection.setWidth ( "100%" );
 		main.add ( selection );
-
-		notes = new DummyTextArea ();
-		main.add ( notes );
 	}
 
 	private void retrieveCurrentOrderByUser () {
@@ -113,32 +106,31 @@ public class OrderUserMultiPanel extends Composite implements ObjectWidget, Orde
 
 	public void setValue ( FromServer element ) {
 		ArrayList friends;
+		OrderUserManagerMode new_selection;
 
 		currentValue = element;
 		user.setValue ( currentValue.getObject ( "baseuser" ) );
-		selection.setElements ( currentValue.getArray ( "products" ) );
-		notes.setValue ( element.getString ( "notes" ) );
+
+		new_selection = null;
 
 		friends = element.getArray ( "friends" );
-		if ( friends == null || friends.size () == 0 ) {
-			noedit.setVisible ( false );
-			selection.setEditable ( true );
-			notes.setEnabled ( true );
+		if ( ( friends == null || friends.size () == 0 ) && selection instanceof OrderUserFriendPanel )
+			new_selection = new OrderUserPlainPanel ( baseOrder, editable, freeEditable );
+		else if ( friends != null && friends.size () != 0 && selection instanceof OrderUserPlainPanel )
+			new_selection = new OrderUserFriendPanel ( baseOrder, editable, freeEditable, false );
+
+		if ( new_selection != null ) {
+			main.remove ( selection );
+			selection = new_selection;
+			main.add ( selection );
+			selection.setWidth ( "100%" );
 		}
-		else {
-			noedit.setVisible ( true );
-			selection.setEditable ( false );
-			notes.setEnabled ( false );
-		}
+
+		selection.setValue ( currentValue );
 	}
 
 	public FromServer getValue () {
-		if ( editable == true ) {
-			currentValue.setArray ( "products", selection.getElements () );
-			currentValue.setString ( "notes", notes.getValue () );
-		}
-
-		return currentValue;
+		return selection.getValue ();
 	}
 
 	/****************************************************************** OrderUserManagerMode */

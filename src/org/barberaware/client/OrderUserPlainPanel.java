@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserPlainPanel extends Composite implements OrderUserManagerMode, ObjectWidget {
+public class OrderUserPlainPanel extends OrderUserManagerMode {
 	private ProductsUserSelection	selection;
 	private DummyTextArea		notes;
 	private FromServer		baseOrder;

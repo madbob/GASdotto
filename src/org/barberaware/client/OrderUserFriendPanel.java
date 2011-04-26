@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserFriendPanel extends Composite implements OrderUserManagerMode, ObjectWidget {
+public class OrderUserFriendPanel extends OrderUserManagerMode {
 	private ProductsUserSelection	single;
 	private DummyTextArea		notes;
 	private FromServer		baseOrder;
@@ -34,9 +34,10 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 
 	private boolean			editable;
 	private boolean			freeEditable;
+	private boolean			fullEditable;
 	private FromServer		currentValue;
 
-	public OrderUserFriendPanel ( FromServer order, boolean edit, boolean freedit ) {
+	public OrderUserFriendPanel ( FromServer order, boolean edit, boolean freedit, boolean full ) {
 		VerticalPanel main;
 		CaptionPanel frame;
 
@@ -44,12 +45,14 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		main.addStyleName ( "subelement" );
 		initWidget ( main );
 
-		frame = new CaptionPanel ( "Esporta Report" );
-		frame.addStyleName ( "print-reports-box" );
-		main.add ( frame );
+		if ( full == true ) {
+			frame = new CaptionPanel ( "Esporta Report" );
+			frame.addStyleName ( "print-reports-box" );
+			main.add ( frame );
 
-		files = new LinksDialog ( "Ordini per gli Amici" );
-		frame.add ( files );
+			files = new LinksDialog ( "Ordini per gli Amici" );
+			frame.add ( files );
+		}
 
 		friends = new TabPanel ();
 		main.add ( friends );
@@ -58,6 +61,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		baseOrder = order;
 		editable = edit;
 		freeEditable = freedit;
+		fullEditable = full;
 
 		single = new ProductsUserSelection ( baseOrder.getArray ( "products" ), editable, freeEditable );
 		friends.add ( single, "Il Mio Ordine" );
@@ -68,7 +72,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 			}
 		} );
 
-		if ( editable == true ) {
+		if ( editable == true && fullEditable == true ) {
 			friends.add ( new Label (), "Aggiungi Nuovo Ordine" );
 			friends.addTabListener ( new TabListener () {
 				public boolean onBeforeTabSelected ( SourcesTabEvents sender, int tabIndex ) {
@@ -180,7 +184,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		if ( editable == true )
 			doButtons ( data );
 
-		if ( editable == true ) {
+		if ( editable == true && fullEditable == true ) {
 			index = friends.getWidgetCount () - 1;
 			friends.insert ( data, n, index );
 		}
@@ -218,7 +222,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		ArrayList products;
 		ArrayList f;
 
-		if ( editable == true )
+		if ( editable == true && fullEditable == true )
 			tabs = friends.getWidgetCount () - 1;
 		else
 			tabs = friends.getWidgetCount ();
@@ -242,6 +246,7 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		Questa funzione e' da invocare solo se il pannello e' editabile
 	*/
 	private ArrayList retrieveFriendsOrders () {
+		int tabs;
 		ArrayList ret;
 		Hidden id;
 		VerticalPanel cell;
@@ -253,7 +258,12 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 
 		ret = new ArrayList ();
 
-		for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
+		if ( fullEditable == true )
+			tabs = friends.getWidgetCount () - 1;
+		else
+			tabs = friends.getWidgetCount ();
+
+		for ( int i = 1; i < tabs; i++ ) {
 			cell = ( VerticalPanel ) friends.getWidget ( i );
 
 			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
@@ -307,9 +317,11 @@ public class OrderUserFriendPanel extends Composite implements OrderUserManagerM
 		currentValue = element;
 		setMultiOrder ();
 
-		files.emptyBox ();
-		files.addLink ( "CSV", "order_friends.php?format=csv&amp;id=" + element.getLocalID () );
-		files.addLink ( "PDF", "order_friends.php?format=pdf&amp;id=" + element.getLocalID () );
+		if ( fullEditable == true ) {
+			files.emptyBox ();
+			files.addLink ( "CSV", "order_friends.php?format=csv&amp;id=" + element.getLocalID () );
+			files.addLink ( "PDF", "order_friends.php?format=pdf&amp;id=" + element.getLocalID () );
+		}
 
 		notes.setValue ( element.getString ( "notes" ) );
 	}

@@ -21,6 +21,6 @@ import java.util.*;
 
 import com.google.gwt.user.client.ui.*;
 
-public interface OrderUserManagerMode {
-	public void upgradeProductsList ( ArrayList products );
+public abstract class OrderUserManagerMode extends Composite implements ObjectWidget {
+	public abstract void upgradeProductsList ( ArrayList products );
 }
