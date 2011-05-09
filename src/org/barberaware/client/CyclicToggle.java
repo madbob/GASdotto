@@ -24,7 +24,7 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 	private DeckPanel		main;
 	private int			defaultSelection;
 
-	public CyclicToggle () {
+	public CyclicToggle ( boolean active ) {
 		FocusPanel focus;
 
 		main = new DeckPanel ();
@@ -34,19 +34,21 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 		focus = new FocusPanel ( main );
 		initWidget ( focus );
 
-		focus.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				int index;
+		if ( active == true ) {
+			focus.addClickListener ( new ClickListener () {
+				public void onClick ( Widget sender ) {
+					int index;
 
-				index = main.getVisibleWidget ();
-				index++;
+					index = main.getVisibleWidget ();
+					index++;
 
-				if ( index >= main.getWidgetCount () )
-					index = 0;
+					if ( index >= main.getWidgetCount () )
+						index = 0;
 
-				main.showWidget ( index );
-			}
-		} );
+					main.showWidget ( index );
+				}
+			} );
+		}
 	}
 
 	/*
@@ -72,7 +74,7 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 	}
 
 	public void setVal ( int state ) {
-		if ( state < main.getWidgetCount () )
+		if ( state > -1 && state < main.getWidgetCount () )
 			main.showWidget ( state );
 		else
 			main.showWidget ( defaultSelection );

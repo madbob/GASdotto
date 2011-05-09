@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2008/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,31 +17,8 @@
 
 package org.barberaware.client;
 
-import java.util.*;
+import com.google.gwt.user.client.ui.*;
 
-public abstract class ValueFromObjectClosure {
-	public int retriveInteger ( FromServer obj ) {
-		/* dummy */
-		return -1;
-	}
-
-	public String retriveString ( FromServer obj ) {
-		/* dummy */
-		return "";
-	}
-
-	public Date retriveDate ( FromServer obj ) {
-		/* dummy */
-		return null;
-	}
-
-	public FromServer retriveObject ( FromServer obj ) {
-		/* dummy */
-		return null;
-	}
-
-	public ArrayList retriveArray ( FromServer obj ) {
-		/* dummy */
-		return new ArrayList ();
-	}
+public abstract class StatusListener {
+	public abstract void onStatusChange ( Widget sender, boolean status );
 }

@@ -93,6 +93,7 @@ public class Utils {
 		desc.add ( "Ordine Consegnato" );
 		info.addSymbol ( "status", paths, desc );
 		info.addSymbol ( "multiuser", "images/notifications/multiuser_order.png", "Tu sei Referente per questo Ordine" );
+		info.addSymbol ( "aggregate", "images/notifications/order_aggregate.png", "Ordine Aggregato" );
 		emblemsCache.put ( "orders", info );
 
 		info = new EmblemsInfo ();
@@ -364,6 +365,13 @@ public class Utils {
 			return d.getDate () + " " + months [ d.getMonth () ] + " " + ( d.getYear () + 1900 );
 	}
 
+	public static String printableDateShort ( Date d ) {
+		if ( d == null )
+			return "Non settato";
+		else
+			return d.getDate () + "/" + ( d.getMonth () + 1 ) + "/" + ( d.getYear () + 1900 );
+	}
+
 	public static String printableDate ( Date d, boolean with_year ) {
 		String ret;
 
@@ -433,5 +441,14 @@ public class Utils {
 		};
 
 		fading.scheduleRepeating ( 100 );
+	}
+
+	/*
+		Funzione assolutamente inutile utilizzata per debug
+	*/
+	public static void crashMe () {
+		int a;
+		a = 0;
+		a = 10 / a;
 	}
 }

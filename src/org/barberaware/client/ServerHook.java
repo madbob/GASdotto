@@ -471,8 +471,9 @@ public class ServerHook {
 			loadingDialog.center ();
 			loadingDialog.show ();
 		}
-		else
+		else {
 			loadingDialog.hide ();
+		}
 	}
 
 	public void engageLoadingBar () {

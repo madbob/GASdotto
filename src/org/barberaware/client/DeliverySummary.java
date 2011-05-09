@@ -25,27 +25,32 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
+	private boolean			multipleOrders;
 	private String			identifier;
 	private int			numOrders;
 	private int []			statusOrder		= { 0, 2, 3, 1 };
 
-	public DeliverySummary () {
+	public DeliverySummary ( boolean multiple ) {
 		main = new VerticalPanel ();
 		initWidget ( main );
 		main.setWidth ( "100%" );
 
 		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
 		numOrders = 0;
+		multipleOrders = multiple;
 		cleanUp ();
 	}
 
 	public void addOrder ( OrderUser uorder ) {
 		final FromServerForm row;
 		FromServer user;
+		FromServer prevmap;
+		OrderUserAggregate aggregate;
 		HorizontalPanel informations;
 		CustomCaptionPanel frame;
 		StringLabel phone;
 		ProductsDeliveryTable products;
+		OrderUserDetails details;
 
 		if ( numOrders == 0 )
 			main.remove ( 0 );
@@ -54,84 +59,110 @@ public class DeliverySummary extends Composite {
 			return;
 
 		user = uorder.getObject ( "baseuser" );
-		row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
-		row.addStyleName ( "subform" );
-		row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
 
-		/**
-			TODO	Sarebbe assai meglio avere due modalita' per il pannello consegne, selezionabili in
-				cima: una per la fase di "prezzatura" (quando si compilano i form e si salvano
-				semplicemente) ed una per la fase di "consegna" vera e propria. Questo per mostrare
-				solo i tasti funzione utili in quel dato contesto, anziche' la sfilza presente adesso
-		*/
+		if ( multipleOrders == true && user.getRelatedInfo ( "DeliverySummary" + identifier ) != null ) {
+			row = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
+			prevmap = row.getValue ();
 
-		row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				row.getObject ().setInt ( "status", OrderUser.SAVED );
-				commonActionsOnEdit ( row );
+			if ( prevmap instanceof FromServerAggregate == false ) {
+				row.removeWidget ( "allproducts" );
+
+				aggregate = new OrderUserAggregate ();
+				aggregate.addOrder ( prevmap );
+				row.setValue ( aggregate );
 			}
-		} );
-
-		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				row.getObject ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
-				commonActionsOnEdit ( row );
+			else {
+				aggregate = ( OrderUserAggregate ) prevmap;
 			}
-		} );
 
-		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				row.getObject ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
-				commonActionsOnEdit ( row );
-			}
-		} );
+			details = new OrderUserDetails ();
+			details.setValue ( uorder );
 
-		informations = new HorizontalPanel ();
-		informations.setWidth ( "100%" );
-		row.add ( informations );
+			row.add ( details );
+			row.addChild ( details );
+			aggregate.addOrder ( uorder );
+		}
+		else {
+			row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
+			row.addStyleName ( "subform" );
+			row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
 
-		/* utente */
+			/**
+				TODO	Sarebbe assai meglio avere due modalita' per il pannello consegne, selezionabili in
+					cima: una per la fase di "prezzatura" (quando si compilano i form e si salvano
+					semplicemente) ed una per la fase di "consegna" vera e propria. Questo per mostrare
+					solo i tasti funzione utili in quel dato contesto, anziche' la sfilza presente adesso
+			*/
 
-		frame = new CustomCaptionPanel ( "Informazioni Utente" );
-		informations.add ( frame );
+			row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					row.getValue ().setInt ( "status", OrderUser.SAVED );
+					commonActionsOnEdit ( row );
+				}
+			} );
 
-		phone = new StringLabel ();
-		phone.setValue ( user.getString ( "phone" ) );
-		row.setExtraWidget ( "phone", phone );
-		frame.addPair ( "Telefono", phone );
+			row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+					commonActionsOnEdit ( row );
+				}
+			} );
 
-		phone = new StringLabel ();
-		phone.setValue ( user.getString ( "mobile" ) );
-		row.setExtraWidget ( "mobile", phone );
-		frame.addPair ( "Cellulare", phone );
+			row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					row.getValue ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
+					commonActionsOnEdit ( row );
+				}
+			} );
 
-		/* ordine */
+			informations = new HorizontalPanel ();
+			informations.setWidth ( "100%" );
+			row.add ( informations );
 
-		frame = new CustomCaptionPanel ( "Informazioni Ordine" );
-		informations.add ( frame );
+			/* utente */
 
-		frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
-		frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
+			frame = new CustomCaptionPanel ( "Informazioni Utente" );
+			informations.add ( frame );
 
-		/* prodotti */
+			phone = new StringLabel ();
+			phone.setValue ( user.getString ( "phone" ) );
+			row.setExtraWidget ( "phone", phone );
+			frame.addPair ( "Telefono", phone );
 
-		products = new ProductsDeliveryTable ();
-		row.add ( row.getPersonalizedWidget ( "allproducts", products ) );
+			phone = new StringLabel ();
+			phone.setValue ( user.getString ( "mobile" ) );
+			row.setExtraWidget ( "mobile", phone );
+			frame.addPair ( "Cellulare", phone );
 
-		row.setCallback ( new FromServerFormCallbacks () {
-			public String getName ( FromServerForm form ) {
-				return form.getObject ().getObject ( "baseuser" ).getString ( "name" );
-			}
-		} );
+			/* ordine */
 
-		checkPay ( user, row );
+			frame = new CustomCaptionPanel ( "Informazioni Ordine" );
+			informations.add ( frame );
 
-		setStatusIcon ( row, uorder );
-		main.insert ( row, getSortedIndex ( uorder, user ) );
-		numOrders += 1;
+			frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
+			frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
+
+			/* prodotti */
+
+			products = new ProductsDeliveryTable ();
+			row.add ( row.getPersonalizedWidget ( "allproducts", products ) );
+
+			row.setCallback ( new FromServerFormCallbacks () {
+				public String getName ( FromServerForm form ) {
+					return form.getValue ().getObject ( "baseuser" ).getString ( "name" );
+				}
+			} );
+
+			checkPay ( user, row );
+
+			setStatusIcon ( row );
+			main.insert ( row, getSortedIndex ( uorder, user ) );
+			numOrders += 1;
+
+			user.addRelatedInfo ( "DeliverySummary" + identifier, row );
+		}
 
 		uorder.addRelatedInfo ( "DeliverySummary", row );
-		user.addRelatedInfo ( "DeliverySummary" + identifier, row );
 	}
 
 	public void modOrder ( OrderUser uorder ) {
@@ -139,9 +170,9 @@ public class DeliverySummary extends Composite {
 
 		form = ( FromServerForm ) uorder.getRelatedInfo ( "DeliverySummary" );
 		if ( form != null ) {
-			form.setObject ( uorder );
+			form.setValue ( uorder );
 			form.refreshContents ( null );
-			setStatusIcon ( form, uorder );
+			setStatusIcon ( form );
 		}
 	}
 
@@ -149,7 +180,6 @@ public class DeliverySummary extends Composite {
 		FromServerForm form;
 
 		form = ( FromServerForm ) uorder.getRelatedInfo ( "DeliverySummary" );
-
 		if ( form != null ) {
 			form.invalidate ();
 			uorder.delRelatedInfo ( "DeliverySummary" );
@@ -191,7 +221,7 @@ public class DeliverySummary extends Composite {
 		NameLabelWidget deliveryperson;
 		FromServer uorder;
 
-		uorder = row.getObject ();
+		uorder = row.getValue ();
 
 		deliverydate = ( DateViewer ) row.retriveInternalWidget ( "deliverydate" );
 		deliverydate.setValue ( new Date ( System.currentTimeMillis () ) );
@@ -204,11 +234,11 @@ public class DeliverySummary extends Composite {
 		row.open ( false );
 	}
 
-	private void setStatusIcon ( FromServerForm form, OrderUser order ) {
+	private void setStatusIcon ( FromServerForm form ) {
 		EmblemsBar bar;
 
 		bar = form.emblems ();
-		bar.activate ( "status", order.getInt ( "status" ) );
+		bar.activate ( "status", form.getValue ().getInt ( "status" ) );
 	}
 
 	private int getSortedIndex ( FromServer order, FromServer to_place ) {
@@ -227,7 +257,7 @@ public class DeliverySummary extends Composite {
 		for ( i = 0; i < main.getWidgetCount (); i++ ) {
 			row = ( FromServerForm ) main.getWidget ( i );
 
-			o_iter = row.getObject ();
+			o_iter = row.getValue ();
 			if ( o_iter == null )
 				continue;
 

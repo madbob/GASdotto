@@ -32,6 +32,7 @@ class Order extends FromServer {
 		$this->addAttribute ( "nextdate", "STRING" );
 		$this->addAttribute ( "anticipated", "STRING" );
 		$this->addAttribute ( "mail_summary_sent", "DATE" );
+		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
 	}
 
 	public function get ( $request, $compress ) {

@@ -33,7 +33,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		main = new FormGroup ( null ) {
 			protected FromServerForm doEditableRow ( FromServer obj ) {
-				return doOrderRow ( ( Order ) obj );
+				return doOrderRow ( obj );
 			}
 
 			protected FromServerForm doNewEditableRow () {
@@ -56,10 +56,51 @@ public class DeliveryPanel extends GenericPanel {
 			}
 		};
 
-		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			private void findAndDo ( Order ord, OrderUser uord, int action ) {
-				FromServerForm form;
+		Utils.getServer ().onObjectEvent ( "OrderAggregate", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				ArrayList orders;
+				FromServer tmp;
 
+				orders = object.getArray ( "orders" );
+				for ( int i = 0; i < orders.size (); i++ ) {
+					tmp = ( FromServer ) orders.get ( i );
+					main.deleteElement ( tmp );
+				}
+
+				main.addElement ( object );
+			}
+
+			public void onModify ( FromServer object ) {
+				main.refreshElement ( object );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				String identifier;
+				ArrayList orders;
+				FromServer order;
+
+				identifier = main.getIdentifier ();
+				orders = Utils.getServer ().getObjectsFromCache ( "Order" );
+
+				for ( int i = 0; i < orders.size (); i++ ) {
+					order = ( FromServer ) orders.get ( i );
+					order.delRelatedInfo ( identifier );
+				}
+
+				main.deleteElement ( object );
+			}
+
+			protected String debugName () {
+				return "DeliveryPanel per OrderAggregate";
+			}
+		} );
+
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			private void findAndDo ( OrderUser uord, int action ) {
+				FromServer ord;
+				FromServerRappresentation form;
+
+				ord = uord.getObject ( "baseorder" );
 				if ( ord == null )
 					return;
 
@@ -69,15 +110,15 @@ public class DeliveryPanel extends GenericPanel {
 			}
 
 			public void onReceive ( FromServer object ) {
-				findAndDo ( ( Order ) object.getObject ( "baseorder" ), ( OrderUser ) object, 0 );
+				findAndDo ( ( OrderUser ) object, 0 );
 			}
 
 			public void onModify ( FromServer object ) {
-				findAndDo ( ( Order ) object.getObject ( "baseorder" ), ( OrderUser ) object, 1 );
+				findAndDo ( ( OrderUser ) object, 1 );
 			}
 
 			public void onDestroy ( FromServer object ) {
-				findAndDo ( ( Order ) object.getObject ( "baseorder" ), ( OrderUser ) object, 2 );
+				findAndDo ( ( OrderUser ) object, 2 );
 			}
 
 			protected String debugName () {
@@ -88,16 +129,22 @@ public class DeliveryPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Supplier supp;
-				FromServerForm form;
+				FromServerRappresentation form;
+
+				if ( object.getBool ( "parent_aggregate" ) == true )
+					return;
 
 				supp = ( Supplier ) object.getObject ( "supplier" );
 				if ( supp.iAmReference () == false && supp.iAmCarrier () == false )
 					return;
 
-				if ( main.addElement ( object ) == 1 ) {
-					if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false ) {
-						form = main.retrieveForm ( object );
-						form.setVisible ( false );
+				form = main.retrieveForm ( object );
+				if ( form == null ) {
+					if ( main.addElement ( object ) == 1 ) {
+						if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false ) {
+							form = main.retrieveForm ( object );
+							form.setVisible ( false );
+						}
 					}
 				}
 			}
@@ -108,30 +155,37 @@ public class DeliveryPanel extends GenericPanel {
 				OrderUser uord;
 				ArrayList uorders;
 				FromServerForm form;
+				FromServerForm f;
 
-				status = object.getInt ( "status" );
-				form = main.retrieveForm ( object );
-
-				if ( form == null ) {
-					main.addElement ( object );
-					form = main.retrieveForm ( object );
+				if ( object.getBool ( "parent_aggregate" ) == true ) {
+					onDestroy ( object );
 				}
 				else {
-					form.refreshContents ( null );
-				}
+					status = object.getInt ( "status" );
+					form = ( FromServerForm ) main.retrieveForm ( object );
 
-				form.emblems ().activate ( "status", object.getInt ( "status" ) );
+					if ( form == null ) {
+						main.addElement ( object );
+						form = ( FromServerForm ) main.retrieveForm ( object );
+					}
 
-				uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
-				for ( int i = 0; i < uorders.size (); i++ ) {
-					uord = ( OrderUser ) uorders.get ( i );
-					if ( uord.getObject ( "baseorder" ).equals ( object ) )
-						syncUserOrder ( form, uord, 0 );
+					form.emblems ().activate ( "status", object.getInt ( "status" ) );
+
+					uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+					for ( int i = 0; i < uorders.size (); i++ ) {
+						uord = ( OrderUser ) uorders.get ( i );
+						if ( uord.getObject ( "baseorder" ).equals ( object ) )
+							syncUserOrder ( form, uord, 0 );
+					}
 				}
 			}
 
 			public void onDestroy ( FromServer object ) {
-				main.deleteElement ( object );
+				FromServerRappresentation form;
+
+				form = main.retrieveForm ( object );
+				if ( form != null && form.getValue ().equals ( object ) )
+					main.deleteElement ( object );
 			}
 
 			protected String debugName () {
@@ -197,7 +251,7 @@ public class DeliveryPanel extends GenericPanel {
 
 				for ( int i = 0; i < forms.size (); i++ ) {
 					form = ( FromServerForm ) forms.get ( i );
-					ord = form.getObject ();
+					ord = form.getValue ();
 
 					if ( show == true ) {
 						if ( ord.getDate ( "startdate" ).after ( start ) &&
@@ -222,10 +276,13 @@ public class DeliveryPanel extends GenericPanel {
 		addTop ( filter );
 	}
 
-	private FromServerForm doOrderRow ( Order order ) {
+	private FromServerForm doOrderRow ( FromServer order ) {
+		boolean is_aggregate;
+		ArrayList orders;
 		CaptionPanel frame;
 		HorizontalPanel downloads;
 		final FromServerForm ver;
+		FromServer ord;
 		DeliverySummary summary;
 		CashCount cash;
 		LinksDialog files;
@@ -235,22 +292,42 @@ public class DeliveryPanel extends GenericPanel {
 			remove ( 1 );
 		}
 
+		is_aggregate = ( order.getType () == "OrderAggregate" );
+
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 		ver.emblems ().activate ( "status", order.getInt ( "status" ) );
 
+		if ( is_aggregate == true ) {
+			ver.emblems ().activate ( "aggregate" );
+
+			orders = order.getArray ( "orders" );
+			for ( int i = 0; i < orders.size (); i++ ) {
+				ord = ( FromServer ) orders.get ( i );
+				ord.addRelatedInfo ( main.getIdentifier (), ver );
+			}
+		}
+
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onOpen ( FromServerForm form ) {
+				FromServer obj;
 				Order ord;
+				ArrayList orders;
 
-				/**
-					TODO	Magari si possono caricare solo gli ordini non ancora consegnati
-						(gia' che quelli consegnati sono nascosti alla vista), badare a non
-						stravolgere Order.asyncLoadUsersOrders() perche' altra roba dipende
-						da li'
-				*/
-				ord = ( Order ) form.getObject ();
-				ord.asyncLoadUsersOrders ();
+				obj = form.getValue ();
+
+				if ( obj.getType () == "Order" ) {
+					ord = ( Order ) obj;
+					ord.asyncLoadUsersOrders ();
+				}
+				else if ( obj.getType () == "OrderAggregate" ) {
+					orders = obj.getArray ( "orders" );
+
+					for ( int i = 0; i < orders.size (); i++ ) {
+						ord = ( Order ) orders.get ( i );
+						ord.asyncLoadUsersOrders ();
+					}
+				}
 			}
 		} );
 
@@ -288,7 +365,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		frame.add ( downloads );
 
-		summary = new DeliverySummary ();
+		summary = new DeliverySummary ( is_aggregate );
 		ver.setExtraWidget ( "list", summary );
 		ver.add ( summary );
 
@@ -307,7 +384,7 @@ public class DeliveryPanel extends GenericPanel {
 			1 = ordine modificato, aggiorna
 			2 = ordine eliminato
 	*/
-	private void syncUserOrder ( FromServerForm ver, OrderUser uorder, int action ) {
+	private void syncUserOrder ( FromServerRappresentation ver, OrderUser uorder, int action ) {
 		DeliverySummary summary;
 		CashCount cash;
 
@@ -351,11 +428,8 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		ObjectRequest params;
-
-		params = new ObjectRequest ( "Order" );
-		Utils.getServer ().testObjectReceive ( params );
-
+		Utils.getServer ().testObjectReceive ( "OrderAggregate" );
+		Utils.getServer ().testObjectReceive ( "Order" );
 		filter.doFilter ();
 	}
 }

@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserManager extends Composite implements ObjectWidget {
+public class OrderUserManager extends FromServerRappresentation implements ObjectWidget {
 	private DeckPanel		deck;
 	private RadioButtons		buttons		= null;
 

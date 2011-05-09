@@ -25,7 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderSummary extends Composite implements Lockable {
 	private boolean			locked;
-	private Order			currentOrder;
+	private ArrayList		currentOrders;
 	private FlexTable		main;
 	private PriceViewer		totalLabel;
 	private PriceViewer		totalshipLabel;
@@ -39,24 +39,25 @@ public class OrderSummary extends Composite implements Lockable {
 	private boolean			hasMaxAvailable;
 	private boolean			hasConstraints;
 
-	private int			PRODUCT_NAME_COLUMN		= 1;
-	private int			PRODUCT_PRICE_COLUMN		= 2;
-	private int			PRODUCT_TRANSPORT_COLUMN	= 3;
-	private int			PRODUCT_OVERPRICE_COLUMN	= 4;
-	private int			PRODUCT_MEASURE_COLUMN		= 5;
-	private int			PRODUCT_STOCK_COLUMN		= 6;
-	private int			PRODUCT_AVAILQUANT_COLUMN	= 7;
-	private int			PRODUCT_ORDQUANT_COLUMN		= 8;
-	private int			PRODUCT_TOTALPRICE_COLUMN	= 9;
-	private int			PRODUCT_TOTALTRANSPORT_COLUMN	= 10;
-	private int			PRODUCT_TOTALOVERPRICE_COLUMN	= 11;
-	private int			PRODUCT_SHIPQUANT_COLUMN	= 12;
-	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 13;
+	private int			ORDER_ID_COLUMN			= 0;
+	private int			PRODUCT_ID_COLUMN		= 1;
+	private int			PRODUCT_NAME_COLUMN		= 2;
+	private int			PRODUCT_PRICE_COLUMN		= 3;
+	private int			PRODUCT_TRANSPORT_COLUMN	= 4;
+	private int			PRODUCT_OVERPRICE_COLUMN	= 5;
+	private int			PRODUCT_MEASURE_COLUMN		= 6;
+	private int			PRODUCT_STOCK_COLUMN		= 7;
+	private int			PRODUCT_AVAILQUANT_COLUMN	= 8;
+	private int			PRODUCT_ORDQUANT_COLUMN		= 9;
+	private int			PRODUCT_TOTALPRICE_COLUMN	= 10;
+	private int			PRODUCT_TOTALTRANSPORT_COLUMN	= 11;
+	private int			PRODUCT_TOTALOVERPRICE_COLUMN	= 12;
+	private int			PRODUCT_SHIPQUANT_COLUMN	= 13;
+	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 14;
 
-	public OrderSummary ( Order order ) {
+	public OrderSummary () {
 		VerticalPanel container;
 
-		currentOrder = order;
 		locked = true;
 
 		container = new VerticalPanel ();
@@ -97,10 +98,17 @@ public class OrderSummary extends Composite implements Lockable {
 		ordersUsers = new ArrayList ();
 	}
 
-	public void reFill ( Order order ) {
+	public void reFill ( FromServer order ) {
 		int num;
 
-		currentOrder = order;
+		if ( order.getType () == "Order" ) {
+			currentOrders = new ArrayList ();
+			currentOrders.add ( order );
+		}
+		else {
+			currentOrders = order.getArray ( "orders" );
+		}
+
 		num = main.getRowCount ();
 
 		for ( int i = 1; i < num; i++ )
@@ -127,6 +135,7 @@ public class OrderSummary extends Composite implements Lockable {
 		ArrayList cached_orders;
 		ArrayList products;
 		ArrayList user_products;
+		Order order;
 		FromServer user;
 		FromServer user_ord;
 		FromServer order_product;
@@ -134,25 +143,6 @@ public class OrderSummary extends Composite implements Lockable {
 
 		if ( locked == true )
 			return;
-
-		my_id = currentOrder.getLocalID ();
-		products = currentOrder.getArray ( "products" );
-
-		quantities = new float [ products.size () ];
-		delivered = new float [ products.size () ];
-		prices = new float [ products.size () ];
-		details = new float [ products.size () ];
-		overprices = new float [ products.size () ];
-
-		for ( int i = 0; i < products.size (); i++ ) {
-			quantities [ i ] = 0;
-			delivered [ i ] = 0;
-			prices [ i ] = 0;
-			details [ i ] = 0;
-			overprices [ i ] = 0;
-		}
-
-		ordersUsers.clear ();
 
 		/**
 			TODO	Probabilmente l'algoritmo di ricostruzione della lista di
@@ -165,60 +155,82 @@ public class OrderSummary extends Composite implements Lockable {
 		total_price = 0;
 		total_ship_price = 0;
 		total_overprice = 0;
+		ordersUsers.clear ();
 
-		for ( int i = 0; i < cached_orders.size (); i++ ) {
-			user_ord = ( FromServer ) cached_orders.get ( i );
+		for ( int j = 0; j < currentOrders.size (); j++ ) {
+			order = ( Order ) currentOrders.get ( j );
+			my_id = order.getLocalID ();
+			products = order.getArray ( "products" );
 
-			if ( user_ord.isValid () == false )
-				continue;
+			quantities = new float [ products.size () ];
+			delivered = new float [ products.size () ];
+			prices = new float [ products.size () ];
+			details = new float [ products.size () ];
+			overprices = new float [ products.size () ];
 
-			user = user_ord.getObject ( "baseorder" );
+			for ( int i = 0; i < products.size (); i++ ) {
+				quantities [ i ] = 0;
+				delivered [ i ] = 0;
+				prices [ i ] = 0;
+				details [ i ] = 0;
+				overprices [ i ] = 0;
+			}
 
-			if ( user != null && user.getLocalID () == my_id ) {
-				user_products = user_ord.getArray ( "allproducts" );
+			for ( int i = 0; i < cached_orders.size (); i++ ) {
+				user_ord = ( FromServer ) cached_orders.get ( i );
 
-				for ( int a = 0; a < user_products.size (); a++ ) {
-					user_product = ( ProductUser ) user_products.get ( a );
-					order_product = user_product.getObject ( "product" );
-					user_product_ref = order_product.getLocalID ();
+				if ( user_ord.isValid () == false )
+					continue;
 
-					for ( int e = 0; e < products.size (); e++ ) {
-						order_product = ( FromServer ) products.get ( e );
+				user = user_ord.getObject ( "baseorder" );
 
-						if ( user_product_ref == order_product.getLocalID () ) {
-							if ( order_product.getBool ( "available" ) == true ) {
-								quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
-								delivered [ e ] = delivered [ e ] + user_product.getFloat ( "delivered" );
+				if ( user != null && user.getLocalID () == my_id ) {
+					user_products = user_ord.getArray ( "allproducts" );
 
-								/*
-									Il total_price lo ricostruisco prodotto per
-									prodotto anziche' ricorrere alla funzione
-									getTotalPrice() di OrderUser per evitare di
-									reiterare una volta di troppo l'array di
-									prodotti
-								*/
-								prod_total_price = user_product.getPrice ();
-								det = user_product.getTransportPrice ();
-								over = user_product.getSurplus ();
+					for ( int a = 0; a < user_products.size (); a++ ) {
+						user_product = ( ProductUser ) user_products.get ( a );
+						order_product = user_product.getObject ( "product" );
+						user_product_ref = order_product.getLocalID ();
 
-								prices [ e ] += prod_total_price;
-								details [ e ] += det;
-								overprices [ e ] += over;
-								total_price += prod_total_price;
-								total_ship_price += det;
-								total_overprice += over;
+						for ( int e = 0; e < products.size (); e++ ) {
+							order_product = ( FromServer ) products.get ( e );
+
+							if ( user_product_ref == order_product.getLocalID () ) {
+								if ( order_product.getBool ( "available" ) == true ) {
+									quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
+									delivered [ e ] = delivered [ e ] + user_product.getFloat ( "delivered" );
+
+									/*
+										Il total_price lo ricostruisco prodotto per
+										prodotto anziche' ricorrere alla funzione
+										getTotalPrice() di OrderUser per evitare di
+										reiterare una volta di troppo l'array di
+										prodotti
+									*/
+									prod_total_price = user_product.getPrice ();
+									det = user_product.getTransportPrice ();
+									over = user_product.getSurplus ();
+
+									prices [ e ] += prod_total_price;
+									details [ e ] += det;
+									overprices [ e ] += over;
+									total_price += prod_total_price;
+									total_ship_price += det;
+									total_overprice += over;
+								}
+
+								break;
 							}
-
-							break;
 						}
 					}
-				}
 
-				ordersUsers.add ( user_ord );
+					ordersUsers.add ( user_ord );
+				}
 			}
+
+			syncTable ( order, products, quantities, delivered, prices, details, overprices );
 		}
 
-		syncTable ( products, quantities, delivered, prices, details, overprices );
 		totalLabel.setVal ( total_price );
 		totalshipLabel.setVal ( total_ship_price );
 		totalOverpriceLabel.setVal ( total_overprice );
@@ -234,30 +246,35 @@ public class OrderSummary extends Composite implements Lockable {
 		PriceBox price_transport;
 		PercentageBox overprice;
 		FloatBox maxtotal;
+		FromServer order;
 
 		ret = false;
-		products = currentOrder.getArray ( "products" );
 
-		for ( int i = 0; i < products.size (); i++ ) {
-			prod = ( Product ) products.get ( i );
-			index = searchProduct ( prod );
+		for ( int j = 0; j < currentOrders.size (); j++ ) {
+			order = ( FromServer ) currentOrders.get ( j );
+			products = order.getArray ( "products" );
 
-			if ( index != -1 ) {
-				price_unit = ( PriceBox ) main.getWidget ( index, PRODUCT_PRICE_COLUMN );
-				price_transport = ( PriceBox ) main.getWidget ( index, PRODUCT_TRANSPORT_COLUMN );
-				overprice = ( PercentageBox ) main.getWidget ( index, PRODUCT_OVERPRICE_COLUMN );
-				maxtotal = ( FloatBox ) main.getWidget ( index, PRODUCT_AVAILQUANT_COLUMN );
+			for ( int i = 0; i < products.size (); i++ ) {
+				prod = ( Product ) products.get ( i );
+				index = searchProduct ( order, prod );
 
-				if ( prod.getFloat ( "unit_price" ) != price_unit.getVal () ||
-						prod.getFloat ( "shipping_price" ) != price_transport.getVal () ||
-						prod.getString ( "surplus" ) != overprice.getValue () ||
-						prod.getFloat ( "total_max_order" ) != maxtotal.getVal () ) {
+				if ( index != -1 ) {
+					price_unit = ( PriceBox ) main.getWidget ( index, PRODUCT_PRICE_COLUMN );
+					price_transport = ( PriceBox ) main.getWidget ( index, PRODUCT_TRANSPORT_COLUMN );
+					overprice = ( PercentageBox ) main.getWidget ( index, PRODUCT_OVERPRICE_COLUMN );
+					maxtotal = ( FloatBox ) main.getWidget ( index, PRODUCT_AVAILQUANT_COLUMN );
 
-					prod.setFloat ( "unit_price", price_unit.getVal () );
-					prod.setFloat ( "shipping_price", price_transport.getVal () );
-					prod.setString ( "surplus", overprice.getValue () );
-					prod.setFloat ( "total_max_order", maxtotal.getVal () );
-					ret = true;
+					if ( prod.getFloat ( "unit_price" ) != price_unit.getVal () ||
+							prod.getFloat ( "shipping_price" ) != price_transport.getVal () ||
+							prod.getString ( "surplus" ) != overprice.getValue () ||
+							prod.getFloat ( "total_max_order" ) != maxtotal.getVal () ) {
+
+						prod.setFloat ( "unit_price", price_unit.getVal () );
+						prod.setFloat ( "shipping_price", price_transport.getVal () );
+						prod.setString ( "surplus", overprice.getValue () );
+						prod.setFloat ( "total_max_order", maxtotal.getVal () );
+						ret = true;
+					}
 				}
 			}
 		}
@@ -265,18 +282,28 @@ public class OrderSummary extends Composite implements Lockable {
 		return ret;
 	}
 
-	private int searchProduct ( Product prod ) {
+	private int searchProduct ( FromServer order, FromServer prod ) {
 		int current_children;
-		String id;
+		String ord_id;
+		String prod_id;
 		Hidden existing_id;
 
 		current_children = main.getRowCount () - 2;
-		id = Integer.toString ( prod.getLocalID () );
+		ord_id = Integer.toString ( order.getLocalID () );
+		prod_id = Integer.toString ( prod.getLocalID () );
 
 		for ( int i = 1; i < current_children; i++ ) {
-			existing_id = ( Hidden ) main.getWidget ( i, 0 );
-			if ( id == existing_id.getName () )
-				return i;
+			existing_id = ( Hidden ) main.getWidget ( i, ORDER_ID_COLUMN );
+			if ( ord_id == existing_id.getName () ) {
+				do {
+					existing_id = ( Hidden ) main.getWidget ( i, PRODUCT_ID_COLUMN );
+					if ( existing_id != null && prod_id == existing_id.getName () )
+						return i;
+					else
+						i++;
+
+				} while ( ( ( Hidden ) main.getWidget ( i, ORDER_ID_COLUMN ) ).getName () == ord_id );
+			}
 		}
 
 		return -1;
@@ -290,57 +317,57 @@ public class OrderSummary extends Composite implements Lockable {
 		hasConstraints = false;
 	}
 
-	private void checkHiddenColumns () {
+	private void checkHiddenColumn ( int row, int index1, int index2, boolean show ) {
 		Widget widget;
-		Widget widget2;
 
-		for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
-			widget = main.getWidget ( i, PRODUCT_TRANSPORT_COLUMN );
-			widget2 = main.getWidget ( i, PRODUCT_TOTALTRANSPORT_COLUMN );
+		/*
+			Questo e' per saltare le righe di intestazione nel caso di ordini
+			aggregati
+		*/
+		if ( row != 0 ) {
+			widget = main.getWidget ( row, PRODUCT_ID_COLUMN );
+			if ( widget == null )
+				return;
+		}
 
-			if ( hasTransport == false ) {
-				widget.addStyleName ( "hidden" );
-				widget2.addStyleName ( "hidden" );
-			}
-			else {
-				widget.removeStyleName ( "hidden" );
-				widget2.removeStyleName ( "hidden" );
-			}
+		widget = main.getWidget ( row, index1 );
+		if ( widget == null )
+			return;
 
-			widget = main.getWidget ( i, PRODUCT_STOCK_COLUMN );
-
-			if ( widget != null ) {
-				if ( hasStock == false )
+		if ( show == false ) {
+			widget.addStyleName ( "hidden" );
+			if ( index2 != -1 ) {
+				widget = main.getWidget ( row, index2 );
+				if ( widget != null )
 					widget.addStyleName ( "hidden" );
-				else
+			}
+		}
+		else {
+			widget.removeStyleName ( "hidden" );
+			if ( index2 != -1 ) {
+				widget = main.getWidget ( row, index2 );
+				if ( widget != null )
 					widget.removeStyleName ( "hidden" );
 			}
+		}
+	}
 
-			widget = main.getWidget ( i, PRODUCT_AVAILQUANT_COLUMN );
-
-			if ( hasMaxAvailable == false )
-				widget.addStyleName ( "hidden" );
-			else
-				widget.removeStyleName ( "hidden" );
-
-			widget = main.getWidget ( i, PRODUCT_OVERPRICE_COLUMN );
-			widget2 = main.getWidget ( i, PRODUCT_TOTALOVERPRICE_COLUMN );
-
-			if ( hasSurplus == false ) {
-				widget.addStyleName ( "hidden" );
-				widget2.addStyleName ( "hidden" );
-			}
-			else {
-				widget.removeStyleName ( "hidden" );
-				widget2.removeStyleName ( "hidden" );
-			}
-
-			widget = main.getWidget ( i, PRODUCT_NOTIFICATIONS_COLUMN );
-
-			if ( hasConstraints == false )
-				widget.addStyleName ( "hidden" );
-			else
-				widget.removeStyleName ( "hidden" );
+	private void checkHiddenColumns () {
+		/*
+			Quali colonne sono da nascondere, e quali sono sempre da visualizzare, e'
+			argomento di discussione. E' corretto voler ridurre il numero di
+			variazioni possibili nella tabella, ma mettere tutti gli attributi genera
+			solo una gran griglia di cui magari solo una parte e' significativa.
+			Commentando e decommentando le righe nel for() si opta per quali colonne
+			visualizzare sempre e quali rendere dinamiche, da tenere a portata di mano
+			per eventuali cambiamenti futuri
+		*/
+		for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
+			// checkHiddenColumn ( i, PRODUCT_TRANSPORT_COLUMN, PRODUCT_TOTALTRANSPORT_COLUMN, hasTransport );
+			checkHiddenColumn ( i, PRODUCT_STOCK_COLUMN, -1, hasStock );
+			checkHiddenColumn ( i, PRODUCT_AVAILQUANT_COLUMN, -1, hasMaxAvailable );
+			// checkHiddenColumn ( i, PRODUCT_OVERPRICE_COLUMN, PRODUCT_TOTALOVERPRICE_COLUMN, hasSurplus );
+			// checkHiddenColumn ( i, PRODUCT_NOTIFICATIONS_COLUMN, -1, hasConstraints );
 		}
 
 		if ( hasTransport == false )
@@ -354,7 +381,7 @@ public class OrderSummary extends Composite implements Lockable {
 			totalOverpriceLabel.removeStyleName ( "hidden" );
 	}
 
-	private void syncTable ( ArrayList products, float [] quantities, float [] delivered,
+	private void syncTable ( Order order, ArrayList products, float [] quantities, float [] delivered,
 					float [] prices, float [] prices_details, float [] overprices_details ) {
 		int i;
 		int e;
@@ -369,7 +396,7 @@ public class OrderSummary extends Composite implements Lockable {
 			if ( product.getBool ( "available" ) == false )
 				continue;
 
-			e = searchProduct ( product );
+			e = searchProduct ( order, product );
 			if ( e == -1 ) {
 				e = main.getRowCount () - 2;
 				main.insertRow ( e );
@@ -379,14 +406,14 @@ public class OrderSummary extends Composite implements Lockable {
 				new_row = false;
 			}
 
-			setDataRow ( e, product, quantities [ i ], delivered [ i ], prices [ i ],
+			setDataRow ( e, order, product, quantities [ i ], delivered [ i ], prices [ i ],
 					prices_details [ i ], overprices_details [ i ], new_row );
 		}
 
 		checkHiddenColumns ();
 	}
 
-	private void addManualAdjustIcon ( int row, Product prod ) {
+	private void addManualAdjustIcon ( int row, FromServer prod ) {
 		RefineProductDialog cell;
 
 		cell = new RefineProductDialog ( ordersUsers, prod );
@@ -403,7 +430,7 @@ public class OrderSummary extends Composite implements Lockable {
 		main.setWidget ( row, PRODUCT_NOTIFICATIONS_COLUMN, new Label () );
 	}
 
-	private String measureSymbol ( Product prod ) {
+	private String measureSymbol ( FromServer prod ) {
 		FromServer measure;
 
 		measure = prod.getObject ( "measure" );
@@ -481,9 +508,8 @@ public class OrderSummary extends Composite implements Lockable {
 				lab.setText ( Utils.priceToString ( price * quantity ) );
 				alignTotalPrice ( label_index );
 
-				if ( id == PRODUCT_PRICE_COLUMN ) {
+				if ( id == PRODUCT_PRICE_COLUMN )
 					alignRowOverprice ( main.getWidget ( i, PRODUCT_OVERPRICE_COLUMN ) );
-				}
 
 				break;
 			}
@@ -522,7 +548,7 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 	}
 
-	private void setDataRow ( int index, Product product, float quantity, float delivered, float price, float price_details, float overprice, boolean new_row ) {
+	private void setDataRow ( int index, FromServer order, FromServer product, float quantity, float delivered, float price, float price_details, float overprice, boolean new_row ) {
 		float stock;
 		float max_avail;
 		float transport;
@@ -550,7 +576,8 @@ public class OrderSummary extends Composite implements Lockable {
 			hasMaxAvailable = true;
 
 		if ( new_row == true ) {
-			main.setWidget ( index, 0, new Hidden ( Integer.toString ( product.getLocalID () ) ) );
+			main.setWidget ( index, ORDER_ID_COLUMN, new Hidden ( Integer.toString ( order.getLocalID () ) ) );
+			main.setWidget ( index, PRODUCT_ID_COLUMN, new Hidden ( Integer.toString ( product.getLocalID () ) ) );
 
 			box = new PriceBox ();
 			box.setVal ( product.getFloat ( "unit_price" ) );
@@ -638,33 +665,66 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 	}
 
-	private void fillList () {
-		int i;
-		int e;
+	private int fillRows ( FromServer order, int e ) {
 		ArrayList products;
 		Product prod;
 
-		products = currentOrder.getArray ( "products" );
+		products = order.getArray ( "products" );
 		if ( products == null )
-			return;
-
-		initHiddenColumns ();
+			return e;
 
 		products = Utils.sortArrayByName ( products );
 
-		for ( i = 0, e = 1; i < products.size (); i++ ) {
+		for ( int i = 0; i < products.size (); i++ ) {
 			prod = ( Product ) products.get ( i );
 
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			setDataRow ( e, prod, 0, 0, 0, 0, 0, true );
+			setDataRow ( e, order, prod, 0, 0, 0, 0, 0, true );
 			e++;
 		}
 
-		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		main.getFlexCellFormatter ().setColSpan ( e, 0, 13 );
+		return e;
+	}
 
+	private void fillList () {
+		int j;
+		int i;
+		int e;
+		int num;
+		FromServer order;
+		Product prod;
+		Label head;
+		FlexTable.FlexCellFormatter formatter;
+
+		initHiddenColumns ();
+
+		formatter = main.getFlexCellFormatter ();
+		num = currentOrders.size ();
+
+		if ( num == 1 ) {
+			order = ( FromServer ) currentOrders.get ( 0 );
+			e = fillRows ( order, 1 );
+		}
+		else {
+			for ( j = 0, e = 1; j < num; j++ ) {
+				order = ( FromServer ) currentOrders.get ( j );
+				main.setWidget ( e, ORDER_ID_COLUMN, new Hidden ( Integer.toString ( order.getLocalID () ) ) );
+
+				head = new Label ( order.getObject ( "supplier" ).getString ( "name" ) );
+				head.addStyleName ( "static-value" );
+				head.addStyleName ( "top-spaced" );
+				main.setWidget ( e, PRODUCT_NAME_COLUMN, head );
+				formatter.setColSpan ( e, PRODUCT_NAME_COLUMN, PRODUCT_NOTIFICATIONS_COLUMN - PRODUCT_NAME_COLUMN + 1 );
+				formatter.setHorizontalAlignment ( e, PRODUCT_NAME_COLUMN, HasHorizontalAlignment.ALIGN_RIGHT );
+
+				e = fillRows ( order, ++e );
+			}
+		}
+
+		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
+		formatter.setColSpan ( e, 0, 13 );
 		e++;
 
 		if ( totalLabel == null ) {

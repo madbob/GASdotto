@@ -98,16 +98,22 @@ public class ObjectRequest extends JSONObject {
 					funzione
 				*/
 				if ( attr.name == "id" )
-					good = ( compare.getLocalID () == attr.getInt () );
+					good = ( compare.getLocalID () == attr.getInt ( null ) );
 				else
-					good = ( compare.getInt ( attr.name ) == attr.getInt () );
+					good = ( compare.getInt ( attr.name ) == attr.getInt ( null ) );
 			}
 
 			else if ( type == FromServer.OBJECT ) {
 				FromServer mine;
 				FromServer his;
 
-				mine = attr.getObject ();
+				/*
+					Attenzione: questo non puo' funzionare se una callback
+					"fasulla" viene usata per mappare l'oggetto restituito da
+					getObject, semplicemente perche' qui non c'e' alcun
+					FromServer reale da cui pescarlo
+				*/
+				mine = attr.getObject ( null );
 				his = compare.getObject ( attr.name );
 				good = ( his.equals ( mine ) );
 			}

@@ -105,18 +105,6 @@ public class ButtonsBar extends Composite {
 	}
 
 	private void showCells ( boolean show ) {
-		/*
-		int tot;
-		Widget wid;
-
-		tot = main.getCellCount ( 1 );
-
-		for ( int i = 0; i < tot; i++ ) {
-			wid = main.getWidget ( 1, i );
-			wid.setVisible ( show );
-		}
-		*/
-
 		HTMLTable.RowFormatter formatter;
 
 		formatter = main.getRowFormatter ();

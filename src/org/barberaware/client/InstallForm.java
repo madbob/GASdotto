@@ -96,7 +96,7 @@ public class InstallForm extends Composite {
 
 		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerForm form ) {
-				if ( form.getObject ().getLocalID () == 1 )
+				if ( form.getValue ().getLocalID () == 1 )
 					installationComplete ();
 				else
 					Utils.showNotification ( "E' occorso un problema durante l'installazione" );

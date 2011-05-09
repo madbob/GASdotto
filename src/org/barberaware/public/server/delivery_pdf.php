@@ -53,9 +53,14 @@ class DeliveryReport extends TCPDF {
 			foreach ( $data as $row ) {
 				$html .= '<tr>';
 
-				for ( $i = $offset; $i < $end; $i++ ) {
+				for ( $i = $offset; $i < $end && $i < count ( $row ); $i++ ) {
 					$val = $row [ $i ];
 					$html .= '<td>' . $val . '</td>';
+				}
+
+				while ( $i < $end ) {
+					$html .= '<td><br /></td>';
+					$i++;
 				}
 
 				$html .= '</tr>';
@@ -100,10 +105,11 @@ $shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 
 $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
+$prod_num = count ( $products );
 
 $header = array ( 'Utenti' );
 
-for ( $i = 0; $i < count ( $products ); $i++ ) {
+for ( $i = 0; $i < $prod_num; $i++ ) {
 	$prod = $products [ $i ];
 	$name = $prod->getAttribute ( "name" )->value;
 	$price = format_price ( $prod->getAttribute ( "unit_price" )->value );
@@ -140,11 +146,11 @@ array_push ( $header, 'Utenti' );
 
 $data = array ();
 
-$products_sums = array_fill ( 0, count ( $products ), 0 );
-$quantities_sums = array_fill ( 0, count ( $products ), 0 );
-$delivery_sums = array_fill ( 0, count ( $products ), 0 );
-$shipped_sums = array_fill ( 0, count ( $products ), 0 );
-$shipping_price = array_fill ( 0, count ( $products ), 0 );
+$products_sums = array_fill ( 0, $prod_num, 0 );
+$quantities_sums = array_fill ( 0, $prod_num, 0 );
+$delivery_sums = array_fill ( 0, $prod_num, 0 );
+$shipped_sums = array_fill ( 0, $prod_num, 0 );
+$shipping_price = array_fill ( 0, $prod_num, 0 );
 $shipped_sums_by_date = array ();
 
 $contents = get_orderuser_by_order ( $order );
@@ -180,7 +186,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$quantity = 0;
 		$delivered = 0;
 
-		if ( is_array ( $user_products ) ) {
+		if ( is_array ( $user_products ) && $e < count ( $user_products ) ) {
 			$prod_user = $user_products [ $e ];
 
 			if ( $prodid == $prod_user->product ) {
@@ -190,7 +196,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			}
 		}
 
-		if ( count ( $order_user->friends ) != 0 ) {
+		if ( property_exists ( $order_user, "friends" ) && count ( $order_user->friends ) != 0 ) {
 			foreach ( $order_user->friends as $friend ) {
 				foreach ( $friend->products as $fprod ) {
 					if ( $fprod->product == $prodid ) {
@@ -230,12 +236,13 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$products_sums [ $a ] += $sum;
 			$user_total += $sum;
 
-			if ( ( $_GET [ 'type' ] == 'saved' && $order_user->status == 3 ) || ( $_GET [ 'type' ] != 'saved' && $order_user->status != 3 ) ) {
+			if ( ( $_GET [ 'type' ] == 'saved' && property_exists ( $order_user, 'status' ) && $order_user->status == 3 ) ||
+					( $_GET [ 'type' ] != 'saved' && ( property_exists ( $order_user, 'status' ) == false || $order_user->status != 3 ) ) ) {
 				$sum = ( $delivered * $uprice ) + ( $delivered * $sprice );
 				$shipped_sums [ $a ] += $sum;
 				$shipped_total += $sum;
 
-				if ( $order_user->deliverydate != null ) {
+				if ( property_exists ( $order_user, 'deliverydate' ) ) {
 					if ( isset ( $shipped_sums_by_date [ $order_user->deliverydate ] ) == false ) {
 						$arr = array_fill ( 0, count ( $products ), 0 );
 						$shipped_sums_by_date [ $order_user->deliverydate ] = $arr;
@@ -249,7 +256,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$delivery_sums [ $a ] += $delivered;
 		}
 		else {
-			$row [] = '<br />';
+			$row [] = '<br /><br />';
 		}
 
 		unset ( $prod_user );
@@ -260,25 +267,35 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$row [] = ( format_price ( round ( $user_total + $user_total_ship, 2 ), false ) ) . '<br />';
 	$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . '<br />';
 
-	if ( $order_user->status == 1 )
-		$row [] = 'Parzialmente Consegnato<br />';
-	else if ( $order_user->status == 2 )
-		$row [] = 'Consegnato<br />';
-	else if ( $order_user->status == 3 )
-		$row [] = 'Prezzato<br />';
-	else
+	if ( property_exists ( $order_user, 'status' ) ) {
+		if ( $order_user->status == 1 )
+			$row [] = 'Parzialmente Consegnato<br />';
+		else if ( $order_user->status == 2 )
+			$row [] = 'Consegnato<br />';
+		else if ( $order_user->status == 3 )
+			$row [] = 'Prezzato<br />';
+		else
+			$row [] = '<br />';
+	}
+	else {
 		$row [] = '<br />';
+	}
 
-	if ( $order_user->deliverydate != null && $order_user->deliverydate != '' )
+	if ( property_exists ( $order_user, 'deliverydate' ) )
 		$row [] = format_date ( $order_user->deliverydate );
 	else
 		$row [] = '';
 
-	$reference = $order_user->deliveryperson;
-	if ( property_exists ( $reference, 'surname' ) )
-		$row [] = sprintf ( "%s<br />%s", $reference->surname, $reference->firstname );
-	else
+	if ( property_exists ( $order_user, 'deliveryperson' ) ) {
+		$reference = $order_user->deliveryperson;
+		if ( property_exists ( $reference, 'surname' ) )
+			$row [] = sprintf ( "%s<br />%s", $reference->surname, $reference->firstname );
+		else
+			$row [] = '';
+	}
+	else {
 		$row [] = '';
+	}
 
 	/*
 		Il nome dell'utente viene messo sia all'inizio che alla fine della riga per

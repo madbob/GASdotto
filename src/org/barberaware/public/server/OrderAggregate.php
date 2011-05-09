@@ -1,5 +1,7 @@
+<?php
+
 /*  GASdotto
- *  Copyright (C) 2008/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -15,33 +17,14 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.barberaware.client;
+require_once ( "utils.php" );
 
-import java.util.*;
+class OrderAggregate extends FromServer {
+	public function __construct () {
+		parent::__construct ( "OrderAggregate" );
 
-public abstract class ValueFromObjectClosure {
-	public int retriveInteger ( FromServer obj ) {
-		/* dummy */
-		return -1;
-	}
-
-	public String retriveString ( FromServer obj ) {
-		/* dummy */
-		return "";
-	}
-
-	public Date retriveDate ( FromServer obj ) {
-		/* dummy */
-		return null;
-	}
-
-	public FromServer retriveObject ( FromServer obj ) {
-		/* dummy */
-		return null;
-	}
-
-	public ArrayList retriveArray ( FromServer obj ) {
-		/* dummy */
-		return new ArrayList ();
+		$this->addAttribute ( "orders", "ARRAY::Order" );
 	}
 }
+
+?>

@@ -110,8 +110,15 @@ public abstract class FromServer implements Comparator {
 		attributes.put ( name, new FromServerAttribute ( name, type, value ) );
 	}
 
+	protected void addFakeAttribute ( String name, int type, Class object, ValueFromObjectClosure value ) {
+		attributes.put ( name, new FromServerAttribute ( name, type, object, value ) );
+	}
+
 	private FromServerAttribute getInternalAttribute ( String name ) {
 		FromServerAttribute ret;
+
+		if ( this == null )
+			Utils.crashMe ();
 
 		ret = ( FromServerAttribute ) attributes.get ( name );
 		if ( ret == null )
@@ -210,7 +217,7 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public int getInt ( String name ) {
-		return getInternalAttribute ( name ).getInt ();
+		return getInternalAttribute ( name ).getInt ( this );
 	}
 
 	public float getFloat ( String name ) {
@@ -222,11 +229,11 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public FromServer getObject ( String name ) {
-		return getInternalAttribute ( name ).getObject ();
+		return getInternalAttribute ( name ).getObject ( this );
 	}
 
 	public Date getDate ( String name ) {
-		return getInternalAttribute ( name ).getDate ();
+		return getInternalAttribute ( name ).getDate ( this );
 	}
 
 	public boolean getBool ( String name ) {
@@ -499,6 +506,24 @@ public abstract class FromServer implements Comparator {
 		relatedInfo.remove ( identifier );
 	}
 
+	public void delRelatedInfo ( Object related ) {
+		String k;
+		Object [] keys;
+		Object rel;
+
+		keys = attributes.keySet ().toArray ();
+
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			rel = attributes.get ( k );
+
+			if ( rel == related ) {
+				delRelatedInfo ( k );
+				break;
+			}
+		}
+	}
+
 	/****************************************************************** Comparator */
 
 	public int compare ( Object first, Object second ) {
@@ -527,7 +552,10 @@ public abstract class FromServer implements Comparator {
 			return false;
 
 		other = ( FromServer ) second;
-		// return ( ( getLocalID () == other.getLocalID () ) && ( getType () == other.getType () ) );
-		return ( this.compare ( this, second ) == 0 );
+
+		if ( getType () != other.getType () )
+			return false;
+		else
+			return ( this.compare ( this, second ) == 0 );
 	}
 }

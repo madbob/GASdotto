@@ -90,10 +90,10 @@ public class NotificationPanel extends GenericPanel {
 
 							if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
 								users = ( MultiSelector ) form.retriveInternalWidget ( "recipent" );
-								form.getObject ().setBool ( "send_mailinglist", users.getExtraElement ( "Mailing List" ) );
+								form.getValue ().setBool ( "send_mailinglist", users.getExtraElement ( "Mailing List" ) );
 							}
 							else {
-								form.getObject ().setBool ( "send_mailinglist", false );
+								form.getValue ().setBool ( "send_mailinglist", false );
 							}
 
 							return true;

@@ -21,6 +21,8 @@ import java.lang.*;
 import java.util.*;
 import com.google.gwt.json.client.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class FromServerAttribute {
 	public String			name;
 	public int			type;
@@ -50,9 +52,15 @@ public class FromServerAttribute {
 		this.objectType = reference;
 	}
 
-	public FromServerAttribute ( String name, int type, ValueFromObjectClosure reference ) {
+	public FromServerAttribute ( String name, int type, ValueFromObjectClosure closure ) {
 		buildCommon ( name, type );
-		this.fakeClosure = reference;
+		this.fakeClosure = closure;
+	}
+
+	public FromServerAttribute ( String name, int type, Class reference, ValueFromObjectClosure closure ) {
+		buildCommon ( name, type );
+		this.objectType = reference;
+		this.fakeClosure = closure;
 	}
 
 	public void setString ( String value ) {
@@ -120,8 +128,11 @@ public class FromServerAttribute {
 			return string;
 	}
 
-	public int getInt () {
-		return integer;
+	public int getInt ( FromServer obj ) {
+		if ( fakeClosure != null )
+			return fakeClosure.retriveInteger ( obj );
+		else
+			return integer;
 	}
 
 	public float getFloat () {
@@ -135,12 +146,18 @@ public class FromServerAttribute {
 			return array;
 	}
 
-	public FromServer getObject () {
-		return Utils.getServer ().getObjectFromCache ( getClassName (), objectId );
+	public FromServer getObject ( FromServer obj ) {
+		if ( fakeClosure != null )
+			return fakeClosure.retriveObject ( obj );
+		else
+			return Utils.getServer ().getObjectFromCache ( getClassName (), objectId );
 	}
 
-	public Date getDate () {
-		return date;
+	public Date getDate ( FromServer obj ) {
+		if ( fakeClosure != null )
+			return fakeClosure.retriveDate ( obj );
+		else
+			return date;
 	}
 
 	public boolean getBool () {
@@ -195,7 +212,7 @@ public class FromServerAttribute {
 			if ( objectId == -1 )
 				real_object = FromServerFactory.create ( objectType.getName () );
 			else
-				real_object = this.getObject ();
+				real_object = this.getObject ( null );
 
 			if ( real_object.getLocalID () == -1 )
 				ret = real_object.toJSONObject ();

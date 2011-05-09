@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2008/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,28 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.ui.*;
 
-public abstract class ValueFromObjectClosure {
-	public int retriveInteger ( FromServer obj ) {
-		/* dummy */
-		return -1;
+import com.allen_sauer.gwt.log.client.Log;
+
+public class OrderUserDetails extends FromServerRappresentation {
+	private VerticalPanel		main;
+
+	public OrderUserDetails () {
+		main = new VerticalPanel ();
+		initWidget ( main );
+		main.setWidth ( "100%" );
 	}
 
-	public String retriveString ( FromServer obj ) {
-		/* dummy */
-		return "";
-	}
+	public void setValue ( FromServer object ) {
+		super.setValue ( object );
 
-	public Date retriveDate ( FromServer obj ) {
-		/* dummy */
-		return null;
-	}
+		ProductsDeliveryTable products;
 
-	public FromServer retriveObject ( FromServer obj ) {
-		/* dummy */
-		return null;
-	}
+		main.clear ();
 
-	public ArrayList retriveArray ( FromServer obj ) {
-		/* dummy */
-		return new ArrayList ();
+		products = new ProductsDeliveryTable ();
+		main.add ( getPersonalizedWidget ( "allproducts", products ) );
 	}
 }

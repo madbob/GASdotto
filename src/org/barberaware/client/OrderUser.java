@@ -52,7 +52,10 @@ public class OrderUser extends FromServer {
 				FromServer friend;
 
 				ret = new ArrayList ();
-				ret.addAll ( getArray ( "products" ) );
+
+				friends = obj.getArray ( "products" );
+				if ( friends != null )
+					ret.addAll ( friends );
 
 				friends = obj.getArray ( "friends" );
 				if ( friends != null ) {

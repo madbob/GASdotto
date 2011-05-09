@@ -28,10 +28,13 @@ public abstract class OrdersHubWidget extends Composite {
 	private HorizontalPanel		main;
 	private HTML			notice;
 	private CustomCaptionPanel	frame;
+
 	private CheckBox		toggle;
 	private DateSelector		startdate;
 	private DateSelector		enddate;
 	private FromServerSelector	supplier;
+
+	private ArrayList		statusListeners;
 
 	public OrdersHubWidget () {
 		Date now;
@@ -88,6 +91,7 @@ public abstract class OrdersHubWidget extends Composite {
 
 		toggle.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
+				triggerStatus ();
 				triggerFilters ();
 			}
 		} );
@@ -129,6 +133,49 @@ public abstract class OrdersHubWidget extends Composite {
 		supplier.setValue ( supp );
 	}
 
+	public boolean isEngaged () {
+		return engaged;
+	}
+
+	public void setEnabled ( boolean enable ) {
+		toggle.setEnabled ( enable );
+	}
+
+	public void doFilter () {
+		boolean show;
+		Date s;
+		Date e;
+		FromServer sup;
+
+		show = toggle.isChecked ();
+
+		if ( show == true ) {
+			s = startdate.getValue ();
+			e = enddate.getValue ();
+			sup = supplier.getValue ();
+
+			doFilter ( show, s, e, sup );
+		}
+	}
+
+	public void addStatusListener ( StatusListener listener ) {
+		if ( statusListeners == null )
+			statusListeners = new ArrayList ();
+		statusListeners.add ( listener );
+	}
+
+	private void triggerStatus () {
+		boolean show;
+		StatusListener listen;
+
+		show = toggle.isChecked ();
+
+		for ( int i = 0; i < statusListeners.size (); i++ ) {
+			listen = ( StatusListener ) statusListeners.get ( i );
+			listen.onStatusChange ( this, show );
+		}
+	}
+
 	private void triggerFilters () {
 		boolean show;
 		Date s;
@@ -158,23 +205,6 @@ public abstract class OrdersHubWidget extends Composite {
 
 		prevShow = show;
 		doFilter ( show, s, e, sup );
-	}
-
-	public void doFilter () {
-		boolean show;
-		Date s;
-		Date e;
-		FromServer sup;
-
-		show = toggle.isChecked ();
-
-		if ( show == true ) {
-			s = startdate.getValue ();
-			e = enddate.getValue ();
-			sup = supplier.getValue ();
-
-			doFilter ( show, s, e, sup );
-		}
 	}
 
 	public abstract void doFilter ( boolean show, Date start, Date end, FromServer supplier );

@@ -36,6 +36,7 @@ require_once ( "Product.php" );
 require_once ( "ProductVariant.php" );
 require_once ( "ProductVariantValue.php" );
 require_once ( "Order.php" );
+require_once ( "OrderAggregate.php" );
 require_once ( "ProductUser.php" );
 require_once ( "ProductUserVariant.php" );
 require_once ( "ProductUserVariantComponent.php" );
@@ -228,19 +229,19 @@ function sort_orders_by_user ( $first, $second ) {
 }
 
 function sort_orders_by_user_and_date ( $first, $second ) {
-	if ( $first->deliverydate != null && $second->deliverydate != null ) {
+	if ( property_exists ( $first, 'deliverydate' ) && property_exists ( $second, 'deliverydate' ) ) {
 		if ( $first->deliverydate == $second->deliverydate )
 			return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 		else
 			return strcmp ( $first->deliverydate, $second->deliverydate );
 	}
-	else if ( $first->deliverydate == null && $second->deliverydate == null ) {
+	if ( property_exists ( $first, 'deliverydate' ) == false && property_exists ( $second, 'deliverydate' ) == false ) {
 		return strcmp ( $first->baseuser->surname, $second->baseuser->surname );
 	}
-	else if ( $first->deliverydate == null ) {
+	else if ( property_exists ( $first, 'deliverydate' ) == false ) {
 		return 1;
 	}
-	else if ( $second->deliverydate == null ) {
+	else if ( property_exists ( $second, 'deliverydate' ) == false ) {
 		return -1;
 	}
 }

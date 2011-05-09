@@ -76,6 +76,7 @@ public class Order extends FromServer {
 		addAttribute ( "nextdate", FromServer.STRING );
 		addAttribute ( "anticipated", FromServer.PERCENTAGE );
 		addAttribute ( "mail_summary_sent", FromServer.DATE );
+		addAttribute ( "parent_aggregate", FromServer.BOOLEAN );
 
 		setDate ( "startdate", new Date ( System.currentTimeMillis () ) );
 		setInt ( "status", OPENED );
@@ -89,5 +90,39 @@ public class Order extends FromServer {
 		params = new ObjectRequest ( "OrderUser" );
 		params.add ( "baseorder", getLocalID () );
 		Utils.getServer ().testObjectReceive ( params );
+	}
+
+	public static CyclicToggle doOrderStatusSelector ( boolean active ) {
+		CyclicToggle status;
+
+		/*
+			Nella selezione non appare lo stato 3, usato per l'auto-sospensione
+			(nel caso di un ordine con data di apertura nel futuro)
+		*/
+
+		status = new CyclicToggle ( active );
+		status.addState ( "images/order_status_opened.png" );
+		status.addState ( "images/order_status_closed.png" );
+		status.addState ( "images/order_status_suspended.png" );
+		status.addState ( "images/order_status_shipped.png" );
+		status.setDefaultSelection ( 2 );
+		return status;
+	}
+
+	/****************************************************************** Comparator */
+
+	public int compare ( Object first, Object second ) {
+		FromServer f;
+		FromServer s;
+
+		if ( first == null )
+			return 1;
+		else if ( second == null )
+			return -1;
+
+		f = ( FromServer ) first;
+		s = ( FromServer ) second;
+
+		return -1 * ( f.getDate ( "enddate" ).compareTo ( s.getDate ( "enddate" ) ) );
 	}
 }

@@ -29,6 +29,7 @@ public abstract class FormGroup extends Composite {
 	private String				identifier		= "";
 	private Panel				addButtons		= null;
 	private boolean				addable			= false;
+	private ArrayList			aggregates		= null;
 
 	public FormGroup ( String adding_text ) {
 		main = new VerticalPanel ();
@@ -53,30 +54,42 @@ public abstract class FormGroup extends Composite {
 		addButtons.add ( button );
 	}
 
-	public FromServerForm retrieveFormById ( int id ) {
-		int i;
+	public FromServerRappresentation retrieveFormById ( int id ) {
 		int tot;
-		FromServerForm iter;
 		FromServer cmp;
+		FromServerRappresentation iter;
+		FromServerRappresentation ret;
 
 		iter = null;
+		ret = null;
 		tot = latestIterableIndex ();
 
-		for ( i = firstIterableIndex (); i < tot; i++ ) {
-			iter = ( FromServerForm ) main.getWidget ( i );
-			cmp = iter.getObject ();
-			if ( cmp != null && cmp.getLocalID () == id )
-				break;
+		for ( int i = firstIterableIndex (); ret == null && i < tot; i++ ) {
+			iter = ( FromServerRappresentation ) main.getWidget ( i );
+			cmp = iter.getValue ();
+
+			if ( cmp != null ) {
+				if ( cmp.getLocalID () == id ) {
+					ret = iter;
+					break;
+				}
+			}
 		}
 
-		if ( i == tot )
-			iter = null;
+		if ( ret == null )
+			ret = retrieveIntoAggregates ( id );
 
-		return iter;
+		return ret;
 	}
 
-	public FromServerForm retrieveForm ( FromServer obj ) {
-		return ( FromServerForm ) obj.getRelatedInfo ( identifier );
+	public FromServerRappresentation retrieveForm ( FromServer obj ) {
+		FromServerRappresentation ret;
+
+		ret = ( FromServerRappresentation ) obj.getRelatedInfo ( identifier );
+		if ( ret == null )
+			ret = retrieveIntoAggregates ( obj.getLocalID () );
+
+		return ret;
 	}
 
 	/*
@@ -125,7 +138,7 @@ public abstract class FormGroup extends Composite {
 					public void onSaved ( FromServerForm form ) {
 						int pos;
 
-						pos = getPosition ( form.getObject (), 1, true );
+						pos = getPosition ( form.getValue (), 1, true );
 						main.insert ( form, pos );
 					}
 				} );
@@ -134,6 +147,12 @@ public abstract class FormGroup extends Composite {
 				object.addRelatedInfo ( identifier, iter );
 
 				ret = 1;
+
+				if ( iter.getValue () instanceof FromServerAggregate ) {
+					if ( aggregates == null )
+						aggregates = new ArrayList ();
+					aggregates.add ( iter );
+				}
 			}
 			else {
 				ret = 2;
@@ -148,7 +167,7 @@ public abstract class FormGroup extends Composite {
 
 	public void reSort ( FromServer object ) {
 		int pos;
-		FromServerForm iter;
+		FromServerRappresentation iter;
 
 		iter = retrieveForm ( object );
 		if ( iter != null ) {
@@ -158,8 +177,8 @@ public abstract class FormGroup extends Composite {
 		}
 	}
 
-	public FromServerForm refreshElement ( FromServer object ) {
-		FromServerForm iter;
+	public FromServerRappresentation refreshElement ( FromServer object ) {
+		FromServerRappresentation iter;
 
 		iter = retrieveForm ( object );
 		if ( iter != null )
@@ -169,11 +188,25 @@ public abstract class FormGroup extends Composite {
 	}
 
 	public void deleteElement ( FromServer object ) {
-		FromServerForm iter;
+		FromServer parent;
+		FromServerRappresentation iter;
 
 		iter = retrieveForm ( object );
 		if ( iter != null ) {
+			iter.removeFromParent ();
+
+			/*
+				Per qualche oscuro motivo, se provo ad eliminare un FromServerForm dal FormGroup non
+				succede niente. Neanche usando remove() con l'indice del form (che comunque viene
+				correttamente restituito da getWidgetIndex()). Pertanto qui provvedo nel caso ad
+				invalidarlo, per renderlo invisibile: soluzione incompleta, ma l'unico hack che son
+				riuscito ad escogitare alle 3:00 AM di un venerdi sera
+			*/
 			iter.invalidate ();
+
+			if ( aggregates != null )
+				aggregates.remove ( iter );
+
 			object.delRelatedInfo ( identifier );
 		}
 	}
@@ -188,7 +221,7 @@ public abstract class FormGroup extends Composite {
 		for ( int i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 			if ( iter.isOpen () == true ) {
-				obj = iter.getObject ();
+				obj = iter.getValue ();
 
 				if ( obj != null )
 					return obj.getLocalID ();
@@ -214,7 +247,7 @@ public abstract class FormGroup extends Composite {
 		for ( i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 
-			cmp = iter.getObject ();
+			cmp = iter.getValue ();
 			if ( cmp != null )
 				array.add ( cmp );
 		}
@@ -236,7 +269,7 @@ public abstract class FormGroup extends Composite {
 		for ( i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
 
-			cmp = iter.getObject ();
+			cmp = iter.getValue ();
 			if ( cmp != null )
 				array.add ( iter );
 		}
@@ -254,7 +287,7 @@ public abstract class FormGroup extends Composite {
 
 		for ( int i = firstIterableIndex (); i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
-			if ( iter.getObject () != null )
+			if ( iter.getValue () != null )
 				num++;
 		}
 
@@ -316,12 +349,12 @@ public abstract class FormGroup extends Composite {
 					public void onSaved ( FromServerForm form ) {
 						int pos;
 
-						pos = getPosition ( form.getObject (), 1, true );
+						pos = getPosition ( form.getValue (), 1, true );
 						main.insert ( form, pos );
 					}
 				} );
 
-				new_form.getObject ().addRelatedInfo ( identifier, new_form );
+				new_form.getValue ().addRelatedInfo ( identifier, new_form );
 				new_form.open ( true );
 				main.insert ( new_form, firstIterableIndex () );
 			}
@@ -340,7 +373,7 @@ public abstract class FormGroup extends Composite {
 
 		for ( i = firstIterableIndex () + from; i < tot; i++ ) {
 			iter = ( FromServerForm ) main.getWidget ( i );
-			object_2 = iter.getObject ();
+			object_2 = iter.getValue ();
 
 			if ( object_2 != null && sorting ( object, object_2 ) >= 0 ) {
 				if ( ignore_existance == false ) {
@@ -353,6 +386,31 @@ public abstract class FormGroup extends Composite {
 		}
 
 		return i;
+	}
+
+	private FromServerRappresentation retrieveIntoAggregates ( int id ) {
+		FromServerAggregate aggr_obj;
+		FromServerRappresentation aggr_form;
+		FromServerRappresentation ret;
+
+		ret = null;
+
+		if ( aggregates != null ) {
+			for ( int i = 0; i < aggregates.size (); i++ ) {
+				aggr_form = ( FromServerRappresentation ) aggregates.get ( i );
+				ret = aggr_form.getChild ( id );
+				if ( ret != null )
+					break;
+
+				aggr_obj = ( FromServerAggregate ) aggr_form.getValue ();
+				if ( aggr_obj.hasObject ( id ) ) {
+					ret = aggr_form;
+					break;
+				}
+			}
+		}
+
+		return ret;
 	}
 
 	/*

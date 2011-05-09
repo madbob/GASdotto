@@ -172,10 +172,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	else
 		$param = 'quantity';
 
-	for ( $a = 0, $e = 0; $a < count ( $products )  && $e < count ( $user_products ); $a++ ) {
+	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
-		$prod_user = $user_products [ $e ];
-
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$quantity = 0;
 
@@ -186,13 +184,17 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		*/
 		$variants = array ();
 
-		if ( $prodid == $prod_user->product ) {
-			$quantity = $prod_user->$param;
+		if ( $e < count ( $user_products ) ) {
+			$prod_user = $user_products [ $e ];
 
-			if ( is_array ( $prod_user->variants ) )
-				$variants = $prod_user->variants;
+			if ( $prodid == $prod_user->product ) {
+				$quantity = $prod_user->$param;
 
-			$e++;
+				if ( is_array ( $prod_user->variants ) )
+					$variants = $prod_user->variants;
+
+				$e++;
+			}
 		}
 
 		if ( property_exists ( $order_user, 'friends' ) && count ( $order_user->friends ) != 0 ) {

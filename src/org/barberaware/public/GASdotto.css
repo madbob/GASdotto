@@ -499,6 +499,18 @@ body {
 	height:			100%;
 }
 
+.order-aggregate-box {
+	padding:		20px;
+	margin:			10px;
+	border:			5px solid #000000;
+	width:			80%;
+	max-width:		80%;
+}
+
+.drop-engage {
+	border:			5px solid #FF0000;
+}
+
 .big-error-dialog {
 	position:		absolute;
 	top:			0;

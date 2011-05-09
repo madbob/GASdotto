@@ -378,6 +378,7 @@ function check_db_schema () {
 	test_class ( 'ProductVariant' );
 	test_class ( 'Product' );
 	test_class ( 'Order' );
+	test_class ( 'OrderAggregate' );
 	test_class ( 'ProductUserVariantComponent' );
 	test_class ( 'ProductUserVariant' );
 	test_class ( 'ProductUser' );

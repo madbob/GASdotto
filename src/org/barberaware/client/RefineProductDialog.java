@@ -31,13 +31,13 @@ import com.allen_sauer.gwt.log.client.Log;
 */
 
 public class RefineProductDialog extends Composite implements SourcesChangeEvents {
-	private Product				targetProduct;
+	private FromServer			targetProduct;
 	private ArrayList			userOrders;
 	private FlexTable			optionsTable;
 	private DialogBox			dialog;
 	private ChangeListenerCollection	listeners;
 
-	public RefineProductDialog ( ArrayList orders, Product prod ) {
+	public RefineProductDialog ( ArrayList orders, FromServer prod ) {
 		Image main;
 
 		targetProduct = prod;

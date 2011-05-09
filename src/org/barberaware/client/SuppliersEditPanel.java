@@ -50,7 +50,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 			protected void customNew ( FromServer object, boolean true_new ) {
 				if ( true_new == false ) {
-					FromServerForm form;
+					FromServerRappresentation form;
 					ProductsEditPanel products;
 
 					form = main.retrieveForm ( object );
@@ -68,7 +68,7 @@ public class SuppliersEditPanel extends GenericPanel {
 				Lockable references;
 				FromServer supplier;
 
-				supplier = form.getObject ();
+				supplier = form.getValue ();
 
 				products = ( Lockable ) form.retriveInternalWidget ( "products" );
 				products.unlock ();
@@ -293,7 +293,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 	private FromServerArray retrieveProductsPanel ( Product product ) {
 		FromServer supplier;
-		FromServerForm supplier_form;
+		FromServerRappresentation supplier_form;
 
 		supplier = product.getObject ( "supplier" );
 		if ( supplier == null )
@@ -337,7 +337,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		tokens = address.split ( "::" );
 		id = Integer.parseInt ( tokens [ 1 ] );
 
-		form = main.retrieveFormById ( id );
+		form = ( FromServerForm ) main.retrieveFormById ( id );
 		if ( form != null )
 			form.open ( true );
 	}

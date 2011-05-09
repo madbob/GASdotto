@@ -24,27 +24,21 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderUserPlainPanel extends OrderUserManagerMode {
+	private VerticalPanel		main;
 	private ProductsUserSelection	selection;
-	private DummyTextArea		notes;
 	private FromServer		baseOrder;
 
 	private boolean			editable;
-	private FromServer		currentValue;
+	private boolean			freeEditable;
 
 	public OrderUserPlainPanel ( FromServer order, boolean edit, boolean freedit ) {
-		VerticalPanel main;
-
 		main = new VerticalPanel ();
 		initWidget ( main );
 
 		editable = edit;
+		freeEditable = freedit;
 		baseOrder = order;
-
-		selection = new ProductsUserSelection ( baseOrder.getArray ( "products" ), edit, freedit );
-		main.add ( selection );
-
-		notes = new DummyTextArea ();
-		main.add ( notes );
+		selection = null;
 	}
 
 	/****************************************************************** ObjectWidget */
@@ -53,34 +47,31 @@ public class OrderUserPlainPanel extends OrderUserManagerMode {
 		ArrayList friends;
 
 		if ( element == null ) {
-			currentValue = new OrderUser ();
-			currentValue.setObject ( "baseorder", baseOrder );
-			currentValue.setObject ( "baseuser", Session.getUser () );
-
-			selection.setElements ( null );
-			notes.setValue ( "" );
+			element = new OrderUser ();
+			element.setObject ( "baseorder", baseOrder );
+			element.setObject ( "baseuser", Session.getUser () );
 		}
-		else {
-			currentValue = element;
-			selection.setElements ( currentValue.getArray ( "products" ) );
 
-			friends = element.getArray ( "friends" );
-			if ( friends == null || friends.size () == 0 )
-				selection.setEditable ( true );
-			else
-				selection.setEditable ( false );
+		super.setValue ( element );
 
-			notes.setValue ( currentValue.getString ( "notes" ) );
+		if ( selection == null ) {
+			selection = new ProductsUserSelection ( baseOrder.getArray ( "products" ), editable, freeEditable );
+			main.add ( getPersonalizedWidget ( "products", selection ) );
+			main.add ( getPersonalizedWidget ( "notes", new DummyTextArea () ) );
 		}
+
+		friends = element.getArray ( "friends" );
+		if ( friends == null || friends.size () == 0 )
+			selection.setEditable ( true );
+		else
+			selection.setEditable ( false );
 	}
 
 	public FromServer getValue () {
-		if ( editable == true ) {
-			currentValue.setArray ( "products", selection.getElements () );
-			currentValue.setString ( "notes", notes.getValue () );
-		}
+		if ( editable == true )
+			rebuildObject ();
 
-		return currentValue;
+		return super.getValue ();
 	}
 
 	/****************************************************************** OrderUserManagerMode */

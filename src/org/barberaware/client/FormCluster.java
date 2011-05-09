@@ -50,11 +50,10 @@ public abstract class FormCluster extends FormGroup implements Lockable {
 			}
 
 			public void onModify ( FromServer object ) {
-				FromServerForm iter;
+				FromServerRappresentation iter;
 
 				iter = refreshElement ( object );
-				if ( iter != null )
-					customModify ( iter );
+				customModify ( object, iter );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -114,9 +113,11 @@ public abstract class FormCluster extends FormGroup implements Lockable {
 
 	/*
 		Questa funzione puo' essere sovrascritta per personalizzare il comportamento in
-		caso di modifica di uno degli elementi della lista
+		caso di modifica di uno degli elementi che dovrebbero stare nella lista. Viene
+		invocata anche quando l'elemento stesso non e' contemplato: in tal caso il
+		parametro form e' null
 	*/
-	protected void customModify ( FromServerForm form ) {
+	protected void customModify ( FromServer object, FromServerRappresentation form ) {
 		/* dummy */
 	}
 

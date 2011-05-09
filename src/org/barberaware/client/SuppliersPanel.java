@@ -52,18 +52,18 @@ public class SuppliersPanel extends GenericPanel {
 				products.unlock ();
 
 				params = new ObjectRequest ( "Product" );
-				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "supplier", form.getValue ().getLocalID () );
 				Utils.getServer ().testObjectReceive ( params );
 
 				params = new ObjectRequest ( "Order" );
 				params.add ( "status", "any" );
-				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "supplier", form.getValue ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
 
 				params = new ObjectRequest ( "OrderUser" );
 				params.add ( "all", 1 );
-				params.add ( "supplier", form.getObject ().getLocalID () );
+				params.add ( "supplier", form.getValue ().getLocalID () );
 				params.add ( "baseuser", Session.getUser ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
@@ -122,7 +122,7 @@ public class SuppliersPanel extends GenericPanel {
 	*/
 	public static void sharedOrderUserManagement ( FromServer object, FormCluster cluster, int action ) {
 		PastOrdersList list;
-		FromServerForm form;
+		FromServerRappresentation form;
 		Order ord;
 
 		if ( object.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
@@ -154,7 +154,7 @@ public class SuppliersPanel extends GenericPanel {
 		Per comodita' questa funzione viene usata anche in SuppliersEditPanel
 	*/
 	public static void sharedOrderManagement ( FromServer object, FormCluster cluster, int action ) {
-		FromServerForm form;
+		FromServerRappresentation form;
 
 		form = cluster.retrieveForm ( object.getObject ( "supplier" ) );
 
@@ -209,7 +209,7 @@ public class SuppliersPanel extends GenericPanel {
 		tokens = address.split ( "::" );
 		id = Integer.parseInt ( tokens [ 1 ] );
 
-		form = main.retrieveFormById ( id );
+		form = ( FromServerForm ) main.retrieveFormById ( id );
 		if ( form != null )
 			form.open ( true );
 	}

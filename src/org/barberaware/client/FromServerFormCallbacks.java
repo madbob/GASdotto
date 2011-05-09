@@ -32,7 +32,7 @@ public class FromServerFormCallbacks {
 	}
 
 	public String getName ( FromServerForm form ) {
-		return form.getObject ().getString ( "name" );
+		return form.getValue ().getString ( "name" );
 	}
 
 	/*

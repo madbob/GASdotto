@@ -128,7 +128,7 @@ public class UsersPanel extends GenericPanel {
 					if ( form.retriveInternalWidget ( "login" ) != null )
 						return;
 
-					user = form.getObject ();
+					user = form.getValue ();
 
 					hor = new HorizontalPanel ();
 					hor.setWidth ( "100%" );
@@ -219,7 +219,7 @@ public class UsersPanel extends GenericPanel {
 					if ( handlePayments == true )
 						frame.addPair ( "Quota pagata", form.getWidget ( "paying" ) );
 
-					privileges = new CyclicToggle ();
+					privileges = new CyclicToggle ( true );
 					privileges.addState ( "images/user_role_standard.png" );
 					privileges.addState ( "images/user_role_reference.png" );
 					privileges.addState ( "images/user_role_admin.png" );
@@ -235,18 +235,20 @@ public class UsersPanel extends GenericPanel {
 					frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 				}
 
-				protected void customModify ( FromServerForm form ) {
-					FromServer u;
+				protected void customModify ( FromServer obj, FromServerRappresentation form ) {
+					FromServerForm f;
 
-					u = form.getObject ();
+					if ( form != null ) {
+						f = ( FromServerForm ) form;
 
-					if ( handlePayments == true ) {
-						User user;
-						user = ( User ) u;
-						user.checkUserPaying ( form );
+						if ( handlePayments == true ) {
+							User user;
+							user = ( User ) obj;
+							user.checkUserPaying ( f );
+						}
+
+						setRoleIcon ( f, obj );
 					}
-
-					setRoleIcon ( form, u );
 				}
 		};
 
@@ -313,7 +315,7 @@ public class UsersPanel extends GenericPanel {
 
 				for ( int i = 0; i < forms.size (); i++ ) {
 					form = ( FromServerForm ) forms.get ( i );
-					if ( form.getObject ().getInt ( "privileges" ) == User.USER_LEAVED )
+					if ( form.getValue ().getInt ( "privileges" ) == User.USER_LEAVED )
 						form.setVisible ( show );
 				}
 			}

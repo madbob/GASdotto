@@ -24,8 +24,7 @@ import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class FromServerForm extends Composite {
-	private FromServer		object;
+public class FromServerForm extends FromServerRappresentation {
 	private DisclosurePanel		main;
 	private int			editMode;
 	private EmblemsBar		icons;
@@ -34,8 +33,6 @@ public class FromServerForm extends Composite {
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
 	private ArrayList		callbacks;
-	private HashMap			widgets;
-	private ArrayList		addictionalData;
 	private boolean			forceSave;
 
 	public static int		FULL_EDITABLE				= 0;
@@ -46,23 +43,18 @@ public class FromServerForm extends Composite {
 	/****************************************************************** init */
 
 	private void buildCommon ( FromServer obj, int editable ) {
-		object = obj;
-
-		widgets = new HashMap ();
+		setValue ( obj );
 		callbacks = new ArrayList ();
 		forceSave = false;
 		noExplicitCallbacks ();
-
-		/*
-			Poiche' l'array dei dati addizionali viene usato solo in specifici casi,
-			viene allocato solo quando esplicitamente richiesto la prima volta
-		*/
-		addictionalData = null;
 
 		main = new DisclosurePanel ( doSummary () );
 		main.setAnimationEnabled ( true );
 		main.addEventHandler ( new DisclosureHandler () {
 			public void onClose ( DisclosureEvent event ) {
+				FromServer object;
+
+				object = getValue ();
 				if ( object == null )
 					return;
 
@@ -126,14 +118,6 @@ public class FromServerForm extends Composite {
 			onOpenCb ();
 		else
 			onCloseCb ();
-	}
-
-	public FromServer getObject () {
-		return object;
-	}
-
-	public void setObject ( FromServer obj ) {
-		object = obj;
 	}
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
@@ -245,6 +229,7 @@ public class FromServerForm extends Composite {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					boolean ret;
+					FromServer object;
 					FromServerFormCallbacks callback;
 
 					ret = true;
@@ -261,9 +246,11 @@ public class FromServerForm extends Composite {
 					if ( ret == false )
 						return;
 
-					if ( object.isValid () == false )
-						invalidate ();
+					object = getValue ();
 
+					if ( object.isValid () == false ) {
+						invalidate ();
+					}
 					else {
 						if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
 							object.destroy ( null );
@@ -279,7 +266,7 @@ public class FromServerForm extends Composite {
 		if ( editable != EDITABLE_UNDELETABLE_UNCANCELLABLE ) {
 			button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
-					if ( object.isValid () == false ) {
+					if ( getValue ().isValid () == false ) {
 						invalidate ();
 					}
 					else {
@@ -313,10 +300,12 @@ public class FromServerForm extends Composite {
 		return panel;
 	}
 
+	/*
 	public void invalidate () {
-		object = null;
+		setValue ( null );
 		main.setVisible ( false );
 	}
+	*/
 
 	private void onOpenCb () {
 		for ( int i = 0; i < callbacks.size (); i++ )
@@ -354,73 +343,10 @@ public class FromServerForm extends Composite {
 		return icons;
 	}
 
-	/****************************************************************** build */
-
-	private FromServerWidget retriveWidgetFromList ( String attribute ) {
-		return ( FromServerWidget ) widgets.get ( attribute );
-	}
-
-	public Widget getWidget ( String attribute ) {
+	public FromServerWidget removeWidget ( String name ) {
 		FromServerWidget tmp;
 
-		tmp = retriveWidgetFromList ( attribute );
-		if ( tmp == null ) {
-			tmp = new FromServerWidget ( object, attribute );
-			widgets.put ( attribute, tmp );
-		}
-
-		return tmp;
-	}
-
-	/*
-		Questo e' per assegnare un widget non di default ad un campo specifico
-		dell'oggetto
-	*/
-	public Widget getPersonalizedWidget ( String attribute, Widget widget ) {
-		FromServerWidget tmp;
-
-		tmp = retriveWidgetFromList ( attribute );
-		if ( tmp == null ) {
-			tmp = new FromServerWidget ( object, attribute, widget );
-			widgets.put ( attribute, tmp );
-		}
-
-		return tmp;
-	}
-
-	public Widget retriveInternalWidget ( String attribute ) {
-		FromServerWidget tmp;
-
-		tmp = retriveWidgetFromList ( attribute );
-
-		if ( tmp != null )
-			return tmp.wid;
-		else
-			return null;
-	}
-
-	public void setValidation ( String attribute, FromServerValidateCallback callback ) {
-		FromServerWidget tmp;
-
-		tmp = retriveWidgetFromList ( attribute );
-		if ( tmp != null )
-			tmp.validation = callback;
-	}
-
-	/*
-		Usato per aggiungere nuovi widgets destinati alla formattazione, che non
-		rientrano nella rappresentazione dell'oggetto. Sono recuperabili per mezzo di
-		getWidget(), ma vengono saltati nella fase di ricostruzione dell'oggetto
-		FromServer
-	*/
-	public void setExtraWidget ( String name, Widget extra ) {
-		widgets.put ( name, new FromServerWidget ( name, extra ) );
-	}
-
-	public void removeWidget ( String name ) {
-		FromServerWidget tmp;
-
-		tmp = retriveWidgetFromList ( name );
+		tmp = super.removeWidget ( name );
 		if ( tmp != null ) {
 			/*
 				Attenzione: in taluni casi, quando indicizzo un elemento nel form con
@@ -432,38 +358,14 @@ public class FromServerForm extends Composite {
 			*/
 			if ( contents.remove ( tmp.wid ) == false )
 				contents.remove ( tmp );
-
-			widgets.remove ( name );
 		}
-	}
 
-	/****************************************************************** handling */
+		return tmp;
+	}
 
 	public void refreshContents ( FromServer obj ) {
-		Object [] wids;
-		FromServerWidget iter;
-
-		if ( obj == null )
-			obj = getObject ();
-
-		wids = widgets.values ().toArray ();
-
-		for ( int i = 0; i < wids.length; i++ ) {
-			iter = ( FromServerWidget ) wids [ i ];
-			iter.set ( obj );
-		}
-
+		super.refreshContents ( obj );
 		summary.setText ( retrieveNameInCallbacks () );
-	}
-
-	/**
-		TODO	Questa funzione (ed il contorno) potrebbe essere soppressa, essendo usata
-			(pure impropriamente) in un posto solo
-	*/
-	public ArrayList getAddictionalData () {
-		if ( addictionalData == null )
-			addictionalData = new ArrayList ();
-		return addictionalData;
 	}
 
 	public void checkSaving () {
@@ -473,26 +375,6 @@ public class FromServerForm extends Composite {
 			else
 				resetObject ();
 		}
-	}
-
-	private boolean contentsChanged () {
-		Object [] wids;
-		boolean ret;
-		FromServerWidget tmp;
-
-		wids = widgets.values ().toArray ();
-		ret = false;
-
-		for ( int i = 0; i < wids.length; i++ ) {
-			tmp = ( FromServerWidget ) wids [ i ];
-
-			if ( tmp.compare ( object ) == false ) {
-				ret = true;
-				break;
-			}
-		}
-
-		return ret;
 	}
 
 	private String retrieveNameInCallbacks () {
@@ -536,7 +418,7 @@ public class FromServerForm extends Composite {
 		if ( confirm == false || rebuildObject () == false )
 			return false;
 
-		object.save ( new ServerResponse () {
+		getValue ().save ( new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				savedCallbacks ();
 				summary.setText ( retrieveNameInCallbacks () );
@@ -547,35 +429,5 @@ public class FromServerForm extends Composite {
 		} );
 
 		return true;
-	}
-
-	private boolean rebuildObject () {
-		Object [] wids;
-		FromServerWidget tmp;
-
-		wids = widgets.values ().toArray ();
-
-		for ( int i = 0; i < wids.length; i++ ) {
-			tmp = ( FromServerWidget ) wids [ i ];
-			if ( tmp.assign ( object ) == false )
-				return false;
-		}
-
-		return true;
-	}
-
-	private void resetObject () {
-		Object [] wids;
-		FromServerWidget tmp;
-
-		if ( object == null )
-			return;
-
-		wids = widgets.values ().toArray ();
-
-		for ( int i = 0; i < wids.length; i++ ) {
-			tmp = ( FromServerWidget ) wids [ i ];
-			tmp.set ( object );
-		}
 	}
 }

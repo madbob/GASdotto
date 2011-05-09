@@ -165,19 +165,89 @@ public class HomePanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int status;
-				Order ord;
 
-				ord = ( Order ) object;
+				if ( object.getBool ( "parent_aggregate" ) == true )
+					return;
+
 				status = object.getInt ( "status" );
 
 				if ( status == Order.OPENED )
-					doOrderRow ( openedOrders, ord );
+					doOrderRow ( openedOrders, object );
 
 				/*
 					Gli ordini gia' chiusi sono eventualmente messi nella lista se e quando si
 					trova il relativo ordine da parte dell'utente corrente, altrimenti si evita
 					proprio di visualizzarli
 				*/
+			}
+
+			public void onModify ( FromServer object ) {
+				int index;
+				Order ord;
+
+				if ( object.getBool ( "parent_aggregate" ) == true )
+					return;
+
+				ord = ( Order ) object;
+				index = retrieveOrderRow ( openedOrders, object );
+
+				if ( index != -1 ) {
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						modOrderRow ( openedOrders, ord );
+					else
+						openedOrders.removeRow ( index );
+				}
+				else {
+					/*
+						Questo e' per gestire ordini che sono stati riaperti
+					*/
+					if ( object.getInt ( "status" ) == Order.OPENED )
+						doOrderRow ( openedOrders, ord );
+				}
+
+				index = retrieveOrderRow ( closedOrders, object );
+
+				if ( index != -1 ) {
+					if ( object.getInt ( "status" ) == Order.CLOSED )
+						modOrderRow ( closedOrders, ord );
+					else
+						closedOrders.removeRow ( index );
+				}
+				else {
+					/*
+						Questo e' per gestire ordini che sono stati richiusi
+					*/
+					if ( object.getInt ( "status" ) == Order.CLOSED )
+						doOrderRow ( closedOrders, ord );
+				}
+			}
+
+			public void onDestroy ( FromServer object ) {
+				int index;
+
+				index = retrieveOrderRow ( openedOrders, object );
+				if ( index != -1 )
+					openedOrders.removeRow ( index );
+
+				index = retrieveOrderRow ( closedOrders, object );
+				if ( index != -1 )
+					closedOrders.removeRow ( index );
+			}
+
+			protected String debugName () {
+				return "Order in HomePanel";
+			}
+		} );
+
+		Utils.getServer ().onObjectEvent ( "OrderAggregate", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				int status;
+
+				Log.debug ( "arrivato aggregato, stato = " + object.getInt ( "status" ) );
+				status = object.getInt ( "status" );
+
+				if ( status == Order.OPENED )
+					doOrderRow ( openedOrders, object );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -263,7 +333,7 @@ public class HomePanel extends GenericPanel {
 		return orders;
 	}
 
-	private void checkOrderExpiry ( PlainFillBox orders, Order order, Label text ) {
+	private void checkOrderExpiry ( PlainFillBox orders, FromServer order, Label text ) {
 		long now;
 		long d;
 		Date date;
@@ -288,11 +358,14 @@ public class HomePanel extends GenericPanel {
 			text.removeStyleName ( "highlight-text" );
 	}
 
-	private int doOrderRow ( PlainFillBox orders, Order order ) {
+	private int doOrderRow ( PlainFillBox orders, FromServer order ) {
 		int index;
 		String name;
+		String id;
+		ArrayList sub_orders;
 		Label text;
 		ArrayList data;
+		FromServer ord;
 
 		index = retrieveOrderRow ( orders, order );
 		if ( index == -1 ) {
@@ -303,8 +376,40 @@ public class HomePanel extends GenericPanel {
 
 			data = new ArrayList ();
 			data.add ( text );
-			data.add ( new Hidden ( "id", Integer.toString ( order.getLocalID () ) ) );
 
+			id = null;
+
+			/*
+				Nella riga HTML viene immesso un elemento nascosto che riporta l'ID dell'ordine di
+				riferimento, o l'elenco di ID degli ordini coinvolti nel caso di un aggregato. In
+				questo caso, viene anteposta una "A" per evitare collisioni di ID tra ordini ed
+				aggregati.
+				Si, lo so, e' un hack bruttissimo: prima o dopo dovro' provvedere ad una soluzione
+				piu' seria
+			*/
+
+			if ( order.getType () == "Order" ) {
+				id = Integer.toString ( order.getLocalID () );
+			}
+			else if ( order.getType () == "OrderAggregate" ) {
+				id = "A" + Integer.toString ( order.getLocalID () );
+				sub_orders = order.getArray ( "orders" );
+
+				for ( int i = 0; i < sub_orders.size (); i++ ) {
+					ord = ( FromServer ) sub_orders.get ( i );
+					id += ":" + Integer.toString ( ord.getLocalID () );
+
+					index = retrieveOrderRow ( openedOrders, ord );
+					if ( index != -1 )
+						openedOrders.removeRow ( index );
+
+					index = retrieveOrderRow ( closedOrders, ord );
+					if ( index != -1 )
+						closedOrders.removeRow ( index );
+				}
+			}
+
+			data.add ( new Hidden ( "id", id ) );
 			return orders.addRow ( data );
 		}
 		else {
@@ -312,7 +417,7 @@ public class HomePanel extends GenericPanel {
 		}
 	}
 
-	private void modOrderRow ( PlainFillBox orders, Order order ) {
+	private void modOrderRow ( PlainFillBox orders, FromServer order ) {
 		int index;
 		Label label;
 
@@ -326,19 +431,34 @@ public class HomePanel extends GenericPanel {
 
 	private int retrieveOrderRow ( PlainFillBox table, FromServer target ) {
 		String target_id_str;
-		Hidden id;
+		Hidden hidden_id;
+		String [] ids;
 		FlexTable contents;
 
 		if ( table.isEmpty () == true )
 			return -1;
 
 		target_id_str = Integer.toString ( target.getLocalID () );
+		if ( target.getType () == "OrderAggregate" )
+			target_id_str = "A" + target_id_str;
+
 		contents = table.getTable ();
 
 		for ( int i = 0; i < contents.getRowCount (); i++ ) {
-			id = ( Hidden ) contents.getWidget ( i, 1 );
-			if ( target_id_str.equals ( id.getValue () ) )
-				return i;
+			hidden_id = ( Hidden ) contents.getWidget ( i, 1 );
+
+			ids = hidden_id.getValue ().split ( ":" );
+
+			if ( target.getType () == "Order" ) {
+				for ( int a = 0; a < ids.length; a++ ) {
+					if ( target_id_str.equals ( ids [ a ] ) )
+						return i;
+				}
+			}
+			else if ( target.getType () == "OrderAggregate" ) {
+				if ( target_id_str.equals ( ids [ 0 ] ) )
+					return i;
+			}
 		}
 
 		return -1;
@@ -366,6 +486,7 @@ public class HomePanel extends GenericPanel {
 		ObjectRequest params;
 
 		notifications.syncList ();
+		Utils.getServer ().testObjectReceive ( "OrderAggregate" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 
 		params = new ObjectRequest ( "OrderUser" );

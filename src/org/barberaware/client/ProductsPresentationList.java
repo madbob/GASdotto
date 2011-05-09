@@ -123,11 +123,8 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 					return null;
 				}
 
-				protected void customModify ( FromServerForm form ) {
-					FromServer obj;
-
-					obj = form.getObject ();
-					if ( obj.getBool ( "archived" ) == true )
+				protected void customModify ( FromServer obj, FromServerRappresentation form ) {
+					if ( form != null && obj.getBool ( "archived" ) == true )
 						deleteElement ( obj );
 				}
 		};

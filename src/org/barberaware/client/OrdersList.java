@@ -47,7 +47,7 @@ public abstract class OrdersList extends FormGroup {
 
 		tot = getElementsNum ();
 
-		if ( tot >= 10 && sorting ( retrieveForm ( latestIterableIndex () - 1 ).getObject (), order ) < 0 )
+		if ( tot >= 10 && sorting ( retrieveForm ( latestIterableIndex () - 1 ).getValue (), order ) < 0 )
 			return;
 
 		added = addElement ( order );
@@ -58,7 +58,7 @@ public abstract class OrdersList extends FormGroup {
 		if ( added == 1 && tot >= 10 ) {
 			form = retrieveForm ( latestIterableIndex () - 1 );
 			if ( form != null ) {
-				obj = form.getObject ();
+				obj = form.getValue ();
 
 				if ( obj != null )
 					delOrder ( obj );

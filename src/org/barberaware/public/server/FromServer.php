@@ -286,7 +286,7 @@ abstract class FromServer {
 			else
 				$val = $attr->traslate_field ( $this, null );
 
-			if ( $val != null )
+			if ( $val !== null )
 				$attr->value = $val;
 		}
 
@@ -623,6 +623,12 @@ abstract class FromServer {
 			Sicuramente usare "ON DELETE CASCADE" sul database sarebbe piu'
 			efficiente, ma rischierebbe di essere meno flessibile nei confronti delle
 			query autogenerate in checkdb.php
+		*/
+
+		/*
+			TODO	Qui ci sarebbe da spianare anche gli oggetti che fanno riferimento a quello che si
+				sta distruggendo, ma solo in determinati casi (eliminando un Product si eliminano le
+				relative varianti, ma distruggendo un OrderAggregate non si distruggono gli Order)
 		*/
 
 		$attr = $this->getAttribute ( "id" );
