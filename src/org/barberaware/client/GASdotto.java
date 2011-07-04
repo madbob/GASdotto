@@ -25,6 +25,9 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class GASdotto implements EntryPoint {
+	/*
+		TODO	Usare GWT.UncaughtExceptionHandler() al posto di questo
+	*/
 	private static native void catchErrors () /*-{
 		window.onerror = function(msg, url, line) {
 			@org.barberaware.client.Utils::bigError(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)(msg, url, line);

@@ -37,6 +37,8 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 	private boolean			fullEditable;
 	private FromServer		currentValue;
 
+	private ArrayList		changeCallbacks			= null;
+
 	public OrderUserFriendPanel ( FromServer order, boolean edit, boolean freedit, boolean full ) {
 		VerticalPanel main;
 		CaptionPanel frame;
@@ -177,6 +179,15 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 				updateTotal ();
 			}
 		} );
+
+		if ( changeCallbacks != null ) {
+			ChangeListener listener;
+
+			for ( int i = 0; i < changeCallbacks.size (); i++ ) {
+				listener = ( ChangeListener ) changeCallbacks.get ( i );
+				products.addChangeListener ( listener );
+			}
+		}
 
 		if ( order_friend != null )
 			products.setElements ( order_friend.getArray ( "products" ) );
@@ -349,6 +360,43 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 
 			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
 			prod_sel.upgradeProductsList ( products );
+		}
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		VerticalPanel cell;
+		ProductsUserSelection prod_sel;
+
+		if ( changeCallbacks == null )
+			changeCallbacks = new ArrayList ();
+		changeCallbacks.add ( listener );
+
+		single.addChangeListener ( listener );
+
+		for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
+			cell = ( VerticalPanel ) friends.getWidget ( i );
+
+			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
+			prod_sel.addChangeListener ( listener );
+		}
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		VerticalPanel cell;
+		ProductsUserSelection prod_sel;
+
+		if ( changeCallbacks != null ) {
+			changeCallbacks.remove ( listener );
+			single.removeChangeListener ( listener );
+
+			for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
+				cell = ( VerticalPanel ) friends.getWidget ( i );
+
+				prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
+				prod_sel.removeChangeListener ( listener );
+			}
 		}
 	}
 }

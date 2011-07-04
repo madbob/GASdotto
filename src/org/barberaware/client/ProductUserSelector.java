@@ -74,6 +74,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 		if ( edit == true ) {
 			qb = new FloatBox ();
+
 			qb.addFocusListener ( new FocusListener () {
 				public void onFocus ( Widget sender ) {
 					if ( constraints != null ) {

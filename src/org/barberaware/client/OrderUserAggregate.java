@@ -29,23 +29,13 @@ public class OrderUserAggregate extends FromServerAggregate {
 
 		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
 			public String retriveString ( FromServer obj ) {
-				String name;
-				ArrayList orders;
 				FromServer order;
 
-				orders = obj.getArray ( "orders" );
-				if ( orders == null )
+				order = obj.getObject ( "baseorder" );
+				if ( order == null )
 					return "Nuovo Aggregato";
-
-				order = ( FromServer ) orders.get ( 0 );
-				name = order.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
-
-				for ( int i = 1; i < orders.size (); i++ ) {
-					order = ( FromServer ) orders.get ( i );
-					name += " / " + order.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
-				}
-
-				return name;
+				else
+					return order.getString ( "name" );
 			}
 		} );
 
@@ -63,7 +53,7 @@ public class OrderUserAggregate extends FromServerAggregate {
 			}
 		} );
 
-		addFakeAttribute ( "status", FromServer.INTEGER, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "status", FromServer.INTEGER, new ValueFromObjectClosure () {
 			public int retriveInteger ( FromServer obj ) {
 				int ret;
 				int check;
@@ -87,8 +77,9 @@ public class OrderUserAggregate extends FromServerAggregate {
 			}
 		} );
 
-		addFakeAttribute ( "deliverydate", FromServer.DATE, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "deliverydate", FromServer.DATE, new ValueFromObjectClosure () {
 			public Date retriveDate ( FromServer obj ) {
+				int i;
 				Date ret;
 				Date check;
 				ArrayList orders;
@@ -98,13 +89,18 @@ public class OrderUserAggregate extends FromServerAggregate {
 				if ( orders == null )
 					return null;
 
-				order = ( FromServer ) orders.get ( 0 );
-				ret = order.getDate ( "deliverydate" );
+				i = 0;
 
-				for ( int i = 1; i < orders.size (); i++ ) {
+				do {
+					order = ( FromServer ) orders.get ( i );
+					ret = order.getDate ( "deliverydate" );
+					i++;
+				} while ( ret != null && i < orders.size () );
+
+				for ( ; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
 					check = order.getDate ( "deliverydate" );
-					if ( check.after ( ret ) )
+					if ( check != null && check.after ( ret ) )
 						ret = check;
 				}
 
@@ -112,8 +108,9 @@ public class OrderUserAggregate extends FromServerAggregate {
 			}
 		} );
 
-		addFakeAttribute ( "deliveryperson", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "deliveryperson", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
 			public FromServer retriveObject ( FromServer obj ) {
+				int i;
 				Date greater;
 				Date check;
 				ArrayList orders;
@@ -124,14 +121,19 @@ public class OrderUserAggregate extends FromServerAggregate {
 				if ( orders == null )
 					return null;
 
-				order = ( FromServer ) orders.get ( 0 );
-				ret = order.getObject ( "deliveryperson" );
-				greater = order.getDate ( "deliverydate" );
+				i = 0;
 
-				for ( int i = 1; i < orders.size (); i++ ) {
+				do {
+					order = ( FromServer ) orders.get ( i );
+					ret = order.getObject ( "deliveryperson" );
+					greater = order.getDate ( "deliverydate" );
+					i++;
+				} while ( greater != null && i < orders.size () );
+
+				for ( ; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
 					check = order.getDate ( "deliverydate" );
-					if ( check.after ( greater ) ) {
+					if ( check != null && check.after ( greater ) ) {
 						greater = check;
 						ret = order.getObject ( "deliveryperson" );
 					}
@@ -151,6 +153,18 @@ public class OrderUserAggregate extends FromServerAggregate {
 	*/
 	public boolean isValid () {
 		return true;
+	}
+
+	public void save ( ServerResponse callback ) {
+		ArrayList orders;
+		FromServer order;
+
+		orders = getArray ( "orders" );
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			order = ( FromServer ) orders.get ( i );
+			order.save ( callback );
+		}
 	}
 
 	public void addOrder ( FromServer order ) {

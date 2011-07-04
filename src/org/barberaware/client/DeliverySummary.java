@@ -41,8 +41,25 @@ public class DeliverySummary extends Composite {
 		cleanUp ();
 	}
 
+	private void addSubOrder ( FromServerForm row, FromServer uorder, boolean addtoaggr ) {
+		OrderUserDetails details;
+		OrderUserAggregate aggregate;
+
+		details = new OrderUserDetails ();
+		details.setValue ( uorder );
+
+		row.add ( details );
+		row.addChild ( details );
+
+		if ( addtoaggr == true ) {
+			aggregate = ( OrderUserAggregate ) row.getValue ();
+			aggregate.addOrder ( uorder );
+		}
+	}
+
 	public void addOrder ( OrderUser uorder ) {
 		final FromServerForm row;
+		FromServerForm existing;
 		FromServer user;
 		FromServer prevmap;
 		OrderUserAggregate aggregate;
@@ -50,18 +67,18 @@ public class DeliverySummary extends Composite {
 		CustomCaptionPanel frame;
 		StringLabel phone;
 		ProductsDeliveryTable products;
-		OrderUserDetails details;
 
-		if ( numOrders == 0 )
+		if ( numOrders == 0 && main.getWidgetCount () > 0 )
 			main.remove ( 0 );
 
 		if ( uorder.getRelatedInfo ( "DeliverySummary" ) != null )
 			return;
 
 		user = uorder.getObject ( "baseuser" );
+		existing = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
 
-		if ( multipleOrders == true && user.getRelatedInfo ( "DeliverySummary" + identifier ) != null ) {
-			row = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
+		if ( multipleOrders == true && existing != null ) {
+			row = existing;
 			prevmap = row.getValue ();
 
 			if ( prevmap instanceof FromServerAggregate == false ) {
@@ -69,18 +86,17 @@ public class DeliverySummary extends Composite {
 
 				aggregate = new OrderUserAggregate ();
 				aggregate.addOrder ( prevmap );
+				aggregate.addOrder ( uorder );
 				row.setValue ( aggregate );
+
+				addSubOrder ( row, prevmap, false );
+				addSubOrder ( row, uorder, false );
 			}
 			else {
-				aggregate = ( OrderUserAggregate ) prevmap;
+				addSubOrder ( row, uorder, true );
 			}
 
-			details = new OrderUserDetails ();
-			details.setValue ( uorder );
-
-			row.add ( details );
-			row.addChild ( details );
-			aggregate.addOrder ( uorder );
+			setStatusIcon ( row );
 		}
 		else {
 			row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
@@ -177,14 +193,17 @@ public class DeliverySummary extends Composite {
 	}
 
 	public void delOrder ( OrderUser uorder ) {
-		FromServerForm form;
+		FromServerRappresentation form;
 
-		form = ( FromServerForm ) uorder.getRelatedInfo ( "DeliverySummary" );
+		form = ( FromServerRappresentation ) uorder.getRelatedInfo ( "DeliverySummary" );
 		if ( form != null ) {
+			if ( form instanceof FromServerForm ) {
+				numOrders -= 1;
+				cleanUp ();
+			}
+
 			form.invalidate ();
 			uorder.delRelatedInfo ( "DeliverySummary" );
-			numOrders -= 1;
-			cleanUp ();
 		}
 	}
 
@@ -287,6 +306,9 @@ public class DeliverySummary extends Composite {
 	}
 
 	private void cleanUp () {
+		if ( numOrders < 0 )
+			numOrders = 0;
+
 		if ( numOrders == 0 )
 			main.add ( new Label ( "Non sono stati avanzati ordini" ) );
 	}

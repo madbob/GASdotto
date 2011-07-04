@@ -105,7 +105,7 @@ class OrderUser extends FromServer {
 		*/
 		if ( count ( $obj->products ) == 0 && count ( $obj->friends ) == 0 ) {
 			if ( $obj->id == -1 )
-				return -1;
+				return "-1";
 			else if ( $obj->id != -1 )
 				return parent::destroy ( $obj );
 		}

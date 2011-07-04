@@ -23,11 +23,15 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserManager extends FromServerRappresentation implements ObjectWidget {
+public class OrderUserManager extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
 	private DeckPanel		deck;
 	private RadioButtons		buttons		= null;
 
 	private FromServer		baseOrder;
+
+	private OrderUserManagerMode	plain;
+	private OrderUserManagerMode	friends;
+	private OrderUserManagerMode	multi;
 
 	public OrderUserManager ( FromServer order, boolean editable ) {
 		boolean reference;
@@ -93,10 +97,18 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		deck = new DeckPanel ();
 		main.add ( deck );
 
-		deck.add ( new OrderUserPlainPanel ( order, editable, freedit ) );
-		deck.add ( new OrderUserFriendPanel ( order, editable, freedit, true ) );
-		if ( reference )
-			deck.add ( new OrderUserMultiPanel ( order, editable, freedit ) );
+		plain = new OrderUserPlainPanel ( order, editable, freedit );
+		deck.add ( plain );
+		friends = new OrderUserFriendPanel ( order, editable, freedit, true );
+		deck.add ( friends );
+
+		if ( reference ) {
+			multi = new OrderUserMultiPanel ( order, editable, freedit );
+			deck.add ( multi );
+		}
+		else {
+			multi = null;
+		}
 
 		deck.showWidget ( 0 );
 	}
@@ -168,5 +180,21 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		index = deck.getVisibleWidget ();
 		panel = ( ObjectWidget ) deck.getWidget ( index );
 		return panel.getValue ();
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		plain.addChangeListener ( listener );
+		friends.addChangeListener ( listener );
+		if ( multi != null )
+			multi.addChangeListener ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		plain.removeChangeListener ( listener );
+		friends.removeChangeListener ( listener );
+		if ( multi != null )
+			multi.removeChangeListener ( listener );
 	}
 }

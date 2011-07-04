@@ -724,7 +724,7 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 
 		main.setWidget ( e, 0, new HTML ( "<hr>" ) );
-		formatter.setColSpan ( e, 0, 13 );
+		formatter.setColSpan ( e, 0, 15 );
 		e++;
 
 		if ( totalLabel == null ) {

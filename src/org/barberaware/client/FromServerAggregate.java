@@ -24,10 +24,12 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FromServerAggregate extends FromServer {
 	private String		indexAttribute;
+	private HashMap		writeBacks;
 
 	public FromServerAggregate ( String attribute ) {
 		super ();
 		indexAttribute = attribute;
+		writeBacks = new HashMap ();
 	}
 
 	public void setObjects ( ArrayList objects ) {
@@ -46,9 +48,6 @@ public abstract class FromServerAggregate extends FromServer {
 		ArrayList objects;
 		FromServer tmp;
 
-		if ( this == null )
-			Utils.crashMe ();
-
 		objects = getObjects ();
 
 		for ( int i = 0; i < objects.size (); i++ ) {
@@ -58,5 +57,183 @@ public abstract class FromServerAggregate extends FromServer {
 		}
 
 		return false;
+	}
+
+	protected void addWritebackFakeAttribute ( String name, int type, ValueFromObjectClosure value ) {
+		writeBacks.put ( name, new Boolean ( true ) );
+		super.addFakeAttribute ( name, type, value );
+	}
+
+	protected void addWritebackFakeAttribute ( String name, int type, Class object, ValueFromObjectClosure value ) {
+		writeBacks.put ( name, new Boolean ( true ) );
+		super.addFakeAttribute ( name, type, object, value );
+	}
+
+	public void setString ( String name, String value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setString ( name, value );
+				}
+			}
+		}
+		else {
+			super.setString ( name, value );
+		}
+	}
+
+	public void setInt ( String name, int value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setInt ( name, value );
+				}
+			}
+		}
+		else {
+			super.setInt ( name, value );
+		}
+	}
+
+	public void setFloat ( String name, float value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setFloat ( name, value );
+				}
+			}
+		}
+		else {
+			super.setFloat ( name, value );
+		}
+	}
+
+	public void setArray ( String name, ArrayList value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setArray ( name, value );
+				}
+			}
+		}
+		else {
+			super.setArray ( name, value );
+		}
+	}
+
+	public void setObject ( String name, FromServer value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setObject ( name, value );
+				}
+			}
+		}
+		else {
+			super.setObject ( name, value );
+		}
+	}
+
+	public void setDate ( String name, Date value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setDate ( name, value );
+				}
+			}
+		}
+		else {
+			super.setDate ( name, value );
+		}
+	}
+
+	public void setBool ( String name, boolean value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setBool ( name, value );
+				}
+			}
+		}
+		else {
+			super.setBool ( name, value );
+		}
+	}
+
+	public void setAddress ( String name, Address value ) {
+		Boolean writeback;
+		ArrayList children;
+		FromServer child;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = ( Boolean ) writeBacks.get ( name );
+			if ( writeback != null ) {
+				children = getObjects ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServer ) children.get ( i );
+					child.setAddress ( name, value );
+				}
+			}
+		}
+		else {
+			super.setAddress ( name, value );
+		}
 	}
 }

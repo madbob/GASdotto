@@ -20,14 +20,18 @@ package org.barberaware.client;
 import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.user.client.*;
+
+import com.allen_sauer.gwt.log.client.Log;
 
 public class FloatBox extends TextBox implements FloatWidget {
 	public FloatBox () {
 		setText ( "0" );
 
-		addFocusListener (
+		super.addFocusListener (
 			new FocusListener () {
 				public void onFocus ( Widget sender ) {
+					/* dummy */
 				}
 
 				public void onLostFocus ( Widget sender ) {
@@ -37,7 +41,7 @@ public class FloatBox extends TextBox implements FloatWidget {
 			}
 		);
 
-		addKeyboardListener (
+		super.addKeyboardListener (
 			new KeyboardListenerAdapter () {
 				public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
 					if ( ( !Character.isDigit ( keyCode ) ) &&

@@ -57,14 +57,15 @@ public class OrderAggregate extends FromServerAggregate {
 				FromServer order;
 
 				orders = obj.getArray ( "orders" );
-				if ( orders == null )
+				if ( orders == null || orders.size () == 0 )
 					return Order.OPENED;
 
 				ret = 1000;
 
-				for ( int i = 1; i < orders.size (); i++ ) {
+				for ( int i = 0; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
 					check = order.getInt ( "status" );
+
 					if ( check < ret )
 						ret = check;
 				}
@@ -164,5 +165,20 @@ public class OrderAggregate extends FromServerAggregate {
 		}
 
 		return false;
+	}
+
+	public static OrderAggregate retrieveAggregate ( FromServer order ) {
+		ArrayList aggregates;
+		OrderAggregate aggregate;
+
+		aggregates = Utils.getServer ().getObjectsFromCache ( "OrderAggregate" );
+
+		for ( int i = 0; i < aggregates.size (); i++ ) {
+			aggregate = ( OrderAggregate ) aggregates.get ( i );
+			if ( aggregate.hasObject ( order ) )
+				return aggregate;
+		}
+
+		return null;
 	}
 }

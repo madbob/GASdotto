@@ -63,6 +63,10 @@ public class FromServerAttribute {
 		this.fakeClosure = closure;
 	}
 
+	public boolean isFake () {
+		return ( fakeClosure != null );
+	}
+
 	public void setString ( String value ) {
 		string = value;
 	}

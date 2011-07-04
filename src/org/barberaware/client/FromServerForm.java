@@ -300,13 +300,6 @@ public class FromServerForm extends FromServerRappresentation {
 		return panel;
 	}
 
-	/*
-	public void invalidate () {
-		setValue ( null );
-		main.setVisible ( false );
-	}
-	*/
-
 	private void onOpenCb () {
 		for ( int i = 0; i < callbacks.size (); i++ )
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onOpen ( this );
@@ -390,7 +383,7 @@ public class FromServerForm extends FromServerRappresentation {
 		*/
 		for ( int i = callbacks.size () - 1; i > -1; i-- ) {
 			name = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).getName ( this );
-			if ( name != null && name.equals ( "" ) == false)
+			if ( name != null && name.equals ( "" ) == false )
 				return name;
 		}
 

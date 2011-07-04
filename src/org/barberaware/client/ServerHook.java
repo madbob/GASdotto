@@ -382,7 +382,7 @@ public class ServerHook {
 		ServerObjectReceive callback;
 
 		tmp = getMonitor ( object.getType () );
-		updateObjectInMonitorCache (tmp, object);
+		updateObjectInMonitorCache ( tmp, object );
 		num = tmp.callbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {

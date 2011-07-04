@@ -139,7 +139,8 @@ public abstract class FormGroup extends Composite {
 						int pos;
 
 						pos = getPosition ( form.getValue (), 1, true );
-						main.insert ( form, pos );
+						if ( pos != main.getWidgetIndex ( form ) )
+							main.insert ( form, pos );
 					}
 				} );
 

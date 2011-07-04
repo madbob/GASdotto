@@ -117,12 +117,11 @@ public abstract class FromServer implements Comparator {
 	private FromServerAttribute getInternalAttribute ( String name ) {
 		FromServerAttribute ret;
 
-		if ( this == null )
-			Utils.crashMe ();
-
 		ret = ( FromServerAttribute ) attributes.get ( name );
-		if ( ret == null )
+		if ( ret == null ) {
 			Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
+			Utils.getServer ().getObjectsFromCache ( null );
+		}
 
 		return ret;
 	}
@@ -165,7 +164,7 @@ public abstract class FromServer implements Comparator {
 	/****************************************************************** set */
 
 	public void setString ( String name, String value ) {
-		getInternalAttribute ( name ).setString ( value );;
+		getInternalAttribute ( name ).setString ( value );
 	}
 
 	public void setInt ( String name, int value ) {
@@ -206,6 +205,16 @@ public abstract class FromServer implements Comparator {
 			return attr.type;
 		else
 			return -1;
+	}
+
+	public boolean isAttributeFake ( String type ) {
+		FromServerAttribute attr;
+
+		attr = getInternalAttribute ( type );
+		if ( attr != null )
+			return attr.isFake ();
+		else
+			return false;
 	}
 
 	public boolean hasAttribute ( String type ) {

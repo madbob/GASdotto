@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderDetails extends FromServerRappresentation {
 	private HorizontalPanel		main;
+	private FromServerForm		parent;
 
 	private NameLabelWidget		supplier;
 	private CyclicToggle		status;
@@ -37,15 +38,19 @@ public class OrderDetails extends FromServerRappresentation {
 		main = new HorizontalPanel ();
 		initWidget ( main );
 		main.setWidth ( "100%" );
+
+		parent = null;
 	}
 
 	public void wireToForm ( FromServerForm form ) {
-		form.getPersonalizedWidget ( "supplier", supplier );
-		form.getPersonalizedWidget ( "status", status );
-		form.getPersonalizedWidget ( "anticipated", ( Widget ) anticipated );
-		form.getWidget ( "startdate" );
-		form.getWidget ( "enddate" );
-		form.getWidget ( "shippingdate" );
+		parent = form;
+	}
+
+	private Widget widgetWarp ( String name, Widget wid ) {
+		if ( parent != null )
+			return parent.getPersonalizedWidget ( name, wid );
+		else
+			return wid;
 	}
 
 	/****************************************************************** ObjectWidget */
@@ -70,17 +75,17 @@ public class OrderDetails extends FromServerRappresentation {
 		main.setCellWidth ( frame, "50%" );
 
 		supplier = new NameLabelWidget ();
-		frame.addPair ( "Fornitore", supplier );
+		frame.addPair ( "Fornitore", widgetWarp ( "supplier", supplier ) );
 
 		status = Order.doOrderStatusSelector ( edit );
-		frame.addPair ( "Stato", status );
+		frame.addPair ( "Stato", widgetWarp ( "status", status ) );
 
 		if ( edit == true )
 			anticipated = new PercentageBox ();
 		else
 			anticipated = new PercentageViewer ();
 
-		frame.addPair ( "Anticipo", ( Widget ) anticipated );
+		frame.addPair ( "Anticipo", widgetWarp ( "anticipated", ( Widget ) anticipated ) );
 
 		frame = new CustomCaptionPanel ( "Date" );
 		main.add ( frame );
@@ -97,9 +102,9 @@ public class OrderDetails extends FromServerRappresentation {
 			shippingdate = new DateViewer ();
 		}
 
-		frame.addPair ( "Data apertura", ( Widget ) startdate );
-		frame.addPair ( "Data chiusura", ( Widget ) enddate );
-		frame.addPair ( "Data consegna", ( Widget ) shippingdate );
+		frame.addPair ( "Data apertura", widgetWarp ( "startdate", ( Widget ) startdate ) );
+		frame.addPair ( "Data chiusura", widgetWarp ( "enddate", ( Widget ) enddate ) );
+		frame.addPair ( "Data consegna", widgetWarp ( "shippingdate", ( Widget ) shippingdate ) );
 
 		if ( element != null ) {
 			supplier.setValue ( element.getObject ( "supplier" ) );

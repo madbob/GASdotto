@@ -102,10 +102,10 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 			add ( delbutton );
 			setCellHorizontalAlignment ( delbutton, HasHorizontalAlignment.ALIGN_RIGHT );
 
-			setAggregate ( element );
-
 			dropControl = new DropControl ( this );
 			dragController.registerDropController ( dropControl );
+
+			currentAggregate = element;
 		}
 
 		public DraggableOrder retrieveOrder ( FromServer element ) {
@@ -270,16 +270,31 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 
 		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
 			public void onClick ( Widget sender ) {
+				int num_orders;
 				ArrayList elements;
 				OrderAggregate aggr;
 				DraggableOrder ord;
+				DroppableAggregate ordaggr;
 
 				elements = getElements ();
 
 				for ( int i = 0; i < elements.size (); i++ ) {
 					aggr = ( OrderAggregate ) elements.get ( i );
+					num_orders = aggr.getArray ( "orders" ).size ();
 
-					if ( aggr.getArray ( "orders" ).size () == 0 ) {
+					if ( num_orders == 0 || num_orders == 1 ) {
+						/*
+							Se l'aggregato viene eliminato con l'apposita icona gli
+							elementi nella pagina vengono rimessi in ordine in quella
+							situazione, ma se invalido un aggregato perche' ha un solo
+							elemento all'interno me ne accorgo qui e dunque qui devo
+							risistemare tutto
+						*/
+						if ( num_orders == 1 ) {
+							ordaggr = retrieveOrderAggregateBox ( aggr );
+							ordaggr.removeMyself ();
+						}
+
 						if ( aggr.isValid () )
 							aggr.destroy ( null );
 					}
@@ -413,7 +428,7 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 
 				order_box = retrieveOrderBox ( order );
 				if ( order_box == null )
-					order_box = new DraggableOrder ( dragController, element );
+					order_box = new DraggableOrder ( dragController, order );
 
 				aggr_box.add ( order_box );
 			}

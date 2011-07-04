@@ -186,10 +186,14 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 		setValue ( null );
 		setVisible ( false );
+
+		if ( parent != null )
+			parent.invalidateChild ( this );
+
 		removeFromParent ();
 	}
 
-	public FromServerRappresentation getParent () {
+	public FromServerRappresentation getRappresentationParent () {
 		return parent;
 	}
 
@@ -306,6 +310,12 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 			child = ( FromServerRappresentation ) children.get ( i );
 			child.resetObject ();
 		}
+	}
+
+	private void invalidateChild ( FromServerRappresentation child ) {
+		if ( children.remove ( child ) == true )
+			if ( children.size () == 0 )
+				this.invalidate ();
 	}
 
 	/****************************************************************** ObjectWidget */

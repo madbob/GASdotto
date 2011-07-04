@@ -77,6 +77,19 @@ public class OrderUserPlainPanel extends OrderUserManagerMode {
 	/****************************************************************** OrderUserManagerMode */
 
 	public void upgradeProductsList ( ArrayList products ) {
+		if ( selection == null )
+			setValue ( null );
+
 		selection.upgradeProductsList ( products );
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		selection.addChangeListener ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		selection.removeChangeListener ( listener );
 	}
 }

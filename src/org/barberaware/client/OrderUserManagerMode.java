@@ -21,6 +21,6 @@ import java.util.*;
 
 import com.google.gwt.user.client.ui.*;
 
-public abstract class OrderUserManagerMode extends FromServerRappresentation implements ObjectWidget {
+public abstract class OrderUserManagerMode extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
 	public abstract void upgradeProductsList ( ArrayList products );
 }

@@ -144,4 +144,14 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 	public void unlock () {
 		user.unlock ();
 	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		selection.addChangeListener ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		selection.removeChangeListener ( listener );
+	}
 }

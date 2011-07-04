@@ -53,6 +53,10 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 				/* dummy */
 			}
 
+			public void onMouseUp ( Widget sender, int x, int y ) {
+				/* dummy */
+			}
+
 			public void onMouseEnter ( Widget sender ) {
 				/* dummy */
 			}
@@ -94,10 +98,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 						showingPrices = true;
 					}
 				}
-			}
-
-			public void onMouseUp ( Widget sender, int x, int y ) {
-				/* dummy */
 			}
 		} );
 		initWidget ( container );

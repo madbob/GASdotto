@@ -140,10 +140,16 @@ public class OrdersEditPanel extends GenericPanel {
 					String id;
 					FromServerForm form;
 
-					if ( object.getType () != "Order" )
+					if ( object.getType () != "Order" || object.getBool ( "parent_aggregate" ) == true || true_new == true )
 						return;
 
-					form = ( FromServerForm ) main.retrieveForm ( object );
+					/*
+						Non usare main.retrieveForm(), in quanto l'oggetto all'interno del
+						FormCluster non e' lo stesso che viene ricostruito dal fetch dal
+						server dunque non ha gli stessi "related" assegnati, e appunto
+						main.retrieveForm() ritorna NULL
+					*/
+					form = ( FromServerForm ) main.retrieveFormById ( object.getLocalID () );
 					if ( form != null ) {
 						id = main.getIdentifier ();
 						object.addRelatedInfo ( id, form );
@@ -672,14 +678,14 @@ public class OrdersEditPanel extends GenericPanel {
 		Supplier supplier;
 		OrderDetails details;
 
+		if ( ord.getBool ( "parent_aggregate" ) == true )
+			return null;
+
 		/*
 			Nel pannello di aggregazione lo metto sempre, anche
 			se l'utente non e' referente
 		*/
 		aggregator.addElement ( ord );
-
-		if ( ord.getBool ( "parent_aggregate" ) == true )
-			return null;
 
 		supplier = ( Supplier ) ord.getObject ( "supplier" );
 		if ( supplier.iAmReference () == false )
@@ -697,9 +703,9 @@ public class OrdersEditPanel extends GenericPanel {
 		ver.emblems ().activate ( "status", ord.getInt ( "status" ) );
 
 		details = new OrderDetails ();
+		details.wireToForm ( ver );
 		details.setValue ( ord );
 		ver.add ( details );
-		details.wireToForm ( ver );
 
 		addOrderDetails ( ver );
 		addSaveProducts ( ver );

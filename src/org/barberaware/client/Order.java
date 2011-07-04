@@ -112,6 +112,7 @@ public class Order extends FromServer {
 	/****************************************************************** Comparator */
 
 	public int compare ( Object first, Object second ) {
+		int ret;
 		FromServer f;
 		FromServer s;
 
@@ -123,6 +124,11 @@ public class Order extends FromServer {
 		f = ( FromServer ) first;
 		s = ( FromServer ) second;
 
-		return -1 * ( f.getDate ( "enddate" ).compareTo ( s.getDate ( "enddate" ) ) );
+		ret = -1 * ( f.getDate ( "enddate" ).compareTo ( s.getDate ( "enddate" ) ) );
+
+		if ( ret == 0 )
+			return f.getString ( "name" ).compareTo ( s.getString ( "name" ) );
+		else
+			return ret;
 	}
 }
