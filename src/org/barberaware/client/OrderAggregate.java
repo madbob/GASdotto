@@ -126,6 +126,7 @@ public class OrderAggregate extends FromServerAggregate {
 
 		addFakeAttribute ( "shippingdate", FromServer.DATE, new ValueFromObjectClosure () {
 			public Date retriveDate ( FromServer obj ) {
+				int i;
 				Date ret;
 				Date check;
 				ArrayList orders;
@@ -135,13 +136,49 @@ public class OrderAggregate extends FromServerAggregate {
 				if ( orders == null )
 					return null;
 
-				order = ( FromServer ) orders.get ( 0 );
-				ret = order.getDate ( "enddate" );
+				i = 0;
 
-				for ( int i = 1; i < orders.size (); i++ ) {
+				do {
 					order = ( FromServer ) orders.get ( i );
-					check = order.getDate ( "enddate" );
-					if ( check.after ( ret ) )
+					ret = order.getDate ( "shippingdate" );
+					i++;
+				} while ( ret != null && i < orders.size () );
+
+				for ( ; i < orders.size (); i++ ) {
+					order = ( FromServer ) orders.get ( i );
+					check = order.getDate ( "shippingdate" );
+					if ( check != null && check.after ( ret ) )
+						ret = check;
+				}
+
+				return ret;
+			}
+		} );
+
+		addWritebackFakeAttribute ( "mail_summary_sent", FromServer.DATE, new ValueFromObjectClosure () {
+			public Date retriveDate ( FromServer obj ) {
+				int i;
+				Date ret;
+				Date check;
+				ArrayList orders;
+				FromServer order;
+
+				orders = obj.getArray ( "orders" );
+				if ( orders == null )
+					return null;
+
+				i = 0;
+
+				do {
+					order = ( FromServer ) orders.get ( i );
+					ret = order.getDate ( "mail_summary_sent" );
+					i++;
+				} while ( ret != null && i < orders.size () );
+
+				for ( ; i < orders.size (); i++ ) {
+					order = ( FromServer ) orders.get ( i );
+					check = order.getDate ( "mail_summary_sent" );
+					if ( check != null && check.after ( ret ) )
 						ret = check;
 				}
 
@@ -161,6 +198,23 @@ public class OrderAggregate extends FromServerAggregate {
 		for ( int i = 0; i < orders.size (); i++ ) {
 			order = ( FromServer ) orders.get ( i );
 			if ( order.getObject ( "supplier" ).equals ( target ) )
+				return true;
+		}
+
+		return false;
+	}
+
+	public boolean iAmReference () {
+		ArrayList orders;
+		FromServer ord;
+		Supplier supplier;
+
+		orders = getArray ( "orders" );
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( FromServer ) orders.get ( i );
+			supplier = ( Supplier ) ord.getObject ( "supplier" );
+			if ( supplier.iAmReference () == true )
 				return true;
 		}
 

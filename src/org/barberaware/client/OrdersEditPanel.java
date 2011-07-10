@@ -515,22 +515,27 @@ public class OrdersEditPanel extends GenericPanel {
 		} );
 	}
 
+	private int mailSummaryIndex ( FromServerForm form ) {
+		FromServer obj;
+		ArrayList orders;
+
+		obj = form.getValue ();
+
+		if ( obj.getType () == "OrderAggregate" ) {
+			orders = obj.getArray ( "orders" );
+			return orders.size ();
+		}
+		else {
+			return 1;
+		}
+	}
+
 	private void checkMailSummary ( FromServerForm form ) {
 		HorizontalPanel container;
 		Date sent;
 		String text;
 		FromServer ord;
 		FromServerButton button;
-
-		/*
-			TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO
-			TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO
-			TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO
-			TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO
-			TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO TEMPORANEO
-		*/
-		if ( form.getValue ().getType () == "OrderAggregate" )
-			return;
 
 		if ( Session.getGAS ().getBool ( "use_mail" ) == false )
 			return;
@@ -546,7 +551,7 @@ public class OrdersEditPanel extends GenericPanel {
 			container.addStyleName ( "info-cell" );
 
 			form.setExtraWidget ( "mail_summary", container );
-			form.insert ( container, 1 );
+			form.insert ( container, mailSummaryIndex ( form ) );
 
 			text = "Questo ordine è stato chiuso. Clicca il bottone per inviare una mail di riscontro a coloro che hanno effettuato una prenotazione ed ancora non hanno ritirato la merce.";
 
@@ -724,8 +729,13 @@ public class OrdersEditPanel extends GenericPanel {
 	private FromServerForm editableOrderAggregate ( FromServer ord ) {
 		ArrayList orders;
 		FromServer order;
+		OrderAggregate aggregate;
 		FromServerForm ver;
 		OrderDetails details;
+
+		aggregate = ( OrderAggregate ) ord;
+		if ( aggregate.iAmReference () == false )
+			return null;
 
 		ver = new FromServerForm ( ord );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
