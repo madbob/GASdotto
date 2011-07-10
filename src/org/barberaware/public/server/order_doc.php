@@ -1,7 +1,7 @@
 <?php
 
 /*  GASdotto
- *  Copyright (C) 2009/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,127 +18,102 @@
  */
 
 require_once ( "utils.php" );
-require_once ( "tcpdf/tcpdf.php" );
 
-class DeliveryReport extends TCPDF {
-	public function ColoredTable ( $header, $data ) {
-		$this->SetFillColor ( 224, 235, 255 );
-		$this->SetTextColor ( 0 );
-		$this->SetDrawColor ( 128, 0, 0 );
-		$this->SetLineWidth ( 0.3 );
-		$this->SetFont ( 'helvetica', '', 7 );
-
-		$offset = 0;
-		$end = 0;
-		$tot = count ( $header );
-
-		do {
-			$this->AddPage ();
-
-			if ( $end + 10 > $tot )
-				$end = $tot;
-			else
-				$end = $end + 10;
-
-			if ( $tot <= 10 )
-				$width = 100;
-			else
-				$width = 10 * ( $end - $offset );
-
-			$html = '<table cellspacing="0" cellpadding="1" border="1" width="' . $width . '%"><tr>';
-			for ( $i = $offset; $i < $end; $i++ )
-				$html .= '<td>' . ( $header [ $i ] ) . '</td>';
-			$html .= '</tr>';
-
-			foreach ( $data as $row ) {
-				$html .= '<tr>';
-
-				for ( $i = $offset; $i < $end && $i < count ( $row ); $i++ ) {
-					$val = $row [ $i ];
-					$html .= '<td>' . $val . '</td>';
-				}
-
-				while ( $i < $end ) {
-					$html .= '<td><br /></td>';
-					$i++;
-				}
-
-				$html .= '</tr>';
-			}
-
-			$html .= '</table>';
-
-			$this->writeHTML ( $html, true, false, false, false, 'C' );
-
-			$offset = $end;
-
-		} while ( $end < $tot );
-	}
-}
-
-/*
-	First checks
-*/
+global $string_begin;
+global $string_end;
+global $content_sep;
+global $double_line_sep;
+global $double_line_end;
+global $onelinepadding;
+global $emptycell;
 
 $id = $_GET [ 'id' ];
 if ( isset ( $id ) == false )
 	error_exit ( "Richiesta non specificata" );
 
+$format = $_GET [ 'format' ];
+if ( isset ( $format ) == false )
+	error_exit ( "Formato non specificato" );
+
+$is_aggregate = $_GET [ 'aggregate' ];
+if ( isset ( $is_aggregate ) == false )
+	$is_aggregate = false;
+
+formatting_entities ( $format );
+
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-/*
-	Questo serve a sapere se dovro' aggiungere la riga con il riassunto delle confezioni
-	complete o meno al fondo del file
-*/
-$has_stocks = false;
+if ( $is_aggregate == true ) {
+	$aggregate = new OrderAggregate ();
+	$aggregate->readFromDB ( $id );
 
-$order = new Order ();
-$order->readFromDB ( $id );
-$supplier = $order->getAttribute ( 'supplier' )->value;
-$supplier_name = $supplier->getAttribute ( 'name' )->value;
-$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+	$orders = $aggregate->getAttribute ( 'orders' )->value;
+
+	foreach ( $orders as $order ) {
+		$supplier = $order->getAttribute ( 'supplier' )->value;
+		$suppliers [] = $supplier->getAttribute ( 'name' )->value;
+	}
+
+	$supplier_name = join ( '/', $suppliers );
+}
+else {
+	$order = new Order ();
+	$order->readFromDB ( $id );
+	$supplier = $order->getAttribute ( 'supplier' )->value;
+	$supplier_name = $supplier->getAttribute ( 'name' )->value;
+	$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+
+	$orders = array ( $order );
+}
 
 /*
 	Init headers
 */
 
-$products = $order->getAttribute ( "products" )->value;
-usort ( $products, "sort_product_by_name" );
-$prod_num = count ( $products );
+$headers = array ( 'Utenti' );
+$tot_prod_num = 0;
+$all_products = array ();
 
-$header = array ( 'Utenti' );
+foreach ( $orders as $order ) {
+	$products = $order->getAttribute ( "products" )->value;
+	usort ( $products, "sort_product_by_name" );
+	$prod_num = count ( $products );
 
-for ( $i = 0; $i < $prod_num; $i++ ) {
-	$prod = $products [ $i ];
-	$name = $prod->getAttribute ( "name" )->value;
-	$price = format_price ( $prod->getAttribute ( "unit_price" )->value );
+	for ( $i = 0; $i < $prod_num; $i++ ) {
+		$prod = $products [ $i ];
+		$name = $prod->getAttribute ( "name" )->value;
+		$price = format_price ( $prod->getAttribute ( "unit_price" )->value );
 
-	$measure = $prod->getAttribute ( "measure" )->value;
-	if ( $measure != null )
-		$symbol = " / " . $measure->getAttribute ( "name" )->value;
-	else
-		$symbol = "";
+		$measure = $prod->getAttribute ( "measure" )->value;
+		if ( $measure != null )
+			$symbol = " / " . $measure->getAttribute ( "name" )->value;
+		else
+			$symbol = "";
 
-	array_push ( $header, $name . "<br />(" . $price . $symbol . ")" );
+		array_push ( $headers, $name . $content_sep . "(" . $price . $symbol . ")" );
 
-	if ( $prod->getAttribute ( "stock_size" )->value > 0 )
-		$has_stocks = true;
+		if ( $prod->getAttribute ( "stock_size" )->value > 0 )
+			$has_stocks = true;
+	}
+
+	$tot_prod_num += $prod_num;
+	$all_products = array_merge ( $all_products, $products );
 }
 
-array_push ( $header, 'Totale Prezzo Prodotti' );
-array_push ( $header, 'Totale Prezzo Trasporto' );
-array_push ( $header, 'Totale' );
+array_push ( $headers, 'Totale Prezzo Prodotti' );
+array_push ( $headers, 'Totale Prezzo Trasporto' );
+array_push ( $headers, 'Totale' );
 
 if ( $_GET [ 'type' ] == 'saved' )
-	array_push ( $header, 'Prezzato' );
+	array_push ( $headers, 'Prezzato' );
 else
-	array_push ( $header, 'Totale Pagato' );
+	array_push ( $headers, 'Totale Pagato' );
 
-array_push ( $header, 'Stato Consegna' );
-array_push ( $header, 'Data' );
-array_push ( $header, 'Referente' );
-array_push ( $header, 'Utenti' );
+array_push ( $headers, 'Stato Consegna' );
+array_push ( $headers, 'Data' );
+array_push ( $headers, 'Referente' );
+array_push ( $headers, 'Utenti' );
 
 /*
 	Format data
@@ -146,20 +121,24 @@ array_push ( $header, 'Utenti' );
 
 $data = array ();
 
-$products_sums = array_fill ( 0, $prod_num, 0 );
-$quantities_sums = array_fill ( 0, $prod_num, 0 );
-$delivery_sums = array_fill ( 0, $prod_num, 0 );
-$shipped_sums = array_fill ( 0, $prod_num, 0 );
-$shipping_price = array_fill ( 0, $prod_num, 0 );
+$products_sums = array_fill ( 0, $tot_prod_num, 0 );
+$quantities_sums = array_fill ( 0, $tot_prod_num, 0 );
+$delivery_sums = array_fill ( 0, $tot_prod_num, 0 );
+$shipped_sums = array_fill ( 0, $tot_prod_num, 0 );
+$shipping_price = array_fill ( 0, $tot_prod_num, 0 );
 $shipped_sums_by_date = array ();
+$all_contents = array ();
 
-$contents = get_orderuser_by_order ( $order );
-usort ( $contents, "sort_orders_by_user_and_date" );
+foreach ( $orders as $order ) {
+	$contents = get_orderuser_by_order ( $order );
+	$all_contents = merge_order_users ( $all_contents, $contents );
+}
 
-for ( $i = 0; $i < count ( $contents ); $i++ ) {
+usort ( $all_contents, "sort_orders_by_user_and_date" );
+
+for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$row = array ();
-	$order_user = $contents [ $i ];
-
+	$order_user = $all_contents [ $i ];
 	$user_products = $order_user->products;
 
 	if ( is_array ( $user_products ) == false ) {
@@ -167,7 +146,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			continue;
 	}
 	else {
-		$user_products = sort_products_on_products ( $products, $user_products );
+		$user_products = sort_products_on_products ( $all_products, $user_products );
 	}
 
 	$user_total = 0;
@@ -177,11 +156,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$surname = ellipse_string ( $order_user->baseuser->surname, 12 );
 	$firstname = ellipse_string ( $order_user->baseuser->firstname, 12 );
 
-	$user_name = sprintf ( "%s<br />%s", $surname, $firstname );
+	$user_name = sprintf ( "%s%s%s", $surname, $double_line_sep, $firstname );
 	$row [] = $user_name;
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
-		$prod = $products [ $a ];
+	for ( $a = 0, $e = 0; $a < count ( $all_products ); $a++ ) {
+		$prod = $all_products [ $a ];
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$quantity = 0;
 		$delivered = 0;
@@ -226,7 +205,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 				$quantity = $delivered;
 			}
 
-			$row [] = $q . '<br />';
+			$row [] = $q . $double_line_end;
 
 			$sum = ( $quantity * $sprice );
 			$shipping_price [ $a ] += $sum;
@@ -244,7 +223,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 				if ( property_exists ( $order_user, 'deliverydate' ) ) {
 					if ( isset ( $shipped_sums_by_date [ $order_user->deliverydate ] ) == false ) {
-						$arr = array_fill ( 0, count ( $products ), 0 );
+						$arr = array_fill ( 0, $tot_prod_num, 0 );
 						$shipped_sums_by_date [ $order_user->deliverydate ] = $arr;
 					}
 
@@ -256,45 +235,45 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 			$delivery_sums [ $a ] += $delivered;
 		}
 		else {
-			$row [] = '<br /><br />';
+			$row [] = $emptycell . $emptycell;
 		}
 
 		unset ( $prod_user );
 	}
 
-	$row [] = ( format_price ( round ( $user_total, 2 ), false ) ) . '<br />';
-	$row [] = ( format_price ( round ( $user_total_ship, 2 ), false ) ) . '<br />';
-	$row [] = ( format_price ( round ( $user_total + $user_total_ship, 2 ), false ) ) . '<br />';
-	$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . '<br />';
+	$row [] = ( format_price ( round ( $user_total, 2 ), false ) ) . $double_line_end;
+	$row [] = ( format_price ( round ( $user_total_ship, 2 ), false ) ) . $double_line_end;
+	$row [] = ( format_price ( round ( $user_total + $user_total_ship, 2 ), false ) ) . $double_line_end;
+	$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . $double_line_end;
 
 	if ( property_exists ( $order_user, 'status' ) ) {
 		if ( $order_user->status == 1 )
-			$row [] = 'Parzialmente Consegnato<br />';
+			$row [] = 'Parzialmente Consegnato' . $double_line_end;
 		else if ( $order_user->status == 2 )
-			$row [] = 'Consegnato<br />';
+			$row [] = 'Consegnato' . $double_line_end;
 		else if ( $order_user->status == 3 )
-			$row [] = 'Prezzato<br />';
+			$row [] = 'Prezzato' . $double_line_end;
 		else
-			$row [] = '<br />';
+			$row [] = $emptycell;
 	}
 	else {
-		$row [] = '<br />';
+		$row [] = $emptycell;
 	}
 
 	if ( property_exists ( $order_user, 'deliverydate' ) )
 		$row [] = format_date ( $order_user->deliverydate );
 	else
-		$row [] = '';
+		$row [] = $emptycell;
 
 	if ( property_exists ( $order_user, 'deliveryperson' ) ) {
 		$reference = $order_user->deliveryperson;
 		if ( property_exists ( $reference, 'surname' ) )
-			$row [] = sprintf ( "%s<br />%s", $reference->surname, $reference->firstname );
+			$row [] = sprintf ( "%s%s%s", $reference->surname, $double_line_sep, $reference->firstname );
 		else
-			$row [] = '';
+			$row [] = $emptycell;
 	}
 	else {
-		$row [] = '';
+		$row [] = $emptycell;
 	}
 
 	/*
@@ -309,7 +288,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	unset ( $order_user );
 }
 
-unset ( $contents );
+unset ( $all_contents );
 
 $row = array ();
 $row [] = 'Quantita\' Totali';
@@ -323,20 +302,20 @@ for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
 		$q .= ' ( ' . $d . ' )';
 	}
 
-	$row [] = $q . '<br />';
+	$row [] = $q . $double_line_end;
 }
 $data [] = $row;
 
 if ( $has_stocks == true ) {
 	$row = array ();
-	$row [] = 'Numero Confezioni<br />';
+	$row [] = 'Numero Confezioni' . $double_line_end;
 
 	for ( $i = 0; $i < count ( $quantities_sums ); $i++ ) {
-		$prod = $products [ $i ];
+		$prod = $all_products [ $i ];
 		$stock = $prod->getAttribute ( "stock_size" )->value;
 
 		if ( $stock <= 0.0 ) {
-			$row [] = '<br />';
+			$row [] = $emptycell;
 		}
 		else {
 			$quantity = $quantities_sums [ $i ];
@@ -345,16 +324,16 @@ if ( $has_stocks == true ) {
 
 			$missing = ( $stock * $boxes ) - $quantity;
 			if ( $missing > 0 )
-				$q .= ',<br />' . $missing . ' non assegnati';
+				$q .= ', ' . $double_line_sep . $missing . ' non assegnati';
 
-			$row [] = $q . '<br />';
+			$row [] = $q . $double_line_end;
 		}
 	}
 
 	$data [] = $row;
 }
 
-unset ( $products );
+unset ( $all_products );
 
 $gran_total = 0;
 $row = array ();
@@ -362,10 +341,10 @@ $row [] = 'Totale Prezzo Prodotti';
 foreach ( $products_sums as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p . '<br />';
+	$row [] = $p . $double_line_end;
 	$gran_total += $r;
 }
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 $data [] = $row;
 
 $gran_total = 0;
@@ -374,84 +353,64 @@ $row [] = 'Totale Prezzo Trasporto';
 foreach ( $shipping_price as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p . '<br />';
+	$row [] = $p . $double_line_end;
 	$gran_total += $r;
 }
-$row [] = '<br />';
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
+$row [] = $emptycell;
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 $data [] = $row;
 
 $gran_total = 0;
 $row = array ();
-$row [] = 'Totale<br />';
+$row [] = 'Totale' . $double_line_end;
 for ( $i = 0; $i < count ( $products_sums ); $i++ ) {
 	$ps = $products_sums [ $i ] + $shipping_price [ $i ];
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p . '<br />';
+	$row [] = $p . $double_line_end;
 	$gran_total += $r;
 }
-$row [] = '<br />';
-$row [] = '<br />';
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
+$row [] = $emptycell;
+$row [] = $emptycell;
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 $data [] = $row;
 
 $gran_total = 0;
 $row = array ();
-$row [] = 'Totale Pagato<br />';
+$row [] = 'Totale Pagato' . $double_line_end;
 foreach ( $shipped_sums as $ps ) {
 	$r = round ( $ps, 2 );
 	$p = format_price ( $r, false );
-	$row [] = $p . '<br />';
+	$row [] = $p . $double_line_end;
 	$gran_total += $r;
 }
-$row [] = '<br />';
-$row [] = '<br />';
-$row [] = '<br />';
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
+$row [] = $emptycell;
+$row [] = $emptycell;
+$row [] = $emptycell;
+$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 $data [] = $row;
 
 if ( count ( $shipped_sums_by_date ) > 1 ) {
 	foreach ( $shipped_sums_by_date as $date => $values ) {
 		$gran_total = 0;
 		$row = array ();
-		$row [] = 'Totale Pagato<br />il' . format_date ( $date );
+		$row [] = 'Totale Pagato' . $double_line_sep . 'il ' . format_date ( $date, true );
 
 		foreach ( $values as $ps ) {
 			$r = round ( $ps, 2 );
 			$p = format_price ( $r, false );
-			$row [] = $p . '<br />';
+			$row [] = $p . $double_line_end;
 			$gran_total += $r;
 		}
 
-		$row [] = '<br />';
-		$row [] = '<br />';
-		$row [] = '<br />';
-		$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . '<br />';
+		$row [] = $emptycell;
+		$row [] = $emptycell;
+		$row [] = $emptycell;
+		$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 		$data [] = $row;
 	}
 }
 
-/*
-	Output
-*/
-
-$pdf = new DeliveryReport ( 'P', 'mm', 'A4', true, 'UTF-8', false );
-$pdf->SetCreator ( 'TCPDF' );
-$pdf->SetAuthor ( 'GASdotto' );
-$pdf->SetTitle ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
-$pdf->SetSubject ( 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date );
-$pdf->SetKeywords ( 'consegne, ordini, GASdotto, GAS, ' . $supplier_name );
-$pdf->SetHeaderData ( '', 0, 'Consegne ordine a ' . $supplier_name . ' del ' . $shipping_date, '' );
-$pdf->setHeaderFont ( Array ( 'helvetica', '', 10 ) );
-$pdf->setFooterFont ( Array ( 'helvetica', '', 8 ) );
-$pdf->SetDefaultMonospacedFont ( 'courier' );
-$pdf->SetMargins ( 15, 27, 25, 15 );
-$pdf->SetHeaderMargin ( 5 );
-$pdf->SetFooterMargin ( 10 );
-$pdf->SetAutoPageBreak ( true, 25 );
-$pdf->setImageScale ( 1 );
-$pdf->ColoredTable ( $header, $data );
-$pdf->Output ( 'consegne_' . $supplier_name . '_' . $shipping_date . '.pdf', 'I' );
+output_formatted_document ( 'Ordine per ' . $supplier_name, $headers, $data, $format );
 
 ?>

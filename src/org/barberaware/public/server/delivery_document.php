@@ -20,6 +20,17 @@
 require_once ( "utils.php" );
 require_once ( "tcpdf/tcpdf.php" );
 
+global $block_begin;
+global $block_end;
+global $row_begin;
+global $row_end;
+global $head_begin;
+global $head_end;
+global $inrow_separator;
+global $string_begin;
+global $string_end;
+global $content_sep;
+
 class DeliveryReport extends TCPDF {
 	public function ColoredTable ( $data ) {
 		$this->SetFillColor ( 224, 235, 255 );
@@ -100,60 +111,73 @@ $format = $_GET [ 'format' ];
 if ( isset ( $format ) == false )
 	error_exit ( "Formato non specificato" );
 
-if ( $format == 'csv' ) {
-	$block_begin = '';
-	$block_end = "\n";
-	$row_begin = '';
-	$row_end = "\n";
-	$head_begin = $row_begin;
-	$head_end = $row_end;
-	$inrow_separator = ';';
-	$string_begin = '"';
-	$string_end = '"';
-	$content_sep = ' - ';
-}
-else if ( $format == 'pdf' ) {
-	$block_begin = '<table cellspacing="0" cellpadding="1" border="1" width="100%">';
-	$block_end = '</table><br /><br /><br />';
-	$row_begin = '<tr><td width="25%">';
-	$row_end = '</td></tr>';
-	$head_begin = '<tr><td colspan="4"><b>';
-	$head_end = '</b>' . $row_end;
-	$inrow_separator = '</td><td width="25%">';
-	$string_begin = '';
-	$string_end = '';
-	$content_sep = '<br />';
-}
-else {
-	error_exit ( "Formato non valido" );
-}
+$is_aggregate = $_GET [ 'aggregate' ];
+if ( isset ( $is_aggregate ) == false )
+	$is_aggregate = false;
+
+formatting_entities ( $format );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-$order = new Order ();
-$order->readFromDB ( $id );
+if ( $is_aggregate == true ) {
+	$aggregate = new OrderAggregate ();
+	$aggregate->readFromDB ( $id );
 
-$supplier = $order->getAttribute ( 'supplier' )->value;
-$supplier_name = $supplier->getAttribute ( 'name' )->value;
-$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+	$orders = $aggregate->getAttribute ( 'orders' )->value;
+	$max_shipping_date = 0;
 
-$products = $order->getAttribute ( "products" )->value;
-usort ( $products, "sort_product_by_name" );
+	foreach ( $orders as $order ) {
+		$supplier = $order->getAttribute ( 'supplier' )->value;
+		$suppliers [] = $supplier->getAttribute ( 'name' )->value;
 
-$contents = get_orderuser_by_order ( $order );
-usort ( $contents, "sort_orders_by_user" );
+		$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+
+		$sd = broken_to_stamp ( strptime ( $shipping_date, '%Y-%m-%d' ) );
+		if ( $max_shipping_date < $sd )
+			$max_shipping_date = $sd;
+	}
+
+	$supplier = join ( '/', $suppliers );
+	$shipping_date = $max_shipping_date;
+}
+else {
+	$order = new Order ();
+	$order->readFromDB ( $id );
+	$supplier = $order->getAttribute ( 'supplier' )->value;
+	$supplier_name = $supplier->getAttribute ( 'name' )->value;
+	$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+
+	$orders = array ( $order );
+}
+
+$tot_prod_num = 0;
+$all_products = array ();
+$all_contents = array ();
+
+foreach ( $orders as $order ) {
+	$products = $order->getAttribute ( "products" )->value;
+	usort ( $products, "sort_product_by_name" );
+
+	$contents = get_orderuser_by_order ( $order );
+
+	$tot_prod_num += $prod_num;
+	$all_products = array_merge ( $all_products, $products );
+	$all_contents = merge_order_users ( $all_contents, $contents );
+}
+
+usort ( $all_contents, "sort_orders_by_user_and_date" );
 
 $output = '';
 
-for ( $i = 0; $i < count ( $contents ); $i++ ) {
-	$order_user = $contents [ $i ];
+for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
+	$order_user = $all_contents [ $i ];
 
 	$user_products = $order_user->products;
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$user_products = sort_products_on_products ( $products, $user_products );
+	$user_products = sort_products_on_products ( $all_products, $user_products );
 	$user_total = 0;
 
 	$output .= $block_begin;
@@ -172,8 +196,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	else
 		$param = 'quantity';
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
-		$prod = $products [ $a ];
+	for ( $a = 0, $e = 0; $a < count ( $all_products ); $a++ ) {
+		$prod = $all_products [ $a ];
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$quantity = 0;
 

@@ -278,6 +278,7 @@ public class DeliveryPanel extends GenericPanel {
 
 	private FromServerForm doOrderRow ( FromServer order ) {
 		boolean is_aggregate;
+		String order_identifier;
 		ArrayList orders;
 		CaptionPanel frame;
 		HorizontalPanel downloads;
@@ -337,29 +338,51 @@ public class DeliveryPanel extends GenericPanel {
 
 		downloads = new HorizontalPanel ();
 
+		order_identifier = Integer.toString ( order.getLocalID () );
+		if ( is_aggregate == true )
+			order_identifier += "&amp;aggregate=true";
+
 		files = new LinksDialog ( "Ordinati e Consegnati" );
-		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "&amp;type=shipped" );
-		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "&amp;type=shipped" );
+		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=shipped" );
+		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=shipped" );
 		downloads.add ( files );
 
 		files = new LinksDialog ( "Prodotti Prezzati" );
-		files.addLink ( "CSV", "order_csv.php?id=" + order.getLocalID () + "&amp;type=saved" );
-		files.addLink ( "PDF", "delivery_pdf.php?id=" + order.getLocalID () + "&amp;type=saved" );
+		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=saved" );
+		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=saved" );
 		downloads.add ( files );
 
 		files = new LinksDialog ( "Dettaglio Consegne" );
-		// files.addLink ( "CSV", "delivery_document.php?id=" + order.getLocalID () + "&amp;format=csv&amp;type=delivery" );
-		files.addLink ( "PDF", "delivery_document.php?id=" + order.getLocalID () + "&amp;format=pdf&amp;type=delivery" );
+		files.addLink ( "PDF", "delivery_document.php?id=" + order_identifier + "&amp;format=pdf&amp;type=delivery" );
 		downloads.add ( files );
 
+		/*
+			Il "riassunto prodotti", essendo destinato ai singoli fornitori, viene
+			separato per singoli ordini se si tratta di un ordine aggregato
+		*/
+
 		files = new LinksDialog ( "Riassunto Prodotti" );
-		files.addLink ( "CSV", "products_summary.php?format=csv&amp;id=" + order.getLocalID () );
-		files.addLink ( "PDF", "products_summary.php?format=pdf&amp;id=" + order.getLocalID () );
+
+		if ( is_aggregate == true ) {
+			orders = order.getArray ( "orders" );
+			for ( int i = 0; i < orders.size (); i++ ) {
+				ord = ( FromServer ) orders.get ( i );
+
+				files.addHeader ( ord.getObject ( "supplier" ).getString ( "name" ) );
+				files.addLink ( "CSV", "products_summary.php?format=csv&amp;id=" + ord.getLocalID () );
+				files.addLink ( "PDF", "products_summary.php?format=pdf&amp;id=" + ord.getLocalID () );
+			}
+		}
+		else {
+			files.addLink ( "CSV", "products_summary.php?format=csv&amp;id=" + order_identifier );
+			files.addLink ( "PDF", "products_summary.php?format=pdf&amp;id=" + order_identifier );
+		}
+
 		downloads.add ( files );
 
 		if ( Session.getGAS ().getBool ( "use_rid" ) ) {
 			files = new LinksDialog ( "Genera RID" );
-			files.addLink ( "RID", "rid_generator.php?id=" + order.getLocalID () );
+			files.addLink ( "RID", "rid_generator.php?id=" + order_identifier );
 			downloads.add ( files );
 		}
 

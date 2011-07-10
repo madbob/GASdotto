@@ -194,20 +194,30 @@ function format_price ( $price, $symbol = true ) {
 		return number_format ( $price, 2, ',', '' );
 }
 
-function format_date ( $dbdate ) {
+function format_date ( $dbdate, $month_num = false ) {
 	if ( $dbdate == null || $dbdate == '' ) {
 		return '';
 	}
 	else {
-		$months = array ( 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre' );
 		list ( $year, $month, $day ) = explode ( '-', $dbdate );
 
-		/*
-			La variabile $day viene castata ad int per accertarsi di eliminare l'eventuale
-			zero posto dinnanzi ai giorni con una cifra sola
-		*/
-		return ( ( int ) $day ) . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
+		if ( $month_num == false ) {
+			$months = array ( 'Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre' );
+
+			/*
+				La variabile $day viene castata ad int per accertarsi di eliminare l'eventuale
+				zero posto dinnanzi ai giorni con una cifra sola
+			*/
+			return ( ( int ) $day ) . ' ' . ( $months [ $month - 1 ] ) . ' ' . $year;
+		}
+		else {
+			return ( ( int ) $day ) . ' ' . ( ( int ) $month ) . ' ' . $year;
+		}
 	}
+}
+
+function broken_to_stamp ( $broken ) {
+	return mktime ( $broken [ 'tm_hour' ], $broken [ 'tm_min' ], $broken [ 'tm_sec' ], $broken [ 'tm_mon' ], $broken [ 'tm_mday' ], $broken [ 'tm_year' ] );
 }
 
 function random_string ( $length ) {
@@ -328,6 +338,24 @@ function sort_products_on_products ( $products, $user_products ) {
 	return $proxy;
 }
 
+function merge_order_users ( $all_orders, $orders ) {
+	foreach ( $orders as $order ) {
+		$found = false;
+
+		foreach ( $all_orders as $main_order ) {
+			if ( $order->baseuser->id == $main_order->baseuser->id ) {
+				$main_order->products = array_merge ( $main_order->products, $order->products );
+				$found = true;
+			}
+		}
+
+		if ( $found == false )
+			array_push ( $all_orders, $order );
+	}
+
+	return $all_orders;
+}
+
 function formatting_entities ( $format ) {
 	global $block_begin;
 	global $block_end;
@@ -339,6 +367,8 @@ function formatting_entities ( $format ) {
 	global $string_begin;
 	global $string_end;
 	global $content_sep;
+	global $double_line_sep;
+	global $double_line_end;
 	global $onelinepadding;
 	global $emptycell;
 
@@ -353,6 +383,8 @@ function formatting_entities ( $format ) {
 		$string_begin = '"';
 		$string_end = '"';
 		$content_sep = ' - ';
+		$double_line_sep = ' ';
+		$double_line_end = '';
 		$onelinepadding = '';
 		$emptycell = '';
 	}
@@ -366,6 +398,9 @@ function formatting_entities ( $format ) {
 		$inrow_separator = '</td><td width="25%">';
 		$string_begin = '';
 		$string_end = '';
+		$content_sep = '<br />';
+		$double_line_sep = '<br />';
+		$double_line_end = '<br />';
 		$onelinepadding = '<br />';
 		$emptycell = '<br />';
 	}
@@ -431,7 +466,7 @@ function format_csv ( $headers, $data ) {
 	foreach ( $data as $row )
 		$output .= join ( ';', $row ) . "\n";
 
-	echo $output;
+	return $output;
 }
 
 function output_formatted_document ( $title, $headers, $data, $format ) {

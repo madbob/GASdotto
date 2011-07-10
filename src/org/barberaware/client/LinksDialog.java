@@ -99,6 +99,10 @@ public class LinksDialog extends Composite {
 		links.insert ( button, links.getWidgetCount () - 1 );
 	}
 
+	public void addHeader ( String text ) {
+		links.insert ( new Label ( text ), links.getWidgetCount () - 1 );
+	}
+
 	public void emptyBox () {
 		int count;
 
