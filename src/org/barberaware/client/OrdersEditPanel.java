@@ -62,6 +62,20 @@ public class OrdersEditPanel extends GenericPanel {
 					FromServerSelector suppliers;
 					DateWidget date;
 
+					suppliers = new FromServerSelector ( "Supplier", true, true, false );
+					suppliers.addFilter ( new FromServerValidateCallback () {
+						public boolean checkObject ( FromServer object ) {
+							Supplier sup;
+							sup = ( Supplier ) object;
+							return sup.iAmReference ();
+						}
+					} );
+
+					if ( suppliers.getNumValues () == 0 ) {
+						Utils.showNotification ( "Non hai fornitori assegnati, non puoi aprire nuovi ordini", Notification.WARNING );
+						return null;
+					}
+
 					order = new Order ();
 
 					ver = new FromServerForm ( order );
@@ -86,15 +100,6 @@ public class OrdersEditPanel extends GenericPanel {
 
 					frame = new CustomCaptionPanel ( "Attributi" );
 					hor.add ( frame );
-
-					suppliers = new FromServerSelector ( "Supplier", true, true, false );
-					suppliers.addFilter ( new FromServerValidateCallback () {
-						public boolean checkObject ( FromServer object ) {
-							Supplier sup;
-							sup = ( Supplier ) object;
-							return sup.iAmReference ();
-						}
-					} );
 
 					suppliers.addChangeListener ( new ChangeListener () {
 						public void onChange ( Widget sender ) {
@@ -882,6 +887,7 @@ public class OrdersEditPanel extends GenericPanel {
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "OrderAggregate" );
 		Utils.getServer ().testObjectReceive ( "Order" );
+		Utils.getServer ().testObjectReceive ( "Supplier" );
 		filter.doFilter ();
 	}
 }

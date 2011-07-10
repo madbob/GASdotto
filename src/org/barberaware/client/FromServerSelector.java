@@ -86,6 +86,10 @@ public class FromServerSelector extends ListBox implements ObjectWidget, Lockabl
 		return type;
 	}
 
+	public int getNumValues () {
+		return getItemCount ();
+	}
+
 	private void registerCallbacks () {
 		Utils.getServer ().onObjectEvent ( type, new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
