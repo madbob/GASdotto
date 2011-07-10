@@ -486,13 +486,13 @@ if ( $graph == 0 ) {
 				for ( $a = 0; $a < count ( $rows_suppliers ); $a++ ) {
 					list ( $tot, $price ) = users_data ( $user [ "id" ], $rows_suppliers [ $a ] [ "id" ], $startdate, $enddate );
 
-					if ( $price [ 0 ] [ 0 ] != "" ) {
-						$row [] = ( $tot [ 0 ] [ 0 ] ) . ' ordini /<br />' . ( format_price ( $price [ 0 ] [ 0 ] ) );
-						$total_price += $price [ 0 ] [ 0 ];
-						$total_orders += $tot [ 0 ] [ 0 ];
+					if ( $price != 0 && $price != '' ) {
+						$row [] = ( $tot ) . ' ordini /<br />' . ( format_price ( $price ) );
+						$total_price += $price;
+						$total_orders += $tot;
 
 						$supplier_total_orders [ $a ] = $supplier_total_orders [ $a ] + 1;
-						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price [ 0 ] [ 0 ];
+						$supplier_total_price [ $a ] = $supplier_total_price [ $a ] + $price;
 					}
 					else {
 						$row [] = '<br />';
