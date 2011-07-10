@@ -58,11 +58,14 @@ public class UsersPanel extends GenericPanel {
 
 					ver.setCallback ( new FromServerFormCallbacks () {
 						public boolean onSave ( FromServerForm form ) {
+							int new_role;
+							int current_role;
 							CyclicToggle role;
 							DateSelector leave;
 							Date leavedate;
 
 							role = ( CyclicToggle ) form.retriveInternalWidget ( "privileges" );
+							new_role = role.getVal ();
 							leave = ( DateSelector ) form.retriveInternalWidget ( "leaving_date" );
 							leavedate = leave.getValue ();
 
@@ -70,7 +73,7 @@ public class UsersPanel extends GenericPanel {
 								Questo e' per accertarsi che la data di cessazione
 								della partecipazione del membro sia settata
 							*/
-							if ( role.getVal () == User.USER_LEAVED ) {
+							if ( new_role == User.USER_LEAVED ) {
 								if ( leavedate == null )
 									leave.setValue ( new Date ( System.currentTimeMillis () ) );
 							}
@@ -81,6 +84,13 @@ public class UsersPanel extends GenericPanel {
 							*/
 							else if ( leavedate != null )
 								leave.setValue ( null );
+
+							current_role = form.getValue ().getInt ( "privileges" );
+
+							if ( ( new_role == User.USER_COMMON || new_role == User.USER_LEAVED ) &&
+									( current_role == User.USER_RESPONSABLE || current_role == User.USER_ADMIN ) ) {
+								removeAsReference ( form.getValue () );
+							}
 
 							return true;
 						}
@@ -262,6 +272,24 @@ public class UsersPanel extends GenericPanel {
 		addTop ( main );
 
 		doFilterOptions ();
+	}
+
+	private void removeAsReference ( FromServer user ) {
+		boolean check1;
+		boolean check2;
+		ArrayList suppliers;
+		FromServer supp;
+
+		suppliers = Utils.getServer ().getObjectsFromCache ( "Supplier" );
+
+		for ( int i = 0; i < suppliers.size (); i++ ) {
+			supp = ( FromServer ) suppliers.get ( i );
+			check1 = supp.removeFromArray ( "references", user );
+			check2 = supp.removeFromArray ( "carriers", user );
+
+			if ( check1 == true || check2 == true )
+				supp.save ( null );
+		}
 	}
 
 	private void doFilterOptions () {

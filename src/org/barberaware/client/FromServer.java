@@ -257,6 +257,26 @@ public abstract class FromServer implements Comparator {
 		return getInternalAttribute ( name ).getClassName ();
 	}
 
+	/****************************************************************** utility sugli array */
+
+	public boolean removeFromArray ( String array_name, FromServer to_remove ) {
+		ArrayList array;
+		FromServer tmp;
+
+		array = getArray ( array_name );
+
+		for ( int a = 0; a < array.size (); a++ ) {
+			tmp = ( FromServer ) array.get ( a );
+			if ( tmp.equals ( to_remove ) ) {
+				array.remove ( tmp );
+				setArray ( array_name, array );
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	/****************************************************************** server interface */
 
 	public boolean isValid () {
