@@ -101,6 +101,8 @@ class Probe extends FromServer {
 		fwrite ( $f, "?>" );
 
 		fclose ( $f );
+
+		chmod ( './config.php', 0555 );
 	}
 
 	public function save ( $obj ) {
