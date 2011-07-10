@@ -168,10 +168,6 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				setCell ( ( Widget ) box, "20%" );
 			}
 
-			currentQuantity += prod_user.getFloat ( "quantity" );
-			currentDelivery += prod_user.getFloat ( "delivered" );
-			currentPrice = referenceProd.getTotalPrice ( currentDelivery );
-
 			( ( Label ) quantityLabel ).setText ( Utils.floatToString ( currentQuantity ) + symbol );
 		}
 		else {
@@ -187,6 +183,10 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 
 			quantifyVariants ( variants );
 		}
+
+		currentQuantity += prod_user.getFloat ( "quantity" );
+		currentDelivery += prod_user.getFloat ( "delivered" );
+		currentPrice = referenceProd.getTotalPrice ( currentDelivery );
 
 		if ( first_round == true ) {
 			priceLabel = new PriceViewer ();
