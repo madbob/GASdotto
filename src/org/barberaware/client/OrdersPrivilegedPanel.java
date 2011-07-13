@@ -494,13 +494,14 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	private FromServerForm doMultiOrderRow ( FromServer aggregate, boolean editable ) {
 		boolean multi;
 		ArrayList orders;
+		ArrayList orders_boxes;
 		final FromServerForm ver;
 		FromServerRappresentation rappr;
 		FromServerForm form;
 		Order order;
 		OrderUserAggregate uorder;
 		OrderUser sub_uorder;
-		OrderUserManager manager;
+		OrderUserAggregateManager manager;
 
 		if ( hasOrders == false ) {
 			hasOrders = true;
@@ -610,6 +611,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		}
 
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
+
 		orders = aggregate.getArray ( "orders" );
 		multi = false;
 
@@ -622,23 +624,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				order.delRelatedInfo ( "OrdersPrivilegedPanel" );
 			}
 
-			sub_uorder = new OrderUser ();
-			sub_uorder.setObject ( "baseorder", order );
-			sub_uorder.setObject ( "baseuser", Session.getUser () );
-
 			if ( canMultiUser ( order ) == true )
 				multi = true;
-
-			manager = new OrderUserManager ( order, editable );
-			ver.add ( manager );
-			ver.addChild ( manager );
-
-			manager.setValue ( sub_uorder );
-			order.addRelatedInfo ( "OrdersPrivilegedPanel", manager );
 		}
 
 		if ( multi == true )
 			ver.emblems ().activate ( "multiuser" );
+
+		manager = new OrderUserAggregateManager ( aggregate, editable, "OrdersPrivilegedPanel" );
+		ver.add ( manager );
 
 		ver.emblems ().activate ( "status", aggregate.getInt ( "status" ) );
 		ver.emblems ().activate ( "aggregate" );
@@ -663,7 +657,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		ver = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
-		ver.setWrap ( new OrderUserManager ( order, false ) );
+		manager = new OrderUserManager ( order, false );
+		ver.add ( manager );
+		ver.setWrap ( manager );
 		ver.setValue ( uorder );
 
 		return ver;
@@ -718,7 +714,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		OrderUserManager select;
 
 		select = ( OrderUserManager ) form.getWrap ();
-		select.upgradeProductsList ( order.getArray ( "products" ) );
+		select.upgradeProductsList ( order );
 	}
 
 	/****************************************************************** GenericPanel */

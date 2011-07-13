@@ -93,6 +93,11 @@ public class RadioButtons extends ButtonsBar implements SourcesChangeEvents {
 		}
 	}
 
+	public void propagateToggled ( int index ) {
+		setToggled ( index );
+		triggerChange ();
+	}
+
 	private void buttonUpDown ( ToggleButton button, boolean down ) {
 		button.setDown ( down );
 

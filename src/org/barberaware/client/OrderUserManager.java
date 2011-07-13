@@ -26,6 +26,8 @@ import com.allen_sauer.gwt.log.client.Log;
 public class OrderUserManager extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
 	private DeckPanel		deck;
 	private RadioButtons		buttons		= null;
+	private CaptionPanel		exportFrame;
+	private ObjectLinksDialog	exportFiles;
 
 	private FromServer		baseOrder;
 
@@ -94,6 +96,15 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 			buttons.setToggled ( 0 );
 		}
 
+		exportFrame = new CaptionPanel ( "Esporta Report" );
+		exportFrame.addStyleName ( "print-reports-box" );
+		main.add ( exportFrame );
+
+		exportFiles = new ObjectLinksDialog ( "Esporta Report" );
+		exportFiles.addLinkTemplate ( "CSV", "order_friends.php?format=csv&amp;id=#" );
+		exportFiles.addLinkTemplate ( "PDF", "order_friends.php?format=pdf&amp;id=#" );
+		exportFrame.add ( exportFiles );
+
 		deck = new DeckPanel ();
 		main.add ( deck );
 
@@ -113,8 +124,11 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		deck.showWidget ( 0 );
 	}
 
-	public void upgradeProductsList ( ArrayList products ) {
+	public void upgradeProductsList ( FromServer order ) {
+		ArrayList products;
 		OrderUserManagerMode panel;
+
+		products = order.getArray ( "products" );
 
 		for ( int i = 0; i < deck.getWidgetCount (); i++ ) {
 			panel = ( OrderUserManagerMode ) deck.getWidget ( i );
@@ -126,11 +140,21 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		activateLayer ( 0, null );
 	}
 
+	public void forceLayer ( int index ) {
+		buttons.propagateToggled ( index );
+	}
+
+	public FromServer getBaseOrder () {
+		return baseOrder;
+	}
+
 	private void activateLayer ( int index, FromServer element ) {
 		ObjectWidget panel;
 
 		panel = ( ObjectWidget ) deck.getWidget ( index );
 		panel.setValue ( element );
+
+		exportFiles.setValue ( element );
 
 		deck.showWidget ( index );
 
@@ -170,6 +194,15 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		}
 
 		activateLayer ( index, element );
+	}
+
+	public void embeddedMode ( boolean enable ) {
+		enable = !enable;
+
+		if ( buttons != null )
+			buttons.setVisible ( enable );
+
+		exportFrame.setVisible ( enable );
 	}
 
 	public FromServer getValue () {

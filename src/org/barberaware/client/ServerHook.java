@@ -438,6 +438,19 @@ public class ServerHook {
 		return new ArrayList ( monitor.objects.values () );
 	}
 
+	public ArrayList getObjectsFromCache ( String type, int [] ids ) {
+		ArrayList ret;
+		ServerMonitor monitor;
+
+		monitor = getMonitor ( type );
+		ret = new ArrayList ();
+
+		for ( int i = 0; i < ids.length; i++ )
+			ret.add ( monitor.objects.get ( ids [ i ] ) );
+
+		return ret;
+	}
+
 	public void invalidateCacheByCondition ( ObjectRequest req ) {
 		int len;
 		ArrayList objects;

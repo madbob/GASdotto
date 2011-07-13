@@ -28,7 +28,6 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 	private DummyTextArea		notes;
 	private FromServer		baseOrder;
 
-	private LinksDialog		files;
 	private TabPanel		friends;
 	private PriceViewer		totalWithFriends;
 
@@ -46,15 +45,6 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 		main = new VerticalPanel ();
 		main.addStyleName ( "subelement" );
 		initWidget ( main );
-
-		if ( full == true ) {
-			frame = new CaptionPanel ( "Esporta Report" );
-			frame.addStyleName ( "print-reports-box" );
-			main.add ( frame );
-
-			files = new LinksDialog ( "Ordini per gli Amici" );
-			frame.add ( files );
-		}
 
 		friends = new TabPanel ();
 		main.add ( friends );
@@ -327,13 +317,6 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 	public void setValue ( FromServer element ) {
 		currentValue = element;
 		setMultiOrder ();
-
-		if ( fullEditable == true ) {
-			files.emptyBox ();
-			files.addLink ( "CSV", "order_friends.php?format=csv&amp;id=" + element.getLocalID () );
-			files.addLink ( "PDF", "order_friends.php?format=pdf&amp;id=" + element.getLocalID () );
-		}
-
 		notes.setValue ( element.getString ( "notes" ) );
 	}
 

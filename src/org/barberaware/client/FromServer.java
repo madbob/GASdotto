@@ -540,16 +540,28 @@ public abstract class FromServer implements Comparator {
 		Object [] keys;
 		Object rel;
 
-		keys = attributes.keySet ().toArray ();
+		keys = relatedInfo.keySet ().toArray ();
 
 		for ( int i = 0; i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
-			rel = attributes.get ( k );
+			rel = relatedInfo.get ( k );
 
 			if ( rel == related ) {
 				delRelatedInfo ( k );
 				break;
 			}
+		}
+	}
+
+	public void printRelatedInfo () {
+		String k;
+		Object [] keys;
+
+		keys = relatedInfo.keySet ().toArray ();
+
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			Log.debug ( k );
 		}
 	}
 
