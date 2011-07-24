@@ -78,7 +78,11 @@ public class ObjectLinksDialog extends LinksDialog implements ObjectWidget {
 		currentObject = element;
 		emptyBox ();
 
-		if ( element == null || element.isValid () == false ) {
+		/*
+			Il controllo esplicito su ID = 0 lo metto perche' gli OrderUser (per i quali codesto widget
+			e' stato in primis introdotto) risultano sempre "validi". Cfr. OrderUser.isValid()
+		*/
+		if ( element == null || element.isValid () == false || element.getLocalID () == -1 ) {
 			addHeader ( "Nessun file scaricabile" );
 		}
 		else {

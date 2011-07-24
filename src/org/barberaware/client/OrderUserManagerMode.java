@@ -21,6 +21,31 @@ import java.util.*;
 
 import com.google.gwt.user.client.ui.*;
 
-public abstract class OrderUserManagerMode extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
-	public abstract void upgradeProductsList ( ArrayList products );
+public abstract class OrderUserManagerMode extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents, Lockable {
+	private ArrayList		ordersCallbacks		= null;
+
+	protected void triggerOrderChange ( FromServer object ) {
+		FromServerCallback listener;
+
+		if ( ordersCallbacks != null ) {
+			for ( int i = 0; i < ordersCallbacks.size (); i++ ) {
+				listener = ( FromServerCallback ) ordersCallbacks.get ( i );
+				listener.execute ( object );
+			}
+		}
+	}
+
+	public void addOrderListener ( FromServerCallback listener ) {
+		if ( ordersCallbacks == null )
+			ordersCallbacks = new ArrayList ();
+		ordersCallbacks.add ( listener );
+	}
+
+	public void removeOrderListener ( FromServerCallback listener ) {
+		if ( ordersCallbacks != null )
+			ordersCallbacks.remove ( listener );
+	}
+
+	public abstract void upgradeOrder ( FromServer order );
+	public abstract void unlock ();
 }

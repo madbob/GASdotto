@@ -261,8 +261,12 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	protected boolean rebuildObject () {
 		Object [] wids;
 		ArrayList subchildren;
+		FromServer c;
+		FromServerAggregate myself_aggregate;
 		FromServerWidget tmp;
 		FromServerRappresentation child;
+
+		myself_aggregate = null;
 
 		if ( object != null ) {
 			wids = widgets.values ().toArray ();
@@ -272,6 +276,9 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 				if ( tmp.assign ( object ) == false )
 					return false;
 			}
+
+			if ( object instanceof FromServerAggregate )
+				myself_aggregate = ( FromServerAggregate ) object;
 		}
 
 		if ( children.size () != 0 ) {
@@ -282,11 +289,13 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 				if ( child.rebuildObject () == false )
 					return false;
 
-				subchildren.add ( child.getValue () );
+				c = child.getValue ();
+				if ( c != null && ( myself_aggregate == null || myself_aggregate.validateNewChild ( c ) == true ) )
+					subchildren.add ( c );
 			}
 
-			if ( object instanceof FromServerAggregate )
-				( ( FromServerAggregate ) object ).setObjects ( subchildren );
+			if ( myself_aggregate != null )
+				myself_aggregate.setObjects ( subchildren );
 		}
 
 		return true;

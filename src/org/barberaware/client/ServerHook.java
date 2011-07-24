@@ -236,6 +236,16 @@ public class ServerHook {
 
 		num = monitor.callbacks.size ();
 
+		/*
+			Le callback onReceivePreemptive() e onReceive() devono essere invocate separatamente, *non*
+			unire questi due cicli
+		*/
+
+		for ( int i = 0; i < num; i++ ) {
+			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
+			callback.onReceivePreemptive ( object );
+		}
+
 		for ( int i = 0; i < num; i++ ) {
 			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
 			callback.onReceive ( object );

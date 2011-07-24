@@ -76,11 +76,15 @@ public class OrderUserPlainPanel extends OrderUserManagerMode {
 
 	/****************************************************************** OrderUserManagerMode */
 
-	public void upgradeProductsList ( ArrayList products ) {
+	public void upgradeOrder ( FromServer order ) {
 		if ( selection == null )
 			setValue ( null );
 
-		selection.upgradeProductsList ( products );
+		selection.upgradeProductsList ( order.getArray ( "products" ) );
+	}
+
+	public void unlock () {
+		/* dummy */
 	}
 
 	/****************************************************************** SourcesChangeEvents */

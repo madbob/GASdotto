@@ -53,7 +53,7 @@ public class DeliverySummary extends Composite {
 
 		if ( addtoaggr == true ) {
 			aggregate = ( OrderUserAggregate ) row.getValue ();
-			aggregate.addOrder ( uorder );
+			aggregate.addObject ( uorder );
 		}
 	}
 
@@ -85,8 +85,8 @@ public class DeliverySummary extends Composite {
 				row.removeWidget ( "allproducts" );
 
 				aggregate = new OrderUserAggregate ();
-				aggregate.addOrder ( prevmap );
-				aggregate.addOrder ( uorder );
+				aggregate.addObject ( prevmap );
+				aggregate.addObject ( uorder );
 				row.setValue ( aggregate );
 
 				addSubOrder ( row, prevmap, false );

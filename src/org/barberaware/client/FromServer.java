@@ -117,10 +117,14 @@ public abstract class FromServer implements Comparator {
 	private FromServerAttribute getInternalAttribute ( String name ) {
 		FromServerAttribute ret;
 
+		if ( this == null )
+			Log.debug ( "Oggetto nullo!" );
+
 		ret = ( FromServerAttribute ) attributes.get ( name );
 		if ( ret == null ) {
 			Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
-			Utils.getServer ().getObjectsFromCache ( null );
+			Log.debug ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
+			// Utils.getServer ().getObjectsFromCache ( null );
 		}
 
 		return ret;

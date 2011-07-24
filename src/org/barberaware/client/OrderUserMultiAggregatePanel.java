@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2010/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockable {
+public class OrderUserMultiAggregatePanel extends OrderUserManagerMode {
 	private VerticalPanel		main;
 	private OrderUserManagerMode	selection;
 	private UserSelector		user;
@@ -33,7 +33,7 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 	private boolean			freeEditable;
 	private FromServer		currentValue;
 
-	public OrderUserMultiPanel ( FromServer order, boolean edit, boolean freedit ) {
+	public OrderUserMultiAggregatePanel ( FromServer order, boolean edit, boolean freedit ) {
 		Label header;
 		HorizontalPanel pan;
 
@@ -71,7 +71,7 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 			}
 		} );
 
-		selection = new OrderUserPlainPanel ( baseOrder, edit, freedit );
+		selection = new OrderUserPlainAggregatePanel ( baseOrder, edit, freedit );
 		selection.setWidth ( "100%" );
 		main.add ( selection );
 	}
@@ -84,7 +84,7 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 
 		u = user.getValue ();
 
-		uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		uorders = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
 		num = uorders.size ();
 
 		for ( int i = 0; i < num; i++ ) {
@@ -96,7 +96,7 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 			}
 		}
 
-		uorder = new OrderUser ();
+		uorder = new OrderUserAggregate ();
 		uorder.setObject ( "baseuser", u );
 		uorder.setObject ( "baseorder", baseOrder );
 		setValue ( uorder );
@@ -105,19 +105,19 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
-		ArrayList friends;
+		boolean has_friends;
 		OrderUserManagerMode new_selection;
 
 		currentValue = element;
 		user.setValue ( currentValue.getObject ( "baseuser" ) );
 
 		new_selection = null;
+		has_friends = ( ( OrderUserInterface ) element ).hasFriends ();
 
-		friends = element.getArray ( "friends" );
-		if ( ( friends == null || friends.size () == 0 ) && selection instanceof OrderUserFriendPanel )
-			new_selection = new OrderUserPlainPanel ( baseOrder, editable, freeEditable );
-		else if ( friends != null && friends.size () != 0 && selection instanceof OrderUserPlainPanel )
-			new_selection = new OrderUserFriendPanel ( baseOrder, editable, freeEditable, false );
+		if ( has_friends == false && selection instanceof OrderUserFriendPanel )
+			new_selection = new OrderUserPlainAggregatePanel ( baseOrder, editable, freeEditable );
+		else if ( has_friends == true && selection instanceof OrderUserPlainPanel )
+			new_selection = new OrderUserFriendAggregatePanel ( baseOrder, editable, freeEditable, false );
 
 		if ( new_selection != null ) {
 			main.remove ( selection );
@@ -140,8 +140,6 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 	public void upgradeOrder ( FromServer order ) {
 		selection.upgradeOrder ( order );
 	}
-
-	/****************************************************************** Lockable */
 
 	public void unlock () {
 		user.unlock ();

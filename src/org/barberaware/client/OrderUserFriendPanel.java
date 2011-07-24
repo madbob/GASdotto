@@ -332,10 +332,12 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 
 	/****************************************************************** OrderUserManagerMode */
 
-	public void upgradeProductsList ( ArrayList products ) {
+	public void upgradeOrder ( FromServer order ) {
+		ArrayList products;
 		VerticalPanel cell;
 		ProductsUserSelection prod_sel;
 
+		products = order.getArray ( "products" );
 		single.upgradeProductsList ( products );
 
 		for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
@@ -344,6 +346,10 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
 			prod_sel.upgradeProductsList ( products );
 		}
+	}
+
+	public void unlock () {
+		/* dummy */
 	}
 
 	/****************************************************************** SourcesChangeEvents */

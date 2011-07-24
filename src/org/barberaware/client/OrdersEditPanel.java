@@ -191,6 +191,15 @@ public class OrdersEditPanel extends GenericPanel {
 						else {
 							f = ( FromServerForm ) form;
 							f.emblems ().activate ( "status", obj.getInt ( "status" ) );
+
+							/*
+								Questo lo chiamo nell'eventualita' che un ordine
+								chiuso e' stato riaperto, per metterlo nella lista di
+								ordini validi da aggregare. Se era gia' stato
+								incluso, l'OrdersAggregator se la gestisce per conto
+								suo
+							*/
+							aggregator.addElement ( obj );
 						}
 					}
 

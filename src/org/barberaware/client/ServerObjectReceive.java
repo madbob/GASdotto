@@ -63,6 +63,16 @@ public abstract class ServerObjectReceive implements RequestCallback {
 	protected abstract void onReceive ( FromServer object );
 
 	/*
+		Come onReceive(), ma viene invocata prima di onReceive(). Da usare per modificare
+		localmente un oggetto proveniente dal server prima che passi ai passaggi
+		successivi.
+		Da sovrascrivere solo quando necessario.
+	*/
+	protected void onReceivePreemptive ( FromServer object ) {
+		/* dummy */
+	}
+
+	/*
 		Simile a onReceive, ma viene invocata una volta sola per ogni blocco di oggetti
 		in arrivo dal server. Ideale per trattare i dati in ingresso all'avvio
 		dell'applicazione, quando tutte le informazioni vengono caricate in un colpo

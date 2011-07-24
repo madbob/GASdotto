@@ -26,7 +26,6 @@ import com.allen_sauer.gwt.log.client.Log;
 public class OrderUserManager extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
 	private DeckPanel		deck;
 	private RadioButtons		buttons		= null;
-	private CaptionPanel		exportFrame;
 	private ObjectLinksDialog	exportFiles;
 
 	private FromServer		baseOrder;
@@ -36,16 +35,18 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 	private OrderUserManagerMode	multi;
 
 	public OrderUserManager ( FromServer order, boolean editable ) {
+		boolean aggregate;
 		boolean reference;
 		boolean freedit;
 		VerticalPanel main;
+		CaptionPanel frame;
 
 		main = new VerticalPanel ();
 		initWidget ( main );
 
 		main.setStyleName ( "order-manager" );
 
-		reference = ( ( ( Supplier ) order.getObject ( "supplier" ) ).iAmReference () );
+		reference = ( ( OrderInterface ) order ).iAmReference ();
 		freedit = reference && ( order.getInt ( "status" ) != Order.OPENED );
 		baseOrder = order;
 
@@ -68,53 +69,65 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 					int index;
 					FromServer order;
 					ObjectWidget current;
-					ObjectWidget next;
-					OrderUserMultiPanel mode;
+					OrderUserManagerMode next;
 
 					index = buttons.getToggled ();
 
 					current = ( ObjectWidget ) deck.getWidget ( deck.getVisibleWidget () );
-					next = ( ObjectWidget ) deck.getWidget ( index );
+					next = ( OrderUserManagerMode ) deck.getWidget ( index );
 
 					order = current.getValue ();
 					if ( order.getObject ( "baseuser" ).equals ( Session.getUser () ) )
 						next.setValue ( order );
 
+					next.unlock ();
 					deck.showWidget ( index );
-
-					/*
-						Questo non e' molto pulito, serve a sbloccare la lista
-						degli utenti nell'eventuale OrderUserMultiPanel
-					*/
-					if ( index == 2 ) {
-						mode = ( OrderUserMultiPanel ) next;
-						mode.unlock ();
-					}
 				}
 			} );
 
 			buttons.setToggled ( 0 );
 		}
 
-		exportFrame = new CaptionPanel ( "Esporta Report" );
-		exportFrame.addStyleName ( "print-reports-box" );
-		main.add ( exportFrame );
+		frame = new CaptionPanel ( "Esporta Report" );
+		frame.addStyleName ( "print-reports-box" );
+		main.add ( frame );
 
 		exportFiles = new ObjectLinksDialog ( "Esporta Report" );
 		exportFiles.addLinkTemplate ( "CSV", "order_friends.php?format=csv&amp;id=#" );
 		exportFiles.addLinkTemplate ( "PDF", "order_friends.php?format=pdf&amp;id=#" );
-		exportFrame.add ( exportFiles );
+		frame.add ( exportFiles );
 
 		deck = new DeckPanel ();
 		main.add ( deck );
 
-		plain = new OrderUserPlainPanel ( order, editable, freedit );
+		aggregate = ( order instanceof OrderAggregate );
+
+		if ( aggregate == false )
+			plain = new OrderUserPlainPanel ( order, editable, freedit );
+		else
+			plain = new OrderUserPlainAggregatePanel ( order, editable, freedit );
+
 		deck.add ( plain );
-		friends = new OrderUserFriendPanel ( order, editable, freedit, true );
+
+		if ( aggregate == false )
+			friends = new OrderUserFriendPanel ( order, editable, freedit, true );
+		else
+			friends = new OrderUserFriendAggregatePanel ( order, editable, freedit, true );
+
 		deck.add ( friends );
 
 		if ( reference ) {
-			multi = new OrderUserMultiPanel ( order, editable, freedit );
+			if ( aggregate == false )
+				multi = new OrderUserMultiPanel ( order, editable, freedit );
+			else
+				multi = new OrderUserMultiAggregatePanel ( order, editable, freedit );
+
+			multi.addOrderListener ( new FromServerCallback () {
+				public void execute ( FromServer object ) {
+					exportFiles.setValue ( object );
+				}
+			} );
+
 			deck.add ( multi );
 		}
 		else {
@@ -125,14 +138,11 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 	}
 
 	public void upgradeProductsList ( FromServer order ) {
-		ArrayList products;
 		OrderUserManagerMode panel;
-
-		products = order.getArray ( "products" );
 
 		for ( int i = 0; i < deck.getWidgetCount (); i++ ) {
 			panel = ( OrderUserManagerMode ) deck.getWidget ( i );
-			panel.upgradeProductsList ( products );
+			panel.upgradeOrder ( order );
 		}
 	}
 
@@ -166,7 +176,6 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 
 	public void setValue ( FromServer element ) {
 		int index;
-		ArrayList f;
 
 		if ( element == null )
 			element = OrderUser.findMine ( baseOrder );
@@ -184,9 +193,7 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 				index = 2;
 			}
 			else {
-				f = element.getArray ( "friends" );
-
-				if ( f != null && f.size () != 0 )
+				if ( ( ( OrderUserInterface ) element ).hasFriends () )
 					index = 1;
 				else
 					index = 0;
@@ -194,15 +201,6 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		}
 
 		activateLayer ( index, element );
-	}
-
-	public void embeddedMode ( boolean enable ) {
-		enable = !enable;
-
-		if ( buttons != null )
-			buttons.setVisible ( enable );
-
-		exportFrame.setVisible ( enable );
 	}
 
 	public FromServer getValue () {

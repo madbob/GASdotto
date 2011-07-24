@@ -37,7 +37,13 @@ public abstract class FromServerAggregate extends FromServer {
 	}
 
 	public ArrayList getObjects () {
-		return getArray ( indexAttribute );
+		ArrayList ret;
+
+		ret = getArray ( indexAttribute );
+		if ( ret == null )
+			ret = new ArrayList ();
+
+		return ret;
 	}
 
 	public boolean hasObject ( FromServer obj ) {
@@ -69,6 +75,12 @@ public abstract class FromServerAggregate extends FromServer {
 		super.addFakeAttribute ( name, type, object, value );
 	}
 
+	/*
+		Nelle funzioni set*() setto comunque sempre il valore anche a questo oggetto, che ci sia o non ci sia
+		writeback, altrimenti quando l'aggregatore non ha sotto-elementi l'informazione andrebbe persa e non
+		si potrebbe piu' recuperare
+	*/
+
 	public void setString ( String name, String value ) {
 		Boolean writeback;
 		ArrayList children;
@@ -85,9 +97,8 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setString ( name, value );
-		}
+
+		super.setString ( name, value );
 	}
 
 	public void setInt ( String name, int value ) {
@@ -106,9 +117,8 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setInt ( name, value );
-		}
+
+		super.setInt ( name, value );
 	}
 
 	public void setFloat ( String name, float value ) {
@@ -127,9 +137,8 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setFloat ( name, value );
-		}
+
+		super.setFloat ( name, value );
 	}
 
 	public void setArray ( String name, ArrayList value ) {
@@ -148,9 +157,16 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setArray ( name, value );
-		}
+
+		super.setArray ( name, value );
+	}
+
+	public void addObject ( FromServer value ) {
+		ArrayList array;
+
+		array = getObjects ();
+		array.add ( value );
+		setObjects ( array );
 	}
 
 	public void setObject ( String name, FromServer value ) {
@@ -163,15 +179,16 @@ public abstract class FromServerAggregate extends FromServer {
 			if ( writeback != null ) {
 				children = getObjects ();
 
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setObject ( name, value );
+				if ( children != null ) {
+					for ( int i = 0; i < children.size (); i++ ) {
+						child = ( FromServer ) children.get ( i );
+						child.setObject ( name, value );
+					}
 				}
 			}
 		}
-		else {
-			super.setObject ( name, value );
-		}
+
+		super.setObject ( name, value );
 	}
 
 	public void setDate ( String name, Date value ) {
@@ -190,9 +207,8 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setDate ( name, value );
-		}
+
+		super.setDate ( name, value );
 	}
 
 	public void setBool ( String name, boolean value ) {
@@ -211,9 +227,8 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setBool ( name, value );
-		}
+
+		super.setBool ( name, value );
 	}
 
 	public void setAddress ( String name, Address value ) {
@@ -232,8 +247,17 @@ public abstract class FromServerAggregate extends FromServer {
 				}
 			}
 		}
-		else {
-			super.setAddress ( name, value );
-		}
+
+		super.setAddress ( name, value );
+	}
+
+	/*
+		Questa funzione va sovrascritta se si vuole avere controllo sui "children" che vengono ricostruiti
+		automaticamente: se torna false, il nuovo "child" non viene incluso nella lista di sotto-oggetti
+		dell'aggregato.
+		Ad esempio: un OrderUser non ha prodotti al suo interno
+	*/
+	public boolean validateNewChild ( FromServer child ) {
+		return true;
 	}
 }

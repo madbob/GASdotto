@@ -23,7 +23,7 @@ import com.google.gwt.user.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderAggregate extends FromServerAggregate {
+public class OrderAggregate extends FromServerAggregate implements OrderInterface {
 	public OrderAggregate () {
 		super ( "orders" );
 
@@ -204,6 +204,35 @@ public class OrderAggregate extends FromServerAggregate {
 		return false;
 	}
 
+	public static OrderAggregate retrieveAggregate ( FromServer order ) {
+		ArrayList aggregates;
+		OrderAggregate aggregate;
+
+		aggregates = Utils.getServer ().getObjectsFromCache ( "OrderAggregate" );
+
+		for ( int i = 0; i < aggregates.size (); i++ ) {
+			aggregate = ( OrderAggregate ) aggregates.get ( i );
+			if ( aggregate.hasObject ( order ) )
+				return aggregate;
+		}
+
+		return null;
+	}
+
+	/****************************************************************** OrderInterface */
+
+	public void asyncLoadUsersOrders () {
+		ArrayList orders;
+		Order ord;
+
+		orders = getObjects ();
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( Order ) orders.get ( i );
+			ord.asyncLoadUsersOrders ();
+		}
+	}
+
 	public boolean iAmReference () {
 		ArrayList orders;
 		FromServer ord;
@@ -219,20 +248,5 @@ public class OrderAggregate extends FromServerAggregate {
 		}
 
 		return false;
-	}
-
-	public static OrderAggregate retrieveAggregate ( FromServer order ) {
-		ArrayList aggregates;
-		OrderAggregate aggregate;
-
-		aggregates = Utils.getServer ().getObjectsFromCache ( "OrderAggregate" );
-
-		for ( int i = 0; i < aggregates.size (); i++ ) {
-			aggregate = ( OrderAggregate ) aggregates.get ( i );
-			if ( aggregate.hasObject ( order ) )
-				return aggregate;
-		}
-
-		return null;
 	}
 }

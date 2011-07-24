@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2010/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,9 +21,9 @@ import java.util.*;
 
 import com.google.gwt.user.client.*;
 
-public class OrderUserFriend extends FromServer {
-	public OrderUserFriend () {
-		super ();
+public class OrderUserFriendAggregate extends FromServerAggregateVirtual {
+	public OrderUserFriendAggregate () {
+		super ( "orders" );
 
 		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
 			public String retriveString ( FromServer obj ) {
@@ -32,31 +32,15 @@ public class OrderUserFriend extends FromServer {
 		} );
 
 		addAttribute ( "friendname", FromServer.STRING );
-		addAttribute ( "parent", FromServer.OBJECT, OrderUser.class );
-		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
-
-		alwaysReload ( true );
+		addAttribute ( "orders", FromServer.ARRAY, OrderUserFriend.class );
 	}
 
-	public float getTotalPrice () {
+	/****************************************************************** FromServerAggregate */
+
+	public boolean validateNewChild ( FromServer child ) {
 		ArrayList products;
 
-		products = getArray ( "products" );
-
-		if ( products == null )
-			return 0;
-		else
-			return ProductUser.sumProductUserArray ( products, "quantity" );
-	}
-
-	public float getDeliveredPrice () {
-		ArrayList products;
-
-		products = getArray ( "products" );
-
-		if ( products == null )
-			return 0;
-		else
-			return ProductUser.sumProductUserArray ( products, "delivered" );
+		products = child.getArray ( "products" );
+		return ( products != null && products.size () > 0 );
 	}
 }

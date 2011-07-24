@@ -112,6 +112,7 @@ public class FromServerFactory {
 		names.add ( "Order" );
 		names.add ( "OrderAggregate" );
 		names.add ( "OrderUser" );
+		names.add ( "OrderUserAggregate" );
 		names.add ( "OrderUserFriend" );
 		names.add ( "Product" );
 		names.add ( "ProductVariant" );

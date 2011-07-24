@@ -19,7 +19,7 @@ package org.barberaware.client;
 
 import java.util.*;
 
-public class Order extends FromServer {
+public class Order extends FromServer implements OrderInterface {
 	/*
 		Attenzione che questi indici sono cablati anche nella componente server,
 		modificare con cautela
@@ -84,14 +84,6 @@ public class Order extends FromServer {
 		alwaysReload ( true );
 	}
 
-	public void asyncLoadUsersOrders () {
-		ObjectRequest params;
-
-		params = new ObjectRequest ( "OrderUser" );
-		params.add ( "baseorder", getLocalID () );
-		Utils.getServer ().testObjectReceive ( params );
-	}
-
 	public static CyclicToggle doOrderStatusSelector ( boolean active ) {
 		CyclicToggle status;
 
@@ -107,6 +99,23 @@ public class Order extends FromServer {
 		status.addState ( "images/order_status_shipped.png" );
 		status.setDefaultSelection ( 2 );
 		return status;
+	}
+
+	/****************************************************************** OrderInterface */
+
+	public void asyncLoadUsersOrders () {
+		ObjectRequest params;
+
+		params = new ObjectRequest ( "OrderUser" );
+		params.add ( "baseorder", getLocalID () );
+		Utils.getServer ().testObjectReceive ( params );
+	}
+
+	public boolean iAmReference () {
+		Supplier supplier;
+
+		supplier = ( Supplier ) getObject ( "supplier" );
+		return supplier.iAmReference ();
 	}
 
 	/****************************************************************** Comparator */

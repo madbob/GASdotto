@@ -23,7 +23,7 @@ import com.google.gwt.user.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUser extends FromServer {
+public class OrderUser extends FromServer implements OrderUserInterface {
 	public static int	TO_DELIVER		= 0;
 	public static int	PARTIAL_DELIVERY	= 1;
 	public static int	COMPLETE_DELIVERY	= 2;
@@ -163,5 +163,14 @@ public class OrderUser extends FromServer {
 		}
 
 		return total;
+	}
+
+	/****************************************************************** OrderUserInterface */
+
+	public boolean hasFriends () {
+		ArrayList friends;
+
+		friends = getArray ( "friends" );
+		return ( friends != null && friends.size () != 0 );
 	}
 }

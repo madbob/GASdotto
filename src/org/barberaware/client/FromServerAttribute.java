@@ -144,17 +144,31 @@ public class FromServerAttribute {
 	}
 
 	public ArrayList getArray ( FromServer obj ) {
+		ArrayList ret;
+
+		ret = null;
+
 		if ( fakeClosure != null )
-			return fakeClosure.retriveArray ( obj );
-		else
+			ret = fakeClosure.retriveArray ( obj );
+
+		if ( ret == null )
 			return array;
+		else
+			return ret;
 	}
 
 	public FromServer getObject ( FromServer obj ) {
+		FromServer ret;
+
+		ret = null;
+
 		if ( fakeClosure != null )
-			return fakeClosure.retriveObject ( obj );
-		else
+			ret = fakeClosure.retriveObject ( obj );
+
+		if ( ret == null )
 			return Utils.getServer ().getObjectFromCache ( getClassName (), objectId );
+		else
+			return ret;
 	}
 
 	public Date getDate ( FromServer obj ) {

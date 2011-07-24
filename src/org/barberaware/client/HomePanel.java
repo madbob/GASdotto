@@ -96,6 +96,41 @@ public class HomePanel extends GenericPanel {
 				}
 			}
 
+			/*
+				Questo potrebbe essere messo ovunque, lo piazzo qui perche'
+				questa e' una delle prime callbacks che vengono invocate durante
+				l'inizializzazione dell'applicazione
+			*/
+			public void onReceivePreemptive ( FromServer object ) {
+				FromServer order;
+				OrderAggregate aggregate;
+				OrderUserAggregate uaggregate;
+				FromServer user;
+
+				order = object.getObject ( "baseorder" );
+
+				if ( order.getBool ( "parent_aggregate" ) == true ) {
+					aggregate = OrderAggregate.retrieveAggregate ( order );
+					if ( aggregate != null ) {
+						user = object.getObject ( "baseuser" );
+
+						uaggregate = OrderUserAggregate.retrieveAggregate ( aggregate, user );
+
+						if ( uaggregate == null ) {
+							uaggregate = new OrderUserAggregate ();
+							uaggregate.setObject ( "baseorder", aggregate );
+							uaggregate.setObject ( "baseuser", user );
+							uaggregate.addObject ( object );
+							Utils.getServer ().triggerObjectCreation ( uaggregate );
+						}
+						else {
+							uaggregate.addObject ( object );
+							Utils.getServer ().triggerObjectModification ( uaggregate );
+						}
+					}
+				}
+			}
+
 			protected String debugName () {
 				return "OrderUser in HomePanel";
 			}

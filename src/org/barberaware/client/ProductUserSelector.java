@@ -587,7 +587,6 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		currentValue = ( ProductUser ) element;
 
 		q = element.getFloat ( "quantity" );
-
 		prod = element.getObject ( "product" );
 		unit = prod.getFloat ( "unit_size" );
 		if ( unit != 0 )

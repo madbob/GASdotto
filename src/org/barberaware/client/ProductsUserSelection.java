@@ -42,10 +42,12 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 	private ArrayList		changeCallbacks			= null;
 
-	public ProductsUserSelection ( ArrayList products, boolean edit, boolean freeedit ) {
+	public void buildCommon ( ArrayList products, boolean edit, boolean freeedit, boolean showTotal ) {
 		int num_products;
 		FocusPanel container;
 		Product prod;
+
+		totalLabel = null;
 
 		container = new FocusPanel ();
 		container.addMouseListener ( new MouseListener () {
@@ -113,7 +115,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		enableShowDetails = false;
 		showingPrices = true;
 
-		addTotalRow ();
+		if ( showTotal == true )
+			addTotalRow ();
 
 		if ( products != null ) {
 			num_products = products.size ();
@@ -140,6 +143,14 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 				showProductDescriptionDialog ( ( Product ) selector.getValue ().getObject ( "product" ) );
 			}
 		} );
+	}
+
+	public ProductsUserSelection ( ArrayList products, boolean edit, boolean freeedit, boolean showTotal ) {
+		buildCommon ( products, edit, freeedit, showTotal );
+	}
+
+	public ProductsUserSelection ( ArrayList products, boolean edit, boolean freeedit ) {
+		buildCommon ( products, edit, freeedit, true );
 	}
 
 	/*
@@ -418,16 +429,18 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		float price;
 		ProductUserSelector selector;
 
-		rows = main.getRowCount () - 2;
-		price = 0;
+		if ( totalLabel != null ) {
+			rows = main.getRowCount () - 2;
+			price = 0;
 
-		for ( int i = 0; i < rows; i++ ) {
-			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
-			price += selector.getTotalPrice ();
+			for ( int i = 0; i < rows; i++ ) {
+				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
+				price += selector.getTotalPrice ();
+			}
+
+			total = price;
+			totalLabel.setVal ( price );
 		}
-
-		total = price;
-		totalLabel.setVal ( price );
 
 		triggerChange ();
 	}

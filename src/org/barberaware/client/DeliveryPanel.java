@@ -104,6 +104,9 @@ public class DeliveryPanel extends GenericPanel {
 				if ( ord == null )
 					return;
 
+				if ( ord.getBool ( "parent_aggregate" ) == true )
+					return;
+
 				form = main.retrieveForm ( ord );
 				if ( form != null )
 					syncUserOrder ( form, uord, action );

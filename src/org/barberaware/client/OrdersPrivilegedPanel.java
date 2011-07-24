@@ -65,6 +65,24 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 		} );
 
+		Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				findAndAlignAggregate ( ( OrderUserAggregate ) object, 0 );
+			}
+
+			public void onModify ( FromServer object ) {
+				findAndAlignAggregate ( ( OrderUserAggregate ) object, 1 );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				findAndAlignAggregate ( ( OrderUserAggregate ) object, 2 );
+			}
+
+			protected String debugName () {
+				return "OrdersPrivilegedPanel";
+			}
+		} );
+
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				int index;
@@ -218,13 +236,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 							chiamata dopo affinche' i controlli sulla posizione siano
 							effettuati sulla lista finali di voci che appaiono nel pannello
 						*/
-						form = doMultiOrderRow ( object, true );
+						form = doOrderRow ( object, true );
 						index = getSortedPosition ( object );
 						insert ( form, index );
 					}
 					else if ( status == Order.CLOSED ) {
 						if ( canMultiUser ( object ) == true ) {
-							form = doMultiOrderRow ( object, true );
+							form = doOrderRow ( object, true );
 							index = getSortedPosition ( object );
 							closedOrderAlert ( form, true );
 							insert ( form, index );
@@ -400,9 +418,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		}
 	}
 
-	private FromServerForm doOrderRow ( Order order, boolean editable ) {
+	private FromServerForm doOrderRow ( FromServer order, boolean editable ) {
+		boolean is_aggregate;
 		final FromServerForm ver;
-		OrderUser uorder;
+		FromServer uorder;
 		OrderUserManager manager;
 
 		if ( hasOrders == false ) {
@@ -410,7 +429,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			remove ( 1 );
 		}
 
-		uorder = new OrderUser ();
+		is_aggregate = ( order instanceof OrderAggregate );
+
+		if ( is_aggregate == false )
+			uorder = new OrderUser ();
+		else
+			uorder = new OrderUserAggregate ();
+
 		uorder.setObject ( "baseorder", order );
 		uorder.setObject ( "baseuser", Session.getUser () );
 
@@ -422,10 +447,44 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		ver.add ( manager );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onOpen ( FromServerForm form ) {
-				Order ord;
+			/*
+				Questo e' perche' in OrderUser.php un ordine senza prodotti viene comunque eliminato,
+				tanto vale farlo direttamente da qui e almeno lo cancello pure dalla cache locale
+			*/
+			private boolean filterEmptyOrders ( FromServer order ) {
+				int filtered;
+				ArrayList products;
+				ArrayList orders;
 
-				ord = ( Order ) form.getValue ().getObject ( "baseorder" );
+				if ( order instanceof OrderUser ) {
+					products = order.getArray ( "products" );
+					if ( products == null || products.size () == 0 ) {
+						order.destroy ( null );
+						return true;
+					}
+				}
+				else {
+					orders = order.getArray ( "orders" );
+					filtered = 0;
+
+					for ( int i = 0; i < orders.size (); i++ ) {
+						if ( filterEmptyOrders ( ( FromServer ) orders.get ( i ) ) == true )
+							filtered++;
+					}
+
+					if ( filtered == orders.size () ) {
+						order.destroy ( null );
+						return true;
+					}
+				}
+
+				return false;
+			}
+
+			public void onOpen ( FromServerForm form ) {
+				OrderInterface ord;
+
+				ord = ( OrderInterface ) form.getValue ().getObject ( "baseorder" );
 				ord.asyncLoadUsersOrders ();
 
 				form.forceNextSave ( true );
@@ -433,7 +492,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 			public boolean onSave ( FromServerForm form ) {
 				FromServer obj;
-				ArrayList products;
 
 				obj = form.getValue ();
 				if ( obj == null )
@@ -442,15 +500,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( obj.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
 					form.setValue ( null );
 
-				/*
-					Questo e' perche' in OrderUser.php un ordine senza prodotti viene comunque
-					eliminato, tanto vale farlo direttamente da qui e almeno lo cancello pure
-					dalla cache locale
-				*/
-				products = obj.getArray ( "products" );
-				if ( products == null || products.size () == 0 )
-					obj.destroy ( null );
-
+				filterEmptyOrders ( obj );
 				form.setValue ( obj );
 				return true;
 			}
@@ -487,157 +537,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			ver.emblems ().activate ( "multiuser" );
 
 		ver.emblems ().activate ( "status", order.getInt ( "status" ) );
+
+		if ( is_aggregate )
+			ver.emblems ().activate ( "aggregate" );
+
 		order.addRelatedInfo ( "OrdersPrivilegedPanel", ver );
-		return ver;
-	}
-
-	private FromServerForm doMultiOrderRow ( FromServer aggregate, boolean editable ) {
-		boolean multi;
-		ArrayList orders;
-		ArrayList orders_boxes;
-		final FromServerForm ver;
-		FromServerRappresentation rappr;
-		FromServerForm form;
-		Order order;
-		OrderUserAggregate uorder;
-		OrderUser sub_uorder;
-		OrderUserAggregateManager manager;
-
-		if ( hasOrders == false ) {
-			hasOrders = true;
-			remove ( 1 );
-		}
-
-		uorder = new OrderUserAggregate ();
-		uorder.setObject ( "baseorder", aggregate );
-		uorder.setObject ( "baseuser", Session.getUser () );
-
-		if ( editable == true ) {
-			ver = new FromServerForm ( uorder );
-
-			ver.setCallback ( new FromServerFormCallbacks () {
-				public void onOpen ( FromServerForm form ) {
-					ArrayList orders;
-					Order order;
-
-					orders = form.getValue ().getObject ( "baseorder" ).getArray ( "orders" );
-
-					for ( int i = 0; i < orders.size (); i++ ) {
-						order = ( Order ) orders.get ( i );
-						order.asyncLoadUsersOrders ();
-					}
-
-					form.forceNextSave ( true );
-				}
-
-				public boolean onSave ( FromServerForm form ) {
-					ArrayList children;
-					FromServer obj;
-					ArrayList products;
-					OrderUserManager manager;
-
-					children = form.getChildren ();
-
-					for ( int i = 0; i < children.size (); i++ ) {
-						manager = ( OrderUserManager ) children.get ( i );
-
-						obj = manager.getValue ();
-						if ( obj == null )
-							continue;
-
-						if ( obj.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
-							manager.setValue ( null );
-
-						/*
-							Questo e' perche' in OrderUser.php un ordine senza prodotti viene comunque
-							eliminato, tanto vale farlo direttamente da qui e almeno lo cancello pure
-							dalla cache locale
-						*/
-						products = obj.getArray ( "products" );
-						if ( products == null || products.size () == 0 )
-							obj.destroy ( null );
-						else
-							obj.save ( null );
-					}
-
-					form.open ( false );
-					return false;
-				}
-
-				public boolean onDelete ( final FromServerForm form ) {
-					ArrayList children;
-					FromServer obj;
-					OrderUserManager manager;
-
-					children = form.getChildren ();
-
-					for ( int i = 0; i < children.size (); i++ ) {
-						manager = ( OrderUserManager ) children.get ( i );
-
-						obj = manager.getValue ();
-						if ( obj == null )
-							return false;
-
-						if ( obj.isValid () ) {
-							obj.destroy ( null );
-
-							if ( obj.getObject ( "baseuser" ).equals ( Session.getUser () ) )
-								manager.clean ();
-							else
-								manager.setValue ( null );
-						}
-					}
-
-					return false;
-				}
-			} );
-		}
-		else {
-			ver = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
-
-			ver.setCallback ( new FromServerFormCallbacks () {
-				public void onOpen ( FromServerForm form ) {
-					ArrayList orders;
-					Order order;
-
-					orders = form.getValue ().getObject ( "baseorder" ).getArray ( "orders" );
-
-					for ( int i = 0; i < orders.size (); i++ ) {
-						order = ( Order ) orders.get ( i );
-						order.asyncLoadUsersOrders ();
-					}
-				}
-			} );
-		}
-
-		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
-
-		orders = aggregate.getArray ( "orders" );
-		multi = false;
-
-		for ( int i = 0; i < orders.size (); i++ ) {
-			order = ( Order ) orders.get ( i );
-
-			rappr = ( FromServerRappresentation ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
-			if ( rappr != null ) {
-				rappr.invalidate ();
-				order.delRelatedInfo ( "OrdersPrivilegedPanel" );
-			}
-
-			if ( canMultiUser ( order ) == true )
-				multi = true;
-		}
-
-		if ( multi == true )
-			ver.emblems ().activate ( "multiuser" );
-
-		manager = new OrderUserAggregateManager ( aggregate, editable, "OrdersPrivilegedPanel" );
-		ver.add ( manager );
-
-		ver.emblems ().activate ( "status", aggregate.getInt ( "status" ) );
-		ver.emblems ().activate ( "aggregate" );
-
-		aggregate.addRelatedInfo ( "OrdersPrivilegedPanel", ver );
 		return ver;
 	}
 
@@ -657,6 +561,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		ver = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
+
 		manager = new OrderUserManager ( order, false );
 		ver.add ( manager );
 		ver.setWrap ( manager );
@@ -675,34 +580,50 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			return;
 
 		order = uorder.getObject ( "baseorder" );
-		if ( order.getInt ( "status" ) == Order.SHIPPED )
+		if ( order.getInt ( "status" ) == Order.SHIPPED || order.getBool ( "parent_aggregate" ) == true )
 			return;
 
 		form = ( FromServerRappresentation ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
 		if ( form == null ) {
 			index = getSortedPosition ( order );
-
-			if ( order.getBool ( "parent_aggregate" ) == false ) {
-				ver = doUneditableOrderRow ( order );
-				form = ver.getWrap ();
-			}
-			else {
-				ver = doMultiOrderRow ( OrderAggregate.retrieveAggregate ( order ), false );
-				form = ( FromServerRappresentation ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
-			}
-
+			ver = doUneditableOrderRow ( order );
+			form = ver.getWrap ();
 			insert ( ver, index );
 		}
 
 		alignOrderRow ( form, uorder, action );
 	}
 
-	private void alignOrderRow ( FromServerRappresentation ver, OrderUser uorder, int action ) {
+	private void findAndAlignAggregate ( OrderUserAggregate uorder, int action ) {
+		int index;
+		FromServer order;
+		FromServerForm ver;
+		FromServerRappresentation form;
+
+		if ( uorder.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
+			return;
+
+		order = uorder.getObject ( "baseorder" );
+		if ( order.getInt ( "status" ) == Order.SHIPPED )
+			return;
+
+		form = ( FromServerRappresentation ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
+		if ( form == null ) {
+			index = getSortedPosition ( order );
+			ver = doUneditableOrderRow ( OrderAggregate.retrieveAggregate ( order ) );
+			form = ( FromServerRappresentation ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
+			insert ( ver, index );
+		}
+
+		alignOrderRow ( form, uorder, action );
+	}
+
+	private void alignOrderRow ( FromServerRappresentation ver, FromServer uorder, int action ) {
 		FromServer order;
 
 		if ( action == 2 ) {
 			order = uorder.getObject ( "baseorder" );
-			uorder = new OrderUser ();
+			uorder = FromServerFactory.create ( uorder.getType () );
 			uorder.setObject ( "baseorder", order );
 			uorder.setObject ( "baseuser", Session.getUser () );
 		}

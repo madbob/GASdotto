@@ -23,7 +23,7 @@ import com.google.gwt.user.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserAggregate extends FromServerAggregate {
+public class OrderUserAggregate extends FromServerAggregateVirtual implements OrderUserInterface {
 	public OrderUserAggregate () {
 		super ( "orders" );
 
@@ -39,7 +39,7 @@ public class OrderUserAggregate extends FromServerAggregate {
 			}
 		} );
 
-		addFakeAttribute ( "baseuser", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "baseuser", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
 			public FromServer retriveObject ( FromServer obj ) {
 				ArrayList orders;
 				FromServer order;
@@ -143,6 +143,43 @@ public class OrderUserAggregate extends FromServerAggregate {
 			}
 		} );
 
+		addWritebackFakeAttribute ( "notes", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retrieveString ( FromServer obj ) {
+				String prev_note;
+				String ret;
+				String note;
+				ArrayList orders;
+				FromServer order;
+
+				orders = obj.getArray ( "orders" );
+				if ( orders == null )
+					return "";
+
+				ret = "";
+				prev_note = "";
+
+				for (int i = 0; i < orders.size (); i++ ) {
+					order = ( FromServer ) orders.get ( i );
+					note = order.getString ( "notes" );
+
+					/*
+						Essendo questo un attributo "writeback" alla fine tutti gli OrderUser
+						inclusi hanno le stesse note, dunque non posso limitarmi a concatenare
+						le stringhe da ciascuno altrimenti mi trovo un test lunghissimo in
+						cui si ripete sempre la stessa cosa. Dunque concateno solo le
+						stringhe che sono diverse tra loro
+					*/
+
+					if ( note.equals ( prev_note ) == false && note != null && note != "" ) {
+						ret = ret + "\n" + note;
+						prev_note = note;
+					}
+				}
+
+				return ret;
+			}
+		} );
+
 		addAttribute ( "baseorder", FromServer.OBJECT, OrderAggregate.class );
 		addAttribute ( "orders", FromServer.ARRAY, OrderUser.class );
 	}
@@ -167,14 +204,44 @@ public class OrderUserAggregate extends FromServerAggregate {
 		}
 	}
 
-	public void addOrder ( FromServer order ) {
+	public static OrderUserAggregate retrieveAggregate ( FromServer order, FromServer user ) {
+		ArrayList aggregates;
+		OrderUserAggregate ret;
+
+		aggregates = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
+
+		for ( int i = 0; i < aggregates.size (); i++ ) {
+			ret = ( OrderUserAggregate ) aggregates.get ( i );
+			if ( ret.getObject ( "baseorder" ).equals ( order ) && ret.getObject ( "baseuser" ).equals ( user ) )
+				return ret;
+		}
+
+		return null;
+	}
+
+	/****************************************************************** FromServerAggregate */
+
+	public boolean validateNewChild ( FromServer child ) {
+		ArrayList products;
+
+		products = child.getArray ( "products" );
+		return ( products != null && products.size () > 0 );
+	}
+
+	/****************************************************************** OrderInterface */
+
+	public boolean hasFriends () {
 		ArrayList orders;
+		OrderUser ord;
 
-		orders = getArray ( "orders" );
-		if ( orders == null )
-			orders = new ArrayList ();
+		orders = getObjects ();
 
-		orders.add ( order );
-		setArray ( "orders", orders );
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( OrderUser ) orders.get ( i );
+			if ( ord.hasFriends () == true )
+				return true;
+		}
+
+		return false;
 	}
 }
