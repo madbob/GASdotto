@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 
 import com.google.gwt.user.client.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 

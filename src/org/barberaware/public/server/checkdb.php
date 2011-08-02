@@ -69,6 +69,7 @@ function map_type ( $type, $objtype, $default ) {
 		case "OBJECT":
 			$tmp = new $objtype;
 			$ret = 'int references ' . $tmp->tablename . ' (id)';
+			unset ( $tmp );
 			break;
 
 		case "FLOAT":
@@ -201,7 +202,7 @@ function test_class ( $class ) {
 
 	$obj = new $class;
 
-	$query = 'SELECT * FROM ' . $obj->tablename;
+	$query = 'SELECT * FROM ' . $obj->tablename . ' ORDER BY id LIMIT 1';
 	$ret = $db->query ( $query );
 
 	if ( $ret == false ) {
@@ -232,9 +233,8 @@ function test_class ( $class ) {
 				$query = sprintf ( 'ALTER TABLE %s DROP COLUMN %s', $obj->tablename, $meta [ 'name' ] );
 				local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
 			}
-			if ( $change != null ) {
+			if ( $change != null )
 				update_column ( $obj->tablename, $attr->name, $change );
-			}
 		}
 
 		foreach ( $obj->attributes as $attr ) {
@@ -259,7 +259,7 @@ function test_class ( $class ) {
 				}
 
 				if ( $type == 'ARRAY' ) {
-					$query = sprintf ( 'SELECT * FROM %s_%s', $obj->tablename, $attr->name );
+					$query = sprintf ( 'SELECT * FROM %s_%s ORDER BY parent LIMIT 1', $obj->tablename, $attr->name );
 					$subret = $db->query ( $query );
 
 					if ( $subret == false ) {
@@ -275,6 +275,8 @@ function test_class ( $class ) {
 			}
 		}
 	}
+
+	unset ( $obj );
 }
 
 function check_manual_columns ( $tablename, $columns, $ret ) {
@@ -304,9 +306,8 @@ function check_manual_columns ( $tablename, $columns, $ret ) {
 			$query = sprintf ( 'ALTER TABLE %s DROP COLUMN %s', $tablename, $name );
 			local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
 		}
-		if ( $change != null ) {
+		if ( $change != null )
 			update_column ( $tablename, $name, $change );
-		}
 	}
 
 	for ( $i = 0; $i < count ( $columns ); $i = $i + 2 ) {
@@ -340,7 +341,7 @@ function test_static_tables () {
 	global $db;
 	global $dbdriver;
 
-	$query = 'SELECT * FROM accounts';
+	$query = 'SELECT * FROM accounts ORDER BY username LIMIT 1';
 	$ret = $db->query ( $query );
 
 	if ( $ret == false ) {
@@ -352,7 +353,7 @@ function test_static_tables () {
 		check_manual_columns ( 'accounts', $columns, $ret );
 	}
 
-	$query = 'SELECT * FROM current_sessions';
+	$query = 'SELECT * FROM current_sessions ORDER BY id LIMIT 1';
 	$ret = $db->query ( $query );
 
 	if ( $ret == false ) {

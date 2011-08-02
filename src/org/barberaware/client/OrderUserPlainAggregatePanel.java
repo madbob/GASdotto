@@ -27,6 +27,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 	private VerticalPanel		main;
 	private ArrayList		selections;
 	private FromServer		baseOrder;
+	private FromServer		currentValue;
 
 	private boolean			editable;
 	private boolean			freeEditable;
@@ -39,6 +40,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		freeEditable = freedit;
 		baseOrder = order;
 		selections = null;
+		currentValue = null;
 	}
 
 	private void emptySubOrder ( ProductsUserSelectionWrapper selection, FromServer order, FromServer user ) {
@@ -84,14 +86,11 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		has_friends = false;
 
 		if ( element == null ) {
-			element = new OrderUserAggregate ();
-			element.setObject ( "baseorder", baseOrder );
-			element.setObject ( "baseuser", Session.getUser () );
+			element = fakeOrderUserAggregate ();
 			user_orders = new ArrayList ();
 		}
 		else {
 			user_orders = element.getArray ( "orders" );
-			has_friends = ( ( OrderUserInterface ) element ).hasFriends ();
 		}
 
 		super.setValue ( element );
@@ -99,23 +98,12 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 
 		if ( selections == null ) {
 			selections = new ArrayList ();
-
-			for ( int i = 0; i < orders.size (); i++ ) {
-				ord = ( FromServer ) orders.get ( i );
-				selection = new ProductsUserSelectionWrapper ( ord, editable, freeEditable );
-				main.add ( selection );
-				addChild ( selection );
-
-				if ( has_friends == true )
-					selection.setEditable ( !has_friends );
-
-				assignOrderToSelection ( element, selection, ord );
-				selections.add ( selection );
-			}
-
+			createSelectors ( orders, element );
 			main.add ( getPersonalizedWidget ( "notes", new DummyTextArea () ) );
 		}
 		else {
+			has_friends = ( ( OrderUserInterface ) element ).hasFriends ();
+
 			for ( int i = 0; i < orders.size (); i++ ) {
 				selection = ( ProductsUserSelectionWrapper ) selections.get ( i );
 				selection.setEditable ( !has_friends );
@@ -131,6 +119,95 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		return super.getValue ();
 	}
 
+	private void createSelectors ( ArrayList orders, FromServer uorder ) {
+		boolean has_friends;
+		FromServer ord;
+		ProductsUserSelectionWrapper selection;
+
+		has_friends = ( ( OrderUserInterface ) uorder ).hasFriends ();
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( FromServer ) orders.get ( i );
+			selection = new ProductsUserSelectionWrapper ( ord, editable, freeEditable );
+			main.add ( selection );
+			addChild ( selection );
+			selection.setEditable ( !has_friends );
+
+			assignOrderToSelection ( uorder, selection, ord );
+			selections.add ( selection );
+		}
+	}
+
+	private FromServer fakeOrderUserAggregate () {
+		OrderUserAggregate ret;
+
+		ret = new OrderUserAggregate ();
+		ret.setObject ( "baseorder", baseOrder );
+		ret.setObject ( "baseuser", Session.getUser () );
+		return ret;
+	}
+
+	private void alignSelectors ( FromServer order ) {
+		boolean found;
+		ArrayList orders;
+		ArrayList uorders;
+		ArrayList to_add;
+		FromServer ord;
+		FromServer cmp_ord;
+		FromServer uorder;
+		FromServer user;
+		ProductsUserSelectionWrapper selection;
+
+		orders = order.getArray ( "orders" );
+		to_add = new ArrayList ();
+
+		for ( int i = 0; i < selections.size (); ) {
+			selection = ( ProductsUserSelectionWrapper ) selections.get ( i );
+			cmp_ord = selection.getValue ().getObject ( "baseorder" );
+			found = false;
+
+			for ( int a = 0; a < orders.size (); a++ ) {
+				ord = ( FromServer ) orders.get ( a );
+
+				if ( ord.equals ( cmp_ord ) ) {
+					found = true;
+					break;
+				}
+			}
+
+			if ( found == false ) {
+				selection.removeFromParent ();
+				selections.remove ( selection );
+				removeChild ( cmp_ord );
+				to_add.add ( cmp_ord );
+			}
+			else {
+				i++;
+			}
+		}
+
+		if ( to_add.size () != 0 ) {
+			uorders = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
+			user = Session.getUser ();
+			found = false;
+
+			for ( int i = 0; i < uorders.size (); i++ ) {
+				uorder = ( FromServer ) uorders.get ( i );
+
+				if ( uorder.getObject ( "baseorder" ).equals ( order ) && uorder.getObject ( "baseuser" ).equals ( user ) ) {
+					createSelectors ( to_add, uorder );
+					found = true;
+					break;
+				}
+			}
+
+			if ( found == false ) {
+				uorder = fakeOrderUserAggregate ();
+				createSelectors ( to_add, uorder );
+			}
+		}
+	}
+
 	/****************************************************************** OrderUserManagerMode */
 
 	public void upgradeOrder ( FromServer order ) {
@@ -142,11 +219,8 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 			setValue ( null );
 
 		if ( order instanceof OrderAggregate ) {
-			/*
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-				TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
-			*/
+			baseOrder = order;
+			alignSelectors ( order );
 		}
 		else {
 			orders = baseOrder.getArray ( "orders" );

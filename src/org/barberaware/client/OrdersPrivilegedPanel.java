@@ -125,7 +125,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			public void onModify ( FromServer object ) {
 				int index;
 				int status;
-				Order ord;
 				FromServerRappresentation form;
 				FromServerForm f;
 
@@ -140,9 +139,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					}
 				}
 				else {
-					ord = ( Order ) object;
-
-					form = ( FromServerRappresentation ) ord.getRelatedInfo ( "OrdersPrivilegedPanel" );
+					form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
 					status = object.getInt ( "status" );
 
 					if ( form != null && form instanceof FromServerForm ) {
@@ -159,7 +156,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 							*/
 							form.refreshContents ( null );
 
-							syncProductsInForm ( form, ord );
+							syncProductsInForm ( form, object );
 						}
 						else if ( status == Order.CLOSED ) {
 							if ( canMultiUser ( object ) == true ) {
@@ -271,7 +268,12 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 						*/
 						form.refreshContents ( null );
 
+						/*
+							TODO	Controllare se questo serve davvero...
+						*/
 						form.emblems ().activate ( "status", status );
+
+						syncProductsInForm ( form, object );
 					}
 					else if ( status == Order.CLOSED ) {
 						if ( canMultiUser ( object ) == true ) {
@@ -631,7 +633,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		ver.setValue ( uorder );
 	}
 
-	private void syncProductsInForm ( FromServerRappresentation form, Order order ) {
+	private void syncProductsInForm ( FromServerRappresentation form, FromServer order ) {
 		OrderUserManager select;
 
 		select = ( OrderUserManager ) form.getWrap ();

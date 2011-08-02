@@ -102,10 +102,26 @@ public class HomePanel extends GenericPanel {
 				l'inizializzazione dell'applicazione
 			*/
 			public void onReceivePreemptive ( FromServer object ) {
+				ArrayList friends;
 				FromServer order;
 				OrderAggregate aggregate;
 				OrderUserAggregate uaggregate;
 				FromServer user;
+
+				/*
+					L'attributo "parent" in OrderUserFriend e' virtuale, non viene mappato sul
+					database, dunque lo forzo qui (vedi la classe OrderUserFriend per altri
+					dettagli).
+					E' importante che cio' accada prima dell'aggregazione in OrderUserAggregate,
+					implementata sotto
+				*/
+
+				friends = object.getArray ( "friends" );
+
+				for ( int i = 0; i < friends.size (); i++ ) {
+					user = ( FromServer ) friends.get ( i );
+					user.setObject ( "parent", object );
+				}
 
 				order = object.getObject ( "baseorder" );
 

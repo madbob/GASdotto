@@ -54,6 +54,8 @@ public class ProductsUserSelectionWrapper extends FromServerRappresentation impl
 		selection.upgradeProductsList ( products );
 	}
 
+	/****************************************************************** FromServerRappresentation */
+
 	public void setValue ( FromServer value ) {
 		super.setValue ( value );
 
@@ -61,6 +63,11 @@ public class ProductsUserSelectionWrapper extends FromServerRappresentation impl
 			main.add ( getPersonalizedWidget ( "products", selection ) );
 			inited = true;
 		}
+	}
+
+	public FromServer getValue () {
+		super.rebuildObject ();
+		return super.getValue ();
 	}
 
 	/****************************************************************** SourcesChangeEvents */

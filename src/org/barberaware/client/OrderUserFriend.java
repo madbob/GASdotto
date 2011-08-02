@@ -32,8 +32,17 @@ public class OrderUserFriend extends FromServer {
 		} );
 
 		addAttribute ( "friendname", FromServer.STRING );
-		addAttribute ( "parent", FromServer.OBJECT, OrderUser.class );
 		addAttribute ( "products", FromServer.ARRAY, ProductUser.class );
+
+		/*
+			Questo parametro non viene mappato sul database, e'
+			virtuale e viene forzato solo localmente. Cio' accade
+			perche' altrimenti si verificherebbe un loop difficile
+			da gestire (l'OrderUser contiene l'OrderUserFriend, che
+			contiene l'OrderUser...), e del resto si tratterebbe di
+			una ridondanza
+		*/
+		addAttribute ( "parent", FromServer.OBJECT, OrderUser.class );
 
 		alwaysReload ( true );
 	}
