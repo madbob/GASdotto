@@ -56,7 +56,7 @@ public class CashCount extends Composite {
 		totLabel.setText ( Utils.priceToString ( tot ) );
 	}
 
-	public void addOrder ( OrderUser uorder ) {
+	public void addOrder ( OrderUserInterface uorder ) {
 		if ( checkEligibility ( uorder ) == false )
 			return;
 
@@ -64,8 +64,9 @@ public class CashCount extends Composite {
 		totLabel.setText ( Utils.priceToString ( tot ) );
 	}
 
-	public void modOrder ( OrderUser uorder ) {
+	public void modOrder ( OrderUserInterface uorder ) {
 		FromServer baseorder;
+		FromServer uord;
 		OrderUser past_user_order;
 		ArrayList past_orders;
 
@@ -75,7 +76,9 @@ public class CashCount extends Composite {
 		tot = 0;
 		totLabel.setText ( Utils.priceToString ( tot ) );
 
-		baseorder = uorder.getObject ( "baseorder" );
+		uord = ( FromServer ) uorder;
+
+		baseorder = uord.getObject ( "baseorder" );
 		past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 
 		for ( int i = 0; i < past_orders.size (); i++ ) {
@@ -91,7 +94,7 @@ public class CashCount extends Composite {
 		*/
 	}
 
-	public void delOrder ( OrderUser uorder ) {
+	public void delOrder ( OrderUserInterface uorder ) {
 		if ( checkEligibility ( uorder ) == false )
 			return;
 
@@ -99,16 +102,19 @@ public class CashCount extends Composite {
 		totLabel.setText ( Utils.priceToString ( tot ) );
 	}
 
-	private boolean checkEligibility ( OrderUser uorder ) {
+	private boolean checkEligibility ( OrderUserInterface uorder ) {
 		int status;
 		Date d;
 		Date dup_d;
+		FromServer uord;
 
-		d = uorder.getDate ( "deliverydate" );
+		uord = ( FromServer ) uorder;
+
+		d = uord.getDate ( "deliverydate" );
 		if ( d == null )
 			return false;
 
-		status = uorder.getInt ( "status" );
+		status = uord.getInt ( "status" );
 		if ( status != OrderUser.PARTIAL_DELIVERY && status != OrderUser.COMPLETE_DELIVERY )
 			return false;
 

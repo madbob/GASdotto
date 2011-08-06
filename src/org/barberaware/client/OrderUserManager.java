@@ -38,6 +38,7 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		boolean aggregate;
 		boolean reference;
 		boolean freedit;
+		String order_identifier;
 		VerticalPanel main;
 		CaptionPanel frame;
 
@@ -92,15 +93,19 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		frame.addStyleName ( "print-reports-box" );
 		main.add ( frame );
 
+		aggregate = ( order instanceof OrderAggregate );
+
+		order_identifier = Integer.toString ( order.getLocalID () );
+		if ( aggregate == true )
+			order_identifier += "&amp;aggregate=true";
+
 		exportFiles = new ObjectLinksDialog ( "Esporta Report" );
-		exportFiles.addLinkTemplate ( "CSV", "order_friends.php?format=csv&amp;id=#" );
-		exportFiles.addLinkTemplate ( "PDF", "order_friends.php?format=pdf&amp;id=#" );
+		exportFiles.addLinkTemplate ( "CSV", "order_friends.php?format=csv&amp;user=#&amp;order=" + order_identifier );
+		exportFiles.addLinkTemplate ( "PDF", "order_friends.php?format=pdf&amp;user=#&amp;order=" + order_identifier );
 		frame.add ( exportFiles );
 
 		deck = new DeckPanel ();
 		main.add ( deck );
-
-		aggregate = ( order instanceof OrderAggregate );
 
 		if ( aggregate == false )
 			plain = new OrderUserPlainPanel ( order, editable, freedit );
@@ -124,7 +129,7 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 
 			multi.addOrderListener ( new FromServerCallback () {
 				public void execute ( FromServer object ) {
-					exportFiles.setValue ( object );
+					setupExportingFile ( object );
 				}
 			} );
 
@@ -158,13 +163,35 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		return baseOrder;
 	}
 
+	private void setupExportingFile ( FromServer element ) {
+		boolean manage;
+		ArrayList orders;
+
+		manage = true;
+
+		if ( element == null || element.getLocalID () == -1 ) {
+			manage = false;
+		}
+		else {
+			if ( element instanceof FromServerAggregateVirtual ) {
+				orders = element.getArray ( "orders" );
+				if ( orders == null || orders.size () == 0 )
+					manage = false;
+			}
+		}
+
+		if ( manage == true )
+			exportFiles.setValue ( element.getObject ( "baseuser" ) );
+		else
+			exportFiles.setValue ( null );
+	}
+
 	private void activateLayer ( int index, FromServer element ) {
 		ObjectWidget panel;
 
 		panel = ( ObjectWidget ) deck.getWidget ( index );
 		panel.setValue ( element );
-
-		exportFiles.setValue ( element );
+		setupExportingFile ( element );
 
 		deck.showWidget ( index );
 

@@ -52,7 +52,7 @@ public class EmblemsBar extends Composite {
 		img = ( Image ) main.getWidget ( infos.getIndex ( name ) );
 		path = infos.getSymbol ( name, index );
 
-		if ( path == "" ) {
+		if ( path == null || path == "" ) {
 			img.setVisible ( false );
 		}
 		else {

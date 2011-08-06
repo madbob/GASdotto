@@ -28,12 +28,14 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	private FromServer			object;
 	private HashMap				widgets;
 	private ArrayList			children;
+	private ArrayList			callbacks;
 	private FromServerRappresentation	parent;
 	private FromServerRappresentation	wrap;
 
 	public FromServerRappresentation () {
 		widgets = new HashMap ();
 		children = new ArrayList ();
+		callbacks = new ArrayList ();
 		parent = null;
 		wrap = null;
 	}
@@ -126,31 +128,20 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		child.parent = this;
 	}
 
+	public FromServerRappresentation removeChild ( FromServerRappresentation child ) {
+		children.remove ( child );
+		child.parent = null;
+		return child;
+	}
+
 	public FromServerRappresentation removeChild ( FromServer obj ) {
 		FromServerRappresentation child;
 
-		for ( int i = 0; i < children.size (); i++ ) {
-			child = ( FromServerRappresentation ) children.get ( i );
-			if ( child.getValue ().equals ( obj ) ) {
-				children.remove ( child );
-				child.parent = null;
-				return child;
-			}
-		}
+		child = getChild ( obj );
+		if ( child != null )
+			removeChild ( child );
 
-		return null;
-	}
-
-	public FromServerRappresentation getChild ( FromServer obj ) {
-		FromServerRappresentation child;
-
-		for ( int i = 0; i < children.size (); i++ ) {
-			child = ( FromServerRappresentation ) children.get ( i );
-			if ( child.getValue ().equals ( obj ) )
-				return child;
-		}
-
-		return null;
+		return child;
 	}
 
 	public FromServerRappresentation getChild ( int id ) {
@@ -163,6 +154,10 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		}
 
 		return null;
+	}
+
+	public FromServerRappresentation getChild ( FromServer obj ) {
+		return getChild ( obj.getLocalID () );
 	}
 
 	public ArrayList getChildren () {
@@ -197,10 +192,53 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		return parent;
 	}
 
+	private boolean refreshChild ( FromServer obj ) {
+		FromServerRappresentation child;
+
+		child = getChild ( obj );
+		if ( child != null )
+			child.refreshContents ( obj );
+
+		return ( child != null );
+	}
+
+	private void refreshSubContents ( FromServerAggregate obj ) {
+		boolean found;
+		ArrayList objects;
+		FromServer subobj;
+		FromServerRappresentation child;
+
+		objects = obj.getObjects ();
+
+		for ( int i = 0; i < objects.size (); i++ ) {
+			subobj = ( FromServer ) objects.get ( i );
+			if ( refreshChild ( subobj ) == false )
+				addChildCallback ( subobj );
+		}
+
+		if ( children.size () != objects.size () ) {
+			for ( int a = 0; a < children.size (); a++ ) {
+				child = ( FromServerRappresentation ) children.get ( a );
+				found = false;
+
+				for ( int i = 0; i < objects.size (); i++ ) {
+					subobj = ( FromServer ) objects.get ( i );
+
+					if ( child.getValue ().equals ( subobj ) ) {
+						found = true;
+						break;					
+					}
+				}
+
+				if ( found == false )
+					delChildCallback ( child );
+			}
+		}
+	}
+
 	public void refreshContents ( FromServer obj ) {
 		Object [] wids;
 		FromServerWidget iter;
-		FromServerRappresentation child;
 
 		if ( obj == null )
 			obj = getValue ();
@@ -212,14 +250,27 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 				iter = ( FromServerWidget ) wids [ i ];
 				iter.set ( obj );
 			}
+
+			if ( obj instanceof FromServerAggregate )
+				refreshSubContents ( ( FromServerAggregate ) obj );
 		}
 		else {
-			for ( int i = 0; i < children.size (); i++ ) {
-				child = ( FromServerRappresentation ) children.get ( i );
-				if ( child.getValue ().equals ( obj ) ) {
-					child.refreshContents ( obj );
-					break;
-				}
+			refreshChild ( obj );
+		}
+	}
+
+	public void setCallback ( FromServerRappresentationCallbacks routine ) {
+		callbacks.add ( routine );
+	}
+
+	public void removeCallback ( String id ) {
+		FromServerFormCallbacks call;
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			call = ( FromServerFormCallbacks ) callbacks.get ( i );
+			if ( call.getID () == id ) {
+				callbacks.remove ( call );
+				break;
 			}
 		}
 	}
@@ -325,6 +376,38 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		if ( children.remove ( child ) == true )
 			if ( children.size () == 0 )
 				this.invalidate ();
+	}
+
+	private void addChildCallback ( FromServer obj ) {
+		FromServerRappresentation child;
+		FromServerRappresentationCallbacks call;
+
+		child = null;
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			call = ( FromServerRappresentationCallbacks ) callbacks.get ( i );
+			child = call.onAddChild ( this, obj );
+			if ( child != null )
+				break;
+		}
+
+		if ( child != null )
+			addChild ( child );
+	}
+
+	private void delChildCallback ( FromServerRappresentation child ) {
+		boolean remove;
+		FromServerRappresentationCallbacks call;
+
+		remove = true;
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			call = ( FromServerRappresentationCallbacks ) callbacks.get ( i );
+			remove = ( call.onRemoveChild ( child ) && remove );
+		}
+
+		if ( remove == true )
+			removeChild ( child );
 	}
 
 	/****************************************************************** ObjectWidget */

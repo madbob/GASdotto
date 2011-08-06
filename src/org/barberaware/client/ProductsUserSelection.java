@@ -206,6 +206,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		descDialog.show ();
 	}
 
+	/*
+		TODO	Sostituire questo con una TotalRow?
+	*/
 	private void addTotalRow () {
 		/*
 			La riga dei totali viene piazzata da principio in testa, poi man mano che
@@ -426,21 +429,18 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 	private void updateTotal () {
 		int rows;
-		float price;
 		ProductUserSelector selector;
 
-		if ( totalLabel != null ) {
-			rows = main.getRowCount () - 2;
-			price = 0;
+		rows = main.getRowCount () - 2;
+		total = 0;
 
-			for ( int i = 0; i < rows; i++ ) {
-				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
-				price += selector.getTotalPrice ();
-			}
-
-			total = price;
-			totalLabel.setVal ( price );
+		for ( int i = 0; i < rows; i++ ) {
+			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
+			total += selector.getTotalPrice ();
 		}
+
+		if ( totalLabel != null )
+			totalLabel.setVal ( total );
 
 		triggerChange ();
 	}

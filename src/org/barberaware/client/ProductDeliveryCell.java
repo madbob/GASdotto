@@ -168,7 +168,7 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				setCell ( ( Widget ) box, "20%" );
 			}
 
-			( ( Label ) quantityLabel ).setText ( Utils.floatToString ( currentQuantity ) + symbol );
+			( ( Label ) quantityLabel ).setText ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + symbol );
 		}
 		else {
 			if ( first_round == true ) {

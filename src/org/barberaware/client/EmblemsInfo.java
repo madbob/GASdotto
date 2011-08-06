@@ -81,10 +81,15 @@ public class EmblemsInfo {
 			return null;
 		}
 		else {
-			if ( m.path != null && index == 0 )
+			if ( m.path != null && index == 0 ) {
 				return m.path;
-			else
-				return ( String ) m.paths.get ( index );
+			}
+			else {
+				if ( m.paths.size () <= index )
+					return null;
+				else
+					return ( String ) m.paths.get ( index );
+			}
 		}
 	}
 

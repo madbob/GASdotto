@@ -25,6 +25,8 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 	private VerticalPanel		main;
+	private TotalRow		totalLabel;
+
 	private ArrayList		selections;
 	private FromServer		baseOrder;
 	private FromServer		currentValue;
@@ -41,6 +43,19 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		baseOrder = order;
 		selections = null;
 		currentValue = null;
+
+		/*
+			TODO	Questa callback va sistemata per fare quel che
+				invece fa il codice sparpagliato sotto
+		*/
+		setCallback ( new FromServerRappresentationCallbacks () {
+			public boolean onRemoveChild ( FromServerRappresentation form ) {
+				return false;
+			}
+		} );
+
+		totalLabel = new TotalRow ();
+		main.add ( totalLabel );
 	}
 
 	private void emptySubOrder ( ProductsUserSelectionWrapper selection, FromServer order, FromServer user ) {
@@ -110,6 +125,8 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 				assignOrderToSelection ( element, selection, ( FromServer ) orders.get ( i ) );
 			}
 		}
+
+		updateTotal ();
 	}
 
 	public FromServer getValue () {
@@ -117,6 +134,20 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 			rebuildObject ();
 
 		return super.getValue ();
+	}
+
+	private void updateTotal () {
+		float total;
+		ProductsUserSelectionWrapper iter;
+
+		total = 0;
+
+		for ( int i = 0; i < selections.size (); i++ ) {
+			iter = ( ProductsUserSelectionWrapper ) selections.get ( i );
+			total += iter.getTotalPrice ();
+		}
+
+		totalLabel.setVal ( total );
 	}
 
 	private void createSelectors ( ArrayList orders, FromServer uorder ) {
@@ -129,12 +160,18 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		for ( int i = 0; i < orders.size (); i++ ) {
 			ord = ( FromServer ) orders.get ( i );
 			selection = new ProductsUserSelectionWrapper ( ord, editable, freeEditable );
-			main.add ( selection );
+			main.insert ( selection, main.getWidgetCount () - 1 );
 			addChild ( selection );
 			selection.setEditable ( !has_friends );
 
 			assignOrderToSelection ( uorder, selection, ord );
 			selections.add ( selection );
+
+			selection.addChangeListener ( new ChangeListener () {
+				public void onChange ( Widget wid ) {
+					updateTotal ();
+				}
+			} );
 		}
 	}
 

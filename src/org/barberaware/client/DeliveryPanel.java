@@ -95,40 +95,6 @@ public class DeliveryPanel extends GenericPanel {
 			}
 		} );
 
-		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			private void findAndDo ( OrderUser uord, int action ) {
-				FromServer ord;
-				FromServerRappresentation form;
-
-				ord = uord.getObject ( "baseorder" );
-				if ( ord == null )
-					return;
-
-				if ( ord.getBool ( "parent_aggregate" ) == true )
-					return;
-
-				form = main.retrieveForm ( ord );
-				if ( form != null )
-					syncUserOrder ( form, uord, action );
-			}
-
-			public void onReceive ( FromServer object ) {
-				findAndDo ( ( OrderUser ) object, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				findAndDo ( ( OrderUser ) object, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				findAndDo ( ( OrderUser ) object, 2 );
-			}
-
-			protected String debugName () {
-				return "DeliveryPanel";
-			}
-		} );
-
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Supplier supp;
@@ -189,6 +155,71 @@ public class DeliveryPanel extends GenericPanel {
 				form = main.retrieveForm ( object );
 				if ( form != null && form.getValue ().equals ( object ) )
 					main.deleteElement ( object );
+			}
+
+			protected String debugName () {
+				return "DeliveryPanel";
+			}
+		} );
+
+		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+			private void findAndDo ( FromServer uord, int action ) {
+				FromServer ord;
+				FromServerRappresentation form;
+
+				ord = uord.getObject ( "baseorder" );
+				if ( ord == null )
+					return;
+
+				if ( ord.getBool ( "parent_aggregate" ) == true )
+					return;
+
+				form = main.retrieveForm ( ord );
+				if ( form != null )
+					syncUserOrder ( form, ( OrderUser ) uord, action );
+			}
+
+			public void onReceive ( FromServer object ) {
+				findAndDo ( object, 0 );
+			}
+
+			public void onModify ( FromServer object ) {
+				findAndDo ( object, 1 );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				findAndDo ( object, 2 );
+			}
+
+			protected String debugName () {
+				return "DeliveryPanel";
+			}
+		} );
+
+		Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
+			private void findAndDo ( FromServer uord, int action ) {
+				FromServer ord;
+				FromServerRappresentation form;
+
+				ord = uord.getObject ( "baseorder" );
+				if ( ord == null )
+					return;
+
+				form = main.retrieveForm ( ord );
+				if ( form != null )
+					syncUserOrder ( form, ( OrderUserAggregate ) uord, action );
+			}
+
+			public void onReceive ( FromServer object ) {
+				findAndDo ( object, 0 );
+			}
+
+			public void onModify ( FromServer object ) {
+				findAndDo ( object, 1 );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				findAndDo ( object, 2 );
 			}
 
 			protected String debugName () {
@@ -391,7 +422,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		frame.add ( downloads );
 
-		summary = new DeliverySummary ( is_aggregate );
+		summary = new DeliverySummary ();
 		ver.setExtraWidget ( "list", summary );
 		ver.add ( summary );
 
@@ -410,7 +441,7 @@ public class DeliveryPanel extends GenericPanel {
 			1 = ordine modificato, aggiorna
 			2 = ordine eliminato
 	*/
-	private void syncUserOrder ( FromServerRappresentation ver, OrderUser uorder, int action ) {
+	private void syncUserOrder ( FromServerRappresentation ver, OrderUserInterface uorder, int action ) {
 		DeliverySummary summary;
 		CashCount cash;
 

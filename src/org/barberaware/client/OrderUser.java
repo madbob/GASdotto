@@ -150,6 +150,15 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		return total;
 	}
 
+	/****************************************************************** OrderUserInterface */
+
+	public boolean hasFriends () {
+		ArrayList friends;
+
+		friends = getArray ( "friends" );
+		return ( friends != null && friends.size () != 0 );
+	}
+
 	public float getDeliveredPriceWithFriends () {
 		float total;
 		ArrayList friends;
@@ -164,14 +173,5 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		}
 
 		return total;
-	}
-
-	/****************************************************************** OrderUserInterface */
-
-	public boolean hasFriends () {
-		ArrayList friends;
-
-		friends = getArray ( "friends" );
-		return ( friends != null && friends.size () != 0 );
 	}
 }

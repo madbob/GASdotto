@@ -29,6 +29,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 	private VerticalPanel		main;
 	private TabPanel		friends;
+	private TotalRow		mainTotal;
 	private PriceViewer		totalWithFriends;
 
 	private boolean			editable;
@@ -51,6 +52,11 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		friends = null;
 	}
 
+	/*
+		Attenzione a non confondersi: addTotalRow() gestisce la riga che
+		riassume il totale di tutti gli ordini, mentre le TotalRow
+		sparpagliate gestiscono il totale del singolo ordine
+	*/
 	private void addTotalRow ( VerticalPanel main ) {
 		Label header;
 		HorizontalPanel total;
@@ -120,6 +126,8 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 			pan.add ( name );
 		}
+
+		data.add ( new TotalRow () );
 
 		createSelectors ( data, orders, order_friend, false );
 
@@ -258,7 +266,6 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		}
 
 		friends.selectTab ( 0 );
-		updateTotal ();
 	}
 
 	/*
@@ -299,25 +306,34 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 	private void updateTotal () {
 		int tabs;
 		float total;
+		float local_tot;
 		VerticalPanel cell;
+		TotalRow total_label;
 		ProductsUserSelectionWrapper prod_sel;
 
 		total = 0;
 
-		for ( int i = 1; i < singles.size (); i++ ) {
+		for ( int i = 0; i < singles.size (); i++ ) {
 			prod_sel = ( ProductsUserSelectionWrapper ) singles.get ( i );
 			total += prod_sel.getTotalPrice ();
 		}
+
+		mainTotal.setVal ( total );
 
 		tabs = activeTabs ();
 
 		for ( int i = 1; i < tabs; i++ ) {
 			cell = ( VerticalPanel ) friends.getWidget ( i );
+			local_tot = 0;
 
-			for ( int e = 1; e < cell.getWidgetCount () - 1; e++ ) {
+			for ( int e = 1; e < cell.getWidgetCount () - 2; e++ ) {
 				prod_sel = ( ProductsUserSelectionWrapper ) cell.getWidget ( e );
-				total += prod_sel.getTotalPrice ();
+				local_tot += prod_sel.getTotalPrice ();
 			}
+
+			total_label = ( TotalRow ) cell.getWidget ( cell.getWidgetCount () - 1 );
+			total_label.setVal ( local_tot );
+			total += local_tot;
 		}
 
 		totalWithFriends.setVal ( total );
@@ -331,7 +347,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		for ( int i = 0; i < orders.size (); i++ ) {
 			ord = ( FromServer ) orders.get ( i );
 			selector = new ProductsUserSelectionWrapper ( ord, editable, freeEditable );
-			panel.add ( selector );
+			panel.insert ( selector, panel.getWidgetCount () - 1 );
 
 			if ( maintab == true ) {
 				singles.add ( selector );
@@ -376,10 +392,14 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		addTotalRow ( main );
 
 		singles = new ArrayList ();
-		panel = new VerticalPanel ();
-		createSelectors ( panel, baseOrder.getArray ( "orders" ), null, true );
 
+		panel = new VerticalPanel ();
 		friends.add ( panel, "Il Mio Ordine" );
+
+		mainTotal = new TotalRow ();
+		panel.add ( mainTotal );
+
+		createSelectors ( panel, baseOrder.getArray ( "orders" ), null, true );
 
 		if ( editable == true && fullEditable == true ) {
 			friends.add ( new Label (), "Aggiungi Nuovo Ordine" );
@@ -503,6 +523,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			initGraphic ();
 
 		setMultiOrder ();
+		updateTotal ();
 	}
 
 	public FromServer getValue () {
@@ -586,7 +607,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		for ( int a = 1; a < tabs; a++ ) {
 			cell = ( VerticalPanel ) friends.getWidget ( a );
 
-			for ( int i = 1; i < cell.getWidgetCount () - 1; i++ ) {
+			for ( int i = 1; i < cell.getWidgetCount () - 2; i++ ) {
 				selection = ( ProductsUserSelectionWrapper ) cell.getWidget ( i );
 				selection.addChangeListener ( listener );
 			}
@@ -609,7 +630,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			for ( int a = 1; a < tabs; a++ ) {
 				cell = ( VerticalPanel ) friends.getWidget ( a );
 
-				for ( int i = 1; i < cell.getWidgetCount () - 1; i++ ) {
+				for ( int i = 1; i < cell.getWidgetCount () - 2; i++ ) {
 					selection = ( ProductsUserSelectionWrapper ) cell.getWidget ( i );
 					selection.addChangeListener ( listener );
 				}

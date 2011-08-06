@@ -21,4 +21,5 @@ import java.util.*;
 
 public interface OrderUserInterface {
 	public boolean hasFriends ();
+	public float getDeliveredPriceWithFriends ();
 }

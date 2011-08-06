@@ -66,7 +66,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 
 				ret = 1000;
 
-				for ( int i = 1; i < orders.size (); i++ ) {
+				for ( int i = 0; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
 					check = order.getInt ( "status" );
 					if ( check < ret )
@@ -228,7 +228,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 		return ( products != null && products.size () > 0 );
 	}
 
-	/****************************************************************** OrderInterface */
+	/****************************************************************** OrderUserInterface */
 
 	public boolean hasFriends () {
 		ArrayList orders;
@@ -243,5 +243,21 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 		}
 
 		return false;
+	}
+
+	public float getDeliveredPriceWithFriends () {
+		float total;
+		ArrayList orders;
+		OrderUser ord;
+
+		orders = getObjects ();
+		total = 0;
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( OrderUser ) orders.get ( i );
+			total += ord.getDeliveredPriceWithFriends ();
+		}
+
+		return total;
 	}
 }

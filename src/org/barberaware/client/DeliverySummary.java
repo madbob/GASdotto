@@ -25,41 +25,42 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
-	private boolean			multipleOrders;
 	private String			identifier;
 	private int			numOrders;
 	private int []			statusOrder		= { 0, 2, 3, 1 };
 
-	public DeliverySummary ( boolean multiple ) {
+	public DeliverySummary () {
 		main = new VerticalPanel ();
 		initWidget ( main );
 		main.setWidth ( "100%" );
 
 		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
 		numOrders = 0;
-		multipleOrders = multiple;
 		cleanUp ();
 	}
 
-	private void addSubOrder ( FromServerForm row, FromServer uorder, boolean addtoaggr ) {
+	private void addAllSubOrders ( FromServer uorder, FromServerForm row ) {
+		ArrayList uorders;
+		FromServer uord;
 		OrderUserDetails details;
-		OrderUserAggregate aggregate;
 
-		details = new OrderUserDetails ();
-		details.setValue ( uorder );
+		uorders = uorder.getArray ( "orders" );
 
-		row.add ( details );
-		row.addChild ( details );
+		for ( int i = 0; i < uorders.size (); i++ ) {
+			uord = ( FromServer ) uorders.get ( i );
 
-		if ( addtoaggr == true ) {
-			aggregate = ( OrderUserAggregate ) row.getValue ();
-			aggregate.addObject ( uorder );
+			details = new OrderUserDetails ();
+			details.setValue ( uord );
+
+			row.add ( details );
+			row.addChild ( details );
 		}
 	}
 
-	public void addOrder ( OrderUser uorder ) {
+	public void addOrder ( OrderUserInterface uorder ) {
 		final FromServerForm row;
 		FromServerForm existing;
+		FromServer uord;
 		FromServer user;
 		FromServer prevmap;
 		OrderUserAggregate aggregate;
@@ -71,131 +72,139 @@ public class DeliverySummary extends Composite {
 		if ( numOrders == 0 && main.getWidgetCount () > 0 )
 			main.remove ( 0 );
 
-		if ( uorder.getRelatedInfo ( "DeliverySummary" ) != null )
+		uord = ( FromServer ) uorder;
+
+		if ( uord.getRelatedInfo ( "DeliverySummary" ) != null )
 			return;
 
-		user = uorder.getObject ( "baseuser" );
-		existing = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
+		row = new FromServerForm ( uord, FromServerForm.NOT_EDITABLE );
+		row.addStyleName ( "subform" );
+		row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
 
-		if ( multipleOrders == true && existing != null ) {
-			row = existing;
-			prevmap = row.getValue ();
+		/**
+			TODO	Sarebbe assai meglio avere due modalita' per il pannello consegne, selezionabili in
+				cima: una per la fase di "prezzatura" (quando si compilano i form e si salvano
+				semplicemente) ed una per la fase di "consegna" vera e propria. Questo per mostrare
+				solo i tasti funzione utili in quel dato contesto, anziche' la sfilza presente adesso
+		*/
 
-			if ( prevmap instanceof FromServerAggregate == false ) {
-				row.removeWidget ( "allproducts" );
-
-				aggregate = new OrderUserAggregate ();
-				aggregate.addObject ( prevmap );
-				aggregate.addObject ( uorder );
-				row.setValue ( aggregate );
-
-				addSubOrder ( row, prevmap, false );
-				addSubOrder ( row, uorder, false );
+		row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				row.getValue ().setInt ( "status", OrderUser.SAVED );
+				commonActionsOnEdit ( row );
 			}
-			else {
-				addSubOrder ( row, uorder, true );
+		} );
+
+		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+				commonActionsOnEdit ( row );
 			}
+		} );
 
-			setStatusIcon ( row );
-		}
-		else {
-			row = new FromServerForm ( uorder, FromServerForm.NOT_EDITABLE );
-			row.addStyleName ( "subform" );
-			row.emblemsAttach ( Utils.getEmblemsCache ( "delivery" ) );
+		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
+			public void onClick ( Widget sender ) {
+				row.getValue ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
+				commonActionsOnEdit ( row );
+			}
+		} );
 
-			/**
-				TODO	Sarebbe assai meglio avere due modalita' per il pannello consegne, selezionabili in
-					cima: una per la fase di "prezzatura" (quando si compilano i form e si salvano
-					semplicemente) ed una per la fase di "consegna" vera e propria. Questo per mostrare
-					solo i tasti funzione utili in quel dato contesto, anziche' la sfilza presente adesso
-			*/
+		informations = new HorizontalPanel ();
+		informations.setWidth ( "100%" );
+		row.add ( informations );
 
-			row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
-				public void onClick ( Widget sender ) {
-					row.getValue ().setInt ( "status", OrderUser.SAVED );
-					commonActionsOnEdit ( row );
-				}
-			} );
+		/* utente */
 
-			row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
-				public void onClick ( Widget sender ) {
-					row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
-					commonActionsOnEdit ( row );
-				}
-			} );
+		user = uord.getObject ( "baseuser" );
 
-			row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
-				public void onClick ( Widget sender ) {
-					row.getValue ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
-					commonActionsOnEdit ( row );
-				}
-			} );
+		frame = new CustomCaptionPanel ( "Informazioni Utente" );
+		informations.add ( frame );
 
-			informations = new HorizontalPanel ();
-			informations.setWidth ( "100%" );
-			row.add ( informations );
+		phone = new StringLabel ();
+		phone.setValue ( user.getString ( "phone" ) );
+		row.setExtraWidget ( "phone", phone );
+		frame.addPair ( "Telefono", phone );
 
-			/* utente */
+		phone = new StringLabel ();
+		phone.setValue ( user.getString ( "mobile" ) );
+		row.setExtraWidget ( "mobile", phone );
+		frame.addPair ( "Cellulare", phone );
 
-			frame = new CustomCaptionPanel ( "Informazioni Utente" );
-			informations.add ( frame );
+		/* ordine */
 
-			phone = new StringLabel ();
-			phone.setValue ( user.getString ( "phone" ) );
-			row.setExtraWidget ( "phone", phone );
-			frame.addPair ( "Telefono", phone );
+		frame = new CustomCaptionPanel ( "Informazioni Ordine" );
+		informations.add ( frame );
 
-			phone = new StringLabel ();
-			phone.setValue ( user.getString ( "mobile" ) );
-			row.setExtraWidget ( "mobile", phone );
-			frame.addPair ( "Cellulare", phone );
+		frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
+		frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
 
-			/* ordine */
+		/* prodotti */
 
-			frame = new CustomCaptionPanel ( "Informazioni Ordine" );
-			informations.add ( frame );
-
-			frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
-			frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
-
-			/* prodotti */
-
+		if ( uorder instanceof OrderUser ) {
 			products = new ProductsDeliveryTable ();
 			row.add ( row.getPersonalizedWidget ( "allproducts", products ) );
-
-			row.setCallback ( new FromServerFormCallbacks () {
-				public String getName ( FromServerForm form ) {
-					return form.getValue ().getObject ( "baseuser" ).getString ( "name" );
-				}
-			} );
-
-			checkPay ( user, row );
-
-			setStatusIcon ( row );
-			main.insert ( row, getSortedIndex ( uorder, user ) );
-			numOrders += 1;
-
-			user.addRelatedInfo ( "DeliverySummary" + identifier, row );
+		}
+		else if ( uorder instanceof OrderUserAggregate ) {
+			addAllSubOrders ( uord, row );
 		}
 
-		uorder.addRelatedInfo ( "DeliverySummary", row );
+		row.setCallback ( new FromServerFormCallbacks () {
+			public String getName ( FromServerForm form ) {
+				return form.getValue ().getObject ( "baseuser" ).getString ( "name" );
+			}
+		} );
+
+		row.setCallback ( new FromServerRappresentationCallbacks () {
+			public FromServerRappresentation onAddChild ( FromServerRappresentation form, FromServer child ) {
+				OrderUserDetails details;
+				FromServerForm f;
+
+				details = new OrderUserDetails ();
+				details.setValue ( child );
+
+				f = ( FromServerForm ) form;
+				f.add ( details );
+
+				return details;
+			}
+
+			public boolean onRemoveChild ( FromServerRappresentation form ) {
+				form.removeFromParent ();
+				return true;
+			}
+		} );
+
+		checkPay ( user, row );
+
+		setStatusIcon ( row );
+		main.insert ( row, getSortedIndex ( uord ) );
+		numOrders += 1;
+
+		user.addRelatedInfo ( "DeliverySummary" + identifier, row );
+		uord.addRelatedInfo ( "DeliverySummary", row );
 	}
 
-	public void modOrder ( OrderUser uorder ) {
+	public void modOrder ( OrderUserInterface uorder ) {
+		FromServer uord;
 		FromServerForm form;
 
-		form = ( FromServerForm ) uorder.getRelatedInfo ( "DeliverySummary" );
+		uord = ( FromServer ) uorder;
+
+		form = ( FromServerForm ) uord.getRelatedInfo ( "DeliverySummary" );
 		if ( form != null ) {
-			form.setValue ( uorder );
-			form.refreshContents ( null );
+			form.setValue ( uord );
+			main.insert ( form, getSortedIndex ( uord ) );
 			setStatusIcon ( form );
 		}
 	}
 
-	public void delOrder ( OrderUser uorder ) {
+	public void delOrder ( OrderUserInterface uorder ) {
+		FromServer uord;
 		FromServerRappresentation form;
 
-		form = ( FromServerRappresentation ) uorder.getRelatedInfo ( "DeliverySummary" );
+		uord = ( FromServer ) uorder;
+
+		form = ( FromServerRappresentation ) uord.getRelatedInfo ( "DeliverySummary" );
 		if ( form != null ) {
 			if ( form instanceof FromServerForm ) {
 				numOrders -= 1;
@@ -203,7 +212,7 @@ public class DeliverySummary extends Composite {
 			}
 
 			form.invalidate ();
-			uorder.delRelatedInfo ( "DeliverySummary" );
+			uord.delRelatedInfo ( "DeliverySummary" );
 		}
 	}
 
@@ -248,9 +257,10 @@ public class DeliverySummary extends Composite {
 		deliveryperson = ( NameLabelWidget ) row.retriveInternalWidget ( "deliveryperson" );
 		deliveryperson.setValue ( Session.getUser () );
 
-		main.insert ( row, getSortedIndex ( uorder, uorder.getObject ( "baseuser" ) ) );
+		main.insert ( row, getSortedIndex ( uorder ) );
 		row.savingObject ();
 		row.open ( false );
+		setStatusIcon ( row );
 	}
 
 	private void setStatusIcon ( FromServerForm form ) {
@@ -260,7 +270,7 @@ public class DeliverySummary extends Composite {
 		bar.activate ( "status", form.getValue ().getInt ( "status" ) );
 	}
 
-	private int getSortedIndex ( FromServer order, FromServer to_place ) {
+	private int getSortedIndex ( FromServer order ) {
 		int i;
 		int status_iter;
 		int status_to_place;
@@ -270,7 +280,7 @@ public class DeliverySummary extends Composite {
 		String name_iter;
 		String name_to_place;
 
-		name_to_place = to_place.getString ( "name" );
+		name_to_place = order.getObject ( "baseuser" ).getString ( "name" );
 		status_to_place = order.getInt ( "status" );
 
 		for ( i = 0; i < main.getWidgetCount (); i++ ) {
