@@ -145,6 +145,10 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 			first_round = false;
 		}
 
+		currentQuantity += prod_user.getFloat ( "quantity" );
+		currentDelivery += prod_user.getFloat ( "delivered" );
+		currentPrice = referenceProd.getTotalPrice ( currentDelivery );
+
 		variants = prod_user.getArray ( "variants" );
 
 		if ( variants == null || variants.size () == 0 ) {
@@ -168,7 +172,7 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				setCell ( ( Widget ) box, "20%" );
 			}
 
-			( ( Label ) quantityLabel ).setText ( Utils.floatToString ( prod_user.getFloat ( "quantity" ) ) + symbol );
+			( ( Label ) quantityLabel ).setText ( Utils.floatToString ( currentQuantity ) + symbol );
 		}
 		else {
 			if ( first_round == true ) {
@@ -183,10 +187,6 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 
 			quantifyVariants ( variants );
 		}
-
-		currentQuantity += prod_user.getFloat ( "quantity" );
-		currentDelivery += prod_user.getFloat ( "delivered" );
-		currentPrice = referenceProd.getTotalPrice ( currentDelivery );
 
 		if ( first_round == true ) {
 			priceLabel = new PriceViewer ();

@@ -236,7 +236,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			}
 
 			f = ord.getArray ( "friends" );
-			if ( f != null )
+			if ( f != null ) {
 				for ( int i = 0; i < f.size (); i++ ) {
 					friend = ( FromServer ) f.get ( i );
 					name = friend.getString ( "friendname" );
@@ -258,6 +258,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 						dispatched_friends.add ( forder );
 					}
 				}
+			}
 		}
 
 		for ( int e = 0; e < dispatched_friends.size (); e++ ) {
@@ -296,6 +297,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			name_container = ( HorizontalPanel ) cell.getWidget ( 0 );
 			name = ( TextBox ) name_container.getWidget ( 1 );
 			order.setString ( "friendname", name.getText () );
+			order.setObject ( "parent", parent );
 
 			ret.add ( order );
 		}
@@ -331,7 +333,11 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 				local_tot += prod_sel.getTotalPrice ();
 			}
 
-			total_label = ( TotalRow ) cell.getWidget ( cell.getWidgetCount () - 1 );
+			/*
+				-2 e non -1 perche' in ultima posizione c'e' il
+				tasto per eliminare l'ordine
+			*/
+			total_label = ( TotalRow ) cell.getWidget ( cell.getWidgetCount () - 2 );
 			total_label.setVal ( local_tot );
 			total += local_tot;
 		}
@@ -528,20 +534,25 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 	public FromServer getValue () {
 		FromServer order;
+		FromServer ret;
 		ArrayList orders;
 
 		if ( editable == true ) {
 			rebuildObject ();
+			ret = super.getValue ();
 
-			orders = super.getValue ().getArray ( "orders" );
+			orders = ret.getArray ( "orders" );
 
 			for ( int i = 0; i < orders.size (); i++ ) {
 				order = ( FromServer ) orders.get ( i );
 				order.setArray ( "friends", retrieveFriendsOrders ( i, order ) );
 			}
 		}
+		else {
+			ret = super.getValue ();
+		}
 
-		return super.getValue ();
+		return ret;
 	}
 
 	/****************************************************************** OrderUserManagerMode */

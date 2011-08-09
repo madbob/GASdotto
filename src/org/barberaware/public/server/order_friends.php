@@ -60,7 +60,7 @@ function format_order ( $order, $is_friend ) {
 
 		$prod_user = $user_products [ $e ];
 
-		if ( $prodid == $prod_user->product->id ) {
+		if ( $prodid == $prod_user->product ) {
 			$quantity = $prod_user->quantity;
 			$e++;
 		}
@@ -117,7 +117,7 @@ function search_existing ( $order ) {
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$prod_user = $user_products [ $e ];
 
-		if ( $prodid == $prod_user->product->id ) {
+		if ( $prodid == $prod_user->product ) {
 			if ( $prod_user->quantity > 0 )
 				$existing_products [ $a ] = true;
 
@@ -145,6 +145,14 @@ $format = $_GET [ 'format' ];
 if ( isset ( $format ) == false )
 	error_exit ( "Formato non specificato" );
 
+$user = $_GET [ 'user' ];
+if ( isset ( $user ) == false )
+	error_exit ( "Formato non specificato" );
+
+$is_aggregate = $_GET [ 'aggregate' ];
+if ( isset ( $is_aggregate ) == false )
+	$is_aggregate = false;
+
 formatting_entities ( $format );
 
 if ( check_session () == false )
@@ -154,12 +162,51 @@ if ( check_session () == false )
 	Inizializzazioni assortite
 */
 
-$order_user = new OrderUser ();
-$order_user->readFromDB ( $id );
+if ( $is_aggregate == true ) {
+	$aggregate = new OrderAggregate ();
+	$aggregate->readFromDB ( $id );
 
-$order = $order_user->getAttribute ( "baseorder" )->value;
-$products = $order->getAttribute ( "products" )->value;
-usort ( $products, "sort_product_by_name" );
+	$orders = $aggregate->getAttribute ( 'orders' )->value;
+
+	foreach ( $orders as $order ) {
+		$supplier = $order->getAttribute ( 'supplier' )->value;
+		$suppliers [] = $supplier->getAttribute ( 'name' )->value;
+	}
+
+	$supplier_name = join ( '/', $suppliers );
+}
+else {
+	$order = new Order ();
+	$order->readFromDB ( $id );
+	$supplier = $order->getAttribute ( 'supplier' )->value;
+	$supplier_name = $supplier->getAttribute ( 'name' )->value;
+	$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+
+	$orders = array ( $order );
+}
+
+$all_contents = array ();
+$all_products = array ();
+
+foreach ( $orders as $order ) {
+	$contents = get_orderuser_by_order ( $order, $user );
+	if ( count ( $contents ) == 0 )
+		continue;
+
+	$all_contents = merge_order_users ( $all_contents, $contents, true );
+
+	$products = $order->getAttribute ( "products" )->value;
+	usort ( $products, "sort_product_by_name" );
+	$all_products = array_merge ( $all_products, $products );
+}
+
+/*
+	n.b.: in search_existing() si assume che la variabile $products contenga
+	tutti i prodotti da contemplate
+*/
+$products = $all_products;
+
+$order_user = $all_contents [ 0 ];
 
 $data = array ();
 
@@ -168,45 +215,41 @@ $quantities_sums = array ();
 $shipping_price = array ();
 $existing_products = array ();
 
-for ( $i = 0; $i < count ( $products ); $i++ ) {
+for ( $i = 0; $i < count ( $all_products ); $i++ ) {
 	$products_sums [] = 0;
 	$quantities_sums [] = 0;
 	$shipping_price [] = 0;
 	$existing_products [] = false;
 }
 
-$order_user = $order_user->exportable ();
-
-$contents = $order_user->friends;
-usort ( $contents, "sort_friend_orders_by_user" );
-
-/*
-	Verifico quali prodotti sono contemplati tra tutti gli ordini. Serve a sapere quali
-	casella saltare in toto e quali lasciare in bianco per incolonnare il tutto
-	(bug #189: contemplare solo i prodotti ordinati)
-*/
-
 search_existing ( $order_user );
-
-for ( $i = 0; $i < count ( $contents ); $i++ ) {
-	$order_friend = $contents [ $i ];
-	search_existing ( $order_friend );
-}
-
-/*
-	Formatto il documento riga per riga, utente per utente
-*/
 
 $row = format_order ( $order_user, false );
 if ( $row != null )
 	$data [] = $row;
 
-for ( $i = 0; $i < count ( $contents ); $i++ ) {
-	$order_friend = $contents [ $i ];
+if ( property_exists ( $order_user, 'friends' ) ) {
+	$contents = $order_user->friends;
+	usort ( $contents, "sort_friend_orders_by_user" );
 
-	$row = format_order ( $order_friend, true );
-	if ( $row != null )
-		$data [] = $row;
+	/*
+		Verifico quali prodotti sono contemplati tra tutti gli ordini. Serve a sapere quali
+		casella saltare in toto e quali lasciare in bianco per incolonnare il tutto
+		(bug #189: contemplare solo i prodotti ordinati)
+	*/
+
+	for ( $i = 0; $i < count ( $contents ); $i++ ) {
+		$order_friend = $contents [ $i ];
+		search_existing ( $order_friend );
+	}
+
+	for ( $i = 0; $i < count ( $contents ); $i++ ) {
+		$order_friend = $contents [ $i ];
+
+		$row = format_order ( $order_friend, true );
+		if ( $row != null )
+			$data [] = $row;
+	}
 }
 
 /*
@@ -216,11 +259,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 $headers = array ();
 $headers [] = $emptycell;
 
-for ( $i = 0; $i < count ( $products ); $i++ ) {
+for ( $i = 0; $i < count ( $all_products ); $i++ ) {
 	if ( $existing_products [ $i ] == false )
 		continue;
 
-	$prod = $products [ $i ];
+	$prod = $all_products [ $i ];
 	$name = sprintf ( "$string_begin%s$string_end", $prod->getAttribute ( "name" )->value );
 
 	$measure = $prod->getAttribute ( "measure" )->value;

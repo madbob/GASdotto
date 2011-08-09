@@ -51,6 +51,7 @@ public class DeliverySummary extends Composite {
 
 			details = new OrderUserDetails ();
 			details.setValue ( uord );
+			details.addStyleName ( "bottom-spaced" );
 
 			row.add ( details );
 			row.addChild ( details );

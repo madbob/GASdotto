@@ -495,6 +495,10 @@ body {
 	margin-top:		10px;
 }
 
+.bottom-spaced {
+	margin-bottom:		10px;
+}
+
 .multirow-select {
 	height:			100%;
 }

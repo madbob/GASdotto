@@ -338,13 +338,42 @@ function sort_products_on_products ( $products, $user_products ) {
 	return $proxy;
 }
 
-function merge_order_users ( $all_orders, $orders ) {
+function merge_order_users ( $all_orders, $orders, $also_friends = false ) {
 	foreach ( $orders as $order ) {
 		$found = false;
 
 		foreach ( $all_orders as $main_order ) {
 			if ( $order->baseuser->id == $main_order->baseuser->id ) {
 				$main_order->products = array_merge ( $main_order->products, $order->products );
+
+				/*
+					Gli ordini per gli amici vengono sempre aggregati in funzione del nome
+					dell'amico
+				*/
+				if ( $also_friends == true && isset ( $order->friends ) ) {
+					$friend_found = false;
+					$order_friends = $order->friends;
+
+					if ( isset ( $main_order->friends ) == false )
+						$main_order->friends = array ();
+
+					$main_friends = $main_order->friends;
+
+					foreach ( $order_friends as $order_friend ) {
+						$friend_found = false;
+
+						foreach ( $main_friends as $main_friend ) {
+							if ( $order_friend->friendname == $main_friend->friendname ) {
+								$main_friend->products = array_merge ( $main_friend->products, $order_friend->products );
+								$friend_found = true;
+							}
+						}
+
+						if ( $friend_found == false )
+							array_push ( $main_order->friends, $order_friend );
+					}
+				}
+
 				$found = true;
 			}
 		}
@@ -498,7 +527,7 @@ function output_formatted_document ( $title, $headers, $data, $format ) {
 
 /****************************************************************** shortcuts */
 
-function get_orderuser_by_order ( $order ) {
+function base_orderuser_request ( $order ) {
 	$id = $order->getAttribute ( 'id' )->value;
 
 	$request = new stdClass ();
@@ -517,6 +546,15 @@ function get_orderuser_by_order ( $order ) {
 		$prod = $products [ $i ];
 		$request->has_Product [] = $prod->getAttribute ( 'id' )->value;
 	}
+
+	return $request;
+}
+
+function get_orderuser_by_order ( $order, $user = null ) {
+	$request = base_orderuser_request ( $order );
+
+	if ( $user != null )
+		$request->baseuser = $user;
 
 	$order_user_proxy = new OrderUser ();
 	$ret = $order_user_proxy->get ( $request, false );
