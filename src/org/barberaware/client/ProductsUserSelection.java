@@ -78,7 +78,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 				if ( x > ( ( width * 80 ) / 100 ) ) {
 					if ( showingPrices == true ) {
-						for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
+						for ( int i = 0; i < numRows (); i++ ) {
 							label = ( Label ) main.getWidget ( i, 2 );
 							label.addStyleName ( "hidden" );
 							label = ( Label ) main.getWidget ( i, 3 );
@@ -90,7 +90,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 				}
 				else {
 					if ( showingPrices == false ) {
-						for ( int i = 0; i < main.getRowCount () - 2; i++ ) {
+						for ( int i = 0; i < numRows (); i++ ) {
 							label = ( Label ) main.getWidget ( i, 2 );
 							label.removeStyleName ( "hidden" );
 							label = ( Label ) main.getWidget ( i, 3 );
@@ -132,11 +132,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 		main.addTableListener ( new TableListener () {
 			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
-				int total_rows;
 				ProductUserSelector selector;
 
-				total_rows = main.getRowCount ();
-				if ( row >= total_rows - 2 || cell != 0 )
+				if ( row >= numRows () || cell != 0 )
 					return;
 
 				selector = ( ProductUserSelector ) main.getWidget ( row, 1 );
@@ -162,13 +160,17 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		ProductUserSelector selector;
 
 		if ( editable == true ) {
-			num_rows = main.getRowCount () - 2;
+			num_rows = numRows ();
 
 			for ( int i = 0; i < num_rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
 				selector.setEditable ( edit );
 			}
 		}
+	}
+
+	public float getTotalPrice () {
+		return total;
 	}
 
 	private void initDescriptionDialog () {
@@ -230,7 +232,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		int rows;
 		ProductUserSelector selector;
 
-		rows = main.getRowCount () - 2;
+		rows = numRows ();
 
 		for ( a = 0; a < rows; a++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( a, 1 );
@@ -253,7 +255,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		ProductUserSelector selector;
 
 		num_products = products.size ();
-		original_rows = main.getRowCount () - 2;
+		original_rows = numRows ();
 
 		for ( i = 0; i < num_products; i++ ) {
 			prod = ( Product ) products.get ( i );
@@ -293,10 +295,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 				original_rows--;
 			}
 		}
-	}
-
-	public float getTotalPrice () {
-		return total;
 	}
 
 	private String getPriceInfo ( Product product ) {
@@ -393,7 +391,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		Label existing_name;
 
 		name = prod.getString ( "name" );
-		tot = main.getRowCount () - 2;
+		tot = numRows ();
 
 		for ( i = 0; i < tot; i++ ) {
 			existing_name = ( Label ) main.getWidget ( i, 0 );
@@ -431,7 +429,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		int rows;
 		ProductUserSelector selector;
 
-		rows = main.getRowCount () - 2;
+		rows = numRows ();
 		total = 0;
 
 		for ( int i = 0; i < rows; i++ ) {
@@ -443,6 +441,13 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 			totalLabel.setVal ( total );
 
 		triggerChange ();
+	}
+
+	private int numRows () {
+		if ( totalLabel != null )
+			return main.getRowCount () - 2;
+		else
+			return main.getRowCount ();
 	}
 
 	/****************************************************************** FromServerArray */
@@ -465,7 +470,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		FromServer sel_prod;
 
 		if ( elements == null ) {
-			rows = main.getRowCount () - 2;
+			rows = numRows ();
 
 			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
@@ -491,7 +496,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 			*/
 
 			num_elements = elements.size ();
-			rows = main.getRowCount () - 2;
+			rows = numRows ();
 
 			for ( int i = 0; i < rows; i++ ) {
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
@@ -562,7 +567,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		Hidden id;
 
 		list = null;
-		num_rows = main.getRowCount () - 2;
+		num_rows = numRows ();
 
 		for ( int i = 0; i < num_rows; i++ ) {
 			selector = ( ProductUserSelector ) main.getWidget ( i, 1 );

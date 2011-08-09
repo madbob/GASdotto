@@ -79,6 +79,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 
 		for ( int i = 0; i < userorders.size (); i++ ) {
 			uorder = ( FromServer ) userorders.get ( i );
+
 			if ( uorder.getObject ( "baseorder" ).equals ( order ) ) {
 				selection.setValue ( uorder );
 				return;

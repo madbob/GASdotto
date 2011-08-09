@@ -188,6 +188,10 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		removeFromParent ();
 	}
 
+	/*
+		Non chiamare questa funzione getParent(), altrimenti si va a
+		sovrascrivere una funzione interna di GWT!
+	*/
 	public FromServerRappresentation getRappresentationParent () {
 		return parent;
 	}

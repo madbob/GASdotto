@@ -226,28 +226,15 @@ public class OrdersEditPanel extends GenericPanel {
 
 				protected void asyncLoad ( FromServerForm form ) {
 					ArrayList orders;
-					FromServer obj;
-					Order ord;
+					OrderInterface obj;
 					OrderSummary complete_list;
 
 					complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
 					if ( complete_list != null )
 						complete_list.unlock ();
 
-					obj = form.getValue ();
-
-					if ( obj.getType () == "Order" ) {
-						ord = ( Order ) obj;
-						ord.asyncLoadUsersOrders ();
-					}
-					else if ( obj.getType () == "OrderAggregate" ) {
-						orders = obj.getArray ( "orders" );
-
-						for ( int i = 0; i < orders.size (); i++ ) {
-							ord = ( Order ) orders.get ( i );
-							ord.asyncLoadUsersOrders ();
-						}
-					}
+					obj = ( OrderInterface ) form.getValue ();
+					obj.asyncLoadUsersOrders ();
 
 					checkNewProductsAvailability ( form );
 					checkMailSummary ( form );
@@ -294,6 +281,16 @@ public class OrdersEditPanel extends GenericPanel {
 
 				form = main.retrieveForm ( order );
 				if ( form != null ) {
+					/*
+						Questo perche' quando tratto con ordini aggregati retrieveForm() mi
+						ritorna l'OrderDetails che descrive l'ordine, non la lista condivisa
+						di ordini.
+						Il metodo serio di aggiustare questo sarebbe scindere la gestione
+						degli OrderUserAggregate in arrivo
+					*/
+					if ( form instanceof OrderDetails )
+						form = form.getRappresentationParent ();
+
 					summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
 					if ( summary != null )
 						summary.syncOrders ();
