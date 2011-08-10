@@ -28,6 +28,7 @@ public class User extends FromServer {
 	public static int	USER_RESPONSABLE	= 1;
 	public static int	USER_ADMIN		= 2;
 	public static int	USER_LEAVED		= 3;
+	public static int	USER_MASTER		= 4;
 
 	public User () {
 		super ();

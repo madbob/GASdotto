@@ -64,7 +64,7 @@ public class OrderDetails extends FromServerRappresentation {
 
 		if ( element != null ) {
 			supp = ( Supplier ) element.getObject ( "supplier" );
-			edit = supp.iAmReference ();
+			edit = ( supp.iAmReference () && element.sharingStatus () <= ACL.ACL_READWRITE );
 		}
 		else {
 			edit = false;

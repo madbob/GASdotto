@@ -207,6 +207,7 @@ abstract class FromServer {
 	public		$classname	= "";
 	public		$tablename	= "";
 	public		$sorting	= "id";
+	public		$share		= false;
 	public		$user_check	= null;
 	public		$attributes	= array ();
 
@@ -241,6 +242,10 @@ abstract class FromServer {
 
 	protected function enforceUserCheck ( $field_to_check ) {
 		$this->user_check = $field_to_check;
+	}
+
+	protected function setSharable ( $share ) {
+		$this->share = $share;
 	}
 
 	protected function addAttribute ( $name, $type, $default = "" ) {
@@ -318,6 +323,9 @@ abstract class FromServer {
 			if ( current_permissions () == 0 )
 				$query .= sprintf ( " AND %s = %d ", $this->user_check, $current_user );
 		}
+
+		if ( $this->share == true )
+			$query .= filter_by_current_gas ( $this->classname );
 
 		$query .= sprintf ( " ORDER BY %s", $this->sorting );
 
@@ -588,8 +596,12 @@ abstract class FromServer {
 
 			$ret = last_id ( $this->tablename );
 			$this->save_arrays ( true, $obj, $ret );
+			$this->getAttribute ( 'id' )->value = $ret;
+			save_acl ( $this, 0 );
 		}
 		else {
+			check_acl ( $this, 1 );
+
 			$values = array ();
 
 			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
@@ -720,6 +732,9 @@ abstract class FromServer {
 			if ( $value != null )
 				$obj->$name = $value;
 		}
+
+		if ( $this->share == true )
+			$obj->sharing_privileges = get_acl ( $this );
 
 		return $obj;
 	}

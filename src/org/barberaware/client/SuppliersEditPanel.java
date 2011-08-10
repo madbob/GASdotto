@@ -36,7 +36,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				supplier = ( Supplier ) supp;
 
-				if ( supp.isValid () == false || supplier.iAmReference () == true )
+				if ( ( supp.isValid () == false || supplier.iAmReference () == true ) && supplier.sharingStatus () <= ACL.ACL_READWRITE )
 					ver = commonFormBuilder ( supp );
 				else
 					ver = new SupplierUneditableForm ( supplier );

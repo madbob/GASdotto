@@ -20,6 +20,8 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -124,10 +126,11 @@ public class UsersPanel extends GenericPanel {
 					return ret;
 				}
 
-				protected void asyncLoad ( FromServerForm form ) {
+				protected void asyncLoad ( final FromServerForm form ) {
 					HorizontalPanel hor;
 					FromServer user;
 					CustomCaptionPanel frame;
+					DummyTextBox login;
 					CyclicToggle privileges;
 					DateSelector birth;
 
@@ -149,7 +152,46 @@ public class UsersPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Anagrafica" );
 					hor.add ( frame );
 
-					frame.addPair ( "Login Accesso", form.getWidget ( "login" ) );
+					login = new DummyTextBox ();
+					login.addFocusListener ( new FocusListener () {
+						public void onFocus ( Widget sender ) {
+							/* dummy */
+						}
+
+						public void onLostFocus ( Widget sender ) {
+							String name;
+							DummyTextBox w;
+
+							w = ( DummyTextBox ) sender;
+							name = w.getValue ();
+
+							Utils.getServer ().rawGet ( "data_shortcuts.php?type=unique_user&username=" + name + "&id=" + form.getValue ().getLocalID (), new RequestCallback () {
+								public void onError ( Request request, Throwable exception ) {
+									Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+								}
+
+								public void onResponseReceived ( Request request, Response response ) {
+									DummyTextBox w;
+									JSONValue jsonObject;
+
+									if ( response.getText () != "" ) {
+										try {
+											jsonObject = JSONParser.parse ( response.getText () );
+											w = ( DummyTextBox ) form.retriveInternalWidget ( "login" );
+											w.setValue ( "" );
+											Utils.showNotification ( jsonObject.isString ().stringValue () );
+										}
+										catch ( com.google.gwt.json.client.JSONException e ) {
+											Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+										}
+									}
+
+									Utils.getServer ().dataArrived ();
+								}
+							} );
+						}
+					} );
+					frame.addPair ( "Login Accesso", form.getPersonalizedWidget ( "login", login ) );
 					form.setValidation ( "login", checkLoginNameCallback () );
 
 					frame.addPair ( "Nome", form.getWidget ( "firstname" ) );
@@ -367,10 +409,9 @@ public class UsersPanel extends GenericPanel {
 					}
 
 					/*
-						Attenzione: il valore viene confrontato solo con
-						quelli gia' presenti in cache
+						Benche' l'univocita' dello username venga controllata da un'altra
+						parte, mantengo comunque questo check sugli usernames locali
 					*/
-
 					list = Utils.getServer ().getObjectsFromCache ( "User" );
 					ret = true;
 

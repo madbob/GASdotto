@@ -392,6 +392,20 @@ public class Utils {
 			return printableDate ( d ) + " " + d.getHours () + ":" + d.getMinutes () + ":" + d.getSeconds ();
 	}
 
+	/****************************************************** sessione */
+
+	public static void performLogout () {
+		ObjectRequest params;
+
+		params = new ObjectRequest ( "Logout" );
+
+		getServer ().serverGet ( params, new ServerResponse () {
+			public void onComplete ( JSONValue response ) {
+				Window.Location.reload ();
+			}
+		} );
+	}
+
 	/****************************************************** json */
 
 	public static JSONArray JSONArrayRemove ( JSONArray array, int index ) {

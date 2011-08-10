@@ -47,8 +47,7 @@ usort ( $products, "sort_product_by_name" );
 $contents = get_orderuser_by_order ( $order );
 usort ( $contents, "sort_orders_by_user" );
 
-$gas = new GAS ();
-$gas->readFromDB ( 1 );
+$gas = current_gas ();
 $ridconf = $gas->getAttribute ( 'rid_conf' )->value;
 list ( $name, $account, $code ) = explode ( '::', $ridconf );
 list ( $abi, $cab, $account ) = explode ( ' ', $account );

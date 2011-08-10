@@ -33,20 +33,22 @@ class SystemConf extends FromServer {
 		$this->addAttribute ( "gasdotto_build_date", "DATE" );
 		$this->addAttribute ( "has_file", "BOOLEAN" );
 		$this->addAttribute ( "has_mail", "BOOLEAN" );
+		$this->addAttribute ( "has_multigas", "BOOLEAN" );
 
 		$this->getAttribute ( "id" )->value = "1";
 		$this->getAttribute ( "gasdotto_main_version" )->value = $GASDOTTO_VERSION;
 		$this->getAttribute ( "gasdotto_build_date" )->value = $GASDOTTO_BUILT;
-		$this->getAttribute ( "has_mail" )->value = $this->probe_mail ();
 		$this->getAttribute ( "has_file" )->value = $this->probe_file_write ();
-	}
-
-	private function probe_mail () {
-		return false;
+		$this->getAttribute ( "has_multigas" )->value = $this->probe_multigas ();
 	}
 
 	private function probe_file_write () {
 		return posix_access ( "../uploads/", POSIX_W_OK );
+	}
+
+	private function probe_multigas () {
+		$query = "FROM Users WHERE privileges = 4";
+		return ( db_row_count ( $query ) > 0 );
 	}
 
 	public function get ( $request, $compress ) {

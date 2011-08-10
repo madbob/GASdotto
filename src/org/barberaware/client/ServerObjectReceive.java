@@ -51,6 +51,16 @@ public abstract class ServerObjectReceive implements RequestCallback {
 		Utils.getServer ().dataArrived ();
 	}
 
+	/*
+		Funzione che ritorna un identificativo testuale per la callback.
+		Se la callback da un nome, sara' poi possibile eliminarla con
+		Server.removeObjectEvent()
+		Da sovrascrivere solo quando necessario.
+	*/
+	public String handleId () {
+		return "";
+	}
+
 	protected void onError () {
 		/* dummy */
 	}

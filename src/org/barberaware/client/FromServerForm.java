@@ -187,12 +187,38 @@ public class FromServerForm extends FromServerRappresentation {
 	}
 
 	private void placeButtons () {
+		FromServer value;
+		HorizontalPanel hold;
+		ShareButton share;
+		ButtonsBar sharebar;
+
 		if ( buttons != null )
 			contents.remove ( buttons );
 
 		buttons = doButtons ( editMode );
-		contents.add ( buttons );
-		contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+
+		value = getValue ();
+
+		if ( value == null || value.isSharable () == false ) {
+			contents.add ( buttons );
+			contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+		}
+		else {
+			hold = new HorizontalPanel ();
+			hold.setWidth ( "100%" );
+			contents.add ( hold );
+
+			sharebar = new ButtonsBar ();
+			hold.add ( sharebar );
+			hold.setCellHorizontalAlignment ( sharebar, HasHorizontalAlignment.ALIGN_LEFT );
+
+			share = new ShareButton ();
+			addPeer ( share );
+			sharebar.add ( share, "Condividi" );
+
+			hold.add ( buttons );
+			hold.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+		}
 	}
 
 	private void noExplicitCallbacks () {

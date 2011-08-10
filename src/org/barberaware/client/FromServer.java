@@ -45,6 +45,9 @@ public abstract class FromServer implements Comparator {
 	private HashMap		attributes;
 	private HashMap		relatedInfo;
 
+	private boolean		sharable;
+	private int		sharingPrivileges;
+
 	/*
 		Internamente questo attributo, settato in fase di costruzione di una delle classi
 		che implementano questa, serve a poco, ma permette di forzare il ricaricamento
@@ -69,6 +72,8 @@ public abstract class FromServer implements Comparator {
 		localID = -1;
 		attributes = new HashMap ();
 		type = Utils.classFinalName ( this.getClass ().getName () );
+		sharable = false;
+		sharingPrivileges = ACL.ACL_OWNER;
 		forceReloadFromServer = false;
 		savingOperation = false;
 	}
@@ -96,6 +101,18 @@ public abstract class FromServer implements Comparator {
 
 	protected void alwaysReload ( boolean reload ) {
 		forceReloadFromServer = reload;
+	}
+
+	public boolean isSharable () {
+		return sharable;
+	}
+
+	protected void isSharable ( boolean share ) {
+		sharable = share;
+	}
+
+	public int sharingStatus () {
+		return sharingPrivileges;
 	}
 
 	protected void addAttribute ( String name, int type ) {
@@ -441,6 +458,10 @@ public abstract class FromServer implements Comparator {
 			else
 				return;
 		}
+
+		value = obj.get ( "sharing_privileges" );
+		if ( value != null )
+			sharingPrivileges = ( int ) value.isNumber ().doubleValue ();
 
 		keys = attributes.keySet ().toArray ();
 

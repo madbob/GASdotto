@@ -99,8 +99,7 @@ class Notification extends FromServer {
 		}
 
 		if ( $obj->send_mailinglist == true ) {
-			$gas = new GAS ();
-			$gas->readFromDB ( 1 );
+			$gas = current_gas ();
 			$dests [] = $gas->getAttribute ( 'mailinglist' )->value;
 			unset ( $gas );
 		}

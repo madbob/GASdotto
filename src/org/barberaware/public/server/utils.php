@@ -25,6 +25,7 @@ require_once ( "tcpdf/tcpdf.php" );
 require_once ( "FromServer.php" );
 require_once ( "Session.php" );
 require_once ( "SystemConf.php" );
+require_once ( "ACL.php" );
 require_once ( "CustomFile.php" );
 require_once ( "GAS.php" );
 require_once ( "User.php" );
@@ -65,6 +66,12 @@ function search_in_array ( $array, $val ) {
 			return $i;
 
 	return -1;
+}
+
+function require_param ( $name ) {
+	if ( array_key_exists ( $name, $_GET ) == false )
+		error_exit ( "Richiesta non valida" );
+	return $_GET [ $name ];
 }
 
 /****************************************************************** db management */
@@ -584,8 +591,7 @@ function unique_filesystem_name ( $folder, $name ) {
 function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 	global $current_user;
 
-	$gas = new GAS ();
-	$gas->readFromDB ( 1 );
+	$gas = current_gas ();
 	$mailconf = $gas->getAttribute ( 'mail_conf' )->value;
 	$name = $gas->getAttribute ( 'name' )->value;
 	unset ( $gas );
@@ -659,6 +665,58 @@ function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 	}
 }
 
+/****************************************************************** multigas */
+
+function current_gas () {
+	global $current_gas;
+
+	$ret = new GAS ();
+	$ret->readFromDB ( $current_gas );
+	return $ret;
+}
+
+function filter_by_current_gas ( $type ) {
+	global $current_gas;
+	return " AND id IN (SELECT target_id FROM acl WHERE gas = $current_gas AND target_type = '$type') ";
+}
+
+function get_acl ( $obj ) {
+	global $current_gas;
+
+	$type = $obj->classname;
+	$id = $obj->getAttribute ( 'id' )->value;
+
+	$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+	$result = query_and_check ( $query, "Impossibile recuperare privilegi di accesso al dato" );
+	$row = $result->fetchAll ( PDO::FETCH_NUM );
+
+	if ( count ( $row ) > 0 )
+		return $row [ 0 ] [ 0 ];
+	else
+		return 0;
+}
+
+function save_acl ( $obj, $priv ) {
+	global $current_gas;
+
+	$type = $obj->classname;
+	$id = $obj->getAttribute ( 'id' )->value;
+
+	$query = "FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+	if ( db_row_count ( $query ) == 0 )
+		$query = "INSERT INTO acl ( gas, target_type, target_id, privileges ) VALUES ( $current_gas, '$type', $id, $priv )";
+	else
+		$query = "UPDATE acl SET privileges = $priv WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+
+	query_and_check ( $query, "Impossibile aggiornare permessi di accesso" );
+}
+
+function check_acl ( $obj, $min ) {
+	$p = get_acl ( $obj );
+	if ( $p < $min )
+		error_exit ( 'Privilegi insufficienti' );
+}
+
 /****************************************************************** authentication */
 
 function parse_session_data () {
@@ -694,10 +752,12 @@ function parse_session_data () {
 
 function check_session () {
 	global $current_user;
+	global $current_gas;
 	global $db;
 	global $cache;
 
 	$current_user = -1;
+	$current_gas = -1;
 	$cache = array ();
 
 	if ( connect_to_the_database () == false )
@@ -721,7 +781,7 @@ function check_session () {
 		error_exit ( "Impossibile accedere alla sessione" );
 	}
 
-	$query = "SELECT username " . $query;
+	$query = "SELECT username, gas " . $query;
 	$result = query_and_check ( $query, "Impossibile identificare sessione aperta" );
 
 	$row = $result->fetchAll ( PDO::FETCH_NUM );
@@ -732,11 +792,17 @@ function check_session () {
 		Triste scelta di nome...
 	*/
 	$current_user = $row [ 0 ] [ 0 ];
+	$current_gas = $row [ 0 ] [ 1 ];
 	return true;
 }
 
 function perform_authentication ( $userid ) {
 	global $session_key;
+
+	$query = "SELECT gas FROM acl WHERE target_type = 'User' AND target_id = $userid";
+	$result = query_and_check ( $query, "Impossibile recuperare GAS di appartenenza del dato" );
+	$row = $result->fetchAll ( PDO::FETCH_NUM );
+	$gasid = $row [ 0 ] [ 0 ];
 
 	/*
 		tutte le sessioni piu' vecchie di una settimana sono eliminate
@@ -760,9 +826,9 @@ function perform_authentication ( $userid ) {
 
 	$now = date ( "Y-m-d", time () );
 
-	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username )
-				VALUES ( '%s', DATE('%s'), %d )",
-					$session_id, $now, $userid );
+	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username, gas )
+				VALUES ( '%s', DATE('%s'), %d, %d )",
+					$session_id, $now, $userid, $gasid );
 	query_and_check ( $query, "Impossibile salvare sessione" );
 
 	$session_serial = $session_id . '-' . $_SERVER [ 'REMOTE_ADDR' ];

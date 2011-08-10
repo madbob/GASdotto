@@ -39,6 +39,7 @@ class Supplier extends FromServer {
 		$this->addAttribute ( "orders_months", "STRING" );
 
 		$this->setSorting ( "name" );
+		$this->setSharable ( true );
 	}
 }
 

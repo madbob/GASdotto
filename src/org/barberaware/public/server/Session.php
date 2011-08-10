@@ -25,6 +25,7 @@ class Session {
 
 	public function get ( $request, $compress ) {
 		global $current_user;
+		global $current_gas;
 
 		$user = new User ();
 		if ( $current_user != -1 )
@@ -38,10 +39,21 @@ class Session {
 			database). Sarebbe cosa buona gestire tutto nello stesso modo
 		*/
 		$r = new stdClass ();
-		$r->id = 1;
+		$r->id = $current_gas;
 		$gas = new GAS ();
-		$gass = $gas->get ( $r, $compress );
-		$this->gas = $gass [ 0 ];
+
+		if ( $current_gas != -1 ) {
+			$gass = $gas->get ( $r, $compress );
+			$gas = $gass [ 0 ];
+		}
+
+		/*
+			TODO	Se il GAS non e' selezionato, far riportare (in
+				qualche modo...) il nome di tutti nella
+				schermata di login
+		*/
+
+		$this->gas = $gas;
 
 		$conf = new SystemConf ();
 		$this->system = $conf->exportable ( null, $compress );

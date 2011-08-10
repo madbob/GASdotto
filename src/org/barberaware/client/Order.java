@@ -82,6 +82,7 @@ public class Order extends FromServer implements OrderInterface {
 		setInt ( "status", OPENED );
 
 		alwaysReload ( true );
+		isSharable ( true );
 	}
 
 	public static CyclicToggle doOrderStatusSelector ( boolean active ) {

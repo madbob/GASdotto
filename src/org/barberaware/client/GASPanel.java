@@ -1,0 +1,148 @@
+/*  GASdotto
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *
+ *  This is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+package org.barberaware.client;
+
+import java.util.*;
+import com.google.gwt.user.client.*;
+import com.google.gwt.user.client.ui.*;
+
+import com.allen_sauer.gwt.log.client.Log;
+
+public class GASPanel extends GenericPanel {
+	private FormCluster		main;
+	private FromServer		tmp_root;
+
+	public GASPanel () {
+		super ();
+
+		main = new FormCluster ( "GAS", "Nuovo GAS" ) {
+			protected FromServerForm doEditableRow ( FromServer gas ) {
+				FromServerForm form;
+				CustomCaptionPanel frame;
+
+				form = new FromServerForm ( gas );
+
+				frame = new CustomCaptionPanel ( "Attributi" );
+				form.add ( frame );
+				frame.addPair ( "Nome", form.getWidget ( "name" ) );
+
+				return form;
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				FromServerForm form;
+				CustomCaptionPanel frame;
+				DummyTextBox username;
+				PasswordBox password;
+
+				form = new FromServerForm ( new GAS () );
+
+				form.setCallback ( new FromServerFormCallbacks () {
+					public boolean onSave ( FromServerForm form ) {
+						String u;
+						String p;
+						DummyTextBox username;
+						PasswordBox password;
+
+						username = ( DummyTextBox ) form.retriveInternalWidget ( "username" );
+						password = ( PasswordBox ) form.retriveInternalWidget ( "password" );
+
+						u = username.getValue ();
+						if ( u.equals ( "" ) ) {
+							Utils.showNotification ( "Il nome account non è stato definito" );
+							return false;
+						}
+
+						p = password.getValue ();
+						if ( p.equals ( "" ) ) {
+							Utils.showNotification ( "La password non è stata definita" );
+							return false;
+						}
+
+						tmp_root = new User ();
+						tmp_root.setString ( "login", u );
+						tmp_root.setString ( "firstname", "Amministratore" );
+						tmp_root.setString ( "password", p );
+						tmp_root.setInt ( "privileges", User.USER_ADMIN );
+						tmp_root.save ( null );
+
+						return true;
+					}
+
+					public void onSaved ( FromServerForm form ) {
+						ACL request;
+
+						request = new ACL ();
+						request.setObject ( "gas", form.getValue () );
+						request.setString ( "target_type", tmp_root.getType () );
+						request.setInt ( "target_id", tmp_root.getLocalID () );
+						request.setInt ( "privileges", ACL.ACL_OWNER );
+						request.save ( null );
+					}
+				} );
+
+				frame = new CustomCaptionPanel ( "Attributi" );
+				form.add ( frame );
+				frame.addPair ( "Nome", form.getWidget ( "name" ) );
+
+				frame = new CustomCaptionPanel ( "Amministratore" );
+				form.add ( frame );
+
+				username = new DummyTextBox ();
+				/*
+					TODO	Lo username deve essere validato come univoco,
+						cfr. UsersPanel::checkLoginNameCallback()
+				*/
+				form.setExtraWidget ( "username", username );
+				frame.addPair ( "Nome", username );
+
+				password = new PasswordBox ();
+				form.setExtraWidget ( "password", password );
+				frame.addPair ( "Password", password );
+
+				return form;
+			}
+		};
+
+		addTop ( main );
+
+		Utils.getServer ().testObjectReceive ( "GAS" );
+	}
+
+	/****************************************************************** GenericPanel */
+
+	public String getName () {
+		return "Gestione GAS";
+	}
+
+	public String getSystemID () {
+		return "gas";
+	}
+
+	public String getCurrentInternalReference () {
+		return Integer.toString ( main.getCurrentlyOpened () );
+	}
+
+	public Image getIcon () {
+		return new Image ( "images/path_gas.png" );
+	}
+
+	public void initView () {
+		Utils.getServer ().testObjectReceive ( "GAS" );
+	}
+}

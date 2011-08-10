@@ -242,9 +242,9 @@ public class OrderSummary extends Composite implements Lockable {
 		boolean ret;
 		ArrayList products;
 		Product prod;
-		PriceBox price_unit;
-		PriceBox price_transport;
-		PercentageBox overprice;
+		FloatWidget price_unit;
+		FloatWidget price_transport;
+		PercentageWidget overprice;
 		FloatBox maxtotal;
 		FromServer order;
 
@@ -259,9 +259,9 @@ public class OrderSummary extends Composite implements Lockable {
 				index = searchProduct ( order, prod );
 
 				if ( index != -1 ) {
-					price_unit = ( PriceBox ) main.getWidget ( index, PRODUCT_PRICE_COLUMN );
-					price_transport = ( PriceBox ) main.getWidget ( index, PRODUCT_TRANSPORT_COLUMN );
-					overprice = ( PercentageBox ) main.getWidget ( index, PRODUCT_OVERPRICE_COLUMN );
+					price_unit = ( FloatWidget ) main.getWidget ( index, PRODUCT_PRICE_COLUMN );
+					price_transport = ( FloatWidget ) main.getWidget ( index, PRODUCT_TRANSPORT_COLUMN );
+					overprice = ( PercentageWidget ) main.getWidget ( index, PRODUCT_OVERPRICE_COLUMN );
 					maxtotal = ( FloatBox ) main.getWidget ( index, PRODUCT_AVAILQUANT_COLUMN );
 
 					if ( prod.getFloat ( "unit_price" ) != price_unit.getVal () ||
@@ -558,6 +558,8 @@ public class OrderSummary extends Composite implements Lockable {
 		FloatBox quan;
 		PriceBox box;
 		PercentageBox perc;
+		PriceViewer box_unedit;
+		PercentageViewer perc_unedit;
 
 		stock = product.getFloat ( "stock_size" );
 		if ( stock != 0 )
@@ -579,41 +581,56 @@ public class OrderSummary extends Composite implements Lockable {
 			main.setWidget ( index, ORDER_ID_COLUMN, new Hidden ( Integer.toString ( order.getLocalID () ) ) );
 			main.setWidget ( index, PRODUCT_ID_COLUMN, new Hidden ( Integer.toString ( product.getLocalID () ) ) );
 
-			box = new PriceBox ();
-			box.setVal ( product.getFloat ( "unit_price" ) );
-			box.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-				}
+			if ( order.sharingStatus ()<= ACL.ACL_READWRITE ) {
+				box = new PriceBox ();
+				box.setVal ( product.getFloat ( "unit_price" ) );
+				box.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+					}
 
-				public void onLostFocus ( Widget sender ) {
-					alignRow ( sender, PRODUCT_PRICE_COLUMN );
-				}
-			} );
-			main.setWidget ( index, PRODUCT_PRICE_COLUMN, box );
+					public void onLostFocus ( Widget sender ) {
+						alignRow ( sender, PRODUCT_PRICE_COLUMN );
+					}
+				} );
+				main.setWidget ( index, PRODUCT_PRICE_COLUMN, box );
 
-			box = new PriceBox ();
-			box.setVal ( transport );
-			box.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-				}
+				box = new PriceBox ();
+				box.setVal ( transport );
+				box.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+					}
 
-				public void onLostFocus ( Widget sender ) {
-					alignRow ( sender, PRODUCT_TRANSPORT_COLUMN );
-				}
-			} );
-			main.setWidget ( index, PRODUCT_TRANSPORT_COLUMN, box );
+					public void onLostFocus ( Widget sender ) {
+						alignRow ( sender, PRODUCT_TRANSPORT_COLUMN );
+					}
+				} );
+				main.setWidget ( index, PRODUCT_TRANSPORT_COLUMN, box );
 
-			perc = new PercentageBox ();
-			perc.setValue ( surplus );
-			perc.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-				}
+				perc = new PercentageBox ();
+				perc.setValue ( surplus );
+				perc.addFocusListener ( new FocusListener () {
+					public void onFocus ( Widget sender ) {
+					}
 
-				public void onLostFocus ( Widget sender ) {
-					alignRowOverprice ( sender );
-				}
-			} );
-			main.setWidget ( index, PRODUCT_OVERPRICE_COLUMN, perc );
+					public void onLostFocus ( Widget sender ) {
+						alignRowOverprice ( sender );
+					}
+				} );
+				main.setWidget ( index, PRODUCT_OVERPRICE_COLUMN, perc );
+			}
+			else {
+				box_unedit = new PriceViewer ();
+				box_unedit.setVal ( product.getFloat ( "unit_price" ) );
+				main.setWidget ( index, PRODUCT_PRICE_COLUMN, box_unedit );
+
+				box_unedit = new PriceViewer ();
+				box_unedit.setVal ( transport );
+				main.setWidget ( index, PRODUCT_TRANSPORT_COLUMN, box_unedit );
+
+				perc_unedit = new PercentageViewer ();
+				perc_unedit.setValue ( surplus );
+				main.setWidget ( index, PRODUCT_OVERPRICE_COLUMN, perc_unedit );
+			}
 
 			main.setWidget ( index, PRODUCT_MEASURE_COLUMN, new Label ( measureSymbol ( product ) ) );
 

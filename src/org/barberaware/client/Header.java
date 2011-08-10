@@ -38,16 +38,7 @@ public class Header extends Composite {
 		but = new Button ( "Logout" );
 		but.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
-				ObjectRequest params;
-
-				params = new ObjectRequest ( "Logout" );
-
-				Utils.getServer ().serverGet ( params, new ServerResponse () {
-					public void onComplete ( JSONValue response ) {
-						logout.hide ();
-						Window.Location.reload ();
-					}
-				} );
+				Utils.performLogout ();
 			}
 		} );
 		contents.add ( but );

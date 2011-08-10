@@ -31,6 +31,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	private ArrayList			callbacks;
 	private FromServerRappresentation	parent;
 	private FromServerRappresentation	wrap;
+	private ArrayList			peers;
 
 	public FromServerRappresentation () {
 		widgets = new HashMap ();
@@ -111,6 +112,19 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		return tmp;
 	}
 
+	/*
+		Il "wrap" puo' essere solo uno, e' un widget contenuto nel
+		widget corrente e ne prende sostanzialmente il posto. Quando da
+		this viene chiesto indietro il valore (con getValue()) torna il
+		valore del widget wrappato. Usato prevalentemente per motivi di
+		layout e formattazione.
+
+		I "peers" possono essere molti, si suppone che non modifichino
+		l'oggetto, gli viene assegnato quando qualcosa viene assegnato a
+		this viene assegnato ma non gli viene mai chiesto indietro.
+		Usato prevalentemente per funzionalita' avanzate
+	*/
+
 	public void setWrap ( FromServerRappresentation wrapped ) {
 		wrap = wrapped;
 		wrap.setValue ( getValue () );
@@ -121,6 +135,25 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 			return this;
 		else
 			return wrap;
+	}
+
+	public void addPeer ( ObjectWidget peer ) {
+		if ( peers == null )
+			peers = new ArrayList ();
+
+		peers.add ( peer );
+		peer.setValue ( getValue () );
+	}
+
+	private void assignToPeers ( FromServer object ) {
+		ObjectWidget tmp;
+
+		if ( peers != null ) {
+			for ( int i = 0; i < peers.size (); i++ ) {
+				tmp = ( ObjectWidget ) peers.get ( i );
+				tmp.setValue ( object );
+			}
+		}
 	}
 
 	public void addChild ( FromServerRappresentation child ) {
@@ -424,6 +457,8 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 		if ( obj != null && widgets.isEmpty () == false )
 			refreshContents ( obj );
+
+		assignToPeers ( obj );
 	}
 
 	public FromServer getValue () {

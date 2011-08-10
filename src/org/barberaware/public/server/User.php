@@ -43,6 +43,7 @@ class User extends FromServer {
 		$this->addAttribute ( "bank_account", "STRING" );
 
 		$this->setSorting ( "surname" );
+		$this->setSharable ( true );
 	}
 
 	public function get ( $request, $compress ) {

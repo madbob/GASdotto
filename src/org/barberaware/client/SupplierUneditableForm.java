@@ -88,7 +88,9 @@ public class SupplierUneditableForm extends FromServerForm {
 		add ( frame );
 		frame.add ( past_orders );
 
-		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ) {
+		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ||
+				( supplier.iAmReference () == true && supplier.sharingStatus () == ACL.ACL_READONLY ) ) {
+
 			MultiSelector editable_references;
 			FilterCallback filter;
 

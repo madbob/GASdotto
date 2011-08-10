@@ -68,6 +68,7 @@ public class SystemPanel extends GenericPanel {
 
 		sframe = new CaptionPanel ( "GASdotto" );
 		ver = new VerticalPanel ();
+		ver.setWidth ( "100%" );
 		ver.add ( doApplicationConfForm () );
 		ver.add ( doLoggerForm () );
 		sframe.add ( ver );
@@ -149,6 +150,14 @@ public class SystemPanel extends GenericPanel {
 		mailList = new DummyTextBox ();
 		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
+
+		if ( Session.getSystemConf ().getBool ( "has_multigas" ) == false ) {
+			MultiGasEnabler multigas;
+
+			multigas = new MultiGasEnabler ();
+			ver.setExtraWidget ( "multigas", multigas );
+			frame.addPair ( "Abilita Multi-GAS", multigas );
+		}
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );

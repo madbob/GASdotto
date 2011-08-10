@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2009/2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <madbob@users.barberaware.org>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,23 +20,24 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
-public class SystemConf extends FromServer {
-	public SystemConf () {
+public class ACL extends FromServer {
+	public static int		ACL_OWNER	= 0;
+	public static int		ACL_READWRITE	= 1;
+	public static int		ACL_READONLY	= 2;
+	public static int		ACL_NONE	= 3;
+
+	public ACL () {
 		super ();
+		addAttribute ( "gas", FromServer.OBJECT, GAS.class );
 
 		/*
-			Un attributo "name" non dovrebbe servire a nulla, se non a fare arrabbiare il FromServerForm
-			che viene costruito in SystemPanel per riassumere le informazioni dell'applicazione
+			Qui potrei usare un singolo attributo FromServer.OBJECT,
+			ma non so il tipo a priori dunque per non complicarmi la
+			vita scompongo l'informazione al minimo indispensabile
 		*/
-		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
-			public String retriveString ( FromServer obj ) {
-				return "Informazioni Generali";
-			}
-		} );
+		addAttribute ( "target_type", FromServer.STRING );
+		addAttribute ( "target_id", FromServer.INTEGER );
 
-		addAttribute ( "gasdotto_main_version", FromServer.STRING );
-		addAttribute ( "gasdotto_build_date", FromServer.DATE );
-		addAttribute ( "has_file", FromServer.BOOLEAN );
-		addAttribute ( "has_multigas", FromServer.BOOLEAN );
+		addAttribute ( "privileges", FromServer.INTEGER );
 	}
 }

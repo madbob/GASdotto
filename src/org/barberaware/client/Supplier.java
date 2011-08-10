@@ -41,6 +41,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "orders_months", FromServer.STRING );
 
 		setString ( "name", "Nuovo Fornitore" );
+		isSharable ( true );
 	}
 
 	public boolean iAmReference () {

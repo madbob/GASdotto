@@ -103,8 +103,9 @@ public class PasswordBox extends Composite implements StringWidget {
 					opened = false;
 					dialog.hide ();
 				}
-				else
+				else {
 					Utils.showNotification ( "Le password immesse non combaciano" );
+				}
 			}
 		} );
 		buttons.add ( but );

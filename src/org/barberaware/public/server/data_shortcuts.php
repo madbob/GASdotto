@@ -19,19 +19,16 @@
 
 require_once ( "utils.php" );
 
-if ( !isset ( $_GET [ 'type' ] ) )
-	error_exit ( "Richiesta non valida" );
+$type = require_param ( 'type' );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
 $ret = null;
 
-switch ( $_GET [ 'type' ] ) {
+switch ( $type ) {
 	case 'order_products_diff':
-		$order = $_GET [ 'order' ];
-		if ( !isset ( $order ) )
-			error_exit ( "Richiesta non valida" );
+		$order = require_param ( 'order' );
 
 		$ord = new Order ();
 		$ord->readFromDB ( $order );
@@ -60,9 +57,7 @@ switch ( $_GET [ 'type' ] ) {
 		break;
 
 	case 'available_quantity_yet':
-		$product = $_GET [ 'product' ];
-		if ( !isset ( $product ) )
-			error_exit ( "Richiesta non valida" );
+		$product = require_param ( 'product' );
 
 		$ret = new stdClass ();
 		$ret->index = $_GET [ 'index' ];
@@ -88,6 +83,26 @@ switch ( $_GET [ 'type' ] ) {
 				$ret->quantity = "0";
 			else
 				$ret->quantity = ( string ) ( $max_quantity - $quantity );
+		}
+
+		break;
+
+	case 'unique_user':
+		$name = require_param ( 'username' );
+		$id = require_param ( 'id' );
+
+		/*
+			Lo username "master" e' riservato per il gestore del
+			Multi-GAS
+		*/
+		if ( $name == 'master' ) {
+			$ret = 'Username riservato';
+		}
+		else {
+			$tmp = new User ();
+			$query = sprintf ( "FROM %s WHERE login = '$name' AND id != $id", $tmp->tablename );
+			if ( db_row_count ( $query ) != 0 )
+				$ret = 'Username già assegnato';
 		}
 
 		break;

@@ -316,6 +316,22 @@ public class ServerHook {
 		}
 	}
 
+	public void removeObjectEvent ( String type, String identifier ) {
+		ServerMonitor monitor;
+		ServerObjectReceive callback;
+
+		monitor = getMonitor ( type );
+
+		for ( int i = 0; i < monitor.callbacks.size (); i++ ) {
+			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
+
+			if ( callback.handleId () == identifier ) {
+				monitor.callbacks.remove ( callback );
+				break;
+			}
+		}
+	}
+
 	/*
 		In mancanza di una interfaccia "COMET" in GWT, quando serve forzo un controllo
 		presso il server per recuperare la lista di oggetti che mi mancano

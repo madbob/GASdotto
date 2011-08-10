@@ -62,8 +62,7 @@ else if ( $type == "Reset" ) {
 						md5 ( $password ), $mail, $mail );
 		query_and_check ( $query, "Impossibile salvare nuova password" );
 
-		$gas = new GAS ();
-		$gas->readFromDB ( 1 );
+		$gas = current_gas ();
 
 		$notice = sprintf ( "E' stata ricevuta una richiesta per resettare la tua password sull'istanza GASdotto di %s.\n", $gas->getAttribute ( 'name' )->value );
 		$notice .= sprintf ( "Se non hai espressamente richiesto una nuova password, ignora assolutamente questa mail.\n" );

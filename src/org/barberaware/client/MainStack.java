@@ -48,36 +48,41 @@ public class MainStack extends Composite {
 		Utils.getServer ().testObjectReceive ( "Category" );
 		Utils.getServer ().testObjectReceive ( "Measure" );
 
-		add ( new HomePanel () );
-		add ( new ProfilePanel () );
-
-		if ( privileges == User.USER_ADMIN ) {
-			add ( new UsersPanel () );
-			add ( new SuppliersEditPanel () );
-			add ( new OrdersEditPanel () );
-			add ( new OrdersPrivilegedPanel () );
-			add ( new DeliveryPanel () );
-			add ( new StatisticsPanel () );
-			add ( new NotificationPanel () );
-			add ( new SystemPanel () );
+		if ( privileges == User.USER_MASTER ) {
+			add ( new GASPanel () );
 		}
-
-		else if ( privileges == User.USER_RESPONSABLE ) {
-			add ( new UsersUneditablePanel () );
-			add ( new SuppliersEditPanel () );
-			add ( new OrdersEditPanel () );
-			add ( new OrdersPrivilegedPanel () );
-			add ( new DeliveryPanel () );
-			add ( new StatisticsPanel () );
-			add ( new NotificationPanel () );
-			add ( new SystemPanel () );
-		}
-
 		else {
-			add ( new UsersUneditablePanel () );
-			add ( new SuppliersPanel () );
-			add ( new OrdersPrivilegedPanel () );
-			add ( new NotificationPanel () );
+			add ( new HomePanel () );
+			add ( new ProfilePanel () );
+
+			if ( privileges == User.USER_ADMIN ) {
+				add ( new UsersPanel () );
+				add ( new SuppliersEditPanel () );
+				add ( new OrdersEditPanel () );
+				add ( new OrdersPrivilegedPanel () );
+				add ( new DeliveryPanel () );
+				add ( new StatisticsPanel () );
+				add ( new NotificationPanel () );
+				add ( new SystemPanel () );
+			}
+
+			else if ( privileges == User.USER_RESPONSABLE ) {
+				add ( new UsersUneditablePanel () );
+				add ( new SuppliersEditPanel () );
+				add ( new OrdersEditPanel () );
+				add ( new OrdersPrivilegedPanel () );
+				add ( new DeliveryPanel () );
+				add ( new StatisticsPanel () );
+				add ( new NotificationPanel () );
+				add ( new SystemPanel () );
+			}
+
+			else {
+				add ( new UsersUneditablePanel () );
+				add ( new SuppliersPanel () );
+				add ( new OrdersPrivilegedPanel () );
+				add ( new NotificationPanel () );
+			}
 		}
 
 		mainMenu = null;

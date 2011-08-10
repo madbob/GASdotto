@@ -80,6 +80,9 @@ public class FromServerFactory {
 		else if ( name.equals ( "Notification" ) ) {
 			return new Notification ();
 		}
+		else if ( name.equals ( "ACL" ) ) {
+			return new ACL ();
+		}
 		else if ( name.equals ( "GAS" ) ) {
 			return new GAS ();
 		}
@@ -106,6 +109,7 @@ public class FromServerFactory {
 		ArrayList names;
 
 		names = new ArrayList ();
+		names.add ( "ACL" );
 		names.add ( "Category" );
 		names.add ( "GAS" );
 		names.add ( "Measure" );

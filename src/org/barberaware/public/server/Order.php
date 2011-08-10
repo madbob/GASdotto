@@ -33,6 +33,8 @@ class Order extends FromServer {
 		$this->addAttribute ( "anticipated", "STRING" );
 		$this->addAttribute ( "mail_summary_sent", "DATE" );
 		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
+
+		$this->setSharable ( true );
 	}
 
 	public function get ( $request, $compress ) {
@@ -99,6 +101,8 @@ class Order extends FromServer {
 
 			if ( isset ( $request->enddate ) )
 				$query .= sprintf ( "AND enddate < DATE('%s') ", $request->enddate );
+
+			$query .= filter_by_current_gas ( $this->classname );
 
 			$query .= "ORDER BY id DESC";
 
@@ -226,149 +230,8 @@ class Order extends FromServer {
 				}
 			}
 
-			if ( isset ( $obj->mail_summary_sent ) ) {
-				$test = new Order ();
-				$test->readFromDB ( $obj->id );
-
-				if ( format_date ( $test->getAttribute ( 'mail_summary_sent' )->value ) != format_date ( $obj->mail_summary_sent ) ) {
-					$products = $test->getAttribute ( 'products' )->value;
-					usort ( $products, 'sort_product_by_name' );
-
-					$supplier = $test->getAttribute ( 'supplier' )->value;
-
-					$gas = new GAS ();
-					$gas->readFromDB ( 1 );
-
-					$orderusers = get_orderuser_by_order ( $test );
-
-					foreach ( $orderusers as $ou ) {
-						/*
-							Feature #170: non si invia mail di
-							riepilogo a chi ha gia' ritirato l'ordine
-						*/
-						if ( $ou->status == 2 )
-							continue;
-
-						$user_products = $ou->products;
-						if ( is_array ( $user_products ) == false )
-							continue;
-
-						$dests = array ();
-
-						if ( isset ( $ou->baseuser->mail ) && $ou->baseuser->mail != '' )
-							$dests [] = $ou->baseuser->mail;
-						if ( isset ( $ou->baseuser->mail2 ) && $ou->baseuser->mail2 != '' )
-							$dests [] = $ou->baseuser->mail2;
-
-						if ( count ( $dests ) == 0 )
-							continue;
-
-						$user_products = sort_products_on_products ( $products, $user_products );
-						$user_total = 0;
-
-						$text = sprintf ( "Di seguito il riassunto dei prodotti che hai ordinato presso %s insieme agli altri membri di %s.\n\n",
-									$supplier->getAttribute ( 'name' )->value, $gas->getAttribute ( 'name' )->value );
-
-						$extra_notify = '';
-
-						$html = '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
-						$html .= '<body><p>' . $text . '</p><br /><table><tr><td>Prodotto</td><td>Quantità</td><td>Prezzo</td><td>Prezzo Trasporto</td></tr>';
-
-						if ( $ou->status == 3 )
-							$param = 'delivered';
-						else
-							$param = 'quantity';
-
-						for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
-							$prod = $products [ $a ];
-							$prodid = $prod->getAttribute ( "id" )->value;
-							$prod_user = $user_products [ $e ];
-							$quantity = 0;
-
-							if ( $prodid == $prod_user->product ) {
-								$quantity = $prod_user->$param;
-								$e++;
-							}
-
-							if ( count ( $ou->friends ) != 0 ) {
-								foreach ( $ou->friends as $friend ) {
-									foreach ( $friend->products as $fprod ) {
-										if ( $fprod->product == $prodid ) {
-											$quantity += $fprod->$param;
-											break;
-										}
-									}
-								}
-							}
-
-							if ( $quantity != 0 ) {
-								$unit = $prod->getAttribute ( "unit_size" )->value;
-								$uprice = $prod->getAttribute ( "unit_price" )->value;
-								$sprice = $prod->getAttribute ( "shipping_price" )->value;
-
-								if ( $unit <= 0.0 ) {
-									$q = comma_format ( $quantity );
-								}
-								else {
-									if ( $ou->status == 0 ) {
-										$q = ( $quantity / $unit );
-										$q = ( comma_format ( $q ) ) . ' pezzi';
-										$extra_notify = "l'importo reale di questo ordine dipende dal peso effettivo dei prodotti consegnati; il totale qui riportato è solo indicativo";
-									}
-									else {
-										$measure = $prod->getAttribute ( "measure" )->value;
-										$q = ( comma_format ( $quantity ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
-										$extra_notify = "quantità ed importo indicati sono quelli effettivi";
-									}
-								}
-
-								$quprice = ( $quantity * $uprice );
-								$qsprice = ( $quantity * $sprice );
-
-								$user_total += sum_percentage ( $quprice, $prod->getAttribute ( "surplus" )->value ) + $qsprice;
-
-								$quprice = format_price ( round ( $quprice, 2 ) );
-								$qsprice = format_price ( round ( $qsprice, 2 ) );
-
-								$text .= ( $prod->getAttribute ( "name" )->value ) . "\n";
-								$text .= "\t\t" . $q . "\t" . $quprice . "\t" . $qsprice . "\n";
-
-								$html .= '<tr><td>' . ( $prod->getAttribute ( "name" )->value );
-								$html .= '</td><td>' . $q . '</td><td>' . $quprice . '</td><td>' . $qsprice . '</td></tr>';
-							}
-						}
-
-						$user_total = format_price ( round ( $user_total, 2 ) );
-
-						$text .= "\nPer un totale di " . $user_total;
-						if ( $extra_notify != '' )
-							$text .= ' (' . $extra_notify . ')';
-						$text .= ".\n\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
-
-						$html .= '</table><p>Per un totale di ' . $user_total;
-						if ( $extra_notify != '' )
-							$html .= ' (' . $extra_notify . ')';
-						$html .= '.</p><p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
-
-						foreach ( $supplier->getAttribute ( 'references' )->value as $ref ) {
-							if ( ( $ref->getAttribute ( 'mail' )->value != "" ) )
-								$mail = $ref->getAttribute ( 'mail' )->value;
-							else
-								$mail = $ref->getAttribute ( 'mail2' )->value;
-
-							$text .= "\t" . ( $ref->getAttribute ( 'firstname' )->value ) . " " . ( $ref->getAttribute ( 'surname' )->value ) . " - " . $mail . "\n";
-							$html .= "<li>" . ( $ref->getAttribute ( 'firstname' )->value ) . " " . ( $ref->getAttribute ( 'surname' )->value ) . " - <a href=\"mailto:" . $mail . "\">" . $mail . "</a></li>";
-						}
-
-						$html .= '</ul></body></html>';
-
-						my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, true, $text, $html );
-						unset ( $dests );
-					}
-
-					unset ( $orderusers );
-				}
-			}
+			if ( isset ( $obj->mail_summary_sent ) )
+				self::send_summary ( $obj );
 		}
 
 		/*
@@ -380,6 +243,148 @@ class Order extends FromServer {
 			$obj->status = 2;
 
 		return parent::save ( $obj );
+	}
+
+	private function send_summary ( $obj ) {
+		$test = new Order ();
+		$test->readFromDB ( $obj->id );
+
+		if ( format_date ( $test->getAttribute ( 'mail_summary_sent' )->value ) != format_date ( $obj->mail_summary_sent ) ) {
+			$products = $test->getAttribute ( 'products' )->value;
+			usort ( $products, 'sort_product_by_name' );
+
+			$supplier = $test->getAttribute ( 'supplier' )->value;
+
+			$gas = current_gas ();
+			$orderusers = get_orderuser_by_order ( $test );
+
+			foreach ( $orderusers as $ou ) {
+				/*
+					Feature #170: non si invia mail di
+					riepilogo a chi ha gia' ritirato l'ordine
+				*/
+				if ( $ou->status == 2 )
+					continue;
+
+				$user_products = $ou->products;
+				if ( is_array ( $user_products ) == false )
+					continue;
+
+				$dests = array ();
+
+				if ( isset ( $ou->baseuser->mail ) && $ou->baseuser->mail != '' )
+					$dests [] = $ou->baseuser->mail;
+				if ( isset ( $ou->baseuser->mail2 ) && $ou->baseuser->mail2 != '' )
+					$dests [] = $ou->baseuser->mail2;
+
+				if ( count ( $dests ) == 0 )
+					continue;
+
+				$user_products = sort_products_on_products ( $products, $user_products );
+				$user_total = 0;
+
+				$text = sprintf ( "Di seguito il riassunto dei prodotti che hai ordinato presso %s insieme agli altri membri di %s.\n\n",
+							$supplier->getAttribute ( 'name' )->value, $gas->getAttribute ( 'name' )->value );
+
+				$extra_notify = '';
+
+				$html = '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
+				$html .= '<body><p>' . $text . '</p><br /><table><tr><td>Prodotto</td><td>Quantità</td><td>Prezzo</td><td>Prezzo Trasporto</td></tr>';
+
+				if ( $ou->status == 3 )
+					$param = 'delivered';
+				else
+					$param = 'quantity';
+
+				for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+					$prod = $products [ $a ];
+					$prodid = $prod->getAttribute ( "id" )->value;
+					$prod_user = $user_products [ $e ];
+					$quantity = 0;
+
+					if ( $prodid == $prod_user->product ) {
+						$quantity = $prod_user->$param;
+						$e++;
+					}
+
+					if ( count ( $ou->friends ) != 0 ) {
+						foreach ( $ou->friends as $friend ) {
+							foreach ( $friend->products as $fprod ) {
+								if ( $fprod->product == $prodid ) {
+									$quantity += $fprod->$param;
+									break;
+								}
+							}
+						}
+					}
+
+					if ( $quantity != 0 ) {
+						$unit = $prod->getAttribute ( "unit_size" )->value;
+						$uprice = $prod->getAttribute ( "unit_price" )->value;
+						$sprice = $prod->getAttribute ( "shipping_price" )->value;
+
+						if ( $unit <= 0.0 ) {
+							$q = comma_format ( $quantity );
+						}
+						else {
+							if ( $ou->status == 0 ) {
+								$q = ( $quantity / $unit );
+								$q = ( comma_format ( $q ) ) . ' pezzi';
+								$extra_notify = "l'importo reale di questo ordine dipende dal peso effettivo dei prodotti consegnati; il totale qui riportato è solo indicativo";
+							}
+							else {
+								$measure = $prod->getAttribute ( "measure" )->value;
+								$q = ( comma_format ( $quantity ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
+								$extra_notify = "quantità ed importo indicati sono quelli effettivi";
+							}
+						}
+
+						$quprice = ( $quantity * $uprice );
+						$qsprice = ( $quantity * $sprice );
+
+						$user_total += sum_percentage ( $quprice, $prod->getAttribute ( "surplus" )->value ) + $qsprice;
+
+						$quprice = format_price ( round ( $quprice, 2 ) );
+						$qsprice = format_price ( round ( $qsprice, 2 ) );
+
+						$text .= ( $prod->getAttribute ( "name" )->value ) . "\n";
+						$text .= "\t\t" . $q . "\t" . $quprice . "\t" . $qsprice . "\n";
+
+						$html .= '<tr><td>' . ( $prod->getAttribute ( "name" )->value );
+						$html .= '</td><td>' . $q . '</td><td>' . $quprice . '</td><td>' . $qsprice . '</td></tr>';
+					}
+				}
+
+				$user_total = format_price ( round ( $user_total, 2 ) );
+
+				$text .= "\nPer un totale di " . $user_total;
+				if ( $extra_notify != '' )
+					$text .= ' (' . $extra_notify . ')';
+				$text .= ".\n\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
+
+				$html .= '</table><p>Per un totale di ' . $user_total;
+				if ( $extra_notify != '' )
+					$html .= ' (' . $extra_notify . ')';
+				$html .= '.</p><p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
+
+				foreach ( $supplier->getAttribute ( 'references' )->value as $ref ) {
+					if ( ( $ref->getAttribute ( 'mail' )->value != "" ) )
+						$mail = $ref->getAttribute ( 'mail' )->value;
+					else
+						$mail = $ref->getAttribute ( 'mail2' )->value;
+
+					$text .= "\t" . ( $ref->getAttribute ( 'firstname' )->value ) . " " . ( $ref->getAttribute ( 'surname' )->value ) . " - " . $mail . "\n";
+					$html .= "<li>" . ( $ref->getAttribute ( 'firstname' )->value ) . " " . ( $ref->getAttribute ( 'surname' )->value ) . " - <a href=\"mailto:" . $mail . "\">" . $mail . "</a></li>";
+				}
+
+				$html .= '</ul></body></html>';
+
+				my_send_mail ( $dests, 'Riassunto dell\'ordine a ' . $supplier->getAttribute ( 'name' )->value, true, $text, $html );
+				unset ( $dests );
+			}
+
+			unset ( $orderusers );
+		}
 	}
 }
 

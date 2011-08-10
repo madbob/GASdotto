@@ -207,6 +207,7 @@ function test_class ( $class ) {
 
 	if ( $ret == false ) {
 		create_table_class ( $obj );
+		$ret = false;
 	}
 	else {
 		$found_attrs = array ();
@@ -274,9 +275,12 @@ function test_class ( $class ) {
 				}
 			}
 		}
+
+		$ret = true;
 	}
 
 	unset ( $obj );
+	return $ret;
 }
 
 function check_manual_columns ( $tablename, $columns, $ret ) {
@@ -337,6 +341,25 @@ function check_manual_columns ( $tablename, $columns, $ret ) {
 	}
 }
 
+function align_acl ( $type, $table = null ) {
+	global $db;
+
+	if ( $table == null )
+		$table = $type;
+
+	$query = "SELECT id FROM $table";
+	$result = $db->query ( $query );
+	$rows = $result->fetchAll ( PDO::FETCH_NUM );
+
+	foreach ( $rows as $row ) {
+		$id = $row [ 0 ];
+		$query = "INSERT INTO ACL (gas, target_type, target_id, privileges) VALUES (1, '$type', $id, 0)";
+		local_query_and_check ( $query, "Impossibile aggiornare permessi" );
+	}
+
+	unset ( $rows );
+}
+
 function test_static_tables () {
 	global $db;
 	global $dbdriver;
@@ -345,7 +368,10 @@ function test_static_tables () {
 	$ret = $db->query ( $query );
 
 	if ( $ret == false ) {
-		$query = 'CREATE TABLE accounts ( username int references Users ( id ), password varchar ( 100 ) default \'\', reset varchar ( 100 ) default \'\' )';
+		$query = "CREATE TABLE accounts (
+				username int references Users ( id ),
+				password varchar ( 100 ) default '',
+				reset varchar ( 100 ) default '' )";
 		local_query_and_check ( $query, "Impossibile creare tabella accounts" );
 	}
 	else {
@@ -357,12 +383,16 @@ function test_static_tables () {
 	$ret = $db->query ( $query );
 
 	if ( $ret == false ) {
-		$query = 'CREATE TABLE current_sessions ( id serial primary key, session_id varchar ( 100 ), init date,
-							username int references Users ( id ) on delete cascade )';
+		$query = 'CREATE TABLE current_sessions (
+				id serial primary key,
+				session_id varchar ( 100 ),
+				init date,
+				username int references Users ( id ) on delete cascade,
+				gas int references GAS ( id ) on delete cascade )';
 		local_query_and_check ( $query, "Impossibile creare tabella sessioni" );
 	}
 	else {
-		$columns = array ( 'id', 'INTEGER', 'session_id', 'STRING', 'init', 'DATE', 'username', 'OBJECT::User' );
+		$columns = array ( 'id', 'INTEGER', 'session_id', 'STRING', 'init', 'DATE', 'username', 'OBJECT::User', 'gas', 'OBJECT::GAS' );
 		check_manual_columns ( 'current_sessions', $columns, $ret );
 	}
 }
@@ -385,6 +415,12 @@ function check_db_schema () {
 	test_class ( 'ProductUser' );
 	test_class ( 'OrderUserFriend' );
 	test_class ( 'OrderUser' );
+
+	if ( test_class ( 'ACL' ) == false ) {
+		align_acl ( 'Supplier' );
+		align_acl ( 'User', 'Users' );
+		align_acl ( 'Order', 'Orders' );
+	}
 
 	test_static_tables ();
 }
