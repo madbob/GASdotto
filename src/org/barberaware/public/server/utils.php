@@ -28,6 +28,7 @@ require_once ( "SystemConf.php" );
 require_once ( "ACL.php" );
 require_once ( "CustomFile.php" );
 require_once ( "GAS.php" );
+require_once ( "ShippingPlace.php" );
 require_once ( "User.php" );
 require_once ( "Notification.php" );
 require_once ( "Supplier.php" );
@@ -693,7 +694,7 @@ function get_acl ( $obj ) {
 	if ( count ( $row ) > 0 )
 		return $row [ 0 ] [ 0 ];
 	else
-		return 0;
+		return 10;
 }
 
 function save_acl ( $obj, $priv ) {
@@ -713,7 +714,7 @@ function save_acl ( $obj, $priv ) {
 
 function check_acl ( $obj, $min ) {
 	$p = get_acl ( $obj );
-	if ( $p < $min )
+	if ( $p > $min )
 		error_exit ( 'Privilegi insufficienti' );
 }
 

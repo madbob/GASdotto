@@ -24,8 +24,6 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class SystemPanel extends GenericPanel {
-	private FormCluster		categories;
-	private FormCluster		measures;
 	private MailConfigurator	mailConf;
 	private DummyTextBox		mailList;
 	private RIDConfigurator		ridConf;
@@ -33,6 +31,7 @@ public class SystemPanel extends GenericPanel {
 	public SystemPanel () {
 		super ();
 
+		FormCluster cluster;
 		CaptionPanel sframe;
 		VerticalPanel ver;
 
@@ -41,7 +40,7 @@ public class SystemPanel extends GenericPanel {
 		add ( sframe );
 
 		sframe = new CaptionPanel ( "Categorie" );
-		categories = new FormCluster ( "Category", "Nuova Categoria" ) {
+		cluster = new FormCluster ( "Category", "Nuova Categoria" ) {
 			protected FromServerForm doEditableRow ( FromServer cat ) {
 				return doCategoryForm ( cat );
 			}
@@ -50,11 +49,11 @@ public class SystemPanel extends GenericPanel {
 				return doEditableRow ( new Category () );
 			}
 		};
-		sframe.add ( categories );
+		sframe.add ( cluster );
 		add ( sframe );
 
-		sframe = new CaptionPanel ( "Unità di misura" );
-		measures = new FormCluster ( "Measure", "Nuova Misura" ) {
+		sframe = new CaptionPanel ( "Unità di Misura" );
+		cluster = new FormCluster ( "Measure", "Nuova Misura" ) {
 			protected FromServerForm doEditableRow ( FromServer measure ) {
 				return doMeasureForm ( measure );
 			}
@@ -63,7 +62,20 @@ public class SystemPanel extends GenericPanel {
 				return doEditableRow ( new Measure () );
 			}
 		};
-		sframe.add ( measures );
+		sframe.add ( cluster );
+		add ( sframe );
+
+		sframe = new CaptionPanel ( "Luoghi di Consegna" );
+		cluster = new FormCluster ( "ShippingPlace", "Nuovo Luogo" ) {
+			protected FromServerForm doEditableRow ( FromServer place ) {
+				return doPlaceForm ( place );
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				return doEditableRow ( new ShippingPlace () );
+			}
+		};
+		sframe.add ( cluster );
 		add ( sframe );
 
 		sframe = new CaptionPanel ( "GASdotto" );
@@ -202,6 +214,24 @@ public class SystemPanel extends GenericPanel {
 		return ver;
 	}
 
+	private FromServerForm doPlaceForm ( FromServer measure ) {
+		FromServerForm ver;
+		FlexTable fields;
+
+		ver = new FromServerForm ( measure );
+
+		fields = new FlexTable ();
+		ver.add ( fields );
+
+		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+		fields.setWidget ( 0, 1, ver.getWidget ( "name" ) );
+
+		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
+		fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
+
+		return ver;
+	}
+
 	private FromServerForm doApplicationConfForm () {
 		FromServerForm ver;
 		FlexTable fields;
@@ -286,5 +316,6 @@ public class SystemPanel extends GenericPanel {
 	public void initView () {
 		Utils.getServer ().testObjectReceive ( "Category" );
 		Utils.getServer ().testObjectReceive ( "Measure" );
+		Utils.getServer ().testObjectReceive ( "ShippingPlace" );
 	}
 }

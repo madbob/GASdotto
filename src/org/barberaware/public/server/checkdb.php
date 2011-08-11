@@ -415,6 +415,7 @@ function check_db_schema () {
 	test_class ( 'ProductUser' );
 	test_class ( 'OrderUserFriend' );
 	test_class ( 'OrderUser' );
+	test_class ( 'ShippingPlace' );
 
 	if ( test_class ( 'ACL' ) == false ) {
 		align_acl ( 'Supplier' );

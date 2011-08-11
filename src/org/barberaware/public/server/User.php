@@ -41,6 +41,7 @@ class User extends FromServer {
 		$this->addAttribute ( "lastlogin", "DATE" );
 		$this->addAttribute ( "leaving_date", "DATE" );
 		$this->addAttribute ( "bank_account", "STRING" );
+		$this->addAttribute ( "shipping", "OBJECT::ShippingPlace" );
 
 		$this->setSorting ( "surname" );
 		$this->setSharable ( true );

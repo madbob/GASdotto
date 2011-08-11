@@ -74,6 +74,7 @@ public class User extends FromServer {
 		addAttribute ( "lastlogin", FromServer.DATE );
 		addAttribute ( "leaving_date", FromServer.DATE );
 		addAttribute ( "bank_account", FromServer.STRING );
+		addAttribute ( "shipping", FromServer.OBJECT, ShippingPlace.class );
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
 	}

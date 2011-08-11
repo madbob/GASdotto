@@ -62,6 +62,8 @@ public class FromServerFactory {
 		else if ( first == 'S' ) {
 			if ( name.equals ( "Supplier" ) )
 				return new Supplier ();
+			else if ( name.equals ( "ShippingPlace" ) )
+				return new ShippingPlace ();
 			else if ( name.equals ( "SystemConf" ) )
 				return new SystemConf ();
 		}
@@ -109,7 +111,6 @@ public class FromServerFactory {
 		ArrayList names;
 
 		names = new ArrayList ();
-		names.add ( "ACL" );
 		names.add ( "Category" );
 		names.add ( "GAS" );
 		names.add ( "Measure" );
@@ -118,6 +119,7 @@ public class FromServerFactory {
 		names.add ( "OrderUser" );
 		names.add ( "OrderUserAggregate" );
 		names.add ( "OrderUserFriend" );
+		names.add ( "ACL" );
 		names.add ( "Product" );
 		names.add ( "ProductVariant" );
 		names.add ( "ProductVariantValue" );
@@ -128,6 +130,7 @@ public class FromServerFactory {
 		names.add ( "User" );
 		names.add ( "CustomFile" );
 		names.add ( "Notification" );
+		names.add ( "ShippingPlace" );
 		names.add ( "SystemConf" );
 		names.add ( "Probe" );
 		return names;

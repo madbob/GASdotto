@@ -257,7 +257,6 @@ public class UsersPanel extends GenericPanel {
 					hor.add ( frame );
 
 					frame.addPair ( "Iscritto da", form.getWidget ( "join_date" ) );
-					frame.addPair ( "Data di Cessazione", form.getWidget ( "leaving_date" ) );
 
 					frame.addPair ( "Numero Tessera", form.getWidget ( "card_number" ) );
 					form.setValidation ( "card_number", FromServerValidateCallback.defaultUniqueStringValidationCallback () );
@@ -277,6 +276,14 @@ public class UsersPanel extends GenericPanel {
 					privileges.addState ( "images/user_role_admin.png" );
 					privileges.addState ( "images/user_role_leaved.png" );
 					frame.addPair ( "Ruolo", form.getPersonalizedWidget ( "privileges", privileges ) );
+
+					/*
+						TODO	Questo dovrebbe apparire solo se l'utente e' cessato, c'e' da
+							agganciarlo ad un qualche evento su "privileges"
+					*/
+					frame.addPair ( "Data di Cessazione", form.getWidget ( "leaving_date" ) );
+
+					frame.addPair ( "Luogo Consegna", form.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
 
 					frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
 					form.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
@@ -464,6 +471,7 @@ public class UsersPanel extends GenericPanel {
 
 	public void initView () {
 		main.unlock ();
+		Utils.getServer ().testObjectReceive ( "ShippingPlace" );
 		Utils.getServer ().testObjectReceive ( "User" );
 	}
 }
