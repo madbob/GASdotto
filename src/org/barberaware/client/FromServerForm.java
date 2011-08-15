@@ -32,6 +32,7 @@ public class FromServerForm extends FromServerRappresentation {
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
+	private boolean			hasSharing;
 	private ArrayList		callbacks;
 	private boolean			forceSave;
 
@@ -46,6 +47,7 @@ public class FromServerForm extends FromServerRappresentation {
 		setValue ( obj );
 		callbacks = new ArrayList ();
 		forceSave = false;
+		hasSharing = false;
 		noExplicitCallbacks ();
 
 		main = new DisclosurePanel ( doSummary () );
@@ -194,12 +196,11 @@ public class FromServerForm extends FromServerRappresentation {
 
 		if ( buttons != null )
 			contents.remove ( buttons );
-
 		buttons = doButtons ( editMode );
 
 		value = getValue ();
 
-		if ( value == null || value.isSharable () == false ) {
+		if ( value == null || value.isValid () == false || value.isSharable () == false ) {
 			contents.add ( buttons );
 			contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
 		}
@@ -218,6 +219,8 @@ public class FromServerForm extends FromServerRappresentation {
 
 			hold.add ( buttons );
 			hold.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
+
+			hasSharing = true;
 		}
 	}
 
@@ -426,6 +429,14 @@ public class FromServerForm extends FromServerRappresentation {
 			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onError ( this );
 	}
 
+	private void reviewSharing () {
+		FromServer value;
+
+		value = getValue ();
+		if ( value != null && ( value.isSharable () && hasSharing == false ) )
+			placeButtons ();
+	}
+
 	public boolean savingObject () {
 		boolean confirm;
 
@@ -441,6 +452,7 @@ public class FromServerForm extends FromServerRappresentation {
 			public void onComplete ( JSONValue response ) {
 				savedCallbacks ();
 				summary.setText ( retrieveNameInCallbacks () );
+				reviewSharing ();
 			}
 			public void onError () {
 				errorCallbacks ();

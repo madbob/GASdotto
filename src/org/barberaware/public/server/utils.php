@@ -676,16 +676,46 @@ function current_gas () {
 	return $ret;
 }
 
-function filter_by_current_gas ( $type ) {
+function acl_filter_plain ( $obj ) {
 	global $current_gas;
-	return " AND id IN (SELECT target_id FROM acl WHERE gas = $current_gas AND target_type = '$type') ";
+
+	return " ( SELECT target_id FROM acl WHERE gas = $current_gas AND target_type = '" . $obj->classname . "' ) ";
 }
 
-function get_acl ( $obj ) {
-	global $current_gas;
+function acl_filter_hierarchy_asc ( $obj, $parent_class, $attribute ) {
+	$p = new $parent_class ();
+	$p_filter = $p->filter_by_current_gas ();
 
-	$type = $obj->classname;
-	$id = $obj->getAttribute ( 'id' )->value;
+	if ( $p_filter == "" ) {
+		$ret = "";
+	}
+	else {
+		global $current_gas;
+		$ret = sprintf ( " ( SELECT target FROM %s_%s WHERE parent IN %s ) ", $p->tablename, $attribute, $p_filter );
+	}
+
+	unset ( $p );
+	return $ret;
+}
+
+function acl_filter_hierarchy_desc ( $obj, $child_class, $attribute ) {
+	$c = new $child_class ();
+	$c_filter = $c->filter_by_current_gas ();
+
+	if ( $c_filter == "" ) {
+		$ret = "";
+	}
+	else {
+		global $current_gas;
+		$ret = sprintf ( " ( SELECT id FROM %s WHERE %s IN %s ) ", $obj->tablename, $attribute, $c_filter );
+	}
+
+	unset ( $c );
+	return $ret;
+}
+
+function get_acl_easy ( $type, $id ) {
+	global $current_gas;
 
 	$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
 	$result = query_and_check ( $query, "Impossibile recuperare privilegi di accesso al dato" );
@@ -695,6 +725,12 @@ function get_acl ( $obj ) {
 		return $row [ 0 ] [ 0 ];
 	else
 		return 10;
+}
+
+function get_acl ( $obj ) {
+	$type = $obj->classname;
+	$id = $obj->getAttribute ( 'id' )->value;
+	return get_acl_easy ( $type, $id );
 }
 
 function save_acl ( $obj, $priv ) {
@@ -712,10 +748,32 @@ function save_acl ( $obj, $priv ) {
 	query_and_check ( $query, "Impossibile aggiornare permessi di accesso" );
 }
 
+function destroy_acl ( $obj ) {
+	if ( $obj->shareMode != 0 ) {
+		$type = $obj->classname;
+		$id = $obj->getAttribute ( 'id' )->value;
+
+		$query = "DELETE FROM acl WHERE target_type = $type AND target_id = $id";
+		query_and_check ( $query, "Impossibile aggiornare permessi di accesso" );
+	}
+}
+
+function check_acl_easy ( $type, $id, $min ) {
+	$p = get_acl_easy ( $type, $id );
+
+	if ( $p > $min )
+		return false;
+	else
+		return true;
+}
+
 function check_acl ( $obj, $min ) {
 	$p = get_acl ( $obj );
+
 	if ( $p > $min )
-		error_exit ( 'Privilegi insufficienti' );
+		return false;
+	else
+		return true;
 }
 
 /****************************************************************** authentication */
@@ -794,6 +852,7 @@ function check_session () {
 	*/
 	$current_user = $row [ 0 ] [ 0 ];
 	$current_gas = $row [ 0 ] [ 1 ];
+
 	return true;
 }
 

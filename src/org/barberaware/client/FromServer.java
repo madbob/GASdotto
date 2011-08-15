@@ -344,7 +344,7 @@ public abstract class FromServer implements Comparator {
 		JSONObject obj;
 		FromServerResponse true_callback;
 
-		if ( isValid () == false )
+		if ( isValid () == false && getType () != "ACL" )
 			return;
 
 		obj = this.toJSONObject ();

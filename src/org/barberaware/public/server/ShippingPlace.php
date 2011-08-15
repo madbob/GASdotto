@@ -23,8 +23,8 @@ class ShippingPlace extends FromServer {
 	public function __construct () {
 		parent::__construct ( "ShippingPlace" );
 
-		parent::addAttribute ( "name", "STRING" );
-		parent::addAttribute ( "address", "ADDRESS" );
+		$this->addAttribute ( "name", "STRING" );
+		$this->addAttribute ( "address", "ADDRESS" );
 	}
 }
 

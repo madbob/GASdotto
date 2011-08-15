@@ -75,7 +75,7 @@ class ACL extends FromServer {
 			TODO	Fare un controllo serio sull'autorizzazione
 				della richiesta
 		*/
-		parent::save ( $obj );
+		return parent::save ( $obj );
 	}
 }
 

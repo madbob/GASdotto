@@ -24,6 +24,8 @@ class OrderAggregate extends FromServer {
 		parent::__construct ( "OrderAggregate" );
 
 		$this->addAttribute ( "orders", "ARRAY::Order" );
+
+		$this->setPublic ( false );
 	}
 }
 

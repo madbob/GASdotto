@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class ShareButton extends PushButton implements ObjectWidget {
 	private FromServer		currentObject;
+	private boolean			opened;
 
 	private DialogBox		dialog;
 	private FromServerTable		localPrivileges;
@@ -39,6 +40,7 @@ public class ShareButton extends PushButton implements ObjectWidget {
 		} );
 
 		localPrivileges = null;
+		opened = false;
 	}
 
 	private void showDialog () {
@@ -46,6 +48,7 @@ public class ShareButton extends PushButton implements ObjectWidget {
 		dialog.setText ( "Condividi" );
 		dialog.setWidget ( doDialog () );
 
+		opened = true;
 		dialog.center ();
 		dialog.show ();
 	}
@@ -137,8 +140,12 @@ public class ShareButton extends PushButton implements ObjectWidget {
 			}
 
 			public void onReceive ( FromServer obj ) {
-				if ( checkReq ( obj ) && localPrivileges != null )
+				if ( checkReq ( obj ) && localPrivileges != null ) {
 					localPrivileges.addElement ( obj );
+
+					if ( opened == true )
+						dialog.center ();
+				}
 			}
 
 			public void onModify ( FromServer obj ) {
@@ -164,30 +171,34 @@ public class ShareButton extends PushButton implements ObjectWidget {
 
 	private Widget exportContents () {
 		VerticalPanel ret;
-		HTML link;
+		HTML content;
 
 		ret = new VerticalPanel ();
 		ret.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
-		ret.add ( new HTML ( "<p>Clicca il link sotto per ottenere un file rappresentante questo elemento.</p>" +
+		content = new HTML ( "<p>Clicca il link sotto per ottenere un file rappresentante questo elemento.</p>" +
 					"<p>Tale file potrà essere importato in qualsiasi applicativo che implementa il formato GDXP.</p>" +
-					"<p>(<a href=\"http://trac.gasdotto.net/wiki/GDXP\" target=\"_blank\">Clicca qui</a> per maggiori informazioni)</p>" ) );
+					"<p>(<a href=\"http://trac.gasdotto.net/wiki/GDXP\" target=\"_blank\">Clicca qui</a> per maggiori informazioni)</p>" );
 
-		link = Utils.getServer ().fileLink ( "Esporta", "", "exporter.php?type=" + currentObject.getType () + "&id=" + currentObject.getLocalID () );
-		link.addClickListener ( new ClickListener () {
+		content.addStyleName ( "small-text" );
+		ret.add ( content );
+
+		content = Utils.getServer ().fileLink ( "Esporta", "", "exporter.php?type=" + currentObject.getType () + "&id=" + currentObject.getLocalID () );
+		content.addClickListener ( new ClickListener () {
 			public void onClick ( Widget sender ) {
 				closeDialog ();
 			}
 		} );
-		link.addStyleName ( "top-spaced" );
+		content.addStyleName ( "top-spaced" );
 
-		ret.add ( link );
+		ret.add ( content );
 
 		return ret;
 	}
 
 	private void closeDialog () {
 		Utils.getServer ().removeObjectEvent ( "ACL", "ShareButton" );
+		opened = false;
 		dialog.hide ();
 	}
 

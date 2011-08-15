@@ -250,6 +250,11 @@ public class FromServerTable extends Composite implements FromServerArray {
 		if ( element == null )
 			return;
 
+		if ( retrieveElementRow ( element ) != -1 ) {
+			refreshElement ( element );
+			return;
+		}
+
 		row = main.getRowCount ();
 		cols = columns.size ();
 

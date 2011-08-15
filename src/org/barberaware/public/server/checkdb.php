@@ -421,6 +421,7 @@ function check_db_schema () {
 		align_acl ( 'Supplier' );
 		align_acl ( 'User', 'Users' );
 		align_acl ( 'Order', 'Orders' );
+		align_acl ( 'OrderAggregate' );
 	}
 
 	test_static_tables ();

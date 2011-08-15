@@ -92,8 +92,10 @@ class FromServerAttribute {
 
 				$tabname = $parent->tablename . '_' . $this->name;
 
-				$query = sprintf ( "SELECT target FROM %s, %s WHERE %s.parent = %d AND %s.id = %s.target ORDER BY %s.%s",
-							$tabname, $ref->tablename, $tabname, $id, $ref->tablename, $tabname, $ref->tablename, $ref->sorting );
+				$query = sprintf ( "SELECT target FROM %s, %s WHERE %s.parent = %d AND %s.id = %s.target %s ORDER BY %s.%s",
+							$tabname,
+							$ref->tablename, $tabname, $id, $ref->tablename, $tabname,
+							$ref->filter_by_current_gas ( $tabname . '.target' ), $ref->tablename, $ref->sorting );
 
 				$existing = query_and_check ( $query, "Impossibile recuperare array per " . $parent->classname );
 				$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
@@ -207,9 +209,25 @@ abstract class FromServer {
 	public		$classname	= "";
 	public		$tablename	= "";
 	public		$sorting	= "id";
-	public		$share		= false;
 	public		$user_check	= null;
 	public		$attributes	= array ();
+	public		$is_public	= true;
+
+	/*
+		Qui, se is_public e' false, viene piazzato un array con le seguenti chiavi:
+
+		mode: plain, desc o asc.
+			plain = la classe e' mappata direttamente nella tabella delle ACL. "class" e "attribute" non vengono usati
+			desc = dipendenza discendente: l'accesso alla classe dipende dai permessi di accesso dell'oggetto di classe
+				"class" che si trova all'attributo "attribute"
+			asc = dipendenza ascendente: l'accesso alla classe dipende dai permessi di accesso dell'oggetto di classe
+				"class" che lo contiene all'interno dell'array "attribute"
+
+		class: la classe da cui dipende questa classe
+
+		attribute: l'attributo in cui si trova la dipendenza
+	*/
+	public		$public_mode	= null;
 
 	protected function __construct ( $name, $tablename = '' ) {
 		$this->classname = $name;
@@ -244,8 +262,9 @@ abstract class FromServer {
 		$this->user_check = $field_to_check;
 	}
 
-	protected function setSharable ( $share ) {
-		$this->share = $share;
+	protected function setPublic ( $public, $mode = 'plain', $dependency_class = '', $dependency_attribute = '' ) {
+		$this->is_public = $public;
+		$this->public_mode = array ( 'mode' => $mode, 'class' => $dependency_class, 'attribute' => $dependency_attribute );
 	}
 
 	protected function addAttribute ( $name, $type, $default = "" ) {
@@ -324,8 +343,7 @@ abstract class FromServer {
 				$query .= sprintf ( " AND %s = %d ", $this->user_check, $current_user );
 		}
 
-		if ( $this->share == true )
-			$query .= filter_by_current_gas ( $this->classname );
+		$query .= $this->filter_by_current_gas ();
 
 		$query .= sprintf ( " ORDER BY %s", $this->sorting );
 
@@ -340,6 +358,30 @@ abstract class FromServer {
 		}
 
 		return $ret;
+	}
+
+	public function filter_by_current_gas ( $field_name = 'id' ) {
+		if ( $this->is_public == true ) {
+			return "";
+		}
+		else {
+			switch ( $this->public_mode [ 'mode' ] ) {
+				case 'desc':
+					$ret = acl_filter_hierarchy_desc ( $this, $this->public_mode [ 'class' ], $this->public_mode [ 'attribute' ] );
+					break;
+
+				case 'asc':
+					$ret = acl_filter_hierarchy_asc ( $this, $this->public_mode [ 'class' ], $this->public_mode [ 'attribute' ] );
+					break;
+
+				default:
+				case 'plain':
+					$ret = acl_filter_plain ( $this );
+					break;
+			}
+
+			return " AND $field_name IN $ret";
+		}
 	}
 
 	protected function from_object_to_internal ( $obj ) {
@@ -442,12 +484,18 @@ abstract class FromServer {
 
 					for ( $a = 0; $a < count ( $arr ); $a++ ) {
 						$element = $arr [ $a ];
+
+						if ( check_acl_easy ( $element->type, $element->id, 1 ) == false )
+							continue;
+
 						$singleid = $element->id;
 
 						if ( $singleid == -1 ) {
 							$tmpobj = new $element->type ();
 							$singleid = $tmpobj->save ( $element );
 						}
+
+						unset ( $tmpobj );
 
 						$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
 									$this->tablename, $name, $id, $singleid );
@@ -473,12 +521,14 @@ abstract class FromServer {
 						continue;
 
 					$arr = $obj->$name;
+					$tmpobj = new $objtype ();
 
-					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d ORDER BY target ASC",
-								$this->tablename, $name, $id );
+					$query = sprintf ( "SELECT target FROM %s_%s WHERE parent = %d %s ORDER BY target ASC",
+								$this->tablename, $name, $id, $tmpobj->filter_by_current_gas ( 'target' ) );
 					$existing = query_and_check ( $query, "Impossibile recuperare lista per sincronizzare oggetto " . $this->classname );
 					$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );
 					unset ( $existing );
+					unset ( $tmpobj );
 
 					/*
 						Procedimento:
@@ -500,8 +550,10 @@ abstract class FromServer {
 							$singleid = $element->id;
 
 							if ( $singleid == $row [ 'target' ] ) {
-								$tmpobj = new $element->type ();
-								$tmpobj->save ( $element );
+								if ( check_acl_easy ( $element->type, $singleid, 1 ) == false ) {
+									$tmpobj = new $element->type ();
+									$tmpobj->save ( $element );
+								}
 
 								$element->id = -100;
 								$found = true;
@@ -520,6 +572,9 @@ abstract class FromServer {
 						$single_data = $arr [ $a ];
 
 						if ( $single_data->id != -100 ) {
+							if ( check_acl_easy ( $single_data->type, $single_data->id, 1 ) == false )
+								continue;
+
 							if ( $single_data->id == -1 ) {
 								$tmpobj = new $single_data->type ();
 								$single_data->id = $tmpobj->save ( $single_data );
@@ -597,30 +652,32 @@ abstract class FromServer {
 			$ret = last_id ( $this->tablename );
 			$this->save_arrays ( true, $obj, $ret );
 			$this->getAttribute ( 'id' )->value = $ret;
-			save_acl ( $this, 0 );
+
+			if ( $this->is_public == false )
+				save_acl ( $this, 0 );
 		}
 		else {
-			check_acl ( $this, 1 );
+			if ( $this->is_public == true || ( $this->is_public == false && check_acl ( $this, 1 ) == true ) ) {
+				$values = array ();
 
-			$values = array ();
+				for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+					$attr = $this->attributes [ $i ];
 
-			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
-				$attr = $this->attributes [ $i ];
+					if ( $attr->name == "id" )
+						continue;
 
-				if ( $attr->name == "id" )
-					continue;
+					$value = $this->attr_to_db ( $attr );
+					if ( $value == null )
+						continue;
 
-				$value = $this->attr_to_db ( $attr );
-				if ( $value == null )
-					continue;
+					array_push ( $values, ( $attr->name . " = " . $value ) );
+				}
 
-				array_push ( $values, ( $attr->name . " = " . $value ) );
-			}
-
-			if ( count ( $values ) > 0 ) {
-				$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
-							$this->tablename, join ( ", ", $values ), $id );
-				query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
+				if ( count ( $values ) > 0 ) {
+					$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
+								$this->tablename, join ( ", ", $values ), $id );
+					query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
+				}
 			}
 
 			$ret = $id;
@@ -704,6 +761,7 @@ abstract class FromServer {
 		$query = sprintf ( "DELETE FROM %s WHERE id = %d",
 					$this->tablename, $id );
 		query_and_check ( $query, "Impossibile eliminare oggetto " . $this->classname );
+		destroy_acl ( $this );
 	}
 
 	public function destroy ( $obj ) {
@@ -733,7 +791,7 @@ abstract class FromServer {
 				$obj->$name = $value;
 		}
 
-		if ( $this->share == true )
+		if ( $this->is_public == false )
 			$obj->sharing_privileges = get_acl ( $this );
 
 		return $obj;

@@ -33,6 +33,7 @@ class OrderUser extends FromServer {
 		$this->addAttribute ( "notes", "STRING" );
 
 		$this->enforceUserCheck ( "baseuser" );
+		$this->setPublic ( false, 'asc', 'User', 'baseuser' );
 	}
 
 	public function get ( $request, $compress ) {

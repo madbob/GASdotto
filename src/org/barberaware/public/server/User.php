@@ -44,7 +44,7 @@ class User extends FromServer {
 		$this->addAttribute ( "shipping", "OBJECT::ShippingPlace" );
 
 		$this->setSorting ( "surname" );
-		$this->setSharable ( true );
+		$this->setPublic ( false );
 	}
 
 	public function get ( $request, $compress ) {
@@ -62,6 +62,8 @@ class User extends FromServer {
 			$ids = join ( ',', $request->has );
 			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
 		}
+
+		$query .= $this->filter_by_current_gas ();
 
 		$query .= sprintf ( "ORDER BY %s", $this->sorting );
 

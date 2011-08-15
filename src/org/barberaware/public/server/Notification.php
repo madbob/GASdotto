@@ -23,15 +23,17 @@ class Notification extends FromServer {
 	public function __construct () {
 		parent::__construct ( "Notification" );
 
-		parent::addAttribute ( "name", "STRING" );
-		parent::addAttribute ( "alert_type", "INTEGER" );
-		parent::addAttribute ( "description", "STRING" );
-		parent::addAttribute ( "startdate", "DATE" );
-		parent::addAttribute ( "enddate", "DATE" );
-		parent::addAttribute ( "sender", "OBJECT::User" );
-		parent::addAttribute ( "recipent", "ARRAY::User" );
-		parent::addAttribute ( "send_mail", "BOOLEAN" );
-		parent::addAttribute ( "send_mailinglist", "BOOLEAN" );
+		$this->addAttribute ( "name", "STRING" );
+		$this->addAttribute ( "alert_type", "INTEGER" );
+		$this->addAttribute ( "description", "STRING" );
+		$this->addAttribute ( "startdate", "DATE" );
+		$this->addAttribute ( "enddate", "DATE" );
+		$this->addAttribute ( "sender", "OBJECT::User" );
+		$this->addAttribute ( "recipent", "ARRAY::User" );
+		$this->addAttribute ( "send_mail", "BOOLEAN" );
+		$this->addAttribute ( "send_mailinglist", "BOOLEAN" );
+
+		$this->setPublic ( false );
 	}
 
 	public function get ( $request, $compress ) {

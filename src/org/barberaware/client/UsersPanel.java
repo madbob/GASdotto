@@ -20,8 +20,6 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
-import com.google.gwt.http.client.*;
-import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -130,7 +128,6 @@ public class UsersPanel extends GenericPanel {
 					HorizontalPanel hor;
 					FromServer user;
 					CustomCaptionPanel frame;
-					DummyTextBox login;
 					CyclicToggle privileges;
 					DateSelector birth;
 
@@ -152,47 +149,8 @@ public class UsersPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Anagrafica" );
 					hor.add ( frame );
 
-					login = new DummyTextBox ();
-					login.addFocusListener ( new FocusListener () {
-						public void onFocus ( Widget sender ) {
-							/* dummy */
-						}
-
-						public void onLostFocus ( Widget sender ) {
-							String name;
-							DummyTextBox w;
-
-							w = ( DummyTextBox ) sender;
-							name = w.getValue ();
-
-							Utils.getServer ().rawGet ( "data_shortcuts.php?type=unique_user&username=" + name + "&id=" + form.getValue ().getLocalID (), new RequestCallback () {
-								public void onError ( Request request, Throwable exception ) {
-									Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
-								}
-
-								public void onResponseReceived ( Request request, Response response ) {
-									DummyTextBox w;
-									JSONValue jsonObject;
-
-									if ( response.getText () != "" ) {
-										try {
-											jsonObject = JSONParser.parse ( response.getText () );
-											w = ( DummyTextBox ) form.retriveInternalWidget ( "login" );
-											w.setValue ( "" );
-											Utils.showNotification ( jsonObject.isString ().stringValue () );
-										}
-										catch ( com.google.gwt.json.client.JSONException e ) {
-											Utils.showNotification ( "Ricevuti dati invalidi dal server" );
-										}
-									}
-
-									Utils.getServer ().dataArrived ();
-								}
-							} );
-						}
-					} );
-					frame.addPair ( "Login Accesso", form.getPersonalizedWidget ( "login", login ) );
-					form.setValidation ( "login", checkLoginNameCallback () );
+					frame.addPair ( "Login Accesso", form.getPersonalizedWidget ( "login", new UserNameCell ( form ) ) );
+					form.setValidation ( "login", UserNameCell.checkLoginNameCallback () );
 
 					frame.addPair ( "Nome", form.getWidget ( "firstname" ) );
 					frame.addPair ( "Cognome", form.getWidget ( "surname" ) );
@@ -398,45 +356,6 @@ public class UsersPanel extends GenericPanel {
 			}
 		} );
 		pan.add ( toggleLeavedView );
-	}
-
-	private FromServerValidateCallback checkLoginNameCallback () {
-		return
-			new FromServerValidateCallback () {
-				public boolean check ( FromServer object, String attribute, Widget widget ) {
-					String text;
-					boolean ret;
-					FromServer iter;
-					ArrayList list;
-
-					text = ( ( StringWidget ) widget ).getValue ();
-					if ( text.equals ( "" ) ) {
-						Utils.showNotification ( "Il nome account non è stato definito" );
-						return false;
-					}
-
-					/*
-						Benche' l'univocita' dello username venga controllata da un'altra
-						parte, mantengo comunque questo check sugli usernames locali
-					*/
-					list = Utils.getServer ().getObjectsFromCache ( "User" );
-					ret = true;
-
-					for ( int i = 0; i < list.size (); i++ ) {
-						iter = ( FromServer ) list.get ( i );
-
-						if ( ( iter.equals ( object ) == false ) &&
-								( iter.getString ( "login" ).equals ( text ) ) ) {
-
-							Utils.showNotification ( "Nome account non univoco" );
-							ret = false;
-							break;
-						}
-					}
-
-					return ret;
-				}
-			};
 	}
 
 	private void setRoleIcon ( FromServerForm form, FromServer user ) {

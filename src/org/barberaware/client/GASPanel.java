@@ -20,15 +20,36 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
 public class GASPanel extends GenericPanel {
 	private FormCluster		main;
 	private FromServer		tmp_root;
+	private FromServerForm		tmp_form;
 
 	public GASPanel () {
 		super ();
+
+		Utils.getServer ().onObjectEvent ( "ACL", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				if ( object.getString ( "target_type" ) == tmp_root.getType () &&
+						object.getInt ( "target_id" ) == tmp_root.getLocalID () &&
+						object.getObject ( "gas" ).equals ( Session.getGAS () ) ) {
+
+					object.destroy ( null );
+				}
+			}
+
+			public void onModify ( FromServer object ) {
+				/* dummy */
+			}
+
+			public void onDestroy ( FromServer object ) {
+				/* dummy */
+			}
+		} );
 
 		main = new FormCluster ( "GAS", "Nuovo GAS" ) {
 			protected FromServerForm doEditableRow ( FromServer gas ) {
@@ -47,7 +68,7 @@ public class GASPanel extends GenericPanel {
 			protected FromServerForm doNewEditableRow () {
 				FromServerForm form;
 				CustomCaptionPanel frame;
-				DummyTextBox username;
+				UserNameCell username;
 				PasswordBox password;
 
 				form = new FromServerForm ( new GAS () );
@@ -74,25 +95,47 @@ public class GASPanel extends GenericPanel {
 							return false;
 						}
 
+						tmp_form = form;
+
 						tmp_root = new User ();
 						tmp_root.setString ( "login", u );
 						tmp_root.setString ( "firstname", "Amministratore" );
 						tmp_root.setString ( "password", p );
 						tmp_root.setInt ( "privileges", User.USER_ADMIN );
-						tmp_root.save ( null );
+						tmp_root.save ( new ServerResponse () {
+							public void onComplete ( JSONValue response ) {
+								int root_id;
+								String root_type;
+								ACL request;
+								ObjectRequest params;
+
+								root_id = tmp_root.getLocalID ();
+								root_type = tmp_root.getType ();
+
+								/*
+									Dopo aver salvato l'utente, devo prelevarne le ACL in modo da
+									eliminarlo dalla lista dei dati accessibili dal GAS corrente (in
+									cui viene immesso di default).
+									E' un metodo un po' macchinoso, ma l'alternativa sarebbe
+									introdurre un ennesimo parametro in fase di salvataggio per
+									ignorare l'assegnazione automatica dei permessi e non mi sembra
+									il caso
+								*/
+								params = new ObjectRequest ( "ACL" );
+								params.add ( "target_type", root_type );
+								params.add ( "target_id", root_id );
+								Utils.getServer ().testObjectReceive ( params );
+
+								request = new ACL ();
+								request.setObject ( "gas", tmp_form.getValue () );
+								request.setString ( "target_type", root_type );
+								request.setInt ( "target_id", root_id );
+								request.setInt ( "privileges", ACL.ACL_OWNER );
+								request.save ( null );
+							}
+						} );
 
 						return true;
-					}
-
-					public void onSaved ( FromServerForm form ) {
-						ACL request;
-
-						request = new ACL ();
-						request.setObject ( "gas", form.getValue () );
-						request.setString ( "target_type", tmp_root.getType () );
-						request.setInt ( "target_id", tmp_root.getLocalID () );
-						request.setInt ( "privileges", ACL.ACL_OWNER );
-						request.save ( null );
 					}
 				} );
 
@@ -103,11 +146,7 @@ public class GASPanel extends GenericPanel {
 				frame = new CustomCaptionPanel ( "Amministratore" );
 				form.add ( frame );
 
-				username = new DummyTextBox ();
-				/*
-					TODO	Lo username deve essere validato come univoco,
-						cfr. UsersPanel::checkLoginNameCallback()
-				*/
+				username = new UserNameCell ( null );
 				form.setExtraWidget ( "username", username );
 				frame.addPair ( "Nome", username );
 

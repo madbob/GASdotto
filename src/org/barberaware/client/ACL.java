@@ -28,6 +28,13 @@ public class ACL extends FromServer {
 
 	public ACL () {
 		super ();
+
+		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
+			public String retriveString ( FromServer obj ) {
+				return obj.getObject ( "gas" ).getString ( "name" );
+			}
+		} );
+
 		addAttribute ( "gas", FromServer.OBJECT, GAS.class );
 
 		/*

@@ -34,7 +34,7 @@ class Order extends FromServer {
 		$this->addAttribute ( "mail_summary_sent", "DATE" );
 		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
 
-		$this->setSharable ( true );
+		$this->setPublic ( false );
 	}
 
 	public function get ( $request, $compress ) {
@@ -102,7 +102,7 @@ class Order extends FromServer {
 			if ( isset ( $request->enddate ) )
 				$query .= sprintf ( "AND enddate < DATE('%s') ", $request->enddate );
 
-			$query .= filter_by_current_gas ( $this->classname );
+			$query .= $this->filter_by_current_gas ();
 
 			$query .= "ORDER BY id DESC";
 
