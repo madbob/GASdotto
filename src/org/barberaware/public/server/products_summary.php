@@ -94,13 +94,8 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 
 global $emptycell;
 
-$id = $_GET [ 'id' ];
-if ( isset ( $id ) == false )
-	error_exit ( "Richiesta non specificata" );
-
-$format = $_GET [ 'format' ];
-if ( isset ( $format ) == false )
-	error_exit ( "Richiesta non specificata" );
+$id = require_param ( 'id' );
+$format = require_param ( 'format' );
 
 formatting_entities ( $format );
 

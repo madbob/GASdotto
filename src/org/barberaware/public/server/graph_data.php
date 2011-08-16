@@ -325,25 +325,11 @@ $perm = current_permissions ();
 if ( $perm != 1 && $perm != 2 )
 	error_exit ( "Permessi non sufficienti" );
 
-$document = $_GET [ 'document' ];
-if ( isset ( $document ) == false )
-	error_exit ( "Richiesta non specificata, manca tipo documento" );
-
-$type = $_GET [ 'type' ];
-if ( isset ( $type ) == false )
-	error_exit ( "Richiesta non specificata, manca tipo dato" );
-
-$graph = $_GET [ 'graph' ];
-if ( isset ( $graph ) == false )
-	error_exit ( "Richiesta non specificata, manca tipo statistiche" );
-
-$startdate = $_GET [ 'startdate' ];
-if ( isset ( $startdate ) == false )
-	error_exit ( "Richiesta non specificata, manca data inizio" );
-
-$enddate = $_GET [ 'enddate' ];
-if ( isset ( $enddate ) == false )
-	error_exit ( "Richiesta non specificata, manca data fine" );
+$document = require_param ( 'document' );
+$type = require_param ( 'type' );
+$graph = require_param ( 'graph' );
+$startdate = require_param ( 'startdate' );
+$enddate = require_param ( 'enddate' );
 
 if ( $graph == 0 ) {
 
@@ -415,10 +401,7 @@ if ( $graph == 0 ) {
 			header ( 'Content-Disposition: inline; filename="' . 'statistiche_utenti_fornitori.csv' . '";' );
 		}
 		else if ( $type == 'products' ) {
-			$supplier = $_GET [ 'extra' ];
-			if ( isset ( $supplier ) == false )
-				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
-
+			$supplier = require_param ( 'extra' );
 			$ret .= "Totale Utenti;Totale Valore (in euro)\n";
 			$products = products_data ( $supplier, $startdate, $enddate );
 			$total = 0;
@@ -527,10 +510,7 @@ if ( $graph == 0 ) {
 			$file_name = 'statistiche_utenti_fornitori.pdf';
 		}
 		else if ( $type == 'products' ) {
-			$supplier = $_GET [ 'extra' ];
-			if ( isset ( $supplier ) == false )
-				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
-
+			$supplier = require_param ( 'extra' );
 			$header [] = 'Totale Utenti';
 			$header [] = 'Totale Valore';
 			$data = products_data ( $supplier, $startdate, $enddate );
@@ -581,10 +561,7 @@ if ( $graph == 0 ) {
 				$array [] = suppliers_data ( $rows_suppliers [ $i ], $startdate, $enddate );
 		}
 		else if ( $type == 'products' ) {
-			$supplier = $_GET [ 'extra' ];
-			if ( isset ( $supplier ) == false )
-				error_exit ( "Richiesta non specificata, manca fornitore di riferimento" );
-
+			$supplier = require_param ( 'extra' );
 			$array = products_data ( $supplier, $startdate, $enddate );
 
 			for ( $i = 0; $i < count ( $array ); $i++ )

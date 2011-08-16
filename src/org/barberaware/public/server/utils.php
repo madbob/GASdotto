@@ -69,9 +69,9 @@ function search_in_array ( $array, $val ) {
 	return -1;
 }
 
-function require_param ( $name ) {
+function require_param ( $name, $msg = 'Richiesta non valida' ) {
 	if ( array_key_exists ( $name, $_GET ) == false )
-		error_exit ( "Richiesta non valida" );
+		error_exit ( $msg );
 	return $_GET [ $name ];
 }
 

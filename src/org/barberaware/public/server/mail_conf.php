@@ -76,10 +76,7 @@ $perm = current_permissions ();
 if ( $perm != 1 && $perm != 2 )
 	error_exit ( "Permessi non sufficienti" );
 
-$address = $_GET [ 'address' ];
-if ( isset ( $address ) == false )
-	error_exit ( "Richiesta non specificata, manca l'indirizzo mail" );
-
+$address = require_param ( 'address', "Richiesta non specificata, manca l'indirizzo mail" );
 $ret = check_config ( $address );
 
 if ( $ret != null )

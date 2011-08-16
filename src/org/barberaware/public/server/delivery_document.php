@@ -103,13 +103,8 @@ function aggregate_variants ( $variants ) {
 	return array ( $ret_variants, $ret_quantities );
 }
 
-$id = $_GET [ 'id' ];
-if ( isset ( $id ) == false )
-	error_exit ( "Richiesta non specificata" );
-
-$format = $_GET [ 'format' ];
-if ( isset ( $format ) == false )
-	error_exit ( "Formato non specificato" );
+$id = require_param ( 'id' );
+$format = require_param ( 'format' );
 
 $is_aggregate = $_GET [ 'aggregate' ];
 if ( isset ( $is_aggregate ) == false )

@@ -180,6 +180,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, filter );
 		frame.addPair ( "Addetti Consegne", ver.getPersonalizedWidget ( "carriers", references ) );
 
+		frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( true ) ) );
 		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );

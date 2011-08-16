@@ -19,9 +19,7 @@
 
 require_once ( "utils.php" );
 
-$path = $_GET [ 'path' ];
-if ( isset ( $path ) == false )
-	error_exit ( "Richiesta non specificata" );
+$path = require_param ( 'path' );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );

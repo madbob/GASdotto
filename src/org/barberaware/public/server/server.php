@@ -19,10 +19,7 @@
 
 require_once ( "utils.php" );
 
-$action = $_GET [ 'action' ];
-if ( isset ( $action ) == false )
-	error_exit ( "Richiesta non specificata" );
-
+$action = require_param ( 'action' );
 $ret = -1;
 $input = file_get_contents ( 'php://input', 1000000 );
 $obj = json_decode ( $input );

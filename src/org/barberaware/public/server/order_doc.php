@@ -27,13 +27,30 @@ global $double_line_end;
 global $onelinepadding;
 global $emptycell;
 
-$id = $_GET [ 'id' ];
-if ( isset ( $id ) == false )
-	error_exit ( "Richiesta non specificata" );
+function total_row ( $title, $values, $empty ) {
+	global $double_line_end;
+	global $emptycell;
 
-$format = $_GET [ 'format' ];
-if ( isset ( $format ) == false )
-	error_exit ( "Formato non specificato" );
+	$gran_total = 0;
+	$row = array ();
+	$row [] = $title;
+
+	foreach ( $values as $ps ) {
+		$r = round ( $ps, 2 );
+		$p = format_price ( $r, false );
+		$row [] = $p . $double_line_end;
+		$gran_total += $r;
+	}
+
+	for ( $i = 0; $i < $empty; $i++ )
+		$row [] = $emptycell;
+
+	$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
+	return $row;
+}
+
+$id = require_param ( 'id' );
+$format = require_param ( 'format' );
 
 $is_aggregate = $_GET [ 'aggregate' ];
 if ( isset ( $is_aggregate ) == false )
@@ -335,30 +352,8 @@ if ( $has_stocks == true ) {
 
 unset ( $all_products );
 
-$gran_total = 0;
-$row = array ();
-$row [] = 'Totale Prezzo Prodotti';
-foreach ( $products_sums as $ps ) {
-	$r = round ( $ps, 2 );
-	$p = format_price ( $r, false );
-	$row [] = $p . $double_line_end;
-	$gran_total += $r;
-}
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
-$data [] = $row;
-
-$gran_total = 0;
-$row = array ();
-$row [] = 'Totale Prezzo Trasporto';
-foreach ( $shipping_price as $ps ) {
-	$r = round ( $ps, 2 );
-	$p = format_price ( $r, false );
-	$row [] = $p . $double_line_end;
-	$gran_total += $r;
-}
-$row [] = $emptycell;
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
-$data [] = $row;
+$data [] = total_row ( 'Totale Prezzo Prodotti', $products_sums, 0 );
+$data [] = total_row ( 'Totale Prezzo Trasporto', $shipping_price, 1 );
 
 $gran_total = 0;
 $row = array ();
@@ -375,20 +370,7 @@ $row [] = $emptycell;
 $row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 $data [] = $row;
 
-$gran_total = 0;
-$row = array ();
-$row [] = 'Totale Pagato' . $double_line_end;
-foreach ( $shipped_sums as $ps ) {
-	$r = round ( $ps, 2 );
-	$p = format_price ( $r, false );
-	$row [] = $p . $double_line_end;
-	$gran_total += $r;
-}
-$row [] = $emptycell;
-$row [] = $emptycell;
-$row [] = $emptycell;
-$row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
-$data [] = $row;
+$data [] = total_row ( 'Totale Pagato', $shipped_sums, 3 );
 
 if ( count ( $shipped_sums_by_date ) > 1 ) {
 	foreach ( $shipped_sums_by_date as $date => $values ) {

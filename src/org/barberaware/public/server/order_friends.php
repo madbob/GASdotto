@@ -137,17 +137,9 @@ global $string_end;
 global $onelinepadding;
 global $emptycell;
 
-$id = $_GET [ 'id' ];
-if ( isset ( $id ) == false )
-	error_exit ( "Richiesta non specificata" );
-
-$format = $_GET [ 'format' ];
-if ( isset ( $format ) == false )
-	error_exit ( "Formato non specificato" );
-
-$user = $_GET [ 'user' ];
-if ( isset ( $user ) == false )
-	error_exit ( "Formato non specificato" );
+$id = require_param ( 'id' );
+$format = require_param ( 'format' );
+$user = require_param ( 'user' );
 
 $is_aggregate = $_GET [ 'aggregate' ];
 if ( isset ( $is_aggregate ) == false )
@@ -210,17 +202,10 @@ $order_user = $all_contents [ 0 ];
 
 $data = array ();
 
-$products_sums = array ();
-$quantities_sums = array ();
-$shipping_price = array ();
-$existing_products = array ();
-
-for ( $i = 0; $i < count ( $all_products ); $i++ ) {
-	$products_sums [] = 0;
-	$quantities_sums [] = 0;
-	$shipping_price [] = 0;
-	$existing_products [] = false;
-}
+$products_sums = array_fill ( 0, $all_products, 0 );
+$quantities_sums = array_fill ( 0, $all_products, 0 );
+$shipping_price = array_fill ( 0, $all_products, 0 );
+$existing_products = array_fill ( 0, $all_products, false );
 
 search_existing ( $order_user );
 

@@ -53,6 +53,7 @@ public class SupplierUneditableForm extends FromServerForm {
 		cframe.addPair ( "Nome", getPersonalizedWidget ( "name", doString () ) );
 		cframe.addPair ( "Nome Contatto", getPersonalizedWidget ( "contact", doString () ) );
 		cframe.addPair ( "Calendario Ordini", getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
+		cframe.addPair ( "Luogo Consegna", getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( false ) ) );
 
 		cframe = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( cframe );

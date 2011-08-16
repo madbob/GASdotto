@@ -22,6 +22,9 @@ import java.util.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class Supplier extends FromServer {
+	public static int		SHIPPING_ONCE = 0;
+	public static int		SHIPPING_TO_PLACE = 1;
+
 	public Supplier () {
 		super ();
 
@@ -39,6 +42,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "carriers", FromServer.ARRAY, User.class );
 		addAttribute ( "files", FromServer.ARRAY, CustomFile.class );
 		addAttribute ( "orders_months", FromServer.STRING );
+		addAttribute ( "shipping_manage", FromServer.INTEGER );
 
 		setString ( "name", "Nuovo Fornitore" );
 		isSharable ( true );
@@ -90,5 +94,15 @@ public class Supplier extends FromServer {
 		}
 
 		return false;
+	}
+
+	public static CyclicToggle doSupplierShippingSelector ( boolean active ) {
+		CyclicToggle shipping;
+
+		shipping = new CyclicToggle ( active );
+		shipping.addState ( "images/shipping_once.png" );
+		shipping.addState ( "images/shipping_to_place.png" );
+		shipping.setDefaultSelection ( 0 );
+		return shipping;
 	}
 }

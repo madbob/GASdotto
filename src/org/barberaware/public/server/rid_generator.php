@@ -31,9 +31,7 @@ function filler ( $length ) {
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-$id = $_GET [ 'id' ];
-if ( isset ( $id ) == false )
-	error_exit ( "Richiesta non specificata" );
+$id = require_param ( 'id' );
 
 $order = new Order ();
 $order->readFromDB ( $id );
