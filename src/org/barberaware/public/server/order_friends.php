@@ -28,6 +28,7 @@ function format_order ( $order, $is_friend ) {
 
 	global $string_begin;
 	global $string_end;
+	global $content_sep;
 	global $onelinepadding;
 	global $emptycell;
 
@@ -70,13 +71,24 @@ function format_order ( $order, $is_friend ) {
 			$uprice = $prod->getAttribute ( "unit_price" )->value;
 			$sprice = $prod->getAttribute ( "shipping_price" )->value;
 
-			if ( $unit <= 0.0 )
+			$vars = '';
+
+			if ( $unit <= 0.0 ) {
 				$q = $quantity;
-			else
+
+				if ( is_array ( $prod_user->variants ) ) {
+					list ( $variants, $quantities ) = aggregate_variants ( $prod_user->variants );
+
+					for ( $j = 0; $j < count ( $variants ); $j++ )
+						$vars .= $content_sep . ( $quantities [ $j ] ) . ' ' . ( $variants [ $j ] );
+				}
+			}
+			else {
 				$q = round ( $quantity / $unit );
+			}
 
 			$q = comma_format ( $q );
-			$row [] = $q;
+			$row [] = $q . $vars;
 
 			$sum = $quantity * $uprice;
 			$products_sums [ $a ] += $sum;
