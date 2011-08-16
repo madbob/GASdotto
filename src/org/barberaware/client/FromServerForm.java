@@ -24,7 +24,7 @@ import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class FromServerForm extends FromServerRappresentation {
+public class FromServerForm extends FromServerRappresentationFull {
 	private DisclosurePanel		main;
 	private int			editMode;
 	private EmblemsBar		icons;
@@ -33,7 +33,6 @@ public class FromServerForm extends FromServerRappresentation {
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
 	private boolean			hasSharing;
-	private ArrayList		callbacks;
 	private boolean			forceSave;
 
 	public static int		FULL_EDITABLE				= 0;
@@ -41,14 +40,10 @@ public class FromServerForm extends FromServerRappresentation {
 	public static int		NOT_EDITABLE				= 2;
 	public static int		EDITABLE_UNDELETABLE_UNCANCELLABLE	= 3;
 
-	/****************************************************************** init */
-
 	private void buildCommon ( FromServer obj, int editable ) {
 		setValue ( obj );
-		callbacks = new ArrayList ();
 		forceSave = false;
 		hasSharing = false;
-		noExplicitCallbacks ();
 
 		main = new DisclosurePanel ( doSummary () );
 		main.setAnimationEnabled ( true );
@@ -123,25 +118,10 @@ public class FromServerForm extends FromServerRappresentation {
 	}
 
 	public void setCallback ( FromServerFormCallbacks routine ) {
-		if ( routine == null ) {
-			noExplicitCallbacks ();
-		}
-		else {
-			callbacks.add ( routine );
+		super.setCallback ( routine );
+
+		if ( routine != null )
 			summary.setText ( retrieveNameInCallbacks () );
-		}
-	}
-
-	public void removeCallback ( String id ) {
-		FromServerFormCallbacks call;
-
-		for ( int i = 0; i < callbacks.size (); i++ ) {
-			call = ( FromServerFormCallbacks ) callbacks.get ( i );
-			if ( call.getID () == id ) {
-				callbacks.remove ( call );
-				break;
-			}
-		}
 	}
 
 	public void addEventHandler ( DisclosureHandler handler ) {
@@ -224,16 +204,6 @@ public class FromServerForm extends FromServerRappresentation {
 		}
 	}
 
-	private void noExplicitCallbacks () {
-		callbacks.clear ();
-
-		/*
-			Viene comunque sempre settata una classe di callback di default, per
-			garantire che almeno il nome del form sia sempre gestito
-		*/
-		callbacks.add ( new FromServerFormCallbacks () );
-	}
-
 	private Panel doSummary () {
 		HorizontalPanel main;
 		String name;
@@ -250,7 +220,6 @@ public class FromServerForm extends FromServerRappresentation {
 	private ButtonsBar doButtons ( int editable ) {
 		ButtonsBar panel;
 		PushButton button;
-		final FromServerForm myself		= this;
 
 		panel = new ButtonsBar ();
 
@@ -259,19 +228,8 @@ public class FromServerForm extends FromServerRappresentation {
 				public void onClick ( Widget sender ) {
 					boolean ret;
 					FromServer object;
-					FromServerFormCallbacks callback;
 
-					ret = true;
-
-					for ( int i = 0; i < callbacks.size (); i++ ) {
-						callback = ( FromServerFormCallbacks ) callbacks.get ( i );
-						/*
-							In questo modo eseguo tutte le callback di onDelete, ma se
-							anche una sola torna false la funzione esce
-						*/
-						ret = ( ret && callback.onDelete ( myself ) );
-					}
-
+					ret = deleteCallbacks ();
 					if ( ret == false )
 						return;
 
@@ -300,10 +258,6 @@ public class FromServerForm extends FromServerRappresentation {
 					}
 					else {
 						resetObject ();
-
-						for ( int i = 0; i < callbacks.size (); i++ )
-							( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onReset ( myself );
-
 						main.setOpen ( false );
 					}
 				}
@@ -330,21 +284,16 @@ public class FromServerForm extends FromServerRappresentation {
 	}
 
 	private void onOpenCb () {
-		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onOpen ( this );
-
+		openCallbacks ();
 		summary.addStyleName ( "element-summary-opened" );
 	}
 
 	private void onClosingCb () {
-		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClosing ( this );
+		closingCallbacks ();
 	}
 
 	private void onCloseCb () {
-		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClose ( this );
-
+		closeCallbacks ();
 		summary.removeStyleName ( "element-summary-opened" );
 	}
 
@@ -399,36 +348,6 @@ public class FromServerForm extends FromServerRappresentation {
 		}
 	}
 
-	private String retrieveNameInCallbacks () {
-		String name;
-
-		/*
-			FromServerFormCallbacks.getName() di default torna il "name" dell'oggetto, anche se tale
-			funzione non viene esplicitata. Cio' vuol dire che se non si presta attenzione viene saltata
-			la propria getName().
-			Qui itero l'array di callbacks partendo dal fondo, ovvero dall'ultima FromServerFormCallbacks
-			assegnata, ma occorre ricordarsi di far tornare esplicitamente null alle funzioni immesse in
-			un punto qualunque dell'esecuzione altrimenti forzeranno sempre il "name" dell'oggetto
-		*/
-		for ( int i = callbacks.size () - 1; i > -1; i-- ) {
-			name = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).getName ( this );
-			if ( name != null && name.equals ( "" ) == false )
-				return name;
-		}
-
-		return "";
-	}
-
-	private void savedCallbacks () {
-		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSaved ( this );
-	}
-
-	private void errorCallbacks () {
-		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onError ( this );
-	}
-
 	private void reviewSharing () {
 		FromServer value;
 
@@ -437,28 +356,14 @@ public class FromServerForm extends FromServerRappresentation {
 			placeButtons ();
 	}
 
-	public boolean savingObject () {
-		boolean confirm;
+	/****************************************************************** FromServerRappresentationFull */
 
-		confirm = true;
+	protected void beforeSave () {
+		/* dummy */
+	}
 
-		for ( int i = 0; i < callbacks.size (); i++ )
-			confirm = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this ) || confirm;
-
-		if ( confirm == false || rebuildObject () == false )
-			return false;
-
-		getValue ().save ( new ServerResponse () {
-			public void onComplete ( JSONValue response ) {
-				savedCallbacks ();
-				summary.setText ( retrieveNameInCallbacks () );
-				reviewSharing ();
-			}
-			public void onError () {
-				errorCallbacks ();
-			}
-		} );
-
-		return true;
+	protected void afterSave () {
+		summary.setText ( retrieveNameInCallbacks () );
+		reviewSharing ();
 	}
 }

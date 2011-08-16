@@ -31,7 +31,7 @@ public class FromServerFormCallbacks {
 		return identifier;
 	}
 
-	public String getName ( FromServerForm form ) {
+	public String getName ( FromServerRappresentationFull form ) {
 		return form.getValue ().getString ( "name" );
 	}
 
@@ -40,7 +40,7 @@ public class FromServerFormCallbacks {
 		valori editati nei campi siano effettivamente assegnati all'oggetto: in questo
 		modo si possono verificare e modificare al volo
 	*/
-	public boolean onSave ( FromServerForm form ) {
+	public boolean onSave ( FromServerRappresentationFull form ) {
 		/* dummy */
 		return true;
 	}
@@ -48,11 +48,11 @@ public class FromServerFormCallbacks {
 	/*
 		Invocata alla conferma di salvataggio dell'oggetto gestito dal form
 	*/
-	public void onSaved ( FromServerForm form ) {
+	public void onSaved ( FromServerRappresentationFull form ) {
 		/* dummy */
 	}
 
-	public void onReset ( FromServerForm form ) {
+	public void onReset ( FromServerRappresentationFull form ) {
 		/* dummy */
 	}
 
@@ -60,12 +60,12 @@ public class FromServerFormCallbacks {
 		Invocata quando viene richiesto di eliminare l'oggetto rappresentato dal form, se
 		ritorna false la procedura di eliminazione viene interrotta
 	*/
-	public boolean onDelete ( FromServerForm form ) {
+	public boolean onDelete ( FromServerRappresentationFull form ) {
 		/* dummy */
 		return true;
 	}
 
-	public void onOpen ( FromServerForm form ) {
+	public void onOpen ( FromServerRappresentationFull form ) {
 		/* dummy */
 	}
 
@@ -74,7 +74,7 @@ public class FromServerFormCallbacks {
 		sui contenuti del form prima che questi vengano analizzati e sia eventualmente
 		proposto il salvataggio
 	*/
-	public void onClosing ( FromServerForm form ) {
+	public void onClosing ( FromServerRappresentationFull form ) {
 		/* dummy */
 	}
 
@@ -82,14 +82,14 @@ public class FromServerFormCallbacks {
 		Invocata quando il form e' stato completamente chiuso, particolarmente indicata
 		per re-inizializzarlo
 	*/
-	public void onClose ( FromServerForm form ) {
+	public void onClose ( FromServerRappresentationFull form ) {
 		/* dummy */
 	}
 
 	/*
 		Invocata quando una operazione di salvataggio fallisce
 	*/
-	public void onError ( FromServerForm form ) {
+	public void onError ( FromServerRappresentationFull form ) {
 		/* dummy */
 	}
 }

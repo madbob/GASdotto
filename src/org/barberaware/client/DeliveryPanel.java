@@ -344,7 +344,7 @@ public class DeliveryPanel extends GenericPanel {
 		}
 
 		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onOpen ( FromServerForm form ) {
+			public void onOpen ( FromServerRappresentationFull form ) {
 				FromServer obj;
 				Order ord;
 				ArrayList orders;

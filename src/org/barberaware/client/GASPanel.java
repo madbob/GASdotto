@@ -74,7 +74,7 @@ public class GASPanel extends GenericPanel {
 				form = new FromServerForm ( new GAS () );
 
 				form.setCallback ( new FromServerFormCallbacks () {
-					public boolean onSave ( FromServerForm form ) {
+					public boolean onSave ( FromServerRappresentationFull form ) {
 						String u;
 						String p;
 						DummyTextBox username;
@@ -95,7 +95,7 @@ public class GASPanel extends GenericPanel {
 							return false;
 						}
 
-						tmp_form = form;
+						tmp_form = ( FromServerForm ) form;
 
 						tmp_root = new User ();
 						tmp_root.setString ( "login", u );

@@ -95,7 +95,7 @@ public class InstallForm extends Composite {
 		form.alwaysOpened ( true );
 
 		form.setCallback ( new FromServerFormCallbacks () {
-			public void onSaved ( FromServerForm form ) {
+			public void onSaved ( FromServerRappresentationFull form ) {
 				if ( form.getValue ().getLocalID () == 1 )
 					installationComplete ();
 				else

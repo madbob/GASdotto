@@ -130,12 +130,15 @@ public abstract class FormGroup extends Composite {
 
 			if ( iter != null ) {
 				iter.setCallback ( new FromServerFormCallbacks () {
-					public void onOpen ( FromServerForm form ) {
-						closeOtherForms ( form );
-						asyncLoad ( form );
+					public void onOpen ( FromServerRappresentationFull form ) {
+						FromServerForm f;
+
+						f = ( FromServerForm ) form;
+						closeOtherForms ( f );
+						asyncLoad ( f );
 					}
 
-					public void onSaved ( FromServerForm form ) {
+					public void onSaved ( FromServerRappresentationFull form ) {
 						int pos;
 
 						pos = getPosition ( form.getValue (), 1, true );
@@ -343,11 +346,11 @@ public abstract class FormGroup extends Composite {
 					return;
 
 				new_form.setCallback ( new FromServerFormCallbacks () {
-					public void onOpen ( FromServerForm form ) {
-						closeOtherForms ( form );
+					public void onOpen ( FromServerRappresentationFull form ) {
+						closeOtherForms ( ( FromServerForm ) form );
 					}
 
-					public void onSaved ( FromServerForm form ) {
+					public void onSaved ( FromServerRappresentationFull form ) {
 						int pos;
 
 						pos = getPosition ( form.getValue (), 1, true );

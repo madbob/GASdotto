@@ -150,7 +150,7 @@ public class DeliverySummary extends Composite {
 		}
 
 		row.setCallback ( new FromServerFormCallbacks () {
-			public String getName ( FromServerForm form ) {
+			public String getName ( FromServerRappresentationFull form ) {
 				return form.getValue ().getObject ( "baseuser" ).getString ( "name" );
 			}
 		} );

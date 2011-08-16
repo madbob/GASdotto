@@ -57,7 +57,7 @@ public class UsersPanel extends GenericPanel {
 					*/
 
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public boolean onSave ( FromServerForm form ) {
+						public boolean onSave ( FromServerRappresentationFull form ) {
 							int new_role;
 							int current_role;
 							CyclicToggle role;

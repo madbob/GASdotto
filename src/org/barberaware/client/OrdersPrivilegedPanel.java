@@ -483,16 +483,18 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return false;
 			}
 
-			public void onOpen ( FromServerForm form ) {
+			public void onOpen ( FromServerRappresentationFull form ) {
 				OrderInterface ord;
+				FromServerForm f;
 
 				ord = ( OrderInterface ) form.getValue ().getObject ( "baseorder" );
 				ord.asyncLoadUsersOrders ();
 
-				form.forceNextSave ( true );
+				f = ( FromServerForm ) form;
+				f.forceNextSave ( true );
 			}
 
-			public boolean onSave ( FromServerForm form ) {
+			public boolean onSave ( FromServerRappresentationFull form ) {
 				FromServer obj;
 
 				obj = form.getValue ();
@@ -507,7 +509,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				return true;
 			}
 
-			public boolean onDelete ( final FromServerForm form ) {
+			public boolean onDelete ( final FromServerRappresentationFull form ) {
 				FromServer obj;
 				OrderUserManager manager;
 
@@ -518,7 +520,10 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( obj.isValid () ) {
 					obj.destroy ( new ServerResponse () {
 						public void onComplete ( JSONValue response ) {
-							form.open ( false );
+							FromServerForm f;
+
+							f = ( FromServerForm ) form;
+							f.open ( false );
 						}
 					} );
 

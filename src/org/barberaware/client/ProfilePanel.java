@@ -113,7 +113,7 @@ public class ProfilePanel extends GenericPanel {
 		ver.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
-			public void onSaved ( FromServerForm form ) {
+			public void onSaved ( FromServerRappresentationFull form ) {
 				Utils.showNotification ( "Profilo Salvato", Notification.INFO );
 			}
 		} );

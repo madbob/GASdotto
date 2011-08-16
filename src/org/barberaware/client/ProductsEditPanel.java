@@ -190,7 +190,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					ver.addStyleName ( "subform" );
 
 					ver.setCallback ( new FromServerFormCallbacks () {
-						public void onSaved ( FromServerForm form ) {
+						public void onSaved ( FromServerRappresentationFull form ) {
 							list.addElement ( form.getValue () );
 						}
 					} );

@@ -44,65 +44,6 @@ class DeliveryReport extends TCPDF {
 	}
 }
 
-function aggregate_variants ( $variants ) {
-	$tmp_variants = array ();
-	$ret_quantities = array ();
-
-	foreach ( $variants as $var ) {
-		$exists = false;
-		$index = 0;
-
-		foreach ( $tmp_variants as $test ) {
-			for ( $i = 0; $i < count ( $var->components ); $i++ ) {
-				$equals = true;
-
-				/*
-					I componenti si assumono gia' ordinati per nome
-				*/
-
-				$var_comp = $var->components [ $i ];
-				$test_comp = $test->components [ $i ];
-
-				if ( $var_comp->value->id != $test_comp->value->id ) {
-					$equals = false;
-					break;
-				}
-			}
-
-			if ( $equals == true ) {
-				$exists = true;
-				break;
-			}
-
-			$index++;
-		}
-
-		if ( $exists == false ) {
-			$tmp_variants [] = $var;
-			$ret_quantities [] = 1;
-		}
-		else {
-			$ret_quantities [ $i ] = $ret_quantities [ $i ] + 1;
-		}
-	}
-
-	$ret_variants = array ();
-
-	foreach ( $tmp_variants as $var ) {
-		$desc = array ();
-
-		foreach ( $var->components as $comp )
-			$desc [] = $comp->variant->name . ': ' . $comp->value->name;
-
-		$ret_variants [] = join ( '; ', $desc );
-		unset ( $desc );
-	}
-
-	unset ( $tmp_variants );
-
-	return array ( $ret_variants, $ret_quantities );
-}
-
 $id = require_param ( 'id' );
 $format = require_param ( 'format' );
 

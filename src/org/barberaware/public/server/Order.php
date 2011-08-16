@@ -32,6 +32,7 @@ class Order extends FromServer {
 		$this->addAttribute ( "nextdate", "STRING" );
 		$this->addAttribute ( "anticipated", "STRING" );
 		$this->addAttribute ( "mail_summary_sent", "DATE" );
+		$this->addAttribute ( "mail_summary_text", "STRING" );
 		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
 
 		$this->setPublic ( false );
@@ -250,6 +251,7 @@ class Order extends FromServer {
 		$test->readFromDB ( $obj->id );
 
 		if ( format_date ( $test->getAttribute ( 'mail_summary_sent' )->value ) != format_date ( $obj->mail_summary_sent ) ) {
+			$message = $obj->mail_summary_text;
 			$products = $test->getAttribute ( 'products' )->value;
 			usort ( $products, 'sort_product_by_name' );
 
@@ -302,9 +304,14 @@ class Order extends FromServer {
 					$prod_user = $user_products [ $e ];
 					$quantity = 0;
 
+					$variants = array ();
+
 					if ( $prodid == $prod_user->product ) {
 						$quantity = $prod_user->$param;
 						$e++;
+
+						if ( is_array ( $prod_user->variants ) )
+							$variants = $prod_user->variants;
 					}
 
 					if ( count ( $ou->friends ) != 0 ) {
@@ -312,6 +319,10 @@ class Order extends FromServer {
 							foreach ( $friend->products as $fprod ) {
 								if ( $fprod->product == $prodid ) {
 									$quantity += $fprod->$param;
+
+									if ( is_array ( $fprod->variants ) )
+										$variants = array_merge ( $variants, $fprod->variants );
+
 									break;
 								}
 							}
@@ -352,6 +363,16 @@ class Order extends FromServer {
 
 						$html .= '<tr><td>' . ( $prod->getAttribute ( "name" )->value );
 						$html .= '</td><td>' . $q . '</td><td>' . $quprice . '</td><td>' . $qsprice . '</td></tr>';
+
+						if ( ( $unit <= 0.0 ) && ( count ( $variants ) != 0 ) ) {
+							list ( $variants, $quantities ) = aggregate_variants ( $variants );
+
+							for ( $j = 0; $j < count ( $variants ); $j++ ) {
+								$r = ( $quantities [ $j ] ) . ' ' . ( $variants [ $j ] );
+								$text .= "\t" . $r . "\n";
+								$html .= '<tr><td colspan="2">&nbsp;&nbsp;&nbsp;' . $r . '</td><td>&nbsp;</td><td>&nbsp;</td></tr>';
+							}
+						}
 					}
 				}
 
@@ -360,12 +381,16 @@ class Order extends FromServer {
 				$text .= "\nPer un totale di " . $user_total;
 				if ( $extra_notify != '' )
 					$text .= ' (' . $extra_notify . ')';
-				$text .= ".\n\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
+				if ( isset ( $message ) && $message != '' )
+					$text .= "\n\n\nMessaggio dai Referenti:\n" . $message;
+				$text .= ".\n\n\nIn caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
 
 				$html .= '</table><p>Per un totale di ' . $user_total;
 				if ( $extra_notify != '' )
 					$html .= ' (' . $extra_notify . ')';
-				$html .= '.</p><p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
+				if ( isset ( $message ) && $message != '' )
+					$html .= "</p><br /><p>Messaggio dai Referenti:<br />" . $message;
+				$html .= '.</p><br /><p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p><ul>';
 
 				foreach ( $supplier->getAttribute ( 'references' )->value as $ref ) {
 					if ( ( $ref->getAttribute ( 'mail' )->value != "" ) )

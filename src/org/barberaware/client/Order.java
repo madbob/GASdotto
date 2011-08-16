@@ -76,6 +76,7 @@ public class Order extends FromServer implements OrderInterface {
 		addAttribute ( "nextdate", FromServer.STRING );
 		addAttribute ( "anticipated", FromServer.PERCENTAGE );
 		addAttribute ( "mail_summary_sent", FromServer.DATE );
+		addAttribute ( "mail_summary_text", FromServer.LONGSTRING );
 		addAttribute ( "parent_aggregate", FromServer.BOOLEAN );
 
 		setDate ( "startdate", new Date ( System.currentTimeMillis () ) );

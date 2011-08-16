@@ -82,7 +82,7 @@ public class OrdersEditPanel extends GenericPanel {
 					ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 
 					ver.setCallback ( new FromServerFormCallbacks ( "notification" ) {
-						public void onSaved ( FromServerForm form ) {
+						public void onSaved ( FromServerRappresentationFull form ) {
 							if ( form.getValue ().getInt ( "status" ) == Order.OPENED ) {
 								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'",
 												Notification.INFO );
@@ -509,7 +509,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 	private void addSaveProducts ( FromServerForm form ) {
 		form.setCallback ( new FromServerFormCallbacks () {
-			public void onClose ( FromServerForm form ) {
+			public void onClose ( FromServerRappresentationFull form ) {
 				OrderSummary complete_list;
 
 				complete_list = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
@@ -569,21 +569,49 @@ public class OrdersEditPanel extends GenericPanel {
 
 			button = new FromServerButton ( ord, "Invia", new FromServerCallback () {
 				public void execute ( final FromServer object ) {
-					object.setDate ( "mail_summary_sent", new Date ( System.currentTimeMillis () ) );
-
-					object.save ( new ServerResponse () {
-						protected void onComplete ( JSONValue response ) {
-							FromServerRappresentation form;
-
-							form = main.retrieveFormById ( object.getLocalID () );
-							if ( form != null )
-								form.removeWidget ( "mail_summary" );
-						}
-					} );
+					manageSummaryDialog ( object );
 				}
 			} );
 			container.add ( button );
 		}
+	}
+
+	private void manageSummaryDialog ( FromServer order ) {
+		VerticalPanel panel;
+		DummyTextArea text;
+		FromServerSavingDialog dialog;
+
+		dialog = new FromServerSavingDialog ( order, "Invia Riassunto dell'Ordine" );
+
+		panel = new VerticalPanel ();
+
+		panel.add ( new HTML ( "<p>Qui puoi aggiungere un messaggio da allegare alle mail di notifica. Ovviamente puoi anche lasciare in bianco il campo qui sotto.</p>" +
+				"<p>Clicca 'Salva' per spedire le mail.</p>" ) );
+
+		text = new DummyTextArea ();
+		text.addStyleName ( "top-spaced" );
+		panel.add ( dialog.getPersonalizedWidget ( "mail_summary_text", text ) );
+
+		dialog.setWidget ( panel );
+
+		dialog.setCallback ( new FromServerFormCallbacks () {
+			public boolean onSave ( FromServerRappresentationFull form ) {
+				FromServer obj;
+
+				obj = form.getValue ();
+				obj.setDate ( "mail_summary_sent", new Date ( System.currentTimeMillis () ) );
+				return true;
+			}
+
+			public void onSaved ( FromServerRappresentationFull form ) {
+				FromServerForm f;
+
+				f = ( FromServerForm ) main.retrieveFormById ( form.getValue ().getLocalID () );
+				f.removeWidget ( "mail_summary" );
+			}
+		} );
+
+		dialog.show ();
 	}
 
 	private void checkNewProductsAvailability ( final FromServerForm form ) {
