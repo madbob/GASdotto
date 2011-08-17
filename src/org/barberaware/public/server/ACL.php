@@ -48,7 +48,7 @@ class ACL extends FromServer {
 			}
 
 			$tmp = new GAS ();
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $tmp->tablename, join ( ', ', $managed_gas ) );
+			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND is_master = FALSE", $tmp->tablename, join ( ', ', $managed_gas ) );
 			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
 			unset ( $returned );

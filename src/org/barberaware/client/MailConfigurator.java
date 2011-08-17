@@ -67,17 +67,19 @@ public class MailConfigurator extends Composite implements StringWidget {
 						JSONValue jsonObject;
 						JSONObject obj;
 
-						try {
-							jsonObject = JSONParser.parse ( response.getText () );
-							obj = jsonObject.isObject ().get ( "smtp" ).isObject ();
+						if ( response.getText () != "" ) {
+							try {
+								jsonObject = JSONParser.parse ( response.getText () );
+								obj = jsonObject.isObject ().get ( "smtp" ).isObject ();
 
-							username.setText ( obj.get ( "username" ).isString ().stringValue () );
-							server.setText ( obj.get ( "server" ).isString ().stringValue () );
-							port.setVal ( Integer.parseInt ( obj.get ( "port" ).isString ().stringValue () ) );
-							ssl.setValue ( Boolean.parseBoolean ( obj.get ( "ssl" ).isString ().stringValue () ) );
-						}
-						catch ( com.google.gwt.json.client.JSONException e ) {
-							Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+								username.setText ( obj.get ( "username" ).isString ().stringValue () );
+								server.setText ( obj.get ( "server" ).isString ().stringValue () );
+								port.setVal ( Integer.parseInt ( obj.get ( "port" ).isString ().stringValue () ) );
+								ssl.setValue ( Boolean.parseBoolean ( obj.get ( "ssl" ).isString ().stringValue () ) );
+							}
+							catch ( com.google.gwt.json.client.JSONException e ) {
+								Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+							}
 						}
 
 						Utils.getServer ().dataArrived ();

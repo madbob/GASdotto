@@ -73,15 +73,13 @@ if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
 $perm = current_permissions ();
-if ( $perm != 1 && $perm != 2 )
+if ( $perm != 1 && $perm != 2 && $perm != 4 )
 	error_exit ( "Permessi non sufficienti" );
 
 $address = require_param ( 'address', "Richiesta non specificata, manca l'indirizzo mail" );
-$ret = check_config ( $address );
 
+$ret = check_config ( $address );
 if ( $ret != null )
 	echo json_encode ( $ret ) . "\n";
-else
-	error_exit ( "Impossibile parsare l'indirizzo mail" );
 
 ?>

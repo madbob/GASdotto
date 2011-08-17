@@ -26,11 +26,20 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class GASPanel extends GenericPanel {
 	private FormCluster		main;
+
+	private FromServerForm		masterForm;
+	private MailConfigurator	masterMailConf;
+
 	private FromServer		tmp_root;
 	private FromServerForm		tmp_form;
 
 	public GASPanel () {
 		super ();
+
+		CaptionPanel frame;
+
+		frame = new CaptionPanel ( "Lista dei GAS" );
+		addTop ( frame );
 
 		Utils.getServer ().onObjectEvent ( "ACL", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -55,6 +64,11 @@ public class GASPanel extends GenericPanel {
 			protected FromServerForm doEditableRow ( FromServer gas ) {
 				FromServerForm form;
 				CustomCaptionPanel frame;
+
+				if ( gas.getBool ( "is_master" ) == true ) {
+					masterForm.setValue ( gas );
+					return null;
+				}
 
 				form = new FromServerForm ( gas );
 
@@ -158,9 +172,45 @@ public class GASPanel extends GenericPanel {
 			}
 		};
 
-		addTop ( main );
+		frame.add ( main );
+
+		frame = new CaptionPanel ( "Attributi del Gruppo" );
+		addTop ( frame );
+		frame.add ( doMasterForm () );
 
 		Utils.getServer ().testObjectReceive ( "GAS" );
+	}
+
+	private Widget doMasterForm () {
+		CustomCaptionPanel frame;
+		BooleanSelector mail;
+
+		masterForm = new FromServerForm ( new GAS () );
+
+		frame = new CustomCaptionPanel ( "Attributi" );
+		masterForm.add ( frame );
+
+		frame.addPair ( "Nome", masterForm.getWidget ( "name" ) );
+
+		if ( Session.getSystemConf ().getBool ( "has_file" ) == true )
+			frame.addPair ( "Logo Homepage", masterForm.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
+
+		mail = new BooleanSelector ();
+		mail.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				BooleanSelector myself;
+
+				myself = ( BooleanSelector ) sender;
+				masterMailConf.setEnabled ( myself.getValue () );
+			}
+		} );
+		frame.addPair ( "Abilita Mail", masterForm.getPersonalizedWidget ( "use_mail", mail ) );
+
+		masterMailConf = new MailConfigurator ();
+		frame.addPair ( "Configurazione Mail", masterForm.getPersonalizedWidget ( "mail_conf", masterMailConf ) );
+		masterMailConf.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
+
+		return masterForm;
 	}
 
 	/****************************************************************** GenericPanel */

@@ -24,6 +24,7 @@ public class GAS extends FromServer {
 	public GAS () {
 		super ();
 		addAttribute ( "name", FromServer.STRING );
+		addAttribute ( "is_master", FromServer.BOOLEAN );
 		addAttribute ( "mail", FromServer.STRING );
 		addAttribute ( "image", FromServer.STRING );
 		addAttribute ( "description", FromServer.LONGSTRING );

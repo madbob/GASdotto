@@ -24,6 +24,7 @@ class GAS extends FromServer {
 		parent::__construct ( "GAS" );
 
 		$this->addAttribute ( "name", "STRING" );
+		$this->addAttribute ( "is_master", "BOOLEAN" );
 		$this->addAttribute ( "mail", "STRING" );
 		$this->addAttribute ( "image", "STRING" );
 		$this->addAttribute ( "payments", "BOOLEAN" );
@@ -34,5 +35,18 @@ class GAS extends FromServer {
 		$this->addAttribute ( "mailinglist", "STRING" );
 		$this->addAttribute ( "use_rid", "BOOLEAN" );
 		$this->addAttribute ( "rid_conf", "STRING" );
+	}
+
+	public static function getMasterGAS () {
+		$query = "SELECT id FROM GAS WHERE is_master = true";
+		$returned = query_and_check ( $query, "Impossibile recuperare GAS master" );
+
+		$row = $returned->fetch ( PDO::FETCH_ASSOC );
+		if ( $row == FALSE )
+			return null;
+
+		$ret = new GAS ();
+		$ret->readFromDB ( $row [ 'id' ] );
+		return $ret;
 	}
 }

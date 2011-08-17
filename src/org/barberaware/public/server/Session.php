@@ -32,19 +32,22 @@ class Session {
 			$user->readFromDB ( $current_user );
 		$this->user = $user->exportable ( null, $compress );
 
-		/*
-			Orrore e raccapriccio...
-			Qui non viene usata la funzione readFromDB() come negli altri casi in quanto solo get()
-			provvede ad arricchire l'oggetto GAS con i parametri extra (che sono trattati fuori dal
-			database). Sarebbe cosa buona gestire tutto nello stesso modo
-		*/
-		$r = new stdClass ();
-		$r->id = $current_gas;
-		$gas = new GAS ();
-
 		if ( $current_gas != -1 ) {
+			/*
+				Orrore e raccapriccio...
+				Qui non viene usata la funzione readFromDB() come negli altri casi in quanto solo get()
+				provvede ad arricchire l'oggetto GAS con i parametri extra (che sono trattati fuori dal
+				database). Sarebbe cosa buona gestire tutto nello stesso modo
+			*/
+			$r = new stdClass ();
+			$r->id = $current_gas;
+			$gas = new GAS ();
 			$gass = $gas->get ( $r, $compress );
 			$gas = $gass [ 0 ];
+		}
+		else {
+			$gas = GAS::getMasterGAS ();
+			$gas = $gas->exportable ( null, $compress );
 		}
 
 		/*

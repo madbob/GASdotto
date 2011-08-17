@@ -100,7 +100,17 @@ public class MultiGasEnabler extends Composite {
 
 					master.save ( new ServerResponse () {
 						public void onComplete ( JSONValue response ) {
-							finishEnable ();
+							GAS master;
+
+							master = new GAS ();
+							master.setString ( "name", "Multi GAS" );
+							master.setBool ( "is_master", true );
+
+							master.save ( new ServerResponse () {
+								public void onComplete ( JSONValue response ) {
+									finishEnable ();
+								}
+							} );
 						}
 					} );
 
