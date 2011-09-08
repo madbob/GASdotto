@@ -33,7 +33,7 @@ class Session {
 		$this->user = $user->exportable ( null, $compress );
 
 		if ( $current_gas != -1 ) {
-			$gas = self::retrieveGAS ( $current_gas );
+			$gas = self::retrieveGAS ( $current_gas, $compress );
 		}
 		else {
 			$gas = GAS::getMasterGAS ();
@@ -41,7 +41,7 @@ class Session {
 			if ( $gas != null )
 				$gas = $gas->exportable ( null, $compress );
 			else
-				$gas = self::retrieveGAS ( 1 );
+				$gas = self::retrieveGAS ( 1, $compress );
 		}
 
 		$this->gas = $gas;
@@ -52,7 +52,7 @@ class Session {
 		return $this;
 	}
 
-	function retrieveGAS ( $id ) {
+	function retrieveGAS ( $id, $compress ) {
 		/*
 			Orrore e raccapriccio...
 			Qui non viene usata la funzione readFromDB() come negli altri casi in quanto solo get()

@@ -46,48 +46,15 @@ class DeliveryReport extends TCPDF {
 
 $id = require_param ( 'id' );
 $format = require_param ( 'format' );
-
-$is_aggregate = $_GET [ 'aggregate' ];
-if ( isset ( $is_aggregate ) == false )
-	$is_aggregate = false;
+$is_aggregate = get_param ( 'aggregate', false );
 
 formatting_entities ( $format );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-if ( $is_aggregate == true ) {
-	$aggregate = new OrderAggregate ();
-	$aggregate->readFromDB ( $id );
+list ( $orders, $supplier_name, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
-	$orders = $aggregate->getAttribute ( 'orders' )->value;
-	$max_shipping_date = 0;
-
-	foreach ( $orders as $order ) {
-		$supplier = $order->getAttribute ( 'supplier' )->value;
-		$suppliers [] = $supplier->getAttribute ( 'name' )->value;
-
-		$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
-
-		$sd = broken_to_stamp ( strptime ( $shipping_date, '%Y-%m-%d' ) );
-		if ( $max_shipping_date < $sd )
-			$max_shipping_date = $sd;
-	}
-
-	$supplier = join ( '/', $suppliers );
-	$shipping_date = $max_shipping_date;
-}
-else {
-	$order = new Order ();
-	$order->readFromDB ( $id );
-	$supplier = $order->getAttribute ( 'supplier' )->value;
-	$supplier_name = $supplier->getAttribute ( 'name' )->value;
-	$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
-
-	$orders = array ( $order );
-}
-
-$tot_prod_num = 0;
 $all_products = array ();
 $all_contents = array ();
 
@@ -97,7 +64,6 @@ foreach ( $orders as $order ) {
 
 	$contents = get_orderuser_by_order ( $order );
 
-	$tot_prod_num += $prod_num;
 	$all_products = array_merge ( $all_products, $products );
 	$all_contents = merge_order_users ( $all_contents, $contents );
 }
@@ -150,7 +116,7 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 			if ( $prodid == $prod_user->product ) {
 				$quantity = $prod_user->$param;
 
-				if ( is_array ( $prod_user->variants ) )
+				if ( property_exists ( $prod_user, 'variants' ) && is_array ( $prod_user->variants ) )
 					$variants = $prod_user->variants;
 
 				$e++;
@@ -163,7 +129,7 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 					if ( $fprod->product == $prodid ) {
 						$quantity += $fprod->$param;
 
-						if ( is_array ( $fprod->variants ) )
+						if ( property_exists ( $fprod, 'variants' ) && is_array ( $fprod->variants ) )
 							$variants = array_merge ( $variants, $fprod->variants );
 
 						break;

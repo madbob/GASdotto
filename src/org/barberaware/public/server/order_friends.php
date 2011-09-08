@@ -152,42 +152,14 @@ global $emptycell;
 $id = require_param ( 'id' );
 $format = require_param ( 'format' );
 $user = require_param ( 'user' );
-
-$is_aggregate = $_GET [ 'aggregate' ];
-if ( isset ( $is_aggregate ) == false )
-	$is_aggregate = false;
+$is_aggregate = get_param ( 'aggregate', false );
 
 formatting_entities ( $format );
 
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-/*
-	Inizializzazioni assortite
-*/
-
-if ( $is_aggregate == true ) {
-	$aggregate = new OrderAggregate ();
-	$aggregate->readFromDB ( $id );
-
-	$orders = $aggregate->getAttribute ( 'orders' )->value;
-
-	foreach ( $orders as $order ) {
-		$supplier = $order->getAttribute ( 'supplier' )->value;
-		$suppliers [] = $supplier->getAttribute ( 'name' )->value;
-	}
-
-	$supplier_name = join ( '/', $suppliers );
-}
-else {
-	$order = new Order ();
-	$order->readFromDB ( $id );
-	$supplier = $order->getAttribute ( 'supplier' )->value;
-	$supplier_name = $supplier->getAttribute ( 'name' )->value;
-	$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
-
-	$orders = array ( $order );
-}
+list ( $orders, $supplier_name, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
 $all_contents = array ();
 $all_products = array ();

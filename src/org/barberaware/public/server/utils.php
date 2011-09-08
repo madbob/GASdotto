@@ -75,6 +75,13 @@ function require_param ( $name, $msg = 'Richiesta non valida' ) {
 	return $_GET [ $name ];
 }
 
+function get_param ( $name, $default ) {
+	if ( array_key_exists ( $name, $_GET ) == false )
+		return $default;
+	else
+		return $_GET [ $name ];
+}
+
 /****************************************************************** db management */
 
 function query_and_check ( $query, $error ) {
@@ -225,7 +232,7 @@ function format_date ( $dbdate, $month_num = false ) {
 }
 
 function broken_to_stamp ( $broken ) {
-	return mktime ( $broken [ 'tm_hour' ], $broken [ 'tm_min' ], $broken [ 'tm_sec' ], $broken [ 'tm_mon' ], $broken [ 'tm_mday' ], $broken [ 'tm_year' ] );
+	return mktime ( $broken [ 'tm_hour' ], $broken [ 'tm_min' ], $broken [ 'tm_sec' ], $broken [ 'tm_mon' ], $broken [ 'tm_mday' ], $broken [ 'tm_year' ] + 1900 );
 }
 
 function random_string ( $length ) {
@@ -236,6 +243,46 @@ function random_string ( $length ) {
 		$string .= $characters [ mt_rand ( 0, strlen ( $characters ) - 1 ) ];
 
 	return $string;
+}
+
+function details_about_order ( $id, $is_aggregate ) {
+	if ( $is_aggregate == true ) {
+		$aggregate = new OrderAggregate ();
+		$aggregate->readFromDB ( $id );
+
+		$orders = $aggregate->getAttribute ( 'orders' )->value;
+		$max_shipping_date = 0;
+
+		foreach ( $orders as $order ) {
+			$supplier = $order->getAttribute ( 'supplier' )->value;
+			$suppliers [] = $supplier->getAttribute ( 'name' )->value;
+
+			$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+			if ( $shipping_date == '' )
+				$shipping_date = $order->getAttribute ( 'enddate' )->value;
+
+			$sd = broken_to_stamp ( strptime ( $shipping_date, '%Y-%m-%d' ) );
+			if ( $max_shipping_date < $sd )
+				$max_shipping_date = $sd;
+		}
+
+		$supplier_name = join ( ' / ', $suppliers );
+		$shipping_date = date ( 'Y-m-d', $max_shipping_date );
+	}
+	else {
+		$order = new Order ();
+		$order->readFromDB ( $id );
+		$supplier = $order->getAttribute ( 'supplier' )->value;
+		$supplier_name = $supplier->getAttribute ( 'name' )->value;
+
+		$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
+		if ( $shipping_date == '' )
+			$shipping_date = $order->getAttribute ( 'enddate' )->value;
+
+		$orders = array ( $order );
+	}
+
+	return array ( $orders, $supplier_name, $shipping_date );
 }
 
 function sort_product_by_name ( $first, $second ) {
