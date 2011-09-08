@@ -33,28 +33,16 @@ class Session {
 		$this->user = $user->exportable ( null, $compress );
 
 		if ( $current_gas != -1 ) {
-			/*
-				Orrore e raccapriccio...
-				Qui non viene usata la funzione readFromDB() come negli altri casi in quanto solo get()
-				provvede ad arricchire l'oggetto GAS con i parametri extra (che sono trattati fuori dal
-				database). Sarebbe cosa buona gestire tutto nello stesso modo
-			*/
-			$r = new stdClass ();
-			$r->id = $current_gas;
-			$gas = new GAS ();
-			$gass = $gas->get ( $r, $compress );
-			$gas = $gass [ 0 ];
+			$gas = self::retrieveGAS ( $current_gas );
 		}
 		else {
 			$gas = GAS::getMasterGAS ();
-			$gas = $gas->exportable ( null, $compress );
-		}
 
-		/*
-			TODO	Se il GAS non e' selezionato, far riportare (in
-				qualche modo...) il nome di tutti nella
-				schermata di login
-		*/
+			if ( $gas != null )
+				$gas = $gas->exportable ( null, $compress );
+			else
+				$gas = self::retrieveGAS ( 1 );
+		}
 
 		$this->gas = $gas;
 
@@ -62,6 +50,20 @@ class Session {
 		$this->system = $conf->exportable ( null, $compress );
 
 		return $this;
+	}
+
+	function retrieveGAS ( $id ) {
+		/*
+			Orrore e raccapriccio...
+			Qui non viene usata la funzione readFromDB() come negli altri casi in quanto solo get()
+			provvede ad arricchire l'oggetto GAS con i parametri extra (che sono trattati fuori dal
+			database). Sarebbe cosa buona gestire tutto nello stesso modo
+		*/
+		$r = new stdClass ();
+		$r->id = $id;
+		$gas = new GAS ();
+		$gass = $gas->get ( $r, $compress );
+		return $gass [ 0 ];
 	}
 }
 

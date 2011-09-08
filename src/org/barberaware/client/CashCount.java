@@ -67,25 +67,40 @@ public class CashCount extends Composite {
 	public void modOrder ( OrderUserInterface uorder ) {
 		FromServer baseorder;
 		FromServer uord;
-		OrderUser past_user_order;
+		FromServer past_user_order;
 		ArrayList past_orders;
+
+		Log.debug ( "ordine modificato" );
 
 		if ( checkEligibility ( uorder ) == false )
 			return;
+
+		Log.debug ( "controllo passato" );
 
 		tot = 0;
 		totLabel.setText ( Utils.priceToString ( tot ) );
 
 		uord = ( FromServer ) uorder;
-
 		baseorder = uord.getObject ( "baseorder" );
-		past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+
+		if ( baseorder instanceof OrderAggregate ) {
+			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
+		}
+		else if ( baseorder.getBool ( "parent_aggregate" ) == true ) {
+			baseorder = OrderAggregate.retrieveAggregate ( baseorder );
+			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
+		}
+		else {
+			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		}
+
+		Log.debug ( "ordini = " + past_orders.size () );
 
 		for ( int i = 0; i < past_orders.size (); i++ ) {
-			past_user_order = ( OrderUser ) past_orders.get ( i );
+			past_user_order = ( FromServer ) past_orders.get ( i );
 
 			if ( past_user_order.getObject ( "baseorder" ).equals ( baseorder ) )
-				addOrder ( past_user_order );
+				addOrder ( ( OrderUserInterface ) past_user_order );
 		}
 
 		/*

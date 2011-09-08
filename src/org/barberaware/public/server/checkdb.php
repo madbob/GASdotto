@@ -399,6 +399,7 @@ function test_static_tables () {
 
 function check_db_schema () {
 	test_class ( 'GAS' );
+	test_class ( 'ShippingPlace' );
 	test_class ( 'User' );
 	test_class ( 'CustomFile' );
 	test_class ( 'Notification' );
@@ -415,7 +416,6 @@ function check_db_schema () {
 	test_class ( 'ProductUser' );
 	test_class ( 'OrderUserFriend' );
 	test_class ( 'OrderUser' );
-	test_class ( 'ShippingPlace' );
 
 	if ( test_class ( 'ACL' ) == false ) {
 		align_acl ( 'Supplier' );

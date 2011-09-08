@@ -84,7 +84,10 @@ public class FromServerAttribute {
 	}
 
 	public void setObject ( FromServer value ) {
-		objectId = value.getLocalID ();
+		if ( value != null )
+			objectId = value.getLocalID ();
+		else
+			objectId = -1;
 	}
 
 	public void setDate ( Date value ) {

@@ -61,7 +61,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			protected String debugName () {
-				return "OrdersPrivilegedPanel";
+				return "OrderUser in OrdersPrivilegedPanel";
 			}
 		} );
 
@@ -79,7 +79,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			protected String debugName () {
-				return "OrdersPrivilegedPanel";
+				return "OrderUserAggregate in OrdersPrivilegedPanel";
 			}
 		} );
 
@@ -130,7 +130,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 				if ( object.getBool ( "parent_aggregate" ) == true ) {
 					form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-
 					if ( form != null ) {
 						if ( form instanceof FromServerForm )
 							onDestroy ( object );
@@ -210,7 +209,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			protected String debugName () {
-				return "OrdersPrivilegedPanel";
+				return "Order in OrdersPrivilegedPanel";
 			}
 		} );
 
@@ -339,7 +338,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			}
 
 			protected String debugName () {
-				return "OrdersPrivilegedPanel";
+				return "OrderAggregate in OrdersPrivilegedPanel";
 			}
 		} );
 

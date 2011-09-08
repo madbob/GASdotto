@@ -777,14 +777,37 @@ function acl_filter_hierarchy_desc ( $obj, $child_class, $attribute ) {
 function get_acl_easy ( $type, $id ) {
 	global $current_gas;
 
-	$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
-	$result = query_and_check ( $query, "Impossibile recuperare privilegi di accesso al dato" );
-	$row = $result->fetchAll ( PDO::FETCH_NUM );
+	$o = new $type ();
 
-	if ( count ( $row ) > 0 )
-		return $row [ 0 ] [ 0 ];
-	else
-		return 10;
+	if ( $o->is_public == true ) {
+		return 0;
+	}
+	else {
+		switch ( $o->public_mode [ 'mode' ] ) {
+			case 'asc':
+				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT " . $o->public_mode [ 'attribute' ] . " FROM " . $o->tablename . " WHERE id = $id )";
+				break;
+
+			case 'desc':
+				$uclass = $o->public_mode [ 'class' ];
+				$u = new $uclass ();
+				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT parent FROM " . $u->tablename . "_" . $o->public_mode [ 'attribute' ] . " WHERE target = $id )";
+				break;
+
+			case 'plain':
+			default:
+				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+				break;
+		}
+
+		$result = query_and_check ( $query, "Impossibile recuperare privilegi di accesso al dato" );
+		$row = $result->fetchAll ( PDO::FETCH_NUM );
+
+		if ( count ( $row ) > 0 )
+			return $row [ 0 ] [ 0 ];
+		else
+			return 10;
+	}
 }
 
 function get_acl ( $obj ) {

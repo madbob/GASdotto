@@ -171,7 +171,7 @@ public class DeliveryPanel extends GenericPanel {
 				if ( ord == null )
 					return;
 
-				if ( ord.getBool ( "parent_aggregate" ) == true )
+				if ( action == 0 && ord.getBool ( "parent_aggregate" ) == true )
 					return;
 
 				form = main.retrieveForm ( ord );

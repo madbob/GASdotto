@@ -483,6 +483,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			sovrascrivere l'ID precedentemente appeso
 		*/
 		currentValue.setLocalID ( -1 );
+		currentValue.setFloat ( "delivered", 0 );
 		setEffectiveQuantity ( 0 );
 		hideVariants ();
 	}
