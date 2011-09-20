@@ -103,6 +103,27 @@ public class LinksDialog extends Composite {
 		links.insert ( new Label ( text ), links.getWidgetCount () - 1 );
 	}
 
+	public boolean addUniqueHeader ( String text ) {
+		int count;
+		Widget wid;
+		Label lab;
+
+		count = links.getWidgetCount ();
+
+		for ( int i = 0; i < count - 1; i++ ) {
+			wid = links.getWidget ( i );
+
+			if ( wid instanceof Label ) {
+				lab = ( Label ) wid;
+				if ( lab.getText ().equals ( text ) )
+					return false;
+			}
+		}
+
+		addHeader ( text );
+		return true;
+	}
+
 	public void emptyBox () {
 		int count;
 

@@ -112,6 +112,8 @@ public class ProfilePanel extends GenericPanel {
 		frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 		ver.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
 
+		frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
+
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerRappresentationFull form ) {
 				Utils.showNotification ( "Profilo Salvato", Notification.INFO );

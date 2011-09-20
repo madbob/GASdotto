@@ -70,12 +70,8 @@ public class CashCount extends Composite {
 		FromServer past_user_order;
 		ArrayList past_orders;
 
-		Log.debug ( "ordine modificato" );
-
 		if ( checkEligibility ( uorder ) == false )
 			return;
-
-		Log.debug ( "controllo passato" );
 
 		tot = 0;
 		totLabel.setText ( Utils.priceToString ( tot ) );
@@ -93,8 +89,6 @@ public class CashCount extends Composite {
 		else {
 			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 		}
-
-		Log.debug ( "ordini = " + past_orders.size () );
 
 		for ( int i = 0; i < past_orders.size (); i++ ) {
 			past_user_order = ( FromServer ) past_orders.get ( i );

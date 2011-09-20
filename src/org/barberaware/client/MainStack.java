@@ -40,13 +40,16 @@ public class MainStack extends Composite {
 		privileges = Session.getPrivileges ();
 
 		/*
-			Questo e' per caricare subito categorie e misure, onde evitare che siano
-			replicate dozzine di volte quando si andranno a pescare gli ordini (ed i
-			relativi prodotti). Non ho trovato un posto migliore dove mettere queste
-			due righe...
+			Questo e' per caricare subito categorie, misure e
+			luoghi di consegna, onde evitare che siano replicate
+			dozzine di volte quando si andranno a pescare gli ordini
+			(ed i relativi prodotti).
+			Non ho trovato un posto migliore dove mettere queste
+			righe...
 		*/
 		Utils.getServer ().testObjectReceive ( "Category" );
 		Utils.getServer ().testObjectReceive ( "Measure" );
+		Utils.getServer ().testObjectReceive ( "ShippingPlace" );
 
 		if ( privileges == User.USER_MASTER ) {
 			add ( new GASPanel () );

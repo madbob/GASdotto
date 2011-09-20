@@ -27,6 +27,7 @@ public class DeliveryPanel extends GenericPanel {
 	private boolean		hasOrders;
 	private FormGroup	main;
 	private OrdersHubWidget	filter;
+	private boolean		hasShippingPlaces;
 
 	public DeliveryPanel () {
 		super ();
@@ -328,6 +329,7 @@ public class DeliveryPanel extends GenericPanel {
 		}
 
 		is_aggregate = ( order.getType () == "OrderAggregate" );
+		hasShippingPlaces = ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 );
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
@@ -377,18 +379,27 @@ public class DeliveryPanel extends GenericPanel {
 			order_identifier += "&amp;aggregate=true";
 
 		files = new LinksDialog ( "Ordinati e Consegnati" );
+		if ( hasShippingPlaces == true )
+			files.addHeader ( "Tutti i Luoghi" );
 		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=shipped" );
 		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=shipped" );
 		downloads.add ( files );
+		ver.setExtraWidget ( "ordered_files", files );
 
 		files = new LinksDialog ( "Prodotti Prezzati" );
+		if ( hasShippingPlaces == true )
+			files.addHeader ( "Tutti i Luoghi" );
 		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=saved" );
 		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=saved" );
 		downloads.add ( files );
+		ver.setExtraWidget ( "priced_files", files );
 
 		files = new LinksDialog ( "Dettaglio Consegne" );
+		if ( hasShippingPlaces == true )
+			files.addHeader ( "Tutti i Luoghi" );
 		files.addLink ( "PDF", "delivery_document.php?id=" + order_identifier + "&amp;format=pdf&amp;type=delivery" );
 		downloads.add ( files );
+		ver.setExtraWidget ( "detailed_files", files );
 
 		/*
 			Il "riassunto prodotti", essendo destinato ai singoli fornitori, viene
@@ -452,6 +463,10 @@ public class DeliveryPanel extends GenericPanel {
 			case 0:
 				summary.addOrder ( uorder );
 				cash.addOrder ( uorder );
+
+				if ( hasShippingPlaces == true )
+					addShippingPlaceFiles ( ver, ( FromServer ) uorder );
+
 				break;
 			case 1:
 				summary.modOrder ( uorder );
@@ -464,6 +479,41 @@ public class DeliveryPanel extends GenericPanel {
 			default:
 				break;
 		}
+	}
+
+	private void addShippingPlaceFiles ( FromServerRappresentation ver, FromServer uorder ) {
+		boolean is_aggregate;
+		String order_identifier;
+		FromServer order;
+		FromServer place;
+		LinksDialog files;
+
+		place = uorder.getObject ( "baseuser" ).getObject ( "shipping" );
+		if ( place == null )
+			return;
+
+		files = ( LinksDialog ) ver.retriveInternalWidget ( "ordered_files" );
+		if ( files.addUniqueHeader ( place.getString ( "name" ) ) == false )
+			return;
+
+		order = ver.getValue ();
+		is_aggregate = ( order.getType () == "OrderAggregate" );
+
+		order_identifier = Integer.toString ( order.getLocalID () );
+		if ( is_aggregate == true )
+			order_identifier += "&amp;aggregate=true";
+
+		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=shipped&amp;location=" + place.getLocalID () );
+		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=shipped&amp;location=" + place.getLocalID () );
+
+		files = ( LinksDialog ) ver.retriveInternalWidget ( "priced_files" );
+		files.addUniqueHeader ( place.getString ( "name" ) );
+		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=saved&amp;location=" + place.getLocalID () );
+		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=saved&amp;location=" + place.getLocalID () );
+
+		files = ( LinksDialog ) ver.retriveInternalWidget ( "detailed_files" );
+		files.addUniqueHeader ( place.getString ( "name" ) );
+		files.addLink ( "PDF", "delivery_document.php?id=" + order_identifier + "&amp;format=pdf&amp;type=delivery&amp;location=" + place.getLocalID () );
 	}
 
 	/****************************************************************** GenericPanel */
