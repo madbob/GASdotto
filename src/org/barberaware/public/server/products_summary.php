@@ -92,6 +92,44 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 	return $a;
 }
 
+function create_references ( $products ) {
+	/*
+		L'array "references" e' fatto per contenere altri array, uno per ogni possibile prodotto o variante di un
+		prodotto. Dunque se ci sono due prodotti, uno senza varianti ed uno con tre possibili valori di "colore", in
+		tutti si trovano quattro array. In ogni sotto-array ci sono le informazioni relative a quello specifico
+		elemento:
+
+		0: il Product di riferimento
+		1: l'array di varianti allegate al prodotto (o null se non ce ne sono)
+		2: l'array di valori assunti dalle varianti per questa specifica combinazione (o null se non ce ne sono)
+		3: la quantita' raccolta durante le varie iterazioni
+		4: il totale del prezzo dei prodotti in questa combinazione
+		5: il totale del prezzo di trasporto in questa combinazione
+	*/
+
+	$references = array ();
+
+	for ( $i = 0; $i < count ( $products ); $i++ ) {
+		$p = $products [ $i ];
+		$vars = $p->getAttribute ( 'variants' )->value;
+
+		if ( count ( $vars ) == 0 ) {
+			$references [] = array ( $p, null, null, 0, 0, 0 );
+		}
+		else {
+			$tot = 1;
+
+			foreach ( $vars as $var )
+				$tot = $tot * count ( $var->getAttribute ( 'values' )->value );
+
+			for ( $j = 0; $j < $tot; $j++ )
+				$references [] = array ( $p, array (), array (), 0, 0, 0 );
+		}
+	}
+
+	return $references;
+}
+
 global $emptycell;
 
 $id = require_param ( 'id' );
@@ -113,37 +151,26 @@ $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
 /*
-	L'array "references" e' fatto per contenere altri array, uno per ogni possibile prodotto o variante di un
-	prodotto. Dunque se ci sono due prodotti, uno senza varianti ed uno con tre possibili valori di "colore", in
-	tutti si trovano quattro array. In ogni sotto-array ci sono le informazioni relative a quello specifico
-	elemento:
-
-	0: il Product di riferimento
-	1: l'array di varianti allegate al prodotto (o null se non ce ne sono)
-	2: l'array di valori assunti dalle varianti per questa specifica combinazione (o null se non ce ne sono)
-	3: la quantita' raccolta durante le varie iterazioni
-	4: il totale del prezzo dei prodotti in questa combinazione
-	5: il totale del prezzo di trasporto in questa combinazione
+	Tutta la struttura dati e' organizzata nell'array $by_location: se il
+	fornitore gestisce le consegne in luoghi multipli, qui si trova un array
+	$references (vedi create_references()) per ognuna di queste, altrimenti
+	ce ne e' uno solo
 */
 
-$references = array ();
+$has_places = ( $supplier->getAttribute ( 'shipping_manage' )->value != 0 );
+$places = array ();
 
-for ( $i = 0; $i < count ( $products ); $i++ ) {
-	$p = $products [ $i ];
-	$vars = $p->getAttribute ( 'variants' )->value;
+if ( $has_places == false ) {
+	$by_location = array ( create_references ( $products ) );
+}
+else {
+	$by_location = array ();
 
-	if ( count ( $vars ) == 0 ) {
-		$references [] = array ( $p, null, null, 0, 0, 0 );
-	}
-	else {
-		$tot = 1;
+	$tmp = new ShippingPlace ();
+	$places = $tmp->get ( null, false );
 
-		foreach ( $vars as $var )
-			$tot = $tot * count ( $var->getAttribute ( 'values' )->value );
-
-		for ( $j = 0; $j < $tot; $j++ )
-			$references [] = array ( $p, array (), array (), 0, 0, 0 );
-	}
+	foreach ( $places as $place )
+		$by_location [ $place->id ] = create_references ( $products );
 }
 
 $contents = get_orderuser_by_order ( $order );
@@ -167,6 +194,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	$proxy = array ();
 	$prev_id = -1;
+
+	if ( $has_places == false )
+		$references = &$by_location [ 0 ];
+	else
+		$references = &$by_location [ $order_user->baseuser->shipping->id ];
 
 	for ( $e = 0; $e < count ( $references ); $e++ ) {
 		$prod = $references [ $e ] [ 0 ];
@@ -242,46 +274,57 @@ $data = array ();
 
 $headers = array ( 'Prodotto', 'Quantità', 'Unità Misura', 'Prezzo Totale', 'Prezzo Trasporto' );
 
-for ( $i = 0; $i < count ( $references ); $i++ ) {
-	if ( $references [ $i ] [ 3 ] == 0 )
-		continue;
+foreach ( $by_location as $place => $references ) {
+	if ( $place !== 0 ) {
+		foreach ( $places as $p ) {
+			if ( $p->id == $place ) {
+				$data [] = array ( $title_begin . $p->name . ' / ' . format_address ( $p->address ) . $title_end );
+				break;
+			}
+		}
+	}
 
-	if ( is_array ( $references [ $i ] [ 1 ] ) ) {
-		$tot = count ( $references [ $i ] [ 1 ] );
-		if ( $tot == 0 )
+	for ( $i = 0; $i < count ( $references ); $i++ ) {
+		if ( $references [ $i ] [ 3 ] == 0 )
 			continue;
 
-		$vars_str = array ();
-		$name = get_product_name ( $references [ $i ] [ 0 ] ) . ' ( ';
+		if ( is_array ( $references [ $i ] [ 1 ] ) ) {
+			$tot = count ( $references [ $i ] [ 1 ] );
+			if ( $tot == 0 )
+				continue;
 
-		for ( $a = 0; $a < $tot; $a++ ) {
-			$var = new ProductVariant ();
-			$var->readFromDB ( $references [ $i ] [ 1 ] [ $a ] );
+			$vars_str = array ();
+			$name = get_product_name ( $references [ $i ] [ 0 ] ) . ' ( ';
 
-			$val = new ProductVariantValue ();
-			$val->readFromDB ( $references [ $i ] [ 2 ] [ $a ] );
+			for ( $a = 0; $a < $tot; $a++ ) {
+				$var = new ProductVariant ();
+				$var->readFromDB ( $references [ $i ] [ 1 ] [ $a ] );
 
-			$vars_str [] = $var->getAttribute ( 'name' )->value . ': ' . $val->getAttribute ( 'name' )->value;
+				$val = new ProductVariantValue ();
+				$val->readFromDB ( $references [ $i ] [ 2 ] [ $a ] );
 
-			unset ( $var );
-			unset ( $val );
+				$vars_str [] = $var->getAttribute ( 'name' )->value . ': ' . $val->getAttribute ( 'name' )->value;
+
+				unset ( $var );
+				unset ( $val );
+			}
+
+			$name .= join ( ', ', $vars_str ) . ' )';
+		}
+		else {
+			$name = get_product_name ( $references [ $i ] [ 0 ] );
 		}
 
-		$name .= join ( ', ', $vars_str ) . ' )';
+		$q = get_product_quantity_stocks ( $references [ $i ] [ 0 ], $references [ $i ] [ 3 ] );
+		$u = get_product_measure_symbol ( $references [ $i ] [ 0 ] );
+		$p = format_price ( round ( $references [ $i ] [ 4 ], 2 ), false );
+		$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
+
+		$data [] = array ( $name, $q, $u, $p, $s );
+
+		$tot_price += $references [ $i ] [ 4 ];
+		$tot_transport += $references [ $i ] [ 5 ];
 	}
-	else {
-		$name = get_product_name ( $references [ $i ] [ 0 ] );
-	}
-
-	$q = get_product_quantity_stocks ( $references [ $i ] [ 0 ], $references [ $i ] [ 3 ] );
-	$u = get_product_measure_symbol ( $references [ $i ] [ 0 ] );
-	$p = format_price ( round ( $references [ $i ] [ 4 ], 2 ), false );
-	$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
-
-	$data [] = array ( $name, $q, $u, $p, $s );
-
-	$tot_price += $references [ $i ] [ 4 ];
-	$tot_transport += $references [ $i ] [ 5 ];
 }
 
 $p = format_price ( round ( $tot_price, 2 ), false );

@@ -322,7 +322,7 @@ abstract class FromServer {
 
 		$ret = array ();
 
-		if ( isset ( $request ) && ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+		if ( $request != null && ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
 			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $this->tablename, $ids );
 		}

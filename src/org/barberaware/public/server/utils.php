@@ -231,6 +231,10 @@ function format_date ( $dbdate, $month_num = false ) {
 	}
 }
 
+function format_address ( $address ) {
+	return $address->street . ', ' . $address->city;
+}
+
 function broken_to_stamp ( $broken ) {
 	return mktime ( $broken [ 'tm_hour' ], $broken [ 'tm_min' ], $broken [ 'tm_sec' ], $broken [ 'tm_mon' ], $broken [ 'tm_mday' ], $broken [ 'tm_year' ] + 1900 );
 }
@@ -505,6 +509,8 @@ function formatting_entities ( $format ) {
 	global $block_end;
 	global $row_begin;
 	global $row_end;
+	global $title_begin;
+	global $title_end;
 	global $head_begin;
 	global $head_end;
 	global $inrow_separator;
@@ -521,6 +527,8 @@ function formatting_entities ( $format ) {
 		$block_end = "\n";
 		$row_begin = '';
 		$row_end = "\n";
+		$title_begin = '';
+		$title_end = '';
 		$head_begin = $row_begin;
 		$head_end = $row_end;
 		$inrow_separator = ';';
@@ -537,8 +545,10 @@ function formatting_entities ( $format ) {
 		$block_end = '</table><br /><br /><br />';
 		$row_begin = '<tr><td width="25%">';
 		$row_end = '</td></tr>';
-		$head_begin = '<tr><td colspan="4"><b>';
-		$head_end = '</b>' . $row_end;
+		$title_begin = '<b>';
+		$title_end = '</b>';
+		$head_begin = '<tr><td colspan="4">' . $title_begin;
+		$head_end = $title_end . $row_end;
 		$inrow_separator = '</td><td width="25%">';
 		$string_begin = '';
 		$string_end = '';
@@ -585,10 +595,16 @@ class ExportDocument extends TCPDF {
 
 			foreach ( $data as $row ) {
 				$html .= '<tr>';
+				$r_tot = count ( $row );
 
-				for ( $i = $offset; $i < $end; $i++ ) {
-					$val = $row [ $i ];
-					$html .= '<td>' . $val . '</td>';
+				if ( $r_tot < $tot && $r_tot == 1 && $tot != 1 ) {
+					$html .= '<td colspan="' . ( $end - $offset ) . '">' . $row [ 0 ] . '</td>';
+				}
+				else {
+					for ( $i = $offset; $i < $end; $i++ ) {
+						$val = $row [ $i ];
+						$html .= '<td>' . $val . '</td>';
+					}
 				}
 
 				$html .= '</tr>';

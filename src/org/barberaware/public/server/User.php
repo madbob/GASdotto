@@ -74,6 +74,10 @@ class User extends FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
+
+			if ( $obj->getAttribute ( 'shipping' )->value == null )
+				$obj->getAttribute ( 'shipping' )->value = ShippingPlace::getDefault ();
+
 			array_push ( $ret, $obj->exportable ( $request, $compress ) );
 		}
 

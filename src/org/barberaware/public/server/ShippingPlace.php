@@ -26,6 +26,29 @@ class ShippingPlace extends FromServer {
 		$this->addAttribute ( "name", "STRING" );
 		$this->addAttribute ( "address", "ADDRESS" );
 	}
+
+	public static function getDefault () {
+		/*
+			TODO	Implementazione temporanea, occorre un criterio
+				piu' furbo per determinare il luogo di consegna
+				di default
+		*/
+
+		$tmp = new ShippingPlace ();
+		$places = $tmp->get ( null, false );
+
+		if ( count ( $places ) != 0 ) {
+			$ret = $places [ 0 ];
+			$tmp->readFromDB ( $ret->id );
+			$ret = $tmp;
+		}
+		else {
+			$ret = null;
+		}
+
+		unset ( $places );
+		return $ret;
+	}
 }
 
 ?>
