@@ -24,6 +24,7 @@ public class ShippingPlace extends FromServer {
 		super ();
 		addAttribute ( "name", FromServer.STRING );
 		addAttribute ( "address", FromServer.ADDRESS );
+		addAttribute ( "is_default", FromServer.BOOLEAN );
 
 		setString ( "name", "Nuovo Luogo di Consegna" );
 	}

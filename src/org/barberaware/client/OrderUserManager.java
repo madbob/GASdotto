@@ -99,7 +99,7 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		if ( aggregate == true )
 			order_identifier += "&amp;aggregate=true";
 
-		exportFiles = new ObjectLinksDialog ( "Esporta Report" );
+		exportFiles = new ObjectLinksDialog ( "Stampa Dettaglio" );
 		exportFiles.addLinkTemplate ( "CSV", "order_friends.php?format=csv&amp;user=#&amp;id=" + order_identifier );
 		exportFiles.addLinkTemplate ( "PDF", "order_friends.php?format=pdf&amp;user=#&amp;id=" + order_identifier );
 		frame.add ( exportFiles );

@@ -219,6 +219,58 @@ public class SystemPanel extends GenericPanel {
 		FlexTable fields;
 
 		ver = new FromServerForm ( measure );
+		ver.setCallback ( new FromServerFormCallbacks () {
+			/*
+				Tutto questo serve a garantire che ci sia sempre
+				uno ed un solo luogo di consegna di default
+			*/
+			public boolean onSave ( FromServerRappresentationFull form ) {
+				ArrayList places;
+				FromServer place;
+
+				place = form.getValue ();
+
+				places = Utils.getServer ().getObjectsFromCache ( place.getType () );
+				if ( places.size () == 0 || ( places.size () == 1 && place.isValid () == true ) )
+					place.setBool ( "is_default", true );
+
+				return true;
+			}
+
+			public void onSaved ( FromServerRappresentationFull form ) {
+				ArrayList places;
+				FromServer place;
+				FromServer tmp;
+
+				place = form.getValue ();
+
+				places = Utils.getServer ().getObjectsFromCache ( place.getType () );
+				if ( places.size () <= 1 )
+					return;
+
+				if ( place.getBool ( "is_default" ) == false ) {
+					for ( int i = 0; i < places.size (); i++ ) {
+						tmp = ( FromServer ) places.get ( i );
+						if ( tmp.equals ( place ) == false ) {
+							tmp.setBool ( "is_default", true );
+							tmp.save ( null );
+							Utils.showNotification ( "Il nuovo luogo di consegna di default è " + tmp.getString ( "name" ), Notification.INFO );
+							break;
+						}
+					}
+				}
+				else {
+					for ( int i = 0; i < places.size (); i++ ) {
+						tmp = ( FromServer ) places.get ( i );
+
+						if ( tmp.equals ( place ) == false && tmp.getBool ( "is_default" ) == true ) {
+							tmp.setBool ( "is_default", false );
+							tmp.save ( null );
+						}
+					}
+				}
+			}
+		} );
 
 		fields = new FlexTable ();
 		ver.add ( fields );
@@ -228,6 +280,9 @@ public class SystemPanel extends GenericPanel {
 
 		fields.setWidget ( 1, 0, new Label ( "Indirizzo" ) );
 		fields.setWidget ( 1, 1, ver.getWidget ( "address" ) );
+
+		fields.setWidget ( 2, 0, new Label ( "Luogo di Default" ) );
+		fields.setWidget ( 2, 1, ver.getWidget ( "is_default" ) );
 
 		return ver;
 	}

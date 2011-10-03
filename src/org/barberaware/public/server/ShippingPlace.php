@@ -25,6 +25,7 @@ class ShippingPlace extends FromServer {
 
 		$this->addAttribute ( "name", "STRING" );
 		$this->addAttribute ( "address", "ADDRESS" );
+		$this->addAttribute ( "is_default", "BOOLEAN" );
 	}
 
 	public static function getDefault () {
