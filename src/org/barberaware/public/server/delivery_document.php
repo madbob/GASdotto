@@ -47,6 +47,7 @@ class DeliveryReport extends TCPDF {
 $id = require_param ( 'id' );
 $format = require_param ( 'format' );
 $is_aggregate = get_param ( 'aggregate', false );
+$location = get_param ( 'location', -1 );
 
 formatting_entities ( $format );
 
@@ -78,6 +79,12 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$user_products = $order_user->products;
 	if ( is_array ( $user_products ) == false )
 		continue;
+
+	if ( $location != -1 ) {
+		$u_location = $order_user->baseuser->shipping->id;
+		if ( $u_location != $location )
+			continue;
+	}
 
 	$user_products = sort_products_on_products ( $all_products, $user_products );
 	$user_total = 0;

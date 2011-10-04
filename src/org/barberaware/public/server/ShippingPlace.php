@@ -30,25 +30,24 @@ class ShippingPlace extends FromServer {
 
 	public static function getDefault () {
 		/*
-			TODO	Implementazione temporanea, occorre un criterio
-				piu' furbo per determinare il luogo di consegna
-				di default
+			TODO	Qui ci sarebbe bisogno di un singleton, anziche'
+				andare a pescare tutte le volte dal DB
 		*/
-
 		$tmp = new ShippingPlace ();
-		$places = $tmp->get ( null, false );
 
-		if ( count ( $places ) != 0 ) {
-			$ret = $places [ 0 ];
-			$tmp->readFromDB ( $ret->id );
-			$ret = $tmp;
+		$query = sprintf ( "SELECT id FROM %s WHERE is_default = true", $tmp->tablename );
+		$returned = query_and_check ( $query, "Impossibile recuperare luogo di consegna di default" );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+
+		if ( count ( $rows ) == 0 ) {
+			return null;
 		}
 		else {
-			$ret = null;
+			$tmp->readFromDB ( $rows [ 0 ] [ 'id' ] );
+			return $tmp;
 		}
 
-		unset ( $places );
-		return $ret;
+		unset ( $returned );
 	}
 }
 

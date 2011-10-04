@@ -170,10 +170,11 @@ public abstract class OrdersHubWidget extends Composite {
 
 		show = toggle.isChecked ();
 
-		for ( int i = 0; i < statusListeners.size (); i++ ) {
-			listen = ( StatusListener ) statusListeners.get ( i );
-			listen.onStatusChange ( this, show );
-		}
+		if ( statusListeners != null )
+			for ( int i = 0; i < statusListeners.size (); i++ ) {
+				listen = ( StatusListener ) statusListeners.get ( i );
+				listen.onStatusChange ( this, show );
+			}
 	}
 
 	private void triggerFilters () {
