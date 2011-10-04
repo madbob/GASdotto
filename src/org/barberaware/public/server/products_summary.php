@@ -275,14 +275,18 @@ $data = array ();
 $headers = array ( 'Prodotto', 'Quantità', 'Unità Misura', 'Prezzo Totale', 'Prezzo Trasporto' );
 
 foreach ( $by_location as $place => $references ) {
+	$title = null;
+
 	if ( $place !== 0 ) {
 		foreach ( $places as $p ) {
 			if ( $p->id == $place ) {
-				$data [] = array ( $title_begin . $p->name . ' / ' . format_address ( $p->address ) . $title_end );
+				$title = array ( $title_begin . 'Consegna presso ' . $p->name . ' / ' . format_address ( $p->address ) . $title_end );
 				break;
 			}
 		}
 	}
+
+	$first = true;
 
 	for ( $i = 0; $i < count ( $references ); $i++ ) {
 		if ( $references [ $i ] [ 3 ] == 0 )
@@ -319,6 +323,11 @@ foreach ( $by_location as $place => $references ) {
 		$u = get_product_measure_symbol ( $references [ $i ] [ 0 ] );
 		$p = format_price ( round ( $references [ $i ] [ 4 ], 2 ), false );
 		$s = format_price ( round ( $references [ $i ] [ 5 ], 2 ), false );
+
+		if ( $first == true && $title != null ) {
+			$first = false;
+			$data [] = $title;
+		}
 
 		$data [] = array ( $name, $q, $u, $p, $s );
 

@@ -489,8 +489,11 @@ public class DeliveryPanel extends GenericPanel {
 		LinksDialog files;
 
 		place = uorder.getObject ( "baseuser" ).getObject ( "shipping" );
-		if ( place == null )
-			return;
+		if ( place == null ) {
+			place = ShippingPlace.getDefault ();
+			if ( place == null )
+				return;
+		}
 
 		files = ( LinksDialog ) ver.retriveInternalWidget ( "ordered_files" );
 		if ( files.addUniqueHeader ( place.getString ( "name" ) ) == false )

@@ -28,4 +28,19 @@ public class ShippingPlace extends FromServer {
 
 		setString ( "name", "Nuovo Luogo di Consegna" );
 	}
+
+	public static FromServer getDefault () {
+		ArrayList places;
+		FromServer place;
+
+		places = Utils.getServer ().getObjectsFromCache ( "ShippingPlace" );
+
+		for ( int i = 0; i < places.size (); i++ ) {
+			place = ( FromServer ) places.get ( i );
+			if ( place.getBool ( "is_default" ) == true )
+				return place;
+		}
+
+		return null;
+	}
 }
