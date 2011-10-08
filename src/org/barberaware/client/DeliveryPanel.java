@@ -329,7 +329,8 @@ public class DeliveryPanel extends GenericPanel {
 		}
 
 		is_aggregate = ( order.getType () == "OrderAggregate" );
-		hasShippingPlaces = ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 );
+		hasShippingPlaces = ( ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 ) &&
+					( is_aggregate == false && ( order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) ) );
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
