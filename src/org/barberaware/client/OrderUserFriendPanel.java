@@ -275,7 +275,7 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 			name_container = ( HorizontalPanel ) cell.getWidget ( 0 );
 
 			id = ( Hidden ) name_container.getWidget ( 0 );
-			if ( id.getValue () != "" )
+			if ( id.getValue () != "" && id.getValue () != "-1" )
 				order = ( OrderUserFriend ) Utils.getServer ().getObjectFromCache ( "OrderUserFriend", Integer.parseInt ( id.getValue () ) );
 			else
 				order = new OrderUserFriend ();

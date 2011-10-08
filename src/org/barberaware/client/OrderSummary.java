@@ -743,7 +743,7 @@ public class OrderSummary extends Composite implements Lockable {
 				head.addStyleName ( "top-spaced" );
 				main.setWidget ( e, PRODUCT_NAME_COLUMN, head );
 				formatter.setColSpan ( e, PRODUCT_NAME_COLUMN, PRODUCT_NOTIFICATIONS_COLUMN - PRODUCT_NAME_COLUMN + 1 );
-				formatter.setHorizontalAlignment ( e, PRODUCT_NAME_COLUMN, HasHorizontalAlignment.ALIGN_RIGHT );
+				formatter.setHorizontalAlignment ( e, PRODUCT_NAME_COLUMN, HasHorizontalAlignment.ALIGN_LEFT );
 
 				e = fillRows ( order, ++e );
 			}
