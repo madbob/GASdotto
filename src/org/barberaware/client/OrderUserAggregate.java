@@ -90,12 +90,13 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 					return null;
 
 				i = 0;
+				ret = null;
 
 				do {
 					order = ( FromServer ) orders.get ( i );
 					ret = order.getDate ( "deliverydate" );
 					i++;
-				} while ( ret != null && i < orders.size () );
+				} while ( ret == null && i < orders.size () );
 
 				for ( ; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
@@ -122,13 +123,14 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 					return null;
 
 				i = 0;
+				greater = null;
 
 				do {
 					order = ( FromServer ) orders.get ( i );
 					ret = order.getObject ( "deliveryperson" );
 					greater = order.getDate ( "deliverydate" );
 					i++;
-				} while ( greater != null && i < orders.size () );
+				} while ( greater == null && i < orders.size () );
 
 				for ( ; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );

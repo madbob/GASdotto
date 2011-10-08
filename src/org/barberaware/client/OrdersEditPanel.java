@@ -203,6 +203,16 @@ public class OrdersEditPanel extends GenericPanel {
 						}
 					}
 
+					else if ( form != null && form instanceof OrderDetails ) {
+						if ( obj.getBool ( "parent_aggregate" ) == true ) {
+							/*
+							obj = OrderAggregate.retrieveAggregate ( obj );
+							main.refreshElement ( obj );
+							aggregator.refreshElement ( obj );
+							*/
+						}
+					}
+
 					/*
 						Calma e sangue freddo...
 						- Quando arriva un Order fine a se' stesso, in doEditableRow viene creato un form dedicato.
@@ -551,6 +561,12 @@ public class OrdersEditPanel extends GenericPanel {
 		if ( ord.getInt ( "status" ) != Order.CLOSED )
 			return;
 
+		/*
+			TODO	Ci sarebbe da inventarsi un modo di eliminare
+				questa notifica nella ben rara situazione in cui
+				un ordine viene riaperto
+		*/
+
 		container = ( HorizontalPanel ) form.retriveInternalWidget ( "mail_summary" );
 		if ( container == null ) {
 			container = new HorizontalPanel ();
@@ -615,6 +631,7 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	private void checkNewProductsAvailability ( final FromServerForm form ) {
+		String order_identifier;
 		FromServer ord;
 
 		ord = form.getValue ();
@@ -622,7 +639,12 @@ public class OrdersEditPanel extends GenericPanel {
 		if ( ord.getInt ( "status" ) != Order.OPENED )
 			return;
 
-		Utils.getServer ().rawGet ( "data_shortcuts.php?type=order_products_diff&order=" + ord.getLocalID (), new RequestCallback () {
+		if ( ord instanceof OrderAggregate )
+			order_identifier = ord.getLocalID () + "&aggregate=true";
+		else
+			order_identifier = Integer.toString ( ord.getLocalID () );
+
+		Utils.getServer ().rawGet ( "data_shortcuts.php?type=order_products_diff&order=" + order_identifier, new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
 			}
@@ -672,6 +694,8 @@ public class OrdersEditPanel extends GenericPanel {
 								FlexTable tab;
 								Hidden hidden;
 								FromServer order;
+								FromServer o;
+								FromServer prod;
 								OrderSummary summary;
 
 								if ( row == 0 || cell != 2 )
@@ -679,14 +703,21 @@ public class OrdersEditPanel extends GenericPanel {
 
 								tab = ( FlexTable ) sender;
 								hidden = ( Hidden ) tab.getWidget ( row, 0 );
+								prod = Utils.getServer ().getObjectFromCache ( "Product", Integer.parseInt ( hidden.getName () ) );
 
 								order = form.getValue ();
-								products = order.getArray ( "products" );
-								products.add ( Utils.getServer ().getObjectFromCache ( "Product", Integer.parseInt ( hidden.getName () ) ) );
-								order.setArray ( "products", products );
+
+								if ( order instanceof OrderAggregate )
+									o = orderFromAggregateByProduct ( order, prod );
+								else
+									o = order;
+
+								products = o.getArray ( "products" );
+								products.add ( prod );
+								o.setArray ( "products", products );
 
 								summary = ( OrderSummary ) form.retriveInternalWidget ( "summary" );
-								summary.reFill ( ( Order ) order );
+								summary.reFill ( order );
 
 								tab.removeRow ( row );
 								form.forceNextSave ( true );
@@ -715,6 +746,21 @@ public class OrdersEditPanel extends GenericPanel {
 				Utils.getServer ().dataArrived ();
 			}
 		} );
+	}
+
+	private FromServer orderFromAggregateByProduct ( FromServer aggregate, FromServer product ) {
+		ArrayList orders;
+		FromServer ord;
+
+		orders = aggregate.getArray ( "orders" );
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( FromServer ) orders.get ( i );
+			if ( ord.getObject ( "supplier" ).equals ( product.getObject ( "supplier" ) ) )
+				return ord;
+		}
+
+		return null;
 	}
 
 	private FromServerForm editableOrder ( FromServer ord ) {

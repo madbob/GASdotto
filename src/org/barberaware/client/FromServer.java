@@ -557,7 +557,8 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public void delRelatedInfo ( String identifier ) {
-		relatedInfo.remove ( identifier );
+		if ( relatedInfo != null )
+			relatedInfo.remove ( identifier );
 	}
 
 	public void delRelatedInfo ( Object related ) {
@@ -565,15 +566,17 @@ public abstract class FromServer implements Comparator {
 		Object [] keys;
 		Object rel;
 
-		keys = relatedInfo.keySet ().toArray ();
+		if ( relatedInfo != null ) {
+			keys = relatedInfo.keySet ().toArray ();
 
-		for ( int i = 0; i < keys.length; i++ ) {
-			k = ( String ) keys [ i ];
-			rel = relatedInfo.get ( k );
+			for ( int i = 0; i < keys.length; i++ ) {
+				k = ( String ) keys [ i ];
+				rel = relatedInfo.get ( k );
 
-			if ( rel == related ) {
-				delRelatedInfo ( k );
-				break;
+				if ( rel == related ) {
+					delRelatedInfo ( k );
+					break;
+				}
 			}
 		}
 	}

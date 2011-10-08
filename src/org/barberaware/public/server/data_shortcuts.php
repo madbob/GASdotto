@@ -19,6 +19,34 @@
 
 require_once ( "utils.php" );
 
+function missing_products ( $order ) {
+	$ord = new Order ();
+	$ord->readFromDB ( $order );
+
+	$tmp = new Product ();
+
+	$query = sprintf ( "SELECT id FROM %s
+				WHERE supplier = %d AND
+					available = true AND
+					archived = false AND
+					previous_description = 0 AND
+					id NOT IN ( SELECT target FROM Orders_products )",
+				$tmp->tablename, $ord->getAttribute ( 'supplier' )->value->getAttribute ( 'id' )->value );
+
+	$result = query_and_check ( $query, "Impossibile recuperare differenza tra prodotti e ordine" );
+	$rows = $result->fetchAll ( PDO::FETCH_ASSOC );
+	unset ( $result );
+	$ret = array ();
+
+	foreach ( $rows as $row ) {
+		$product = new $tmp->classname;
+		$product->readFromDB ( $row [ 'id' ] );
+		array_push ( $ret, $product->exportable () );
+	}
+
+	return $ret;
+}
+
 $type = require_param ( 'type' );
 
 if ( check_session () == false )
@@ -29,29 +57,20 @@ $ret = null;
 switch ( $type ) {
 	case 'order_products_diff':
 		$order = require_param ( 'order' );
+		$aggregate = get_param ( 'aggregate', 'false' );
 
-		$ord = new Order ();
-		$ord->readFromDB ( $order );
+		if ( $aggregate == 'true' ) {
+			$ord = new OrderAggregate ();
+			$ord->readFromDB ( $order );
 
-		$tmp = new Product ();
+			$ret = array ();
+			$orders = $ord->getAttribute ( 'orders' )->value;
 
-		$query = sprintf ( "SELECT id FROM %s
-					WHERE supplier = %d AND
-						available = true AND
-						archived = false AND
-						previous_description = 0 AND
-						id NOT IN ( SELECT target FROM Orders_products )",
-					$tmp->tablename, $ord->getAttribute ( 'supplier' )->value->getAttribute ( 'id' )->value );
-
-		$result = query_and_check ( $query, "Impossibile recuperare differenza tra prodotti e ordine" );
-		$rows = $result->fetchAll ( PDO::FETCH_ASSOC );
-		unset ( $result );
-		$ret = array ();
-
-		foreach ( $rows as $row ) {
-			$product = new $tmp->classname;
-			$product->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $product->exportable () );
+			foreach ( $orders as $o )
+				$ret = array_merge ( $ret, missing_products ( $o->getAttribute ( 'id' )->value ) );
+		}
+		else {
+			$ret = missing_products ( $order );
 		}
 
 		break;

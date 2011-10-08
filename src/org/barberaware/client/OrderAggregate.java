@@ -137,12 +137,13 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 					return null;
 
 				i = 0;
+				ret = null;
 
 				do {
 					order = ( FromServer ) orders.get ( i );
 					ret = order.getDate ( "shippingdate" );
 					i++;
-				} while ( ret != null && i < orders.size () );
+				} while ( ret == null && i < orders.size () );
 
 				for ( ; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );

@@ -67,30 +67,8 @@ public class OrderSummary extends Composite implements Lockable {
 		container.add ( notes );
 
 		main = new FlexTable ();
-		main.setStyleName ( "elements-table" );
+		initMainFlex ();
 		container.add ( main );
-
-		main.setWidget ( 0, PRODUCT_NAME_COLUMN, new Label ( "Prodotto" ) );
-		main.setWidget ( 0, PRODUCT_PRICE_COLUMN, new Label ( "Prezzo Unitario" ) );
-		main.setWidget ( 0, PRODUCT_TRANSPORT_COLUMN, new Label ( "Trasporto Unitario" ) );
-		main.setWidget ( 0, PRODUCT_OVERPRICE_COLUMN, new Label ( "Sovrapprezzo Unitario (€/%)" ) );
-		main.setWidget ( 0, PRODUCT_MEASURE_COLUMN, new Label ( "Unità Misura" ) );
-		main.setWidget ( 0, PRODUCT_STOCK_COLUMN, new Label ( "Dimensione Confezione" ) );
-		main.setWidget ( 0, PRODUCT_AVAILQUANT_COLUMN, new Label ( "Quantità Disponibile" ) );
-		main.setWidget ( 0, PRODUCT_ORDQUANT_COLUMN, new Label ( "Quantità Ordinata" ) );
-		main.setWidget ( 0, PRODUCT_TOTALPRICE_COLUMN, new Label ( "Totale Prezzo" ) );
-		main.setWidget ( 0, PRODUCT_TOTALTRANSPORT_COLUMN, new Label ( "Totale Trasporto" ) );
-		main.setWidget ( 0, PRODUCT_TOTALOVERPRICE_COLUMN, new Label ( "Totale Sovrapprezzo" ) );
-		main.setWidget ( 0, PRODUCT_SHIPQUANT_COLUMN, new Label ( "Quantità Consegnata" ) );
-		main.setWidget ( 0, PRODUCT_NOTIFICATIONS_COLUMN, new Label ( "Notifiche" ) );
-
-		main.getRowFormatter ().setStyleName ( 0, "table-header" );
-
-		/*
-			La prima colonna e' ad uso e consumo interno e non mostra alcuna
-			informazione utile, dunque viene nascosta
-		*/
-		main.getColumnFormatter ().setStyleName ( 0, "hidden" );
 
 		totalLabel = null;
 		totalshipLabel = null;
@@ -280,6 +258,32 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 
 		return ret;
+	}
+
+	private void initMainFlex () {
+		main.setStyleName ( "elements-table" );
+
+		main.setWidget ( 0, PRODUCT_NAME_COLUMN, new Label ( "Prodotto" ) );
+		main.setWidget ( 0, PRODUCT_PRICE_COLUMN, new Label ( "Prezzo Unitario" ) );
+		main.setWidget ( 0, PRODUCT_TRANSPORT_COLUMN, new Label ( "Trasporto Unitario" ) );
+		main.setWidget ( 0, PRODUCT_OVERPRICE_COLUMN, new Label ( "Sovrapprezzo Unitario (€/%)" ) );
+		main.setWidget ( 0, PRODUCT_MEASURE_COLUMN, new Label ( "Unità Misura" ) );
+		main.setWidget ( 0, PRODUCT_STOCK_COLUMN, new Label ( "Dimensione Confezione" ) );
+		main.setWidget ( 0, PRODUCT_AVAILQUANT_COLUMN, new Label ( "Quantità Disponibile" ) );
+		main.setWidget ( 0, PRODUCT_ORDQUANT_COLUMN, new Label ( "Quantità Ordinata" ) );
+		main.setWidget ( 0, PRODUCT_TOTALPRICE_COLUMN, new Label ( "Totale Prezzo" ) );
+		main.setWidget ( 0, PRODUCT_TOTALTRANSPORT_COLUMN, new Label ( "Totale Trasporto" ) );
+		main.setWidget ( 0, PRODUCT_TOTALOVERPRICE_COLUMN, new Label ( "Totale Sovrapprezzo" ) );
+		main.setWidget ( 0, PRODUCT_SHIPQUANT_COLUMN, new Label ( "Quantità Consegnata" ) );
+		main.setWidget ( 0, PRODUCT_NOTIFICATIONS_COLUMN, new Label ( "Notifiche" ) );
+
+		main.getRowFormatter ().setStyleName ( 0, "table-header" );
+
+		/*
+			La prima colonna e' ad uso e consumo interno e non mostra alcuna
+			informazione utile, dunque viene nascosta
+		*/
+		main.getColumnFormatter ().setStyleName ( 0, "hidden" );
 	}
 
 	private int searchProduct ( FromServer order, FromServer prod ) {
@@ -578,6 +582,9 @@ public class OrderSummary extends Composite implements Lockable {
 			hasMaxAvailable = true;
 
 		if ( new_row == true ) {
+			if ( main.getRowCount () > index )
+				main.insertRow ( index );
+
 			main.setWidget ( index, ORDER_ID_COLUMN, new Hidden ( Integer.toString ( order.getLocalID () ) ) );
 			main.setWidget ( index, PRODUCT_ID_COLUMN, new Hidden ( Integer.toString ( product.getLocalID () ) ) );
 
@@ -719,6 +726,8 @@ public class OrderSummary extends Composite implements Lockable {
 
 		formatter = main.getFlexCellFormatter ();
 		num = currentOrders.size ();
+		main.clear ();
+		initMainFlex ();
 
 		if ( num == 1 ) {
 			order = ( FromServer ) currentOrders.get ( 0 );
