@@ -845,6 +845,10 @@ public class OrdersEditPanel extends GenericPanel {
 	private Widget doFilterOptions () {
 		filter = new OrdersHubWidget () {
 			public void doFilter ( boolean show, Date start, Date end, FromServer supplier ) {
+				/*
+					TODO	Questo e' identico all'omonima
+						funzione in DeliveryPanel
+				*/
 				boolean visible;
 				ArrayList forms;
 				FromServerForm form;
@@ -864,9 +868,9 @@ public class OrdersEditPanel extends GenericPanel {
 								visible = true;
 							}
 							else {
-								if ( ord.getType () == "Order" && ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () )
+								if ( ord instanceof Order && ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () )
 									visible = true;
-								else if ( ord.getType () == "OrderAggregate" && ( ( OrderAggregate ) ord ).hasSupplier ( supplier ) )
+								else if ( ord instanceof OrderAggregate && ( ( OrderAggregate ) ord ).hasSupplier ( supplier ) )
 									visible = true;
 							}
 						}

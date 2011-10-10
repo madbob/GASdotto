@@ -78,7 +78,7 @@ public abstract class OrdersHubWidget extends Composite {
 		frame.addPair ( "Fornitore", supplier );
 
 		notice = new HTML ( "<p>In questa modalità di ricerca il pannello visualizza solo gli ordini compresi entro le date specificate qui a lato, ed effettuati presso il fornitore specificato.</p><p>Per tornare a visualizzare gli ordini aperti e in consegna, clicca la prima casella del box a fianco.</p>" );
-		notice.setStyleName ( "smaller-text" );
+		notice.setStyleName ( "small-text" );
 		notice.setWidth ( "40%" );
 		notice.setVisible ( false );
 		main.add ( notice );

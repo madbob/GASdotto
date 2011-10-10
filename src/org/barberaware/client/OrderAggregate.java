@@ -194,7 +194,7 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 		ArrayList orders;
 		FromServer order;
 
-		orders = target.getArray ( "orders" );
+		orders = getArray ( "orders" );
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			order = ( FromServer ) orders.get ( i );

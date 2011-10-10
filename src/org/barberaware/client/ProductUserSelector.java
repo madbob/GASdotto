@@ -417,13 +417,28 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private void alignVariants ( FromServer productuser, int num, ArrayList variants ) {
 		int i;
 		ArrayList v;
+		FromServer product;
+
+		product = productuser.getObject ( "product" );
+
+		/*
+			10/10/2011, richiesto da Pier
+			I prodotti che hanno "prezzo variabile" sono intesi
+			sempre come una unica entita', e la quantita' indicata
+			si riferisce a tale entita'
+			Dunque le varianti si applicano sempre e solo come fosse
+			stato ordinato un singolo elemento, indipendentemente
+			dalla quantita' immessa
+		*/
+		if ( product.getBool ( "mutable_price" ) == true )
+			num = 1;
 
 		if ( num == 0 ) {
 			hideVariants ();
 			return;
 		}
 
-		v = productuser.getObject ( "product" ).getArray ( "variants" );
+		v = product.getArray ( "variants" );
 
 		if ( v != null && v.size () != 0 ) {
 			doVariantsMainBox ();

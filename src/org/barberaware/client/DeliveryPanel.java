@@ -278,6 +278,11 @@ public class DeliveryPanel extends GenericPanel {
 	private void doFilterOptions () {
 		filter = new OrdersHubWidget () {
 			public void doFilter ( boolean show, Date start, Date end, FromServer supplier ) {
+				/*
+					TODO	Questo e' identico all'omonima
+						funzione in OrdersEditPanel
+				*/
+				boolean visible;
 				ArrayList forms;
 				FromServerForm form;
 				FromServer ord;
@@ -287,23 +292,27 @@ public class DeliveryPanel extends GenericPanel {
 				for ( int i = 0; i < forms.size (); i++ ) {
 					form = ( FromServerForm ) forms.get ( i );
 					ord = form.getValue ();
+					visible = false;
 
 					if ( show == true ) {
-						if ( ord.getDate ( "startdate" ).after ( start ) &&
-								ord.getDate ( "enddate" ).before ( end ) &&
-								( supplier == null || ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () ) ) {
-							form.setVisible ( true );
-						}
-						else {
-							form.setVisible ( false );
+						if ( ord.getDate ( "startdate" ).after ( start ) && ord.getDate ( "enddate" ).before ( end ) ) {
+							if ( supplier == null ) {
+								visible = true;
+							}
+							else {
+								if ( ord instanceof Order && ord.getObject ( "supplier" ).getLocalID () == supplier.getLocalID () )
+									visible = true;
+								else if ( ord instanceof OrderAggregate && ( ( OrderAggregate ) ord ).hasSupplier ( supplier ) )
+									visible = true;
+							}
 						}
 					}
 					else {
-						if ( ord.getInt ( "status" ) == Order.SHIPPED )
-							form.setVisible ( false );
-						else
-							form.setVisible ( true );
+						if ( ord.getInt ( "status" ) != Order.SHIPPED )
+							visible = true;
 					}
+
+					form.setVisible ( visible );
 				}
 			}
 		};

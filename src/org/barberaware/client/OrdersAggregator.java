@@ -209,7 +209,7 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 		main.add ( container );
 
 		notice = new HTML ( "<p>Da questo pannello puoi unire diversi ordini in agglomerati, in modo che siano gestiti uniformemente come un ordine singolo all'interno dell'interfaccia. Essi continueranno a restare tra loro indipendenti, le modifiche riguardano solo l'aspetto grafico.</p><p>A sinistra appaiono gli ordini non aggregati, mentre a destra i diversi gruppi. Clicca e trascina i singoli ordini da una colonna all'altra. Clicca su \"Nuovo Aggregato\" per creare un nuovo insieme.</p>" );
-		notice.setStyleName ( "smaller-text" );
+		notice.setStyleName ( "small-text" );
 		container.add ( notice );
 
 		button = new AddButton ( "Nuovo Aggregato", new ClickListener () {
