@@ -617,6 +617,9 @@ public abstract class FromServer implements Comparator {
 	public boolean equals ( Object second ) {
 		FromServer other;
 
+		if ( this == null )
+			Log.debug ( "Oggetto nullo!" );
+
 		if ( second == null )
 			return false;
 

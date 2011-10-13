@@ -45,7 +45,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 				FromServer order;
 
 				orders = obj.getArray ( "orders" );
-				if ( orders == null )
+				if ( orders == null || orders.size () == 0 )
 					return null;
 
 				order = ( FromServer ) orders.get ( 0 );
@@ -197,11 +197,14 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 	public void save ( ServerResponse callback ) {
 		ArrayList orders;
 		FromServer order;
+		FromServer user;
 
 		orders = getArray ( "orders" );
+		user = getObject ( "baseuser" );
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			order = ( FromServer ) orders.get ( i );
+			order.setObject ( "baseuser", user );
 			order.save ( callback );
 		}
 	}

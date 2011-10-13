@@ -58,6 +58,7 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 
 	public boolean savingObject () {
 		boolean confirm;
+		FromServer obj;
 
 		confirm = true;
 
@@ -68,8 +69,9 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 			return false;
 
 		beforeSave ();
+		obj = getValue ();
 
-		getValue ().save ( new ServerResponse () {
+		obj.save ( new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				savedCallbacks ();
 				afterSave ();

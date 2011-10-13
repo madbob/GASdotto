@@ -217,7 +217,6 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		ProductsUserSelectionWrapper selection;
 
 		tabs = activeTabs ();
-
 		for ( int i = 1; i < tabs; i++ )
 			friends.remove ( 1 );
 
@@ -523,6 +522,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 	public void setValue ( FromServer element ) {
 		currentValue = element;
+
 		super.setValue ( currentValue );
 
 		if ( friends == null )

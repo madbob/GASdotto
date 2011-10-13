@@ -98,18 +98,22 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		ArrayList orders;
 		FromServer order;
 		FromServer me;
+		FromServer ret;
 
 		orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 		me = Session.getUser ();
+		ret = null;
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			order = ( FromServer ) orders.get ( i );
 
-			if ( order.getObject ( "baseorder" ).equals ( base ) && order.getObject ( "baseuser" ).equals ( me ) )
-				return order;
+			if ( order.getObject ( "baseorder" ).equals ( base ) && order.getObject ( "baseuser" ).equals ( me ) ) {
+				ret = order;
+				break;
+			}
 		}
 
-		return null;
+		return ret;
 	}
 
 	public float getTotalPrice () {

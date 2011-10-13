@@ -395,7 +395,23 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			if ( variants != null && variants.size () != 0 ) {
 				( ( FloatBox ) quantity ).addChangeListener ( new ChangeListener () {
 					public void onChange ( Widget sender ) {
-						alignVariants ( currentValue, ( int ) quantity.getVal (), null );
+						int num;
+
+						/*
+							10/10/2011, richiesto da Pier
+							I prodotti che hanno "prezzo variabile" sono intesi
+							sempre come una unica entita', e la quantita' indicata
+							si riferisce a tale entita'
+							Dunque le varianti si applicano sempre e solo come fosse
+							stato ordinato un singolo elemento, indipendentemente
+							dalla quantita' immessa
+						*/
+						if ( currentValue.getObject ( "product" ).getBool ( "mutable_price" ) == true && quantity.getVal () != 0 )
+							num = 1;
+						else
+							num = ( int ) quantity.getVal ();
+
+						alignVariants ( currentValue, num, null );
 					}
 				} );
 			}
@@ -420,18 +436,6 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		FromServer product;
 
 		product = productuser.getObject ( "product" );
-
-		/*
-			10/10/2011, richiesto da Pier
-			I prodotti che hanno "prezzo variabile" sono intesi
-			sempre come una unica entita', e la quantita' indicata
-			si riferisce a tale entita'
-			Dunque le varianti si applicano sempre e solo come fosse
-			stato ordinato un singolo elemento, indipendentemente
-			dalla quantita' immessa
-		*/
-		if ( product.getBool ( "mutable_price" ) == true )
-			num = 1;
 
 		if ( num == 0 ) {
 			hideVariants ();

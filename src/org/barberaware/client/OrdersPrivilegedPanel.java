@@ -500,12 +500,17 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 				if ( obj == null )
 					return false;
 
+				filterEmptyOrders ( obj );
+				return true;
+			}
+
+			public void onSaved ( FromServerRappresentationFull form ) {
+				FromServer obj;
+
+				obj = form.getValue ();
+
 				if ( obj.getObject ( "baseuser" ).equals ( Session.getUser () ) == false )
 					form.setValue ( null );
-
-				filterEmptyOrders ( obj );
-				form.setValue ( obj );
-				return true;
 			}
 
 			public boolean onDelete ( final FromServerRappresentationFull form ) {
