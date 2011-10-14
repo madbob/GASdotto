@@ -241,7 +241,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 					name = friend.getString ( "friendname" );
 					found = false;
 
-					for ( int e = 1; e < dispatched_friends.size (); e++ ) {
+					for ( int e = 0; e < dispatched_friends.size (); e++ ) {
 						forder = ( OrderUserFriendAggregate ) dispatched_friends.get ( e );
 						if ( forder.getString ( "friendname" ).equals ( name ) ) {
 							forder.addObject ( friend );
