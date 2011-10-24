@@ -23,7 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderDetails extends FromServerRappresentation {
+public class OrderDetails extends FromServerRappresentationFull {
 	private HorizontalPanel		main;
 	private FromServerForm		parent;
 
@@ -50,7 +50,7 @@ public class OrderDetails extends FromServerRappresentation {
 		if ( parent != null )
 			return parent.getPersonalizedWidget ( name, wid );
 		else
-			return wid;
+			return getPersonalizedWidget ( name, wid );
 	}
 
 	/****************************************************************** ObjectWidget */
@@ -60,6 +60,7 @@ public class OrderDetails extends FromServerRappresentation {
 		Supplier supp;
 		CustomCaptionPanel frame;
 
+		super.setValue ( element );
 		main.clear ();
 
 		if ( element != null ) {
@@ -114,7 +115,15 @@ public class OrderDetails extends FromServerRappresentation {
 			enddate.setValue ( element.getDate ( "enddate" ) );
 			shippingdate.setValue ( element.getDate ( "shippingdate" ) );
 		}
+	}
 
-		super.setValue ( element );
+	/****************************************************************** FromServerRappresentationFull */
+
+	protected void beforeSave () {
+		/* dummy */
+	}
+
+	protected void afterSave () {
+		/* dummy */
 	}
 }

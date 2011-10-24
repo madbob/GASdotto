@@ -357,6 +357,9 @@ function align_acl ( $type, $table = null ) {
 		local_query_and_check ( $query, "Impossibile aggiornare permessi" );
 	}
 
+	$query = "UPDATE current_sessions SET gas = 1";
+	local_query_and_check ( $query, "Impossibile aggiornare sessioni" );
+
 	unset ( $rows );
 }
 

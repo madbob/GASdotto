@@ -823,6 +823,24 @@ public class OrdersEditPanel extends GenericPanel {
 		ver.emblems ().activate ( "aggregate" );
 		ver.emblems ().activate ( "status", ord.getInt ( "status" ) );
 
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onSaved ( FromServerRappresentationFull form ) {
+				ArrayList children;
+				FromServerForm ver;
+				FromServerRappresentationFull child;
+
+				ver = ( FromServerForm ) form;
+				ver.emblems ().activate ( "status", form.getValue ().getInt ( "status" ) );
+
+				children = form.getChildren ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServerRappresentationFull ) children.get ( i );
+					child.savingObject ();
+				}
+			}
+		} );
+
 		orders = ord.getArray ( "orders" );
 
 		for ( int i = 0; i < orders.size (); i++ ) {

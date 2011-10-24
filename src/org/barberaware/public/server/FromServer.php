@@ -464,6 +464,11 @@ abstract class FromServer {
 		return $ret;
 	}
 
+	/*
+		Ricordarsi che questa funzione salva solo l'assegnazione (o la
+		rimozione) degli oggetti negli array, non il contenuto degli
+		oggetti stessi
+	*/
 	protected function save_arrays ( $fresh, $obj, $id ) {
 		if ( $fresh == true ) {
 			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
