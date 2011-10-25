@@ -27,7 +27,6 @@ public class DeliveryPanel extends GenericPanel {
 	private boolean		hasOrders;
 	private FormGroup	main;
 	private OrdersHubWidget	filter;
-	private boolean		hasShippingPlaces;
 
 	public DeliveryPanel () {
 		super ();
@@ -322,6 +321,7 @@ public class DeliveryPanel extends GenericPanel {
 
 	private FromServerForm doOrderRow ( FromServer order ) {
 		boolean is_aggregate;
+		boolean has_shipping;
 		String order_identifier;
 		ArrayList orders;
 		CaptionPanel frame;
@@ -338,7 +338,7 @@ public class DeliveryPanel extends GenericPanel {
 		}
 
 		is_aggregate = ( order.getType () == "OrderAggregate" );
-		hasShippingPlaces = ( ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 ) &&
+		has_shipping = ( ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 ) &&
 					( is_aggregate == false && ( order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) ) );
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
@@ -389,7 +389,7 @@ public class DeliveryPanel extends GenericPanel {
 			order_identifier += "&amp;aggregate=true";
 
 		files = new LinksDialog ( "Ordinati e Consegnati" );
-		if ( hasShippingPlaces == true )
+		if ( has_shipping == true )
 			files.addHeader ( "Tutti i Luoghi" );
 		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=shipped" );
 		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=shipped" );
@@ -397,7 +397,7 @@ public class DeliveryPanel extends GenericPanel {
 		ver.setExtraWidget ( "ordered_files", files );
 
 		files = new LinksDialog ( "Prodotti Prezzati" );
-		if ( hasShippingPlaces == true )
+		if ( has_shipping == true )
 			files.addHeader ( "Tutti i Luoghi" );
 		files.addLink ( "CSV", "order_doc.php?id=" + order_identifier + "&amp;format=csv&amp;type=saved" );
 		files.addLink ( "PDF", "order_doc.php?id=" + order_identifier + "&amp;format=pdf&amp;type=saved" );
@@ -405,7 +405,7 @@ public class DeliveryPanel extends GenericPanel {
 		ver.setExtraWidget ( "priced_files", files );
 
 		files = new LinksDialog ( "Dettaglio Consegne" );
-		if ( hasShippingPlaces == true )
+		if ( has_shipping == true )
 			files.addHeader ( "Tutti i Luoghi" );
 		files.addLink ( "PDF", "delivery_document.php?id=" + order_identifier + "&amp;format=pdf&amp;type=delivery" );
 		downloads.add ( files );
@@ -465,6 +465,7 @@ public class DeliveryPanel extends GenericPanel {
 	private void syncUserOrder ( FromServerRappresentation ver, OrderUserInterface uorder, int action ) {
 		DeliverySummary summary;
 		CashCount cash;
+		FromServer order;
 
 		summary = ( DeliverySummary ) ver.retriveInternalWidget ( "list" );
 		cash = ( CashCount ) ver.retriveInternalWidget ( "cash" );
@@ -474,8 +475,14 @@ public class DeliveryPanel extends GenericPanel {
 				summary.addOrder ( uorder );
 				cash.addOrder ( uorder );
 
-				if ( hasShippingPlaces == true )
-					addShippingPlaceFiles ( ver, ( FromServer ) uorder );
+				if ( uorder instanceof OrderUser ) {
+					order = ( ( OrderUser ) uorder ).getObject ( "baseorder" );
+
+					if ( order.getBool ( "parent_aggregate" ) == false &&
+							order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) {
+						addShippingPlaceFiles ( ver, ( FromServer ) uorder );
+					}
+				}
 
 				break;
 			case 1:
