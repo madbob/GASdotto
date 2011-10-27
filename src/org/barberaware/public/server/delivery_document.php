@@ -17,6 +17,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+	TODOSUBITO	unita' di misura vicino alle quantita'
+*/
+
 require_once ( "utils.php" );
 require_once ( "tcpdf/tcpdf.php" );
 
@@ -54,7 +58,7 @@ formatting_entities ( $format );
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-list ( $orders, $supplier_name, $shipping_date ) = details_about_order ( $id, $is_aggregate );
+list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
 $all_products = array ();
 $all_contents = array ();

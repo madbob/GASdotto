@@ -15,6 +15,10 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+	TODOSUBITO	controllare misura massima per pezzi (quantita' * pezzatura < massimo)
+*/
+
 package org.barberaware.client;
 
 import java.util.*;
@@ -138,6 +142,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 					float val;
 					float input;
 					float relative_max;
+					float unit_size;
 					FromServer prod;
 					Supplier supp;
 
@@ -177,6 +182,10 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 								relative_max = maxAvailable + currentValue.getFloat ( "quantity" );
 							else
 								relative_max = maxAvailable;
+
+							unit_size = prod.getFloat ( "unit_size" );
+							if ( unit_size > 0 )
+								relative_max = relative_max * unit_size;
 
 							if ( input > relative_max ) {
 								Utils.showNotification ( "La quantità specificata è superiore al massimo ancora disponibile" );

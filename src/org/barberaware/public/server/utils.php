@@ -256,10 +256,14 @@ function details_about_order ( $id, $is_aggregate ) {
 
 		$orders = $aggregate->getAttribute ( 'orders' )->value;
 		$max_shipping_date = 0;
+		$supplier_ships = 1;
 
 		foreach ( $orders as $order ) {
 			$supplier = $order->getAttribute ( 'supplier' )->value;
 			$suppliers [] = $supplier->getAttribute ( 'name' )->value;
+
+			if ( $supplier_ships != 0 && $supplier->getAttribute ( 'shipping_manage' )->value == 0 )
+				$supplier_ships = 0;
 
 			$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 			if ( $shipping_date == '' )
@@ -278,6 +282,7 @@ function details_about_order ( $id, $is_aggregate ) {
 		$order->readFromDB ( $id );
 		$supplier = $order->getAttribute ( 'supplier' )->value;
 		$supplier_name = $supplier->getAttribute ( 'name' )->value;
+		$supplier_ships = $supplier->getAttribute ( 'shipping_manage' )->value;
 
 		$shipping_date = $order->getAttribute ( 'shippingdate' )->value;
 		if ( $shipping_date == '' )
@@ -286,7 +291,7 @@ function details_about_order ( $id, $is_aggregate ) {
 		$orders = array ( $order );
 	}
 
-	return array ( $orders, $supplier_name, $shipping_date );
+	return array ( $orders, $supplier_name, $supplier_ships, $shipping_date );
 }
 
 function sort_product_by_name ( $first, $second ) {

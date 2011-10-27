@@ -464,11 +464,6 @@ abstract class FromServer {
 		return $ret;
 	}
 
-	/*
-		Ricordarsi che questa funzione salva solo l'assegnazione (o la
-		rimozione) degli oggetti negli array, non il contenuto degli
-		oggetti stessi
-	*/
 	protected function save_arrays ( $fresh, $obj, $id ) {
 		if ( $fresh == true ) {
 			for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
@@ -555,7 +550,7 @@ abstract class FromServer {
 							$singleid = $element->id;
 
 							if ( $singleid == $row [ 'target' ] ) {
-								if ( check_acl_easy ( $element->type, $singleid, 1 ) == false ) {
+								if ( check_acl_easy ( $element->type, $singleid, 1 ) ) {
 									$tmpobj = new $element->type ();
 									$tmpobj->save ( $element );
 								}

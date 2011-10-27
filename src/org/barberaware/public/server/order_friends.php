@@ -159,7 +159,7 @@ formatting_entities ( $format );
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-list ( $orders, $supplier_name, $shipping_date ) = details_about_order ( $id, $is_aggregate );
+list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
 $all_contents = array ();
 $all_products = array ();
