@@ -21,8 +21,10 @@ require_once ( "config.php" );
 require_once ( "Mail.php" );
 require_once ( "Mail/mime.php" );
 require_once ( "tcpdf/tcpdf.php" );
+require_once ( "Archive/Tar.php" );
 
 require_once ( "FromServer.php" );
+require_once ( "SharableFromServer.php" );
 require_once ( "Session.php" );
 require_once ( "SystemConf.php" );
 require_once ( "ACL.php" );
@@ -233,6 +235,21 @@ function format_date ( $dbdate, $month_num = false ) {
 
 function format_address ( $address ) {
 	return $address->street . ', ' . $address->city;
+}
+
+function broken_address ( $value ) {
+	$obj = new stdClass ();
+	$tokens = explode ( ";", $value );
+
+	for ( $i = 0; $i < count ( $tokens ); $i++ ) {
+		if ( strlen ( $tokens [ $i ] ) != 0 ) {
+			list ( $name, $value ) = explode ( ":", $tokens [ $i ] );
+			if ( $name != "" )
+				$obj->$name = $value;
+		}
+	}
+
+	return $obj;
 }
 
 function broken_to_stamp ( $broken ) {
@@ -451,11 +468,12 @@ function merge_order_users ( $all_orders, $orders, $also_friends = false ) {
 
 function aggregate_variants ( $variants ) {
 	$tmp_variants = array ();
-	$ret_quantities = array ();
+	$ret_quantities = array_fill ( 0, 20, 0 );
 
 	foreach ( $variants as $var ) {
 		$exists = false;
 		$index = 0;
+		$i = 0;
 
 		foreach ( $tmp_variants as $test ) {
 			for ( $i = 0; $i < count ( $var->components ); $i++ ) {
@@ -607,7 +625,11 @@ class ExportDocument extends TCPDF {
 				}
 				else {
 					for ( $i = $offset; $i < $end; $i++ ) {
-						$val = $row [ $i ];
+						if ( $i < count ( $row ) )
+							$val = $row [ $i ];
+						else
+							$var = '&nbsp;';
+
 						$html .= '<td>' . $val . '</td>';
 					}
 				}
@@ -659,6 +681,61 @@ function output_formatted_document ( $title, $headers, $data, $format ) {
 		$pdf->ColoredTable ( $headers, $data );
 		$pdf->Output ( $title . '.pdf', 'I' );
 	}
+}
+
+function exportable_date ( $date ) {
+	return str_replace ( '-', '', $date );
+}
+
+function exportable_products ( $products ) {
+	$ret = "\t\t<products>\n";
+
+	foreach ( $products as $product ) {
+		$ret .= "\t\t\t<product>\n";
+
+		if ( property_exists ( $product, 'code' ) && $product->code != '' )
+			$ret .= "\t\t\t\t<sku>" . $product->code . "</sku>\n";
+
+		$ret .= "\t\t\t\t<name>" . $product->name . "</name>\n";
+		$ret .= "\t\t\t\t<category>" . $product->category->name . "</category>\n";
+		$ret .= "\t\t\t\t<um>" . $product->measure->name . "</um>\n";
+		$ret .= "\t\t\t\t<description>" . $product->description . "</description>\n";
+
+		$ret .= "\t\t\t\t<orderInfo>\n";
+
+		if ( $product->minimum_order > 0 )
+			$ret .= "\t\t\t\t\t<minQty>" . $product->minimum_order . "</minQty>\n";
+		if ( $product->multiple_order > 0 )
+			$ret .= "\t\t\t\t\t<mulQty>" . $product->multiple_order . "</mulQty>\n";
+		if ( property_exists ( $product, 'total_max_order' ) && $product->total_max_order > 0 )
+			$ret .= "\t\t\t\t\t<maxQty>" . $product->total_max_order . "</maxQty>\n";
+
+		$ret .= "\t\t\t\t\t<umPrice>" . $product->unit_price . "</umPrice>\n";
+
+		if ( $product->shipping_price > 0 )
+			$ret .= "\t\t\t\t\t<shippingCost>" . $product->shipping_price . "</shippingCost>\n";
+
+		if ( property_exists ( $product, 'variants' ) && is_array ( $product->variants ) && count ( $product->variants ) != 0 ) {
+			$ret .= "\t\t\t\t\t<variants>\n";
+
+			foreach ( $product->variants as $variant ) {
+				$ret .= "\t\t\t\t\t\t<variant name=\"" . $variant->name . "\">\n";
+
+				foreach ( $variant->values as $value )
+					$ret .= "\t\t\t\t\t\t\t<value>" . $value->name . "</value>\n";
+
+				$ret .= "\t\t\t\t\t\t</variant>\n";
+			}
+
+			$ret .= "\t\t\t\t\t</variants>\n";
+		}
+
+		$ret .= "\t\t\t\t</orderInfo>\n";
+		$ret .= "\t\t\t</product>\n";
+	}
+
+	$ret .= "\t\t</products>\n";
+	return $ret;
 }
 
 /****************************************************************** shortcuts */

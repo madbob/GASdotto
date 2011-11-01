@@ -29,6 +29,8 @@ public class Supplier extends FromServer {
 		super ();
 
 		addAttribute ( "name", FromServer.STRING );
+		addAttribute ( "tax_code", FromServer.STRING );
+		addAttribute ( "vat_number", FromServer.STRING );
 		addAttribute ( "contact", FromServer.STRING );
 		addAttribute ( "phone", FromServer.STRING );
 		addAttribute ( "fax", FromServer.STRING );

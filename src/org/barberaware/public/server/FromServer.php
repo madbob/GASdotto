@@ -57,18 +57,7 @@ class FromServerAttribute {
 				break;
 
 			case "ADDRESS":
-				$obj = new stdClass ();
-				$tokens = explode ( ";", $value );
-
-				for ( $i = 0; $i < count ( $tokens ); $i++ ) {
-					if ( strlen ( $tokens [ $i ] ) != 0 ) {
-						list ( $name, $value ) = explode ( ":", $tokens [ $i ] );
-						if ( $name != "" )
-							$obj->$name = $value;
-					}
-				}
-
-				return $obj;
+				return broken_address ( $value );
 				break;
 
 			case "OBJECT":
@@ -795,6 +784,15 @@ abstract class FromServer {
 			$obj->sharing_privileges = get_acl ( $this );
 
 		return $obj;
+	}
+
+	public static function exportable_array ( $array, $filter = null, $compress = false ) {
+		$ret = array ();
+
+		foreach ( $array as $obj )
+			$ret [] = $obj->exportable ( $filter, $compress );
+
+		return $ret;
 	}
 }
 

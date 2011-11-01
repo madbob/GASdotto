@@ -182,6 +182,8 @@ public class SuppliersEditPanel extends GenericPanel {
 
 		frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( true ) ) );
 		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
+		frame.addPair ( "Codice Fiscale", ver.getWidget ( "tax_code" ) );
+		frame.addPair ( "Partita IVA", ver.getWidget ( "vat_number" ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );

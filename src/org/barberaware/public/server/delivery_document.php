@@ -17,10 +17,6 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-/*
-	TODOSUBITO	unita' di misura vicino alle quantita'
-*/
-
 require_once ( "utils.php" );
 require_once ( "tcpdf/tcpdf.php" );
 
@@ -156,7 +152,8 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 
 			if ( $unit <= 0.0 ) {
 				$q = $quantity;
-				$q = comma_format ( $q );
+				$measure = $prod->getAttribute ( "measure" )->value;
+				$q = ( comma_format ( $q ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
 
 				if ( count ( $variants ) != 0 ) {
 					list ( $variants, $quantities ) = aggregate_variants ( $variants );

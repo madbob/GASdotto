@@ -19,30 +19,28 @@
 
 require_once ( "utils.php" );
 
-class OrderAggregate extends SharableFromServer {
-	public function __construct () {
-		parent::__construct ( "OrderAggregate" );
+$type = require_param ( 'type' );
+$id = require_param ( 'id' );
 
-		$this->addAttribute ( "orders", "ARRAY::Order" );
+if ( check_session () == false )
+	error_exit ( "Sessione non autenticata" );
 
-		$this->setPublic ( false );
-	}
+$obj = new $type ();
+$obj->readFromDB ( $id );
+list ( $name, $outputs ) = $obj->export ( array () );
 
-	public function export ( $options ) {
-		$ret = array ();
-		$name = array ();
+$path = str_replace ( array ( '&', "\r\n", "\n", '+', ',', '/' ), '-', strtolower ( trim ( $name ) ) );
+$path = sys_get_temp_dir () . '/' . $path;
+$archive = new Archive_Tar ( $path, null );
 
-		foreach ( self::getAttribute ( 'orders' )->value as $order ) {
-			list ( $single_name, $single_ret ) = $order->export ( array () );
-			$name [] = $single_name;
-			$ret = array_merge ( $ret, $single_ret );
-		}
+foreach ( $outputs as $out )
+	$archive->addString ( md5 ( $out ), $out );
 
-		return array ( join ( ' - ', $name ), $ret );
-	}
+header ( "Content-Type: application/x-tar" );
+header ( "Content-Disposition: disposition-type=attachment; filename=\"" . $name . ".gdxp\"" );
 
-	public static function import ( $contents ) {
-	}
-}
+echo file_get_contents ( $path );
+unlink ( $path );
 
 ?>
+

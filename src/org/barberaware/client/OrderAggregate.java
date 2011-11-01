@@ -188,6 +188,8 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 		} );
 
 		addAttribute ( "orders", FromServer.ARRAY, Order.class );
+
+		isSharable ( true );
 	}
 
 	public boolean hasSupplier ( FromServer target ) {

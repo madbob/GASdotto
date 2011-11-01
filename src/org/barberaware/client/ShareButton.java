@@ -54,6 +54,7 @@ public class ShareButton extends PushButton implements ObjectWidget {
 	}
 
 	private Panel doDialog () {
+		boolean complex_buttons;
 		VerticalPanel ret;
 		HorizontalPanel box;
 		CaptionPanel frame;
@@ -62,6 +63,7 @@ public class ShareButton extends PushButton implements ObjectWidget {
 
 		ret = new VerticalPanel ();
 		box = null;
+		complex_buttons = false;
 
 		if ( Session.getSystemConf ().getBool ( "has_multigas" ) ) {
 			box = new HorizontalPanel ();
@@ -92,6 +94,7 @@ public class ShareButton extends PushButton implements ObjectWidget {
 			checkRemoteACL ();
 
 			main = box;
+			complex_buttons = true;
 		}
 		else {
 			localPrivileges = null;
@@ -109,22 +112,32 @@ public class ShareButton extends PushButton implements ObjectWidget {
 		box.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		ret.add ( box );
 
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				if ( localPrivileges != null )
-					localPrivileges.saveChanges ();
+		if ( complex_buttons == true ) {
+			but = new Button ( "Salva", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					if ( localPrivileges != null )
+						localPrivileges.saveChanges ();
 
-				closeDialog ();
-			}
-		} );
-		box.add ( but );
+					closeDialog ();
+				}
+			} );
+			box.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				closeDialog ();
-			}
-		} );
-		box.add ( but );
+			but = new Button ( "Annulla", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					closeDialog ();
+				}
+			} );
+			box.add ( but );
+		}
+		else {
+			but = new Button ( "Chiudi", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					closeDialog ();
+				}
+			} );
+			box.add ( but );
+		}
 
 		return ret;
 	}

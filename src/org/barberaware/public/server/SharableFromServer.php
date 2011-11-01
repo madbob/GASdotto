@@ -19,30 +19,22 @@
 
 require_once ( "utils.php" );
 
-class OrderAggregate extends SharableFromServer {
-	public function __construct () {
-		parent::__construct ( "OrderAggregate" );
+abstract class SharableFromServer extends FromServer {
+	abstract public function export ( $options );
+	abstract public static function import ( $contents );
 
-		$this->addAttribute ( "orders", "ARRAY::Order" );
+	public static function header () {
+		$date = date ('d/m/Y');
 
-		$this->setPublic ( false );
+		return <<<HEAD
+<?xml version="1.0" encoding="UTF-8"?>
+<gdxp protocolVersion="1.0" creationDate="$date" applicationSignature="GASdotto">
+
+HEAD;
 	}
 
-	public function export ( $options ) {
-		$ret = array ();
-		$name = array ();
-
-		foreach ( self::getAttribute ( 'orders' )->value as $order ) {
-			list ( $single_name, $single_ret ) = $order->export ( array () );
-			$name [] = $single_name;
-			$ret = array_merge ( $ret, $single_ret );
-		}
-
-		return array ( join ( ' - ', $name ), $ret );
-	}
-
-	public static function import ( $contents ) {
+	public static function footer () {
+		return "</gdxp>";
 	}
 }
 
-?>

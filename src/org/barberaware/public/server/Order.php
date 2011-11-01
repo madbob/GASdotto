@@ -19,7 +19,7 @@
 
 require_once ( "utils.php" );
 
-class Order extends FromServer {
+class Order extends SharableFromServer {
 	public function __construct () {
 		parent::__construct ( "Order", "Orders" );
 
@@ -244,6 +244,30 @@ class Order extends FromServer {
 			$obj->status = 2;
 
 		return parent::save ( $obj );
+	}
+
+	public function export ( $options ) {
+		$order = "\t\t<orders>\n";
+		$order .= "\t\t\t<order>\n";
+		$order .= "\t\t\t\t<openDate>" . exportable_date ( self::getAttribute ( 'startdate' )->value ) . "</openDate>\n";
+		$order .= "\t\t\t\t<closeDate>" . exportable_date ( self::getAttribute ( 'enddate' )->value ) . "</closeDate>\n";
+
+		$ship = self::getAttribute ( 'shippingdate' )->value;
+		if ( $ship != '' )
+			$order .= "\t\t\t\t<deliveryDate>" . exportable_date ( self::getAttribute ( 'shippingdate' )->value ) . "</deliveryDate>\n";
+
+		$order .= "\t\t\t</order>\n";
+		$order .= "\t\t</orders>\n";
+
+		$products = exportable_products ( FromServer::exportable_array ( self::getAttribute ( 'products' )->value ) );
+
+		$supplierid = self::getAttribute ( 'supplier' )->value->getAttribute ( 'id' )->value;
+		$supplier = new Supplier ();
+		$supplier->readFromDB ( $supplierid );
+		return $supplier->export ( array ( 'products' => $products, 'child' => $order ) );
+	}
+
+	public static function import ( $contents ) {
 	}
 
 	private function send_summary ( $obj ) {
