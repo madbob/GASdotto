@@ -338,8 +338,10 @@ public class DeliveryPanel extends GenericPanel {
 		}
 
 		is_aggregate = ( order.getType () == "OrderAggregate" );
-		has_shipping = ( ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 ) &&
-					( is_aggregate == false && ( order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) ) );
+		has_shipping = ( Session.getGAS ().getBool ( "use_shipping" ) == true ) &&
+					( ( Utils.getServer ().getObjectsFromCache ( "ShippingPlace" ).size () != 0 ) &&
+						( is_aggregate == false &&
+							( order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) ) );
 
 		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
@@ -478,7 +480,7 @@ public class DeliveryPanel extends GenericPanel {
 				if ( uorder instanceof OrderUser ) {
 					order = ( ( OrderUser ) uorder ).getObject ( "baseorder" );
 
-					if ( order.getBool ( "parent_aggregate" ) == false &&
+					if ( Session.getGAS ().getBool ( "use_shipping" ) == true && order.getBool ( "parent_aggregate" ) == false &&
 							order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) {
 						addShippingPlaceFiles ( ver, ( FromServer ) uorder );
 					}

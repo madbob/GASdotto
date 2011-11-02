@@ -35,6 +35,7 @@ class GAS extends FromServer {
 		$this->addAttribute ( "mailinglist", "STRING" );
 		$this->addAttribute ( "use_rid", "BOOLEAN" );
 		$this->addAttribute ( "rid_conf", "STRING" );
+		$this->addAttribute ( "use_shipping", "BOOLEAN" );
 	}
 
 	public static function getMasterGAS () {

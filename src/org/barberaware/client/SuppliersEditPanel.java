@@ -180,7 +180,9 @@ public class SuppliersEditPanel extends GenericPanel {
 		references = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_MULTI, filter );
 		frame.addPair ( "Addetti Consegne", ver.getPersonalizedWidget ( "carriers", references ) );
 
-		frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( true ) ) );
+		if ( Session.getGAS ().getBool ( "use_shipping" ) == true )
+			frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( true ) ) );
+
 		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 		frame.addPair ( "Codice Fiscale", ver.getWidget ( "tax_code" ) );
 		frame.addPair ( "Partita IVA", ver.getWidget ( "vat_number" ) );

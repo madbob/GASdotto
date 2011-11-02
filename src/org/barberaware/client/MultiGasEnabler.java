@@ -56,14 +56,6 @@ public class MultiGasEnabler extends Composite {
 		pan = new VerticalPanel ();
 		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
-		message = new HTML ( "Abilitando la modalità Multi-GAS sarà possibile ospitare più Gruppi di Acquisto su questa istanza di GASdotto." );
-		message.setStyleName ( "message" );
-		pan.add ( message );
-
-		message = new HTML ( "Ogni GAS avrà i suoi utenti, i suoi amministratori ed i suoi referenti, nonché i suoi fornitori ed i suoi ordini, ma sarà possibile condividere quest'ultimo genere di contenuti." );
-		message.setStyleName ( "message" );
-		pan.add ( message );
-
 		message = new HTML ( "Per abilitare il Multi-GAS devi introdurre qui la password per l'utente \"master\", colui che potrà aggiungere e togliere GAS da questa istanza." );
 		message.setStyleName ( "message" );
 		pan.add ( message );

@@ -241,7 +241,8 @@ public class UsersPanel extends GenericPanel {
 					*/
 					frame.addPair ( "Data di Cessazione", form.getWidget ( "leaving_date" ) );
 
-					frame.addPair ( "Luogo Consegna", form.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
+					if ( Session.getGAS ().getBool ( "use_shipping" ) == true )
+						frame.addPair ( "Luogo Consegna", form.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
 
 					frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
 					form.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );

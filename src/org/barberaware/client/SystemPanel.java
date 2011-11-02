@@ -34,6 +34,7 @@ public class SystemPanel extends GenericPanel {
 		FormCluster cluster;
 		CaptionPanel sframe;
 		VerticalPanel ver;
+		MultiGasEnabler multigas;
 
 		sframe = new CaptionPanel ( "Configurazione GAS" );
 		sframe.add ( doGlobalConfForm () );
@@ -65,18 +66,33 @@ public class SystemPanel extends GenericPanel {
 		sframe.add ( cluster );
 		add ( sframe );
 
-		sframe = new CaptionPanel ( "Luoghi di Consegna" );
-		cluster = new FormCluster ( "ShippingPlace", "Nuovo Luogo" ) {
-			protected FromServerForm doEditableRow ( FromServer place ) {
-				return doPlaceForm ( place );
-			}
+		if ( Session.getGAS ().getBool ( "use_shipping" ) == true ) {
+			sframe = new CaptionPanel ( "Luoghi di Consegna" );
+			cluster = new FormCluster ( "ShippingPlace", "Nuovo Luogo" ) {
+				protected FromServerForm doEditableRow ( FromServer place ) {
+					return doPlaceForm ( place );
+				}
 
-			protected FromServerForm doNewEditableRow () {
-				return doEditableRow ( new ShippingPlace () );
-			}
-		};
-		sframe.add ( cluster );
-		add ( sframe );
+				protected FromServerForm doNewEditableRow () {
+					return doEditableRow ( new ShippingPlace () );
+				}
+			};
+			sframe.add ( cluster );
+			add ( sframe );
+		}
+
+		if ( Session.getSystemConf ().getBool ( "has_multigas" ) == false ) {
+			sframe = new CaptionPanel ( "Multi-GAS" );
+			ver = new VerticalPanel ();
+
+			ver.add ( new HTML ( "Abilitando la modalità Multi-GAS sarà possibile ospitare più Gruppi di Acquisto su questa istanza di GASdotto. Ogni GAS avrà i suoi utenti, i suoi amministratori ed i suoi referenti, nonché i suoi fornitori ed i suoi ordini, ma sarà possibile condividere quest'ultimo genere di contenuti." ) );
+			multigas = new MultiGasEnabler ();
+			multigas.addStyleName ( "top-spaced" );
+			ver.add ( multigas );
+
+			sframe.add ( ver );
+			add ( sframe );
+		}
 
 		sframe = new CaptionPanel ( "GASdotto" );
 		ver = new VerticalPanel ();
@@ -163,13 +179,7 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
-		if ( Session.getSystemConf ().getBool ( "has_multigas" ) == false ) {
-			MultiGasEnabler multigas;
-
-			multigas = new MultiGasEnabler ();
-			ver.setExtraWidget ( "multigas", multigas );
-			frame.addPair ( "Abilita Multi-GAS", multigas );
-		}
+		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );

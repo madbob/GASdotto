@@ -35,6 +35,7 @@ public class GAS extends FromServer {
 		addAttribute ( "payment_date", FromServer.DATE );
 		addAttribute ( "use_rid", FromServer.BOOLEAN );
 		addAttribute ( "rid_conf", FromServer.STRING );
+		addAttribute ( "use_shipping", FromServer.BOOLEAN );
 
 		setString ( "name", "Senza Nome" );
 	}

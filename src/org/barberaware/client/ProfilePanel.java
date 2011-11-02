@@ -112,7 +112,8 @@ public class ProfilePanel extends GenericPanel {
 		frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
 		ver.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
 
-		frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
+		if ( Session.getGAS ().getBool ( "use_shipping" ) == true )
+			frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
 
 		ver.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerRappresentationFull form ) {
