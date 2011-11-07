@@ -30,6 +30,37 @@ class ProductUser extends FromServer {
 		$this->addAttribute ( "orderdate", "DATE" );
 		$this->addAttribute ( "orderperson", "OBJECT::User" );
 	}
+
+	public function save ( $obj ) {
+		/*
+			Super hack!
+			Questo e' per evitare che, per qualche motivo, vengano
+			assegnate ad un prodotto con prezzo variabile piu' di
+			una variante.
+			Cfr. ordine per CheBun effettuato dal GAS Roccafranca
+
+			Dovra' essere prossimamente sostituito con un criterio
+			piu' esplicito per discriminare i prodotti la cui
+			quantita' deve essere sempre considerata 1
+		*/
+		if ( property_exists ( 'variants', $obj ) && is_array ( $obj->variants ) && count ( $obj->variants ) > 1 ) {
+			if ( is_number ( $obj->product ) ) {
+				$prod = new Product ();
+				$prod->readFromDB ( $obj->product );
+			}
+			else {
+				$prod = $obj->product;
+			}
+
+			if ( $prod->getAttribute ( 'mutable_price' )->value == true ) {
+				$tmp = array ();
+				$tmp [] = $obj->variants [ 0 ];
+				$obj->variants = $tmp;
+			}
+		}
+
+		return parent::save ( $obj );
+	}
 }
 
 ?>

@@ -418,7 +418,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 						if ( currentValue.getObject ( "product" ).getBool ( "mutable_price" ) == true && quantity.getVal () != 0 )
 							num = 1;
 						else
-							num = ( int ) quantity.getVal ();
+							num = ( int ) Math.ceil ( ( double ) quantity.getVal () );
 
 						alignVariants ( currentValue, num, null );
 					}
