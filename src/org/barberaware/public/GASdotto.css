@@ -238,6 +238,14 @@ body {
 	vertical-align:		bottom;
 }
 
+.double-Label .major {
+	font-size:		18px;
+}
+
+.double-Label .minor {
+	font-size:		12px;
+}
+
 .table-header .gwt-Label {
 	font-weight:		bold;
 	border-bottom:		3px solid #4EDFCE;
@@ -528,6 +536,10 @@ body {
 
 .drop-engage {
 	border:			5px solid #FF0000;
+}
+
+.main-panel-explain {
+	padding-right:		100px;
 }
 
 .big-error-dialog {

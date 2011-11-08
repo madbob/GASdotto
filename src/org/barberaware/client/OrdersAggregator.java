@@ -208,13 +208,14 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 		container.setWidth ( "100%" );
 		main.add ( container );
 
-		notice = new HTML ( "<p>Da questo pannello puoi unire diversi ordini in agglomerati, in modo che siano gestiti uniformemente come un ordine singolo all'interno dell'interfaccia. Essi continueranno a restare tra loro indipendenti, le modifiche riguardano solo l'aspetto grafico.</p><p>A sinistra appaiono gli ordini non aggregati, mentre a destra i diversi gruppi. Clicca e trascina i singoli ordini da una colonna all'altra. Clicca su \"Nuovo Aggregato\" per creare un nuovo insieme.</p>" );
+		notice = new HTML ( "<p>Da questo pannello puoi unire diversi ordini in agglomerati, in modo che siano gestiti uniformemente come un ordine singolo all'interno dell'interfaccia. Essi continueranno a restare tra loro indipendenti, le modifiche riguardano solo l'aspetto grafico.</p><p>A sinistra appaiono gli ordini non aggregati, mentre a destra i diversi gruppi. Clicca e trascina i singoli ordini da una colonna all'altra. Clicca su \"Nuovo Aggregato\" per creare un nuovo insieme. Quando hai finito, clicca l'icona verde in fondo.</p>" );
 		notice.setStyleName ( "small-text" );
+		notice.addStyleName ( "main-panel-explain" );
 		container.add ( notice );
 
 		button = new AddButton ( "Nuovo Aggregato", new ClickListener () {
 			public void onClick ( Widget sender ) {
-				aggregationsList.add ( new DroppableAggregate ( dragController, ordersList, new OrderAggregate () ) );
+				aggregationsList.insert ( new DroppableAggregate ( dragController, ordersList, new OrderAggregate () ), 0 );
 			}
 		} );
 		container.add ( button );

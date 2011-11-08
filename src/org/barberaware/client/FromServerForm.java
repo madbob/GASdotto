@@ -28,7 +28,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	private DisclosurePanel		main;
 	private int			editMode;
 	private EmblemsBar		icons;
-	private Label			summary;
+	private HTML			summary;
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
@@ -44,6 +44,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 		setValue ( obj );
 		forceSave = false;
 		hasSharing = false;
+		summary = null;
 
 		main = new DisclosurePanel ( doSummary () );
 		main.setAnimationEnabled ( true );
@@ -121,7 +122,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 		super.setCallback ( routine );
 
 		if ( routine != null )
-			summary.setText ( retrieveNameInCallbacks () );
+			summaryContents ();
 	}
 
 	public void addEventHandler ( DisclosureHandler handler ) {
@@ -168,6 +169,27 @@ public class FromServerForm extends FromServerRappresentationFull {
 		forceSave = force;
 	}
 
+	private HTML summaryContents () {
+		String content;
+		String [] tokens;
+
+		content = retrieveNameInCallbacks ();
+		tokens = content.split ( "\n" );
+
+		if ( summary == null )
+			summary = new HTML ();
+
+		summary.setStyleName ( "gwt-Label" );
+
+		if ( tokens.length != 1 ) {
+			content = "<span class=\"major\">" + tokens [ 0 ] + "<span><br /><span class=\"minor\">" + tokens [ 1 ] + "</span>";
+			summary.addStyleName ( "double-Label" );
+		}
+
+		summary.setHTML ( content );
+		return summary;
+	}
+
 	private void placeButtons () {
 		FromServer value;
 		HorizontalPanel hold;
@@ -211,7 +233,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 		main = new HorizontalPanel ();
 		main.setStyleName ( "element-summary" );
 
-		summary = new Label ( retrieveNameInCallbacks () );
+		summary = summaryContents ();
 		main.add ( summary );
 
 		return main;
@@ -336,7 +358,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 
 	public void refreshContents ( FromServer obj ) {
 		super.refreshContents ( obj );
-		summary.setText ( retrieveNameInCallbacks () );
+		summaryContents ();
 	}
 
 	public void checkSaving () {
@@ -363,7 +385,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	}
 
 	protected void afterSave () {
-		summary.setText ( retrieveNameInCallbacks () );
+		summaryContents ();
 		reviewSharing ();
 	}
 }

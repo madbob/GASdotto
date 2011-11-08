@@ -63,7 +63,7 @@ public class Order extends FromServer implements OrderInterface {
 				else
 					shipping = "";
 
-				return sup + " (dal " + start + " al " + end + shipping + ")";
+				return sup + "\ndal " + start + " al " + end + shipping;
 			}
 		} );
 
