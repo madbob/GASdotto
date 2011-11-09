@@ -24,6 +24,61 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class HomePanel extends GenericPanel {
+	private class OrderToCloseDialog extends DialogBox {
+		private FromServer ord;
+
+		public OrderToCloseDialog ( FromServer order ) {
+			String condition;
+			Date close;
+			VerticalPanel container;
+			HorizontalPanel buttons;
+			Button but;
+
+			ord = order;
+
+			close = order.getDate ( "shippingdate" );
+			if ( close == null ) {
+				close = order.getDate ( "enddate" );
+				condition = "chiuso il " + Utils.printableDate ( close );
+			}
+			else {
+				condition = "consegnato il " + Utils.printableDate ( close );
+			}
+
+			container = new VerticalPanel ();
+
+			container.add ( new HTML ( "<p>Un ordine per " + ord.getObject ( "supplier" ).getString ( "name" ) + " risulta essere stato " + condition + ". " +
+					"E' fortemente consigliato marcare tale ordine con lo stato di \"Consegnato\", in modo che non sia più visualizzato nella lista di quelli validi. " +
+					"Tale elemento sarà comunque sempre reperibile in futuro con la \"Modalità Ricerca Ordini\" nel pannello \"Gestione Ordini\".</p>" ) );
+
+			buttons = new HorizontalPanel ();
+			buttons.setWidth ( "100%" );
+			container.add ( buttons );
+
+			but = new Button ( "Va bene, fallo sparire", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					ord.setInt ( "status", Order.SHIPPED );
+					ord.save ( null );
+					hide ();
+				}
+			} );
+			buttons.add ( but );
+			buttons.setCellHorizontalAlignment ( but, HasHorizontalAlignment.ALIGN_CENTER );
+
+			but = new Button ( "No, non fare nulla", new ClickListener () {
+				public void onClick ( Widget sender ) {
+					hide ();
+				}
+			} );
+			buttons.add ( but );
+			buttons.setCellHorizontalAlignment ( but, HasHorizontalAlignment.ALIGN_CENTER );
+
+			this.setText ( "Chiudi Ordine" );
+			this.setWidget ( container );
+
+		}
+	}
+
 	private NotificationsBox	notifications;
 	private PlainOrdersBox		openedOrders;
 	private PlainOrdersBox		closedOrders;
@@ -154,8 +209,15 @@ public class HomePanel extends GenericPanel {
 
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
-				if ( object.getBool ( "parent_aggregate" ) == false && object.getInt ( "status" ) == Order.OPENED )
+				int status;
+
+				status = object.getInt ( "status" );
+
+				if ( object.getBool ( "parent_aggregate" ) == false && status == Order.OPENED )
 					openedOrders.addRow ( object );
+
+				if ( status == Order.CLOSED )
+					checkOrderToClose ( object );
 
 				/*
 					Gli ordini gia' chiusi sono eventualmente messi nella lista se e quando si
@@ -231,6 +293,45 @@ public class HomePanel extends GenericPanel {
 		orders.setStrings ( title, empty );
 
 		return orders;
+	}
+
+	private void checkOrderToClose ( FromServer order ) {
+		int month;
+		int year;
+		Date close;
+		OrderToCloseDialog dialog;
+
+		/*
+			Somma un mese alla data di consegna, o a quella di
+			chiusura, e controlla se la data finale e' precedente a
+			quella attuale. Banalmente ispirato da
+			http://code.google.com/p/gwt-examples/wiki/gwtDateTime#Subtract_Months
+		*/
+
+		close = order.getDate ( "shippingdate" );
+		if ( close == null )
+			close = order.getDate ( "enddate" );
+
+		close = ( Date ) close.clone ();
+		month = close.getMonth ();
+		year = close.getYear ();
+
+		if ( month >= 11 ) {
+			month = 1;
+			year += 1;
+		}
+		else {
+			month += 1;
+		}
+
+		close.setMonth ( month );
+		close.setYear ( year );
+
+		if ( close.before ( new Date ( System.currentTimeMillis () ) ) ) {
+			dialog = new OrderToCloseDialog ( order );
+			dialog.center ();
+			dialog.show ();
+		}
 	}
 
 	/****************************************************************** GenericPanel */
