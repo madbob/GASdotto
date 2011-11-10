@@ -38,6 +38,32 @@ class GAS extends FromServer {
 		$this->addAttribute ( "use_shipping", "BOOLEAN" );
 	}
 
+	public function get ( $request, $compress ) {
+		$ret = parent::get ( $request, $compress );
+
+		foreach ( $ret as $gas ) {
+			if ( property_exists ( $gas, 'mail_conf' ) )
+				$gas->mail_conf = self::hidePassword ( $gas->mail_conf );
+		}
+
+		return $ret;
+	}
+
+	public function save ( $obj ) {
+		if ( $obj->id != -1 && property_exists ( $obj, 'mail_conf' ) && $obj->mail_conf != '' ) {
+			list ( $from, $username, $password, $host, $port, $ssl ) = explode ( '::', $obj->mail_conf );
+
+			if ( $password == '###' ) {
+				$g = new GAS ();
+				$g->readFromDB ( $obj->id );
+				list ( $useless, $useless, $password, $useless, $useless, $useless ) = explode ( '::', $g->getAttribute ( 'mail_conf' )->value );
+				$obj->mail_conf = "$from::$username::$password::$host::$port::$ssl";
+			}
+		}
+
+		return parent::save ( $obj );
+	}
+
 	public static function getMasterGAS () {
 		$query = "SELECT id FROM GAS WHERE is_master = true";
 		$returned = query_and_check ( $query, "Impossibile recuperare GAS master" );
@@ -48,6 +74,20 @@ class GAS extends FromServer {
 
 		$ret = new GAS ();
 		$ret->readFromDB ( $row [ 'id' ] );
+
+		$attr = $ret->getAttribute ( 'mail_conf' );
+		$attr->value = self::hidePassword ( $attr->value );
+
 		return $ret;
+	}
+
+	private static function hidePassword ( $mailconf ) {
+		if ( mail_conf != '' ) {
+			list ( $from, $username, $password, $host, $port, $ssl ) = explode ( '::', $mailconf );
+			return "$from::$username::###::$host::$port::$ssl";
+		}
+		else {
+			return '';
+		}
 	}
 }
