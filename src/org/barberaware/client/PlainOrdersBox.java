@@ -28,7 +28,7 @@ public class PlainOrdersBox extends PlainFillBox {
 		private int		expiryMode;
 		private FromServer	order;
 		private ArrayList	users;
-		private Label		text;
+		private ComplexLabel	text;
 		private Hidden		id;
 		private Label		total;
 
@@ -46,12 +46,11 @@ public class PlainOrdersBox extends PlainFillBox {
 			ArrayList data;
 			FromServer ord;
 
-			name = order.getString ( "name" );
-			text = new Label ( name );
-			text.setStyleName ( "clickable" );
-			checkOrderExpiry ( order, text );
-
 			data = new ArrayList ();
+
+			text = new ComplexLabel ();
+			text.setContent ( order.getString ( "name" ) );
+			checkOrderExpiry ( order, text );
 			data.add ( text );
 
 			id_str = null;
@@ -146,7 +145,7 @@ public class PlainOrdersBox extends PlainFillBox {
 			}
 		}
 
-		private void checkOrderExpiry ( FromServer order, Label text ) {
+		private void checkOrderExpiry ( FromServer order, ComplexLabel text ) {
 			long now;
 			long d;
 			Date date;

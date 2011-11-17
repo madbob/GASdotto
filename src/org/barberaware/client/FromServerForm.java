@@ -28,7 +28,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	private DisclosurePanel		main;
 	private int			editMode;
 	private EmblemsBar		icons;
-	private HTML			summary;
+	private ComplexLabel		summary;
 	private VerticalPanel		contents;
 	private ButtonsBar		buttons;
 	private boolean			alwaysShow;
@@ -169,24 +169,15 @@ public class FromServerForm extends FromServerRappresentationFull {
 		forceSave = force;
 	}
 
-	private HTML summaryContents () {
+	private ComplexLabel summaryContents () {
 		String content;
-		String [] tokens;
 
 		content = retrieveNameInCallbacks ();
-		tokens = content.split ( "\n" );
 
 		if ( summary == null )
-			summary = new HTML ();
+			summary = new ComplexLabel ();
 
-		summary.setStyleName ( "gwt-Label" );
-
-		if ( tokens.length != 1 ) {
-			content = "<span class=\"major\">" + tokens [ 0 ] + "<span><br /><span class=\"minor\">" + tokens [ 1 ] + "</span>";
-			summary.addStyleName ( "double-Label" );
-		}
-
-		summary.setHTML ( content );
+		summary.setContent ( content );
 		return summary;
 	}
 

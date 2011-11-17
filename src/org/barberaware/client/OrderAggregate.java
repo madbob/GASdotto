@@ -30,9 +30,7 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 		addFakeAttribute ( "name", FromServer.STRING, new ValueFromObjectClosure () {
 			public String retriveString ( FromServer obj ) {
 				String name;
-				Date start;
-				Date end;
-				Date ship;
+				String date;
 				Date tmp_ship;
 				ArrayList orders;
 				FromServer order;
@@ -43,30 +41,23 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 
 				order = ( FromServer ) orders.get ( 0 );
 				name = order.getObject ( "supplier" ).getString ( "name" );
-				start = order.getDate ( "startdate" );
-				end = order.getDate ( "enddate" );
-				ship = order.getDate ( "shippingdate" );
+
+				date = Utils.printableDate ( order.getDate ( "startdate" ) ) + " - " + Utils.printableDate ( order.getDate ( "enddate" ) );
+				tmp_ship = order.getDate ( "shippingdate" );
+				if ( tmp_ship != null )
+					date += " - " + Utils.printableDate ( tmp_ship );
 
 				for ( int i = 1; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
 					name += " / " + order.getObject ( "supplier" ).getString ( "name" );
 
-					if ( start.before ( order.getDate ( "startdate" ) ) )
-						start = order.getDate ( "startdate" );
-					if ( end.after ( order.getDate ( "enddate" ) ) )
-						end = order.getDate ( "enddate" );
-
-					if ( ship == null ) {
-						ship = order.getDate ( "shippingdate" );
-					}
-					else {
-						tmp_ship = order.getDate ( "shippingdate" );
-						if ( tmp_ship != null && tmp_ship.after ( ship ) )
-							ship = tmp_ship;
-					}
+					date += ", " + Utils.printableDate ( order.getDate ( "startdate" ) ) + " - " + Utils.printableDate ( order.getDate ( "enddate" ) );
+					tmp_ship = order.getDate ( "shippingdate" );
+					if ( tmp_ship != null )
+						date += " - " + Utils.printableDate ( tmp_ship );
 				}
 
-				return name + "\ndal " + Utils.printableDate ( start ) + " al " + Utils.printableDate ( end ) + ( ship == null ? "" : ", in consegna il " + Utils.printableDate ( ship ) );
+				return name + "\n" + date;
 			}
 		} );
 
