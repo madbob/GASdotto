@@ -43,7 +43,7 @@ class ProductUser extends FromServer {
 			piu' esplicito per discriminare i prodotti la cui
 			quantita' deve essere sempre considerata 1
 		*/
-		if ( property_exists ( 'variants', $obj ) && is_array ( $obj->variants ) && count ( $obj->variants ) > 1 ) {
+		if ( property_exists ( $obj, 'variants' ) && is_array ( $obj->variants ) && count ( $obj->variants ) > 1 ) {
 			if ( is_number ( $obj->product ) ) {
 				$prod = new Product ();
 				$prod->readFromDB ( $obj->product );

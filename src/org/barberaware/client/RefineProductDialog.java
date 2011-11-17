@@ -74,6 +74,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 		buttons = new HorizontalPanel ();
 		buttons.setWidth ( "100%" );
+		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
@@ -133,17 +134,22 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		int i;
 		int e;
 		int tot;
+		ArrayList sub_user_orders;
 		FromServer order_user;
 
 		optionsTable = new FlexTable ();
 		tot = userOrders.size ();
+		sub_user_orders = new ArrayList ();
 
 		for ( i = 0, e = 0; i < tot; i++ ) {
 			order_user = ( FromServer ) userOrders.get ( i );
-			if ( orderMatchesFill ( order_user, optionsTable, e ) )
+			if ( orderMatchesFill ( order_user, optionsTable, e ) ) {
 				e++;
+				sub_user_orders.add ( order_user );
+			}
 		}
 
+		userOrders = sub_user_orders;
 		return optionsTable;
 	}
 
@@ -199,6 +205,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 			if ( pu.getObject ( "product" ).equals ( targetProduct ) ) {
 				user_selected = pu.getFloat ( "quantity" );
+
 				if ( user_selected != 0 ) {
 					tot += user_selected;
 					products_user.add ( pu );
