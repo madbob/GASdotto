@@ -96,6 +96,7 @@ per uno che non introduce banner pubblicitari in testa o al fondo delle pagine o
 Providers gia' identificati come non adeguati:
 - coolpage.biz (banners pubblicitari)
 - tophost.it (mancano alcune librerie PHP richieste)
+- altervista.org (mancano tutte le librerie PHP richieste a partire da PEAR)
 
 Sia che tu abbia problemi con questo genere di hosting, sia che la tua installazione venga
 conclusa con successo, faccelo sapere affinche' la lista condivisa venga aggiornata.

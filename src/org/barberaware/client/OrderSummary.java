@@ -468,8 +468,15 @@ public class OrderSummary extends Composite implements Lockable {
 		price = 0;
 
 		for ( i = 1; i < num; i++ ) {
-			lab = ( Label ) main.getWidget ( i, column );
-			price += Utils.stringToPrice ( lab.getText () );
+			/*
+				Questo "if" e' per saltare le righe che
+				contengono le intestazioni dei fornitori negli
+				ordini aggregati
+			*/
+			if ( main.getCellCount ( i ) != 3 ) {
+				lab = ( Label ) main.getWidget ( i, column );
+				price += Utils.stringToPrice ( lab.getText () );
+			}
 		}
 
 		lab = ( Label ) main.getWidget ( i + 1, column );
@@ -487,25 +494,30 @@ public class OrderSummary extends Composite implements Lockable {
 		num = main.getRowCount () - 2;
 
 		for ( int i = 1; i < num; i++ ) {
+			/*
+				Questo "if" e' per saltare le righe che
+				contengono le intestazioni dei fornitori negli
+				ordini aggregati
+			*/
+			if ( main.getCellCount ( i ) == 3 )
+				continue;
+
 			cmp = main.getWidget ( i, id );
 
 			if ( cmp == sender ) {
 				price = ( ( PriceBox ) sender ).getVal ();
 				lab = ( Label ) main.getWidget ( i, PRODUCT_ORDQUANT_COLUMN );
-				quantity = Float.parseFloat ( lab.getText () );
+				quantity = Utils.stringToFloat ( lab.getText () );
 
-				switch ( id ) {
-					case 2:
-						label_index = PRODUCT_TOTALPRICE_COLUMN;
-						break;
-
-					case 3:
-						label_index = PRODUCT_TOTALTRANSPORT_COLUMN;
-						break;
-
-					default:
-						Window.alert ( "Criterio di modifica non gestito" );
-						return;
+				if ( id ==  PRODUCT_PRICE_COLUMN ) {
+					label_index = PRODUCT_TOTALPRICE_COLUMN;
+				}
+				else if ( id == PRODUCT_TRANSPORT_COLUMN ) {
+					label_index = PRODUCT_TOTALTRANSPORT_COLUMN;
+				}
+				else {
+					Window.alert ( "Criterio di modifica non gestito" );
+					return;
 				}
 
 				lab = ( Label ) main.getWidget ( i, label_index );
@@ -532,13 +544,21 @@ public class OrderSummary extends Composite implements Lockable {
 		num = main.getRowCount () - 2;
 
 		for ( int i = 1; i < num; i++ ) {
+			/*
+				Questo "if" e' per saltare le righe che
+				contengono le intestazioni dei fornitori negli
+				ordini aggregati
+			*/
+			if ( main.getCellCount ( i ) == 3 )
+				continue;
+
 			cmp = main.getWidget ( i, PRODUCT_OVERPRICE_COLUMN );
 
 			if ( cmp == sender ) {
 				over = ( ( PercentageBox ) sender ).getValue ();
 
 				lab = ( Label ) main.getWidget ( i, PRODUCT_ORDQUANT_COLUMN );
-				quantity = Float.parseFloat ( lab.getText () );
+				quantity = Utils.stringToFloat ( lab.getText () );
 
 				unit_w = ( PriceBox ) main.getWidget ( i, PRODUCT_PRICE_COLUMN );
 				unit = unit_w.getVal ();
@@ -582,8 +602,10 @@ public class OrderSummary extends Composite implements Lockable {
 			hasMaxAvailable = true;
 
 		if ( new_row == true ) {
+			/*
 			if ( main.getRowCount () > index )
 				main.insertRow ( index );
+			*/
 
 			main.setWidget ( index, ORDER_ID_COLUMN, new Hidden ( Integer.toString ( order.getLocalID () ) ) );
 			main.setWidget ( index, PRODUCT_ID_COLUMN, new Hidden ( Integer.toString ( product.getLocalID () ) ) );

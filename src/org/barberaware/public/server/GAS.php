@@ -82,7 +82,7 @@ class GAS extends FromServer {
 	}
 
 	private static function hidePassword ( $mailconf ) {
-		if ( mail_conf != '' ) {
+		if ( $mailconf != '' ) {
 			list ( $from, $username, $password, $host, $port, $ssl ) = explode ( '::', $mailconf );
 			return "$from::$username::###::$host::$port::$ssl";
 		}
