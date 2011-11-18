@@ -237,12 +237,15 @@ public class SystemPanel extends GenericPanel {
 			public boolean onSave ( FromServerRappresentationFull form ) {
 				ArrayList places;
 				FromServer place;
+				BooleanSelector sel;
 
 				place = form.getValue ();
-
 				places = Utils.getServer ().getObjectsFromCache ( place.getType () );
-				if ( places.size () == 0 || ( places.size () == 1 && place.isValid () == true ) )
-					place.setBool ( "is_default", true );
+
+				if ( places.size () == 0 || ( places.size () == 1 && place.isValid () == true ) ) {
+					sel = ( BooleanSelector ) form.retriveInternalWidget ( "is_default" );
+					sel.setValue ( true );
+				}
 
 				return true;
 			}

@@ -977,11 +977,11 @@ function save_acl ( $obj, $priv ) {
 }
 
 function destroy_acl ( $obj ) {
-	if ( $obj->shareMode != 0 ) {
+	if ( $obj->is_public == true ) {
 		$type = $obj->classname;
 		$id = $obj->getAttribute ( 'id' )->value;
 
-		$query = "DELETE FROM acl WHERE target_type = $type AND target_id = $id";
+		$query = "DELETE FROM acl WHERE target_type = '$type' AND target_id = $id";
 		query_and_check ( $query, "Impossibile aggiornare permessi di accesso" );
 	}
 }

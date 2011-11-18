@@ -61,6 +61,8 @@ if ( check_session () == false )
 
 list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
+$has_stocks = false;
+
 /*
 	Init headers
 */

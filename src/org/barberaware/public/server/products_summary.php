@@ -227,7 +227,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	unset ( $user_products );
 	$user_products = $proxy;
 
-	for ( $a = 0, $e = 0; $a < count ( $references ); $a++ ) {
+	for ( $a = 0, $e = 0; $a < count ( $references ) && $e < count ( $user_products ); $a++ ) {
 		$prod = $references [ $a ] [ 0 ];
 		$prodid = $prod->getAttribute ( "id" )->value;
 		$prod_user = $user_products [ $e ];
@@ -238,7 +238,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		}
 	}
 
-	if ( count ( $order_user->friends ) != 0 ) {
+	if ( property_exists ( $order_user, 'friends' ) && count ( $order_user->friends ) != 0 ) {
 		$a = 0;
 		$prod = $references [ $a ] [ 0 ];
 		$prodid = $prod->getAttribute ( "id" )->value;

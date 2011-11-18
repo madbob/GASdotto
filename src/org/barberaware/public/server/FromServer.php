@@ -710,6 +710,10 @@ abstract class FromServer {
 		$classes = get_from_server_classes ();
 
 		foreach ( $classes as $class ) {
+			$tmp = new ReflectionClass ( $class );
+			if ( $tmp->IsInstantiable () == false )
+				continue;
+
 			$tmp = new $class;
 
 			for ( $i = 0; $i < count ( $tmp->attributes ); $i++ ) {
