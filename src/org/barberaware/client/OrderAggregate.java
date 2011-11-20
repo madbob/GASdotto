@@ -42,19 +42,19 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 				order = ( FromServer ) orders.get ( 0 );
 				name = order.getObject ( "supplier" ).getString ( "name" );
 
-				date = Utils.printableDate ( order.getDate ( "startdate" ) ) + " - " + Utils.printableDate ( order.getDate ( "enddate" ) );
+				date = "dal " + Utils.printableDate ( order.getDate ( "startdate" ) ) + " al " + Utils.printableDate ( order.getDate ( "enddate" ) );
 				tmp_ship = order.getDate ( "shippingdate" );
 				if ( tmp_ship != null )
-					date += " - " + Utils.printableDate ( tmp_ship );
+					date += ", in consegna il " + Utils.printableDate ( tmp_ship );
 
 				for ( int i = 1; i < orders.size (); i++ ) {
 					order = ( FromServer ) orders.get ( i );
 					name += " / " + order.getObject ( "supplier" ).getString ( "name" );
 
-					date += ", " + Utils.printableDate ( order.getDate ( "startdate" ) ) + " - " + Utils.printableDate ( order.getDate ( "enddate" ) );
+					date += " - dal " + Utils.printableDate ( order.getDate ( "startdate" ) ) + " al " + Utils.printableDate ( order.getDate ( "enddate" ) );
 					tmp_ship = order.getDate ( "shippingdate" );
 					if ( tmp_ship != null )
-						date += " - " + Utils.printableDate ( tmp_ship );
+						date += ", in consegna il " + Utils.printableDate ( tmp_ship );
 				}
 
 				return name + "\n" + date;

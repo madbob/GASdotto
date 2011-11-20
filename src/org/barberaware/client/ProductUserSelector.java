@@ -411,17 +411,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 						q = quantity.getVal ();
 						qt = ( double ) q;
 
-						/*
-							10/10/2011, richiesto da Pier
-							I prodotti che hanno "prezzo variabile" o una quantita'
-							decimale sono intesi sempre come una unica entita', e la
-							quantita' indicata si riferisce a tale entita'
-							Dunque le varianti si applicano sempre e solo come fosse
-							stato ordinato un singolo elemento, indipendentemente
-							dalla quantita' immessa
-						*/
-
-						if ( ( currentValue.getObject ( "product" ).getBool ( "mutable_price" ) == true && q != 0 ) || ( Math.ceil ( qt ) > qt ) )
+						if ( currentValue.getObject ( "product" ).getBool ( "atomic_quantity" ) == true )
 							num = 1;
 						else
 							num = ( int ) Math.ceil ( ( double ) q );

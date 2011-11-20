@@ -264,6 +264,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					frame.addPair ( "Dimensione Confezione", ver.getWidget ( "stock_size" ) );
 					frame.addPair ( "Minimo per Utente", ver.getWidget ( "minimum_order" ) );
 					frame.addPair ( "Multiplo per Utente", ver.getWidget ( "multiple_order" ) );
+					frame.addPair ( "Quantità Unica", ver.getWidget ( "atomic_quantity" ) );
 					frame.addPair ( "Massimo Ordinabile", ver.getWidget ( "total_max_order" ) );
 
 					sframe = new CaptionPanel ( "Descrizione" );

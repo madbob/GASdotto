@@ -88,8 +88,9 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 		main.setCellVerticalAlignment ( wid, HasVerticalAlignment.ALIGN_MIDDLE );
 	}
 
-	private void quantifyVariants ( ArrayList variants ) {
+	private void quantifyVariants ( FromServer prod_user, ArrayList variants ) {
 		boolean found;
+		float default_quantity;
 		int a;
 		String id_variant;
 		Label q;
@@ -98,6 +99,11 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 		ProductUserVariant variant;
 
 		quantityTable = ( FlexTable ) quantityLabel;
+
+		if ( prod_user.getObject ( "product" ).getBool ( "atomic_quantity" ) == true )
+			default_quantity = prod_user.getFloat ( "quantity" );
+		else
+			default_quantity = 1;
 
 		for ( int i = 0; i < variants.size (); i++ ) {
 			variant = ( ProductUserVariant ) variants.get ( i );
@@ -109,14 +115,14 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 
 				if ( id.getText () == id_variant ) {
 					q = ( Label ) quantityTable.getWidget ( a, 0 );
-					q.setText ( Integer.toString ( Integer.parseInt ( q.getText () ) + 1 ) );
+					q.setText ( Utils.floatToString ( Utils.stringToFloat ( q.getText () ) + default_quantity ) );
 					found = true;
 					break;
 				}
 			}
 
 			if ( found == false ) {
-				quantityTable.setWidget ( a, 0, new Label ( "1" ) );
+				quantityTable.setWidget ( a, 0, new Label ( Utils.floatToString ( default_quantity ) ) );
 				quantityTable.setWidget ( a, 1, new Label ( id_variant ) );
 			}
 		}
@@ -180,12 +186,16 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				main.add ( quantityLabel );
 				setCell ( quantityLabel, "20%" );
 
-				box = new ProductDeliveryEditableVariantsCell ();
+				if ( prod_user.getObject ( "product" ).getBool ( "atomic_quantity" ) == true )
+					box = new ProductDeliveryEditableAtomicVariantsCell ();
+				else
+					box = new ProductDeliveryEditableVariantsCell ();
+
 				main.add ( ( Widget ) box );
 				setCell ( ( Widget ) box, "20%" );
 			}
 
-			quantifyVariants ( variants );
+			quantifyVariants ( prod_user, variants );
 		}
 
 		if ( first_round == true ) {
