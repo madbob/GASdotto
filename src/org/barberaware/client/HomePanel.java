@@ -299,6 +299,7 @@ public class HomePanel extends GenericPanel {
 		int month;
 		int year;
 		Date close;
+		OrderInterface ord;
 		OrderToCloseDialog dialog;
 
 		/*
@@ -307,6 +308,10 @@ public class HomePanel extends GenericPanel {
 			quella attuale. Banalmente ispirato da
 			http://code.google.com/p/gwt-examples/wiki/gwtDateTime#Subtract_Months
 		*/
+
+		ord = ( OrderInterface ) order;
+		if ( ord.iAmReference () == false )
+			return;
 
 		close = order.getDate ( "shippingdate" );
 		if ( close == null )

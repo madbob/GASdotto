@@ -39,6 +39,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	public static int		EDITABLE_UNDELETABLE			= 1;
 	public static int		NOT_EDITABLE				= 2;
 	public static int		EDITABLE_UNDELETABLE_UNCANCELLABLE	= 3;
+	public static int		NOT_EDITABLE_NOR_SHARABLE		= 4;
 
 	private void buildCommon ( FromServer obj, int editable ) {
 		setValue ( obj );
@@ -193,7 +194,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 
 		value = getValue ();
 
-		if ( value == null || value.isValid () == false || value.isSharable () == false ) {
+		if ( value == null || value.isValid () == false || value.isSharable () == false || editMode == NOT_EDITABLE_NOR_SHARABLE ) {
 			contents.add ( buttons );
 			contents.setCellHorizontalAlignment ( buttons, HasHorizontalAlignment.ALIGN_RIGHT );
 		}

@@ -415,6 +415,10 @@ body {
 	height:			25px;
 }
 
+.high-as-label {
+	height:			14px;
+}
+
 .products-selection .product-name {
 	cursor:			pointer;
 	cursor:			hand;

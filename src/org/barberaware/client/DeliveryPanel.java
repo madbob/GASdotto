@@ -343,7 +343,7 @@ public class DeliveryPanel extends GenericPanel {
 						( is_aggregate == false &&
 							( order.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE ) ) );
 
-		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE );
+		ver = new FromServerForm ( order, FromServerForm.NOT_EDITABLE_NOR_SHARABLE );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "orders" ) );
 		ver.emblems ().activate ( "status", order.getInt ( "status" ) );
 

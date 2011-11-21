@@ -170,7 +170,10 @@ public class Utils {
 	}
 
 	public static float stringToPrice ( String s ) {
-		return ( float ) priceFormatter.parse ( s );
+		if ( s == "" )
+			return 0;
+		else
+			return ( float ) priceFormatter.parse ( s );
 	}
 
 	public static String floatToString ( float f ) {
