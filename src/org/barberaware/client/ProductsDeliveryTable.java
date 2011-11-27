@@ -23,14 +23,14 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsDeliveryTable extends Composite implements FromServerArray {
+public class ProductsDeliveryTable extends Composite implements FromServerArray, SourcesChangeEvents {
 	private VerticalPanel		main;
 	private PriceViewer		totalLabel;
+	private ArrayList		changeCallbacks		= null;
 
 	public ProductsDeliveryTable () {
 		Label header;
 		HorizontalPanel hor;
-
 		HTMLTable.RowFormatter formatter;
 
 		main = new VerticalPanel ();
@@ -62,6 +62,13 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		totalLabel = null;
 	}
 
+	public float getTotal () {
+		if ( totalLabel != null )
+			return totalLabel.getVal ();
+		else
+			return 0;
+	}
+
 	private Button createAutoCompleteButton () {
 		Button ret;
 
@@ -79,6 +86,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				}
 
 				totalLabel.setVal ( total_sum );
+				triggerChange ();
 			}
 		} );
 
@@ -143,6 +151,10 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 		bottom.setCellWidth ( totalLabel, "20%" );
 	}
 
+	private void triggerChange () {
+		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+	}
+
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
@@ -187,6 +199,7 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 				row.addChangeListener ( new ChangeListener () {
 					public void onChange ( Widget sender ) {
 						upgradeTotal ();
+						triggerChange ();
 					}
 				} );
 
@@ -222,5 +235,18 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray 
 
 	public void refreshElement ( FromServer element ) {
 		/* dummy */
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ArrayList ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 }

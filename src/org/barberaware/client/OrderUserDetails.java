@@ -23,23 +23,55 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserDetails extends FromServerRappresentation {
+public class OrderUserDetails extends FromServerRappresentation implements SourcesChangeEvents {
 	private VerticalPanel		main;
+	private ProductsDeliveryTable	products;
+	private ArrayList		changeCallbacks		= null;
 
 	public OrderUserDetails () {
 		main = new VerticalPanel ();
 		initWidget ( main );
 		main.setWidth ( "100%" );
+
+		products = null;
+	}
+
+	public float getTotal () {
+		if ( products != null )
+			return products.getTotal ();
+		else
+			return 0;
 	}
 
 	public void setValue ( FromServer object ) {
 		super.setValue ( object );
 
-		ProductsDeliveryTable products;
-
 		main.clear ();
 
 		products = new ProductsDeliveryTable ();
 		main.add ( getPersonalizedWidget ( "allproducts", products ) );
+
+		products.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				triggerChange ();
+			}
+		} );
+	}
+
+	private void triggerChange () {
+		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ArrayList ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 }

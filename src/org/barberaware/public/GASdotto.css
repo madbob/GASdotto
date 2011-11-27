@@ -14,7 +14,7 @@ body {
 .loading {
 	padding:		5px;
 	border:			5px solid #000000;
-	z-index:		200px;
+	z-index:		200;
 	-webkit-border-radius:	7px;
 	-moz-border-radius:	7px;
 	border-radius:		7px;
@@ -424,6 +424,10 @@ body {
 	cursor:			hand;
 }
 
+.big-text {
+	font-size:		25px;
+}
+
 .bigger-text {
 	font-size:		30px;
 }
@@ -501,8 +505,10 @@ body {
 
 .legend-table {
 	width:			350px;
+	height:			127px;
 	font-size:		12px;
 	border-top:		5px solid #000000;
+	border-bottom:		5px solid #000000;
 	background-color:	#FFFFFF;
 }
 

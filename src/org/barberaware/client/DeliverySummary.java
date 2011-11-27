@@ -39,25 +39,6 @@ public class DeliverySummary extends Composite {
 		cleanUp ();
 	}
 
-	private void addAllSubOrders ( FromServer uorder, FromServerForm row ) {
-		ArrayList uorders;
-		FromServer uord;
-		OrderUserDetails details;
-
-		uorders = uorder.getArray ( "orders" );
-
-		for ( int i = 0; i < uorders.size (); i++ ) {
-			uord = ( FromServer ) uorders.get ( i );
-
-			details = new OrderUserDetails ();
-			details.setValue ( uord );
-			details.addStyleName ( "bottom-spaced" );
-
-			row.add ( details );
-			row.addChild ( details );
-		}
-	}
-
 	public void addOrder ( OrderUserInterface uorder ) {
 		final FromServerForm row;
 		FromServerForm existing;
@@ -119,6 +100,7 @@ public class DeliverySummary extends Composite {
 		user = uord.getObject ( "baseuser" );
 
 		frame = new CustomCaptionPanel ( "Informazioni Utente" );
+		frame.setWidth ( "45%" );
 		informations.add ( frame );
 
 		phone = new StringLabel ();
@@ -134,6 +116,7 @@ public class DeliverySummary extends Composite {
 		/* ordine */
 
 		frame = new CustomCaptionPanel ( "Informazioni Ordine" );
+		frame.setWidth ( "45%" );
 		informations.add ( frame );
 
 		frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
@@ -157,15 +140,26 @@ public class DeliverySummary extends Composite {
 
 		row.setCallback ( new FromServerRappresentationCallbacks () {
 			public FromServerRappresentation onAddChild ( FromServerRappresentation form, FromServer child ) {
+				float tot;
 				OrderUserDetails details;
+				OrderUserDetails iter;
 				FromServerForm f;
 
 				details = new OrderUserDetails ();
 				details.setValue ( child );
 
 				f = ( FromServerForm ) form;
-				f.add ( details );
 
+				if ( f.getChildren ().size () > 0 ) {
+					tot = currentTotalInForm ( f ) + ( ( OrderUser ) child ).getDeliveredPrice ();
+					addGranTotal ( f, tot );
+					f.insert ( details, f.getWidgetCount () - 3 );
+				}
+				else {
+					f.add ( details );
+				}
+
+				attachPrivateTotalCallback ( details );
 				return details;
 			}
 
@@ -243,6 +237,141 @@ public class DeliverySummary extends Composite {
 			form.invalidate ();
 			user.delRelatedInfo ( "DeliverySummary" + identifier );
 		}
+	}
+
+	private float currentTotalInForm ( FromServerRappresentationFull form ) {
+		float tot;
+		ArrayList children;
+		OrderUserDetails iter;
+
+		tot = 0;
+		children = form.getChildren ();
+
+		for ( int i = 0; i < children.size (); i++ ) {
+			iter = ( OrderUserDetails ) children.get ( i );
+			tot += iter.getTotal ();
+		}
+
+		return tot;
+	}
+
+	private void addAllSubOrders ( FromServer uorder, FromServerForm row ) {
+		float tot;
+		ArrayList uorders;
+		FromServer uord;
+		OrderUserDetails details;
+
+		tot = 0;
+		uorders = uorder.getArray ( "orders" );
+
+		for ( int i = 0; i < uorders.size (); i++ ) {
+			uord = ( FromServer ) uorders.get ( i );
+
+			details = new OrderUserDetails ();
+			details.setValue ( uord );
+			details.addStyleName ( "bottom-spaced" );
+
+			tot += details.getTotal ();
+
+			row.add ( details );
+			row.addChild ( details );
+
+			attachPrivateTotalCallback ( details );
+		}
+
+		if ( uorders.size () > 1 )
+			addGranTotal ( row, tot );
+	}
+
+	private void addGranTotal ( FromServerForm row, float tot ) {
+		Widget ext;
+		Label label;
+		PriceViewer total;
+		HorizontalPanel bottom;
+
+		ext = row.retriveInternalWidget ( "total" );
+
+		if ( ext == null ) {
+			row.add ( new HTML ( "<hr>" ) );
+
+			bottom = new HorizontalPanel ();
+			bottom.setWidth ( "100%" );
+			row.add ( bottom );
+
+			label = new Label ( "" );
+			bottom.add ( label );
+			bottom.setCellWidth ( label, "50%" );
+
+			label = new Label ( "Totale Complessivo" );
+			bottom.add ( label );
+			bottom.setCellWidth ( label, "10%" );
+			bottom.setCellHorizontalAlignment ( label, HasHorizontalAlignment.ALIGN_LEFT );
+			bottom.setCellVerticalAlignment ( label, HasVerticalAlignment.ALIGN_MIDDLE );
+
+			total = new PriceViewer ();
+			bottom.add ( total );
+			bottom.setCellWidth ( total, "25%" );
+			bottom.setCellHorizontalAlignment ( total, HasHorizontalAlignment.ALIGN_LEFT );
+			row.setExtraWidget ( "total", total );
+			total.setStyleName ( "bigger-text" );
+
+			row.setCallback ( new FromServerFormCallbacks () {
+				/*
+					Per sistemare il valore del totale complessivo quando le modifiche nel
+					FromServerForm sono annullate
+				*/
+				public void onReset ( FromServerRappresentationFull form ) {
+					PriceViewer total;
+
+					total = ( PriceViewer ) form.retriveInternalWidget ( "total" );
+					total.setVal ( currentTotalInForm ( form ) );
+				}
+
+				/*
+					Questo e' perche' altrimenti l'implementazione di default sovrascrive la
+					callback esatta (implementata in addOrder())
+				*/
+				public String getName ( FromServerRappresentationFull form ) {
+					return null;
+				}
+			} );
+		}
+		else {
+			total = ( PriceViewer ) ext;
+		}
+
+		total.setVal ( tot );
+	}
+
+	private void attachPrivateTotalCallback ( OrderUserDetails details ) {
+		details.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				float tot;
+				ArrayList children;
+				FromServerRappresentation parent;
+				OrderUserDetails det;
+				Widget tmp;
+				PriceViewer view;
+
+				tot = 0;
+				det = ( OrderUserDetails ) sender;
+				parent = det.getRappresentationParent ();
+
+				tmp = parent.retriveInternalWidget ( "total" );
+				if ( tmp == null )
+					return;
+
+				children = parent.getChildren ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					det = ( OrderUserDetails ) children.get ( i );
+					tot += det.getTotal ();
+				}
+
+				view = ( PriceViewer ) tmp;
+				view.setVal ( tot );
+			}
+		} );
 	}
 
 	private void commonActionsOnEdit ( FromServerForm row ) {

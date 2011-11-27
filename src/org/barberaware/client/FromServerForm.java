@@ -110,6 +110,10 @@ public class FromServerForm extends FromServerRappresentationFull {
 		contents.insert ( wid, index );
 	}
 
+	public int getWidgetCount () {
+		return contents.getWidgetCount ();
+	}
+
 	public void open ( boolean open ) {
 		main.setOpen ( open );
 
