@@ -193,7 +193,8 @@ public class FromServerForm extends FromServerRappresentationFull {
 		ButtonsBar sharebar;
 
 		if ( buttons != null )
-			contents.remove ( buttons );
+			if ( contents.remove ( buttons ) == false )
+				contents.remove ( buttons.getParent () );
 		buttons = doButtons ( editMode );
 
 		value = getValue ();
@@ -381,6 +382,9 @@ public class FromServerForm extends FromServerRappresentationFull {
 	}
 
 	protected void afterSave () {
+		if ( getValue () == null )
+			return;
+
 		summaryContents ();
 		reviewSharing ();
 	}

@@ -62,6 +62,20 @@ public class SuppliersEditPanel extends GenericPanel {
 				}
 			}
 
+			protected void customModify ( FromServer object, FromServerRappresentation form ) {
+				FromServerForm f;
+				Supplier supp;
+
+				supp = ( Supplier ) object;
+				f = ( FromServerForm ) form;
+
+				if ( ( supp.iAmReference () == true && form instanceof SupplierUneditableForm ) ||
+						( supp.iAmReference () == false && ( ( form instanceof SupplierUneditableForm ) == false ) ) ) {
+					main.deleteElement ( object );
+					main.addElement ( object );
+				}
+			}
+
 			protected void asyncLoad ( FromServerForm form ) {
 				ObjectRequest params;
 				Lockable products;

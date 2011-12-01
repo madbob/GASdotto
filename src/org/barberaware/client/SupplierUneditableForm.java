@@ -37,9 +37,6 @@ public class SupplierUneditableForm extends FromServerForm {
 		PastOrdersList past_orders;
 		FromServerTable references;
 
-		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN )
-			setEditableMode ( FromServerForm.EDITABLE_UNDELETABLE );
-
 		emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
 
 		hor = new HorizontalPanel ();
@@ -141,6 +138,9 @@ public class SupplierUneditableForm extends FromServerForm {
 		frame = new CaptionPanel ( "Prodotti" );
 		add ( frame );
 		frame.add ( products );
+
+		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN )
+			setEditableMode ( FromServerForm.EDITABLE_UNDELETABLE );
 	}
 
 	private Widget doString () {

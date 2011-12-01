@@ -41,13 +41,13 @@ E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
 Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard web. Sono stati
 verificati:
-- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 3.6.13
+- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 8.0
 - Chromium		http://www.google.com/chrome			testato su versione 9.0.597
 E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
 
 -------------------------------------------------------------------------------------[Compilazione]
 
-I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository SVN
+I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository GIT
 raggiungibile con il comando
 git clone git://github.com/madbob/GASdotto.git
 
