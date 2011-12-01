@@ -44,12 +44,12 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 	public void buildCommon ( ArrayList products, boolean edit, boolean freeedit, boolean showTotal ) {
 		int num_products;
-		FocusPanel container;
+		MousePanel container;
 		Product prod;
 
 		totalLabel = null;
 
-		container = new FocusPanel ();
+		container = new MousePanel ();
 		container.addMouseListener ( new MouseListener () {
 			public void onMouseDown ( Widget sender, int x, int y ) {
 				/* dummy */
