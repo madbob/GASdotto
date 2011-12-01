@@ -687,6 +687,11 @@ function exportable_date ( $date ) {
 	return str_replace ( '-', '', $date );
 }
 
+function import_date ( $date ) {
+	preg_match ('/[0-9]{,4}[0-9]{,2}[0-9]{,2}/', $date, $matches);
+	return $matches [1] . '-' . $matches [2] . '-' . $matches [3];
+}
+
 function exportable_products ( $products ) {
 	$ret = "\t\t<products>\n";
 
@@ -811,8 +816,7 @@ function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 	$headers = array ( 'From' => $from, 'Subject' => $mysubject );
 
 	if ( $current_user != -1 ) {
-		$sender = new User ();
-		$sender->readFromDB ( $current_user );
+		$sender = current_user_obj ();
 		$headers [ 'Reply-To' ] = $sender->getAttribute ( 'mail' )->value;
 		unset ( $sender );
 	}
@@ -1128,17 +1132,25 @@ function perform_authentication ( $userid ) {
 }
 
 function current_permissions () {
-	global $current_user;
-
 	/**
 		TODO	Qui si puo' evitare di leggere tutto l'utente ma solo i permessi
 			direttamente dal DB
 	*/
 
-	$u = new User ();
-	$u->readFromDB ( $current_user );
+	$u = current_user_obj ();
 	$privileges = $u->getAttribute ( "privileges" );
 	return $privileges->value;
+}
+
+function current_user_obj () {
+	global $current_user;
+
+	$u = new User ();
+
+	if ( $current_user != -1 )
+		$u->readFromDB ( $current_user );
+
+	return $u;
 }
 
 ?>

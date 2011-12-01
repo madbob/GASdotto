@@ -31,15 +31,28 @@ list ( $name, $outputs ) = $obj->export ( array () );
 
 $path = str_replace ( array ( '&', "\r\n", "\n", '+', ',', '/' ), '-', strtolower ( trim ( $name ) ) );
 $path = sys_get_temp_dir () . '/' . $path;
-$archive = new Archive_Tar ( $path, null );
+$archive = new Archive_Tar ( $path, 'gz' );
 
-foreach ( $outputs as $out )
-	$archive->addString ( md5 ( $out ), $out );
+$contents = array ();
 
-header ( "Content-Type: application/x-tar" );
+foreach ( $outputs as $out ) {
+	$infile = md5 ( $out );
+	$child = sys_get_temp_dir () . '/' . $infile;
+	$contents [] = $infile;
+	file_put_contents ( $child, $out );
+}
+
+chdir ( sys_get_temp_dir () );
+$archive->create ( $contents );
+
+header ( "Content-Type: application/octet" );
 header ( "Content-Disposition: disposition-type=attachment; filename=\"" . $name . ".gdxp\"" );
 
 echo file_get_contents ( $path );
+
+foreach ( $contents as $child )
+	unlink ( $child );
+
 unlink ( $path );
 
 ?>

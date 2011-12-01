@@ -24,12 +24,9 @@ class Session {
 	public $gas		= null;
 
 	public function get ( $request, $compress ) {
-		global $current_user;
 		global $current_gas;
 
-		$user = new User ();
-		if ( $current_user != -1 )
-			$user->readFromDB ( $current_user );
+		$user = current_user_obj ();
 		$this->user = $user->exportable ( null, $compress );
 
 		if ( $current_gas != -1 ) {

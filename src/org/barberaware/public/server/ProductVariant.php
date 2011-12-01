@@ -19,7 +19,7 @@
 
 require_once ( "utils.php" );
 
-class ProductVariant extends FromServer {
+class ProductVariant extends SharableFromServer {
 	public function __construct () {
 		parent::__construct ( "ProductVariant" );
 
@@ -27,6 +27,41 @@ class ProductVariant extends FromServer {
 		$this->addAttribute ( "values", "ARRAY::ProductVariantValue" );
 
 		$this->setSorting ( "name" );
+	}
+
+	public function export ( $options ) {
+		/*
+			TODO
+		*/
+	}
+
+	public static function import ( $ref, $contents ) {
+		$ret = array ();
+
+		$elements = $contents->xpath ( '//variants/variant' );
+
+		foreach ( $elements as $el ) {
+			$var = new ProductVariant ();
+
+			foreach ( $el->attributes () as $name => $value ) {
+				if ( $name == 'name' )
+					$var->getAttribute ( 'name' )->value = $value;
+			}
+
+			$values = array ();
+			$vals = $el->xpath ( '//variant/value' );
+
+			foreach ( $vals as $val ) {
+				$v = new ProductVariantValue ();
+				$v->getAttribute ( 'name' )->value = $val;
+				$values [] = $v;
+			}
+
+			$var->getAttribute ( 'values' )->value = $vals;
+			$ret [] = $var->exportable ();
+		}
+
+		return $ret;
 	}
 }
 

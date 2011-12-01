@@ -267,7 +267,37 @@ class Order extends SharableFromServer {
 		return $supplier->export ( array ( 'products' => $products, 'child' => $order ) );
 	}
 
-	public static function import ( $contents ) {
+	public static function import ( $ref, $contents ) {
+		$ret = array ();
+
+		$elements = $contents->xpath ( '//orders/order' );
+
+		foreach ( $elements as $el ) {
+			$final = new Order ();
+
+			foreach ( $el->children () as $child ) {
+				$name = $child->getName ();
+				$value = $child;
+
+				switch ( $name ) {
+					case 'openDate':
+						$final->getAttribute ( 'startdate' )->value = import_date ( $value );
+						break;
+
+					case 'closeDate':
+						$final->getAttribute ( 'enddate' )->value = import_date ( $value );
+						break;
+
+					case 'deliveryDate':
+						$final->getAttribute ( 'shippingdate' )->value = import_date ( $value );
+						break;
+				}
+			}
+
+			$ret [] = $final;
+		}
+
+		$ref->orders = $ret;
 	}
 
 	private function send_summary ( $obj ) {

@@ -62,12 +62,14 @@ class Supplier extends SharableFromServer {
 		$ret .= "\t\t</address>\n";
 
 		$ret .= "\t\t<contacts>\n";
-		$ret .= "\t\t\t<primary>\n";
-		$ret .= "\t\t\t\t<phoneNumber>" . self::getAttribute ( 'phone' )->value . "</phoneNumber>\n";
-		$ret .= "\t\t\t\t<faxNumber>" . self::getAttribute ( 'fax' )->value . "</faxNumber>\n";
-		$ret .= "\t\t\t\t<emailAddress>" . self::getAttribute ( 'mail' )->value . "</emailAddress>\n";
-		$ret .= "\t\t\t\t<webSite>" . self::getAttribute ( 'website' )->value . "</webSite>\n";
-		$ret .= "\t\t\t</primary>\n";
+		$ret .= "\t\t\t<contact>\n";
+		$ret .= "\t\t\t\t<primary>\n";
+		$ret .= "\t\t\t\t\t<phoneNumber>" . self::getAttribute ( 'phone' )->value . "</phoneNumber>\n";
+		$ret .= "\t\t\t\t\t<faxNumber>" . self::getAttribute ( 'fax' )->value . "</faxNumber>\n";
+		$ret .= "\t\t\t\t\t<emailAddress>" . self::getAttribute ( 'mail' )->value . "</emailAddress>\n";
+		$ret .= "\t\t\t\t\t<webSite>" . self::getAttribute ( 'website' )->value . "</webSite>\n";
+		$ret .= "\t\t\t\t</primary>\n";
+		$ret .= "\t\t\t</contact>\n";
 		$ret .= "\t\t</contacts>\n";
 
 		$ret .= "\t\t<note>" . join ( ' / ', array ( self::getAttribute ( 'order_mode' )->value, self::getAttribute ( 'paying_mode' )->value ) ) . "</note>\n";
@@ -94,7 +96,71 @@ class Supplier extends SharableFromServer {
 		return array ( self::getAttribute ( 'name' )->value, array ( $ret ) );
 	}
 
-	public static function import ( $contents ) {
+	public static function import ( $ref, $contents ) {
+		$final = new Supplier ();
+
+		foreach ( $contents->children () as $child ) {
+			$name = $child->getName ();
+			$value = $child;
+
+			switch ( $name ) {
+				case 'taxCode':
+					$final->getAttribute ( 'tax_code' )->value = $value;
+					break;
+
+				case 'vatNumber':
+					$final->getAttribute ( 'vat_number' )->value = $value;
+					break;
+
+				case 'name':
+					$final->getAttribute ( 'name' )->value = $value;
+					break;
+
+				case 'address':
+					$tmp = 'street:' . $contents->address->street . ';cap:' . $contents->address->zipCode . ';city:' . $contents->address->locality . ';';
+					$final->getAttribute ( 'address' )->value = broken_address ( $tmp );
+					break;
+
+				case 'contacts':
+					$tmp = $contents->xpath ( '//contacts/contact' );
+					foreach ( $tmp as $t ) {
+						if ( property_exists ( $t, 'primary' ) ) {
+							$primary = $t->primary;
+
+							foreach ( $primary as $contact_name => $contact_value ) {
+								switch ( $contact_name ) {
+									case 'phoneNumber':
+										$final->getAttribute ( 'phone' )->value = $contact_value;
+										break;
+
+									case 'faxNumber':
+										$final->getAttribute ( 'fax' )->value = $contact_value;
+										break;
+
+									case 'emailAddress':
+										$final->getAttribute ( 'mail' )->value = $contact_value;
+										break;
+
+									case 'webSite':
+										$final->getAttribute ( 'website' )->value = $contact_value;
+										break;
+								}
+							}
+						}
+					}
+
+				case 'note':
+					$final->getAttribute ( 'description' )->value = $value;
+					break;
+
+				default:
+					$proxy = SharableFromServer::mapTag ( $name );
+					if ( $proxy != null )
+						$proxy->import ( &$ref, $contents->name );
+			}
+		}
+
+		$ref->supplier = $final->exportable ();
 	}
 }
 

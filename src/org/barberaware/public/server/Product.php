@@ -19,7 +19,7 @@
 
 require_once ( "utils.php" );
 
-class Product extends FromServer {
+class Product extends SharableFromServer {
 	public function __construct () {
 		parent::__construct ( "Product" );
 
@@ -128,6 +128,95 @@ class Product extends FromServer {
 
 		parent::destroy ( $obj );
 		return $obj->id;
+	}
+
+	public function export ( $options ) {
+		/*
+			TODO
+		*/
+	}
+
+	public static function import ( $ref, $contents ) {
+		$ret = array ();
+
+		$elements = $contents->xpath ( '//products/product' );
+
+		foreach ( $elements as $el ) {
+			$final = new Product ();
+
+			foreach ( $el->children () as $child ) {
+				$name = $child->getName ();
+				$value = $child;
+
+				switch ( $name ) {
+					case 'sku':
+						$final->getAttribute ( 'code' )->value = $value;
+						break;
+
+					case 'name':
+						$final->getAttribute ( 'name' )->value = $value;
+						break;
+
+					case 'category':
+						$cat = new Category ();
+						$cat->readFromDBByName ( $value, true );
+						$final->getAttribute ( 'category' )->value = $cat;
+						break;
+
+					case 'um':
+						$um = new Measure ();
+						$um->readFromDBByName ( $value, true );
+						$final->getAttribute ( 'measure' )->value = $um;
+						break;
+
+					case 'description':
+						$final->getAttribute ( 'description' )->value = $value;
+						break;
+
+					case 'orderInfo':
+						$node = $contents->$name;
+
+						foreach ( $node as $info_name => $info_value ) {
+							switch ( $name ) {
+								case 'packageQty':
+									$final->getAttribute ( 'stock_size' )->value = $value;
+									break;
+
+								case 'minQty':
+									$final->getAttribute ( 'minimum_order' )->value = $value;
+									break;
+
+								case 'mulQty':
+									$final->getAttribute ( 'multiple_order' )->value = $value;
+									break;
+
+								case 'maxQty':
+									$final->getAttribute ( 'total_max_order' )->value = $value;
+									break;
+
+								case 'umPrice':
+									$final->getAttribute ( 'unit_price' )->value = $value;
+									break;
+
+								case 'shippingCost':
+									$final->getAttribute ( 'shipping_price' )->value = $value;
+									break;
+							}
+						}
+
+						break;
+
+					case 'variants':
+						$v = SharableFromServer::mapTag ( $name );
+						$final->getAttribute ( 'variants' )->value = $v->import ( null, $contents->$name );
+						break;
+				}
+			}
+
+			$ret [] = $final->exportable ();
+		}
+
+		$ref->products = $ret;
 	}
 }
 

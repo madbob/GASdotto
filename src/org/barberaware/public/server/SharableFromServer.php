@@ -21,7 +21,7 @@ require_once ( "utils.php" );
 
 abstract class SharableFromServer extends FromServer {
 	abstract public function export ( $options );
-	abstract public static function import ( $contents );
+	abstract public static function import ( $ref, $contents );
 
 	public static function header () {
 		$date = date ('d/m/Y');
@@ -35,6 +35,29 @@ HEAD;
 
 	public static function footer () {
 		return "</gdxp>";
+	}
+
+	public static function mapTag ( $tag ) {
+		switch ( $tag ) {
+			case 'supplier':
+				return new Supplier ();
+				break;
+
+			case 'orders':
+				return new Order ();
+				break;
+
+			case 'products':
+				return new Product ();
+				break;
+
+			case 'variants':
+				return new ProductVariant ();
+				break;
+
+			default:
+				return null;
+		}
 	}
 }
 

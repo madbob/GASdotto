@@ -36,10 +36,12 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 	private ChangeListenerCollection	changeCallbacks;
 
 	private boolean				opened;
+	private String				customEmptyString;
 	private String				completeFile;
 
 	public FileUploadDialog () {
 		opened = false;
+		customEmptyString = "Nessun file selezionato";
 		completeFile = "";
 		changeCallbacks = null;
 
@@ -69,11 +71,15 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 		showFileName ();
 	}
 
+	public void setDestination ( String destination ) {
+		form.setAction ( Utils.getServer ().getURL () + destination );
+	}
+
 	private void showFileName () {
 		String [] path;
 
 		if ( completeFile == null || completeFile.equals ( "" ) ) {
-			button.setText ( "Nessun file selezionato" );
+			button.setText ( customEmptyString );
 			link.setVisible ( false );
 		}
 		else {
@@ -135,20 +141,16 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 
 			public void onSubmitComplete ( FormSubmitCompleteEvent event ) {
 				String str;
-				JSONString ret;
 				JSONValue jsonObject;
 
 				Utils.getServer ().loadingAlert ( false );
 				str = event.getResults ();
+				dialog.hide ();
 
 				try {
 					jsonObject = JSONParser.parse ( str );
-					ret = jsonObject.isString ();
-
-					if ( ret != null && ret.stringValue ().startsWith ( "Errore" ) ) {
-						Utils.showNotification ( ret.stringValue () );
+					if ( manageUploadResponse ( jsonObject ) == false )
 						return;
-					}
 				}
 				catch ( Exception e ) {
 					/* dummy */
@@ -156,7 +158,6 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 
 				completeFile = str;
 				showFileName ();
-				dialog.hide ();
 				callCallbacks ();
 			}
 		} );
@@ -164,20 +165,30 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 		return form;
 	}
 
-	public void setDestination ( String destination ) {
-		form.setAction ( Utils.getServer ().getURL () + destination );
+	protected void setEmptyString ( String empty ) {
+		customEmptyString = empty;
+		showFileName ();
 	}
 
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ChangeListenerCollection ();
-		changeCallbacks.add ( listener );
+	/*
+		Questa funzione e' scorporata per permettere alle sottoclassi di
+		sovrascriverla
+	*/
+	protected boolean manageUploadResponse ( JSONValue response ) {
+		JSONString check;
+
+		check = response.isString ();
+
+		if ( check != null && check.stringValue ().startsWith ( "Errore" ) ) {
+			Utils.showNotification ( check.stringValue () );
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
-	}
+	/****************************************************************** StringWidget */
 
 	public void setValue ( String value ) {
 		if ( value == null )
@@ -189,5 +200,18 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 
 	public String getValue () {
 		return completeFile;
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ChangeListenerCollection ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 }

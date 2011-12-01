@@ -192,6 +192,12 @@ class FromServerAttribute {
 
 		return null;
 	}
+
+	public function duplicate () {
+		$ret = new FromServerAttribute ( $this->name, $this->type );
+		$ret->value = $this->value;
+		return $ret;
+	}
 }
 
 abstract class FromServer {
@@ -304,6 +310,56 @@ abstract class FromServer {
 		}
 
 		$cache [ $token ] = $this;
+	}
+
+	public function readFromDBByName ( $name, $create ) {
+		$query = "FROM " . $this->tablename . " WHERE name = '$name'";
+
+		if ( db_row_count ( $query ) == 0 ) {
+			if ( $create == true )
+				$this->getAttribute ( 'name' )->value = $name;
+			else
+				return false;
+		}
+		else {
+			$query = "SELECT id " . $query;
+			$returned = query_and_check ( $query, "Impossibile recuperare oggetto per nome" );
+			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+			$this->readFromDB ( $rows [ 0 ] [ 'id' ] );
+		}
+
+		return true;
+	}
+
+	public function readFromDBAlt ( $parameters, $create ) {
+		$strings = array ();
+
+		foreach ( $parameters as $field => $value ) {
+			$attr = $this->getAttribute ( $field )->duplicate ();
+			$attr->value = $value;
+			$strings [] = "$field = " . $this->attr_to_db ( $attr );
+			unset ( $attr );
+		}
+
+		$query = "FROM " . $this->tablename . " WHERE " . join ( ' AND ', $strings );
+
+		if ( db_row_count ( $query ) == 0 ) {
+			if ( $create == true ) {
+				foreach ( $parameters as $field => $value )
+					$this->getAttribute ( $field )->value = $value;
+			}
+			else {
+				return false;
+			}
+		}
+		else {
+			$query = "SELECT id " . $query;
+			$returned = query_and_check ( $query, "Impossibile recuperare oggetto con parametri aggiuntivi" );
+			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+			$this->readFromDB ( $rows [ 0 ] [ 'id' ] );
+		}
+
+		return true;
 	}
 
 	public function get ( $request, $compress ) {
@@ -724,6 +780,13 @@ abstract class FromServer {
 
 					if ( $objtype == $this->classname ) {
 						if ( $type == "OBJECT" ) {
+							/*
+								TODO	Questa procedura e' decisamente lenta, in
+									quanto carica e distrugge tutti i singoli
+									oggetti uno alla volta.
+									Ottimizzare togliendo almeno il passaggio da
+									readFromDB()
+							*/
 							$query = sprintf ( "SELECT id FROM %s WHERE %s = %d", $tmp->tablename, $attr->name, $id );
 							$existing = query_and_check ( $query, "Impossibile trovare oggetti correlati a " . $this->classname );
 							$rows = $existing->fetchAll ( PDO::FETCH_ASSOC );

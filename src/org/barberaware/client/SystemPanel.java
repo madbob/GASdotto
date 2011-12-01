@@ -35,6 +35,7 @@ public class SystemPanel extends GenericPanel {
 		CaptionPanel sframe;
 		VerticalPanel ver;
 		MultiGasEnabler multigas;
+		ImportButton importer;
 
 		sframe = new CaptionPanel ( "Configurazione GAS" );
 		sframe.add ( doGlobalConfForm () );
@@ -80,6 +81,15 @@ public class SystemPanel extends GenericPanel {
 			sframe.add ( cluster );
 			add ( sframe );
 		}
+
+		sframe = new CaptionPanel ( "Importa File" );
+		ver = new VerticalPanel ();
+		ver.add ( new HTML ( "Da qui è possibile importare un file in formato GDXP in questa istanza. Clicca sul tasto qui sotto e segui la procedura." ) );
+		importer = new ImportButton ();
+		importer.addStyleName ( "top-spaced" );
+		ver.add ( importer );
+		sframe.add ( ver );
+		add ( sframe );
 
 		if ( Session.getSystemConf ().getBool ( "has_multigas" ) == false ) {
 			sframe = new CaptionPanel ( "Multi-GAS" );

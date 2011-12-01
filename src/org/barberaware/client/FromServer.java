@@ -438,7 +438,7 @@ public abstract class FromServer implements Comparator {
 		return ret;
 	}
 
-	public void fromJSONObject ( JSONObject obj ) {
+	public void fromJSONObject ( JSONObject obj, boolean skip_cache ) {
 		String k;
 		Object [] keys;
 		JSONValue value;
@@ -540,7 +540,12 @@ public abstract class FromServer implements Comparator {
 			}
 		}
 
-		Utils.getServer ().addToCache ( this );
+		if ( skip_cache == false )
+			Utils.getServer ().addToCache ( this );
+	}
+
+	public void fromJSONObject ( JSONObject obj ) {
+		fromJSONObject ( obj, false );
 	}
 
 	public void addRelatedInfo ( String identifier, Object object ) {
