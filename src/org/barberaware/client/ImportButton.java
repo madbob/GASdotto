@@ -46,6 +46,7 @@ public class ImportButton extends FileUploadDialog {
 	}
 
 	protected boolean manageUploadResponse ( JSONValue response ) {
+		JSONArray orders;
 		VerticalPanel pan;
 		HorizontalPanel buttons;
 		Button but;
@@ -68,12 +69,15 @@ public class ImportButton extends FileUploadDialog {
 		supplier.fromJSONObject ( contents.get ( "supplier" ).isObject (), true );
 		pan.add ( doSupplierBox ( supplier ) );
 
-		if ( contents.get ( "order" ) != null ) {
+		if ( contents.get ( "orders" ) != null ) {
 			pan.add ( new HTML ( "<hr>" ) );
+			orders = contents.get ( "orders" ).isArray ();
 
-			order = new Order ();
-			order.fromJSONObject ( contents.get ( "order" ).isObject () );
-			pan.add ( doOrderBox ( order ) );
+			for ( int i = 0; i < orders.size (); i++ ) {
+				order = new Order ();
+				order.fromJSONObject ( orders.get ( i ).isObject (), true );
+				pan.add ( doOrderBox ( order, contents.get ( "products" ).isArray () ) );
+			}
 
 			dialog.setText ( "Importa Ordine" );
 		}
@@ -117,9 +121,12 @@ public class ImportButton extends FileUploadDialog {
 		try {
 			response = builder.sendRequest ( originalResponse.toString (), new ServerResponse () {
 				public void onComplete ( JSONValue response ) {
-					/*
-						dummy
-					*/
+					JSONString s;
+
+					s = response.isString ();
+
+					if ( s != null && s.stringValue () == "ok" )
+						Utils.showNotification ( "Importazione avvenuta", Notification.INFO );
 				}
 			} );
 		}
@@ -227,13 +234,15 @@ public class ImportButton extends FileUploadDialog {
 		return second.getString ( "name" ) == first.getString ( "name" );
 	}
 
-	private Widget doOrderBox ( FromServer order ) {
-		ArrayList products;
+	private Widget doOrderBox ( FromServer order, JSONArray products ) {
 		HorizontalPanel pan;
 		VerticalPanel details;
+		ListBox list;
 		FromServer p;
 
 		pan = new HorizontalPanel ();
+		pan.setSpacing ( 10 );
+		pan.setWidth ( "100%" );
 
 		/*
 			Dettagli essenziali
@@ -241,6 +250,7 @@ public class ImportButton extends FileUploadDialog {
 
 		details = new VerticalPanel ();
 		pan.add ( details );
+		pan.setCellHorizontalAlignment ( details, HasHorizontalAlignment.ALIGN_LEFT );
 
 		details.add ( new Label ( "Data Apertura: " + Utils.printableDate ( order.getDate ( "startdate" ) ) ) );
 		details.add ( new Label ( "Data Chiusura: " + Utils.printableDate ( order.getDate ( "enddate" ) ) ) );
@@ -250,14 +260,18 @@ public class ImportButton extends FileUploadDialog {
 			Lista prodotti
 		*/
 
-		details = new VerticalPanel ();
-		pan.add ( details );
+		list = new ListBox ();
+		list.addStyleName ( "multirow-select" );
+		list.setWidth ( "100%" );
+		list.setVisibleItemCount ( 10 );
+		pan.add ( list );
+		pan.setCellHorizontalAlignment ( list, HasHorizontalAlignment.ALIGN_RIGHT );
 
-		products = order.getArray ( "products" );
+		p = new Product ();
 
 		for ( int i = 0; i < products.size (); i++ ) {
-			p = ( FromServer ) products.get ( i );
-			details.add ( new Label ( p.getString ( "name" ) ) );
+			p.fromJSONObject ( products.get ( i ).isObject () );
+			list.addItem ( p.getString ( "name" ) );
 		}
 
 		return pan;

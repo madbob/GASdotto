@@ -227,7 +227,13 @@ body {
 	margin:			0px;
 }
 
-.elements-table input, select {
+.elements-table input {
+	margin:			1px;
+	float:			none;
+	height:			25px;
+}
+
+.elements-table select {
 	margin:			1px;
 	float:			none;
 	height:			25px;

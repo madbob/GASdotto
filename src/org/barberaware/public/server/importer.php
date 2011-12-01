@@ -114,8 +114,13 @@ else if ( $action == 'write' ) {
 	$id = $sup->save ( $obj->supplier );
 
 	$products = array ();
+	$products_ids = array ();
 
 	foreach ( $obj->products as $product ) {
+		$product->available = 'true';
+		$product->archived = 'false';
+		$product->supplier = $id;
+
 		$prod = new Product ();
 
 		if ( $prod->readFromDBAlt ( array ( 'supplier' => $id, 'name' => $product->name, 'archived' => 'false' ), false ) == true ) {
@@ -124,31 +129,38 @@ else if ( $action == 'write' ) {
 			$query = sprintf ( "UPDATE %s SET archived = true WHERE id = %s", $prod->tablename, $product->previous_description );
 			query_and_check ( $query, "Impossibile aggiornare prodotto" );
 		}
-		else {
-			$product->supplier = $id;
+
+		$pid = $prod->save ( $product );
+		$products_ids [] = $pid;
+
+		if ( property_exists ( $obj, 'orders' ) ) {
+			$p = new Product ();
+			$p->readFromDB ( $pid );
+			$products [] = $p->exportable ();
+			unset ( $p );
 		}
 
-		$products [] = $prod->save ( $product );
 		unset ( $prod );
 	}
 
 	$prod = new Product ();
 	$query = sprintf ( "UPDATE %s SET archived = true
 				WHERE supplier = %s AND archived = false AND id NOT IN ( %s )",
-				$prod->tablename, $id, join ( ', ', $products ) );
+				$prod->tablename, $id, join ( ', ', $products_ids ) );
 	query_and_check ( $query, "Impossibile allineare tabella prodotti" );
 
 	if ( property_exists ( $obj, 'orders' ) ) {
 		$ord = new Order ();
 
 		foreach ( $obj->orders as $order ) {
-			$ord->supplier = $id;
-			$ord->products = $products;
+			$order->supplier = $id;
+			$order->products = $products;
 			$ord->save ( $order );
 		}
 	}
 
 	remove_temp_file ();
+	echo json_encode ( "ok" );
 }
 else if ( $action == 'cancel' ) {
 	remove_temp_file ();

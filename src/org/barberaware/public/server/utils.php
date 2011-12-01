@@ -688,7 +688,7 @@ function exportable_date ( $date ) {
 }
 
 function import_date ( $date ) {
-	preg_match ('/[0-9]{,4}[0-9]{,2}[0-9]{,2}/', $date, $matches);
+	preg_match ('/([0-9][0-9][0-9][0-9])([0-9][0-9])([0-9][0-9])/', $date, $matches);
 	return $matches [1] . '-' . $matches [2] . '-' . $matches [3];
 }
 

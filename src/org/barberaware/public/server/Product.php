@@ -159,13 +159,13 @@ class Product extends SharableFromServer {
 
 					case 'category':
 						$cat = new Category ();
-						$cat->readFromDBByName ( $value, true );
+						$cat->readFromDBAlt ( array ( 'name' => $value ), true );
 						$final->getAttribute ( 'category' )->value = $cat;
 						break;
 
 					case 'um':
 						$um = new Measure ();
-						$um->readFromDBByName ( $value, true );
+						$um->readFromDBAlt ( array ( 'name' => $value ), true );
 						$final->getAttribute ( 'measure' )->value = $um;
 						break;
 

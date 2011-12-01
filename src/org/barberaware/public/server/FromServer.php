@@ -312,25 +312,6 @@ abstract class FromServer {
 		$cache [ $token ] = $this;
 	}
 
-	public function readFromDBByName ( $name, $create ) {
-		$query = "FROM " . $this->tablename . " WHERE name = '$name'";
-
-		if ( db_row_count ( $query ) == 0 ) {
-			if ( $create == true )
-				$this->getAttribute ( 'name' )->value = $name;
-			else
-				return false;
-		}
-		else {
-			$query = "SELECT id " . $query;
-			$returned = query_and_check ( $query, "Impossibile recuperare oggetto per nome" );
-			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-			$this->readFromDB ( $rows [ 0 ] [ 'id' ] );
-		}
-
-		return true;
-	}
-
 	public function readFromDBAlt ( $parameters, $create ) {
 		$strings = array ();
 
@@ -485,6 +466,14 @@ abstract class FromServer {
 
 			case "OBJECT":
 				$ret = $attr->value;
+
+				if ( is_object ( $ret ) ) {
+					if ( property_exists ( $ret, 'id' ) )
+						$ret = $ret->id;
+					else
+						$ret = $ret->getAttribute ( 'id' )->value;
+				}
+
 				if ( $ret == -1 )
 					$ret = 'null';
 				break;

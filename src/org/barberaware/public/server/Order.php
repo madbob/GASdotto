@@ -147,7 +147,7 @@ class Order extends SharableFromServer {
 	public function save ( $obj ) {
 		$ref = new Product ();
 
-		if ( $obj->id == -1 ) {
+		if ( $obj->id == -1 && ( property_exists ( $obj, 'products' ) == false || count ( $obj->products ) == 0 ) ) {
 			$obj->products = array ();
 
 			/*
@@ -294,7 +294,7 @@ class Order extends SharableFromServer {
 				}
 			}
 
-			$ret [] = $final;
+			$ret [] = $final->exportable ();
 		}
 
 		$ref->orders = $ret;

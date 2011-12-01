@@ -19,6 +19,11 @@ package org.barberaware.client;
 
 import java.util.*;
 
+/*
+	TODO	Quando un Order viene eliminato, gli OrderUser di riferimento
+		andrebbero rimossi dalla cache locale
+*/
+
 public class Order extends FromServer implements OrderInterface {
 	/*
 		Attenzione che questi indici sono cablati anche nella componente server,

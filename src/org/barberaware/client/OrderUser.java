@@ -99,6 +99,7 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		FromServer order;
 		FromServer me;
 		FromServer ret;
+		FromServer parent;
 
 		orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 		me = Session.getUser ();
@@ -106,8 +107,9 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			order = ( FromServer ) orders.get ( i );
+			parent = order.getObject ( "baseorder" );
 
-			if ( order.getObject ( "baseorder" ).equals ( base ) && order.getObject ( "baseuser" ).equals ( me ) ) {
+			if ( parent != null && parent.equals ( base ) && order.getObject ( "baseuser" ).equals ( me ) ) {
 				ret = order;
 				break;
 			}
