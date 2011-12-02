@@ -185,7 +185,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 							unit_size = prod.getFloat ( "unit_size" );
 							if ( unit_size > 0 )
-								relative_max = relative_max * unit_size;
+								relative_max = relative_max / unit_size;
 
 							if ( input > relative_max ) {
 								Utils.showNotification ( "La quantità specificata è superiore al massimo ancora disponibile" );
