@@ -83,6 +83,11 @@ else {
 						$name = escape_string ( $obj->username );
 						$pwd = escape_string ( $obj->password );
 
+						if ( property_exists ( $obj, 'permanent' ) && $obj->permanent == 'true' )
+							$permanent = true;
+						else
+							$permanent = false;
+
 						$query = sprintf ( "FROM Users WHERE login = '%s'", $name );
 						if ( db_row_count ( $query ) == 1 ) {
 							$query = "SELECT id, privileges " . $query;
@@ -123,7 +128,7 @@ else {
 										}
 
 										$userid = $id;
-										perform_authentication ( $userid );
+										perform_authentication ( $userid, $permanent );
 										$ret->readFromDB ( $userid );
 										$ret->registerLogin ();
 									}

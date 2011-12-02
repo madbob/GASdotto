@@ -625,7 +625,7 @@ class ExportDocument extends TCPDF {
 						if ( $i < count ( $row ) )
 							$val = $row [ $i ];
 						else
-							$var = '&nbsp;';
+							$val = '&nbsp;';
 
 						$html .= '<td>' . $val . '</td>';
 					}
@@ -1085,7 +1085,7 @@ function check_session () {
 	return true;
 }
 
-function perform_authentication ( $userid ) {
+function perform_authentication ( $userid, $permanent ) {
 	global $session_key;
 
 	$query = "SELECT gas FROM acl WHERE target_type = 'User' AND target_id = $userid";
@@ -1093,11 +1093,13 @@ function perform_authentication ( $userid ) {
 	$row = $result->fetchAll ( PDO::FETCH_NUM );
 	$gasid = $row [ 0 ] [ 0 ];
 
+	$t = time ();
+
 	/*
 		tutte le sessioni piu' vecchie di una settimana sono eliminate
 	*/
 
-	$old_now = date ( "Y-m-d", ( time () - ( 60 * 60 * 24 * 7 ) ) );
+	$old_now = date ( "Y-m-d", ( $t - ( 60 * 60 * 24 * 7 ) ) );
 	$query = sprintf ( "DELETE FROM current_sessions
 				WHERE init < '%s' OR
 				username = %d",
@@ -1113,7 +1115,14 @@ function perform_authentication ( $userid ) {
 		unset ( $result );
 	} while ( $row [ 0 ] [ 0 ] != 0 && sleep ( 1 ) == 0 );
 
-	$now = date ( "Y-m-d", time () );
+	if ( $permanent == false ) {
+		$now = date ( "Y-m-d", $t );
+		$expiry = 0;
+	}
+	else {
+		$now = date ( "Y-m-d", PHP_INT_MAX );
+		$expiry = PHP_INT_MAX;
+	}
 
 	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username, gas )
 				VALUES ( '%s', DATE('%s'), %d, %d )",
@@ -1124,7 +1133,7 @@ function perform_authentication ( $userid ) {
 	$session_hash = md5 ( $session_serial . $session_key );
 	$session_cookie = base64_encode ( $session_serial ) . '-*-' . $session_hash;
 
-	if ( setcookie ( 'gasdotto', $session_cookie, 0, '/', '', 0 ) == false )
+	if ( setcookie ( 'gasdotto', $session_cookie, $expiry, '/', '', 0 ) == false )
 		error_exit ( "Impossibile settare il cookie" );
 }
 

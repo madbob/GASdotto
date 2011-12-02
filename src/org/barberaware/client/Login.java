@@ -25,6 +25,7 @@ import com.google.gwt.user.client.ui.*;
 public class Login extends Composite {
 	private TextBox			username;
 	private PasswordTextBox		password;
+	private CheckBox		permanent;
 
 	private DialogBox		recoveryDialog;
 	private TextBox			recoveryMail;
@@ -174,6 +175,9 @@ public class Login extends Composite {
 		params.add ( "username", user );
 		params.add ( "password", pwd );
 
+		if ( permanent.isChecked () )
+			params.add ( "permanent", "true" );
+
 		Utils.getServer ().serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				User utente;
@@ -273,6 +277,7 @@ public class Login extends Composite {
 	private Widget doCredentials () {
 		FlexTable form;
 		Button button;
+		HorizontalPanel box;
 		Hyperlink passwordrecovery;
 		KeyboardListenerAdapter enter_key;
 
@@ -289,12 +294,21 @@ public class Login extends Composite {
 		form.setWidget ( 1, 0, new Label ( "Password" ) );
 		form.setWidget ( 1, 1, password );
 
+		box = new HorizontalPanel ();
+		box.setSpacing ( 5 );
+		box.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		form.setWidget ( 2, 1, box );
+
 		button = new Button ( "Login", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				executeLogin ();
 			}
 		} );
-		form.setWidget ( 2, 1, button );
+		box.add ( button );
+
+		permanent = new CheckBox ( "Resta Connesso" );
+		permanent.addStyleName ( "small-text" );
+		box.add ( permanent );
 
 		if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
 			passwordrecovery = new Hyperlink ();
