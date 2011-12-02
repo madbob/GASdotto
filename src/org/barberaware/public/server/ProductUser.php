@@ -41,7 +41,7 @@ class ProductUser extends FromServer {
 				$prod = $obj->product;
 			}
 
-			if ( $prod->getAttribute ( 'atomic_quantity' )->value == true ) {
+			if ( $prod->getAttribute ( 'mutable_price' )->value == true ) {
 				$tmp = array ();
 				$tmp [] = $obj->variants [ 0 ];
 				$obj->variants = $tmp;

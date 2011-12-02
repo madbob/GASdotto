@@ -36,7 +36,6 @@ class Product extends SharableFromServer {
 		$this->addAttribute ( "multiple_order", "FLOAT" );
 		$this->addAttribute ( "total_max_order", "FLOAT" );
 		$this->addAttribute ( "stock_size", "FLOAT" );
-		$this->addAttribute ( "atomic_quantity", "BOOLEAN" );
 		$this->addAttribute ( "unit_size", "FLOAT" );
 		$this->addAttribute ( "mutable_price", "BOOLEAN" );
 		$this->addAttribute ( "available", "BOOLEAN" );

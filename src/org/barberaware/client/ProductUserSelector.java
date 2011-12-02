@@ -407,11 +407,13 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 						int num;
 						float q;
 						double qt;
+						Product prod;
 
 						q = quantity.getVal ();
 						qt = ( double ) q;
+						prod = ( Product ) currentValue.getObject ( "product" );
 
-						if ( currentValue.getObject ( "product" ).getBool ( "atomic_quantity" ) == true )
+						if ( prod.hasAtomicQuantity () == true )
 							num = 1;
 						else
 							num = ( int ) Math.ceil ( ( double ) q );

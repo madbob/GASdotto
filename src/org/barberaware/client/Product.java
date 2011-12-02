@@ -36,7 +36,6 @@ public class Product extends FromServer {
 		addAttribute ( "multiple_order", FromServer.FLOAT );
 		addAttribute ( "total_max_order", FromServer.FLOAT );
 		addAttribute ( "stock_size", FromServer.FLOAT );
-		addAttribute ( "atomic_quantity", FromServer.BOOLEAN );
 		addAttribute ( "unit_size", FromServer.FLOAT );
 		addAttribute ( "mutable_price", FromServer.BOOLEAN );
 		addAttribute ( "available", FromServer.BOOLEAN );
@@ -61,5 +60,12 @@ public class Product extends FromServer {
 		tot += getFloat ( "shipping_price" );
 		tot += Utils.sumPercentage ( tot, getString ( "surplus" ) );
 		return tot;
+	}
+
+	public boolean hasAtomicQuantity () {
+		ArrayList variants;
+
+		variants = getArray ( "variants" );
+		return ( getBool ( "mutable_price" ) == true && variants != null && variants.size () != 0 );
 	}
 }

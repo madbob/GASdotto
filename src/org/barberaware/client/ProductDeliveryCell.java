@@ -97,10 +97,12 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 		Label id;
 		FlexTable quantityTable;
 		ProductUserVariant variant;
+		Product prod;
 
 		quantityTable = ( FlexTable ) quantityLabel;
+		prod = ( Product ) prod_user.getObject ( "product" );
 
-		if ( prod_user.getObject ( "product" ).getBool ( "atomic_quantity" ) == true )
+		if ( prod.hasAtomicQuantity () == true )
 			default_quantity = prod_user.getFloat ( "quantity" );
 		else
 			default_quantity = 1;
@@ -186,7 +188,7 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				main.add ( quantityLabel );
 				setCell ( quantityLabel, "20%" );
 
-				if ( prod_user.getObject ( "product" ).getBool ( "atomic_quantity" ) == true )
+				if ( ( ( Product ) prod ).hasAtomicQuantity () == true )
 					box = new ProductDeliveryEditableAtomicVariantsCell ();
 				else
 					box = new ProductDeliveryEditableVariantsCell ();
