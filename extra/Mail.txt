@@ -1,0 +1,10 @@
+Mail.php
+Mail/mail.php
+Mail/mimePart.php
+Mail/mime.php
+Mail/mock.php
+Mail/null.php
+Mail/RFC822.php
+Mail/sendmail.php
+Mail/smtpmx.php
+Mail/smtp.php

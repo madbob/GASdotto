@@ -17,11 +17,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+require_once ( "extra.php" );
 require_once ( "config.php" );
-require_once ( "Mail.php" );
-require_once ( "Mail/mime.php" );
-require_once ( "tcpdf/tcpdf.php" );
-require_once ( "Archive/Tar.php" );
 
 require_once ( "FromServer.php" );
 require_once ( "SharableFromServer.php" );
