@@ -17,7 +17,6 @@ tcpdf/tcpdf.p12
 tcpdf/tcpdf_parser.php
 tcpdf/tcpdf.php
 tcpdf/unicode_data.php
-tcpdf/config/lang
 tcpdf/config/tcpdf_config_alt.php
 tcpdf/config/tcpdf_config.php
 tcpdf/config/lang/eng.php

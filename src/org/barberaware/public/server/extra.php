@@ -17,8 +17,8 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-global $extraroot;
-$extraroot = "https://github.com/madbob/GASdotto/tree/master/extra";
+global $extra_root;
+$extra_root = "https://raw.github.com/madbob/GASdotto/master/extra";
 
 /*
 	Preso da:
@@ -50,7 +50,7 @@ function file_get_contents_remote ( $url ) {
 }
 
 function check_package ( $file, $url ) {
-	global $extraroot;
+	global $extra_root;
 
 	$paths = explode ( ':', ini_get ( 'include_path' ) );
 
@@ -75,13 +75,13 @@ function check_package ( $file, $url ) {
 		if ( $content == '' )
 			continue;
 
-		$c = file_get_contents_remote ( "$extraroot/$content" );
+		$c = file_get_contents_remote ( "$extra_root/$content" );
 
-		$folder = dirname ( $url );
-		if ( $folder != '.' )
+		$folder = dirname ( $content );
+		if ( $folder != '.' && file_exists ( "extra/$folder" ) == false )
 			mkdir ( "extra/$folder", 0777, true );
 
-		file_put_contents ( 'extra/' . $content, $c );
+		file_put_contents ( "extra/$content", $c );
 	}
 
 	require_once ( "extra/$file" );
@@ -90,10 +90,10 @@ function check_package ( $file, $url ) {
 if ( file_exists ( 'extra' ) )
 	ini_set ( 'include_path', ini_get ( 'include_path' ) . ':' . getcwd () . '/extra' );
 
-check_package ( 'Mail.php', "$extraroot/Mail.txt" );
-check_package ( 'Mail/mime.php', "$extraroot/Mail.txt" );
-check_package ( 'tcpdf/tcpdf.php', "$extraroot/tcpdf.txt" );
-check_package ( 'Archive/Tar.php', "$extraroot/Tar.txt" );
+check_package ( 'Mail.php', "$extra_root/Mail.txt" );
+check_package ( 'Mail/mime.php', "$extra_root/Mail.txt" );
+check_package ( 'tcpdf/tcpdf.php', "$extra_root/tcpdf.txt" );
+check_package ( 'Archive/Tar.php', "$extra_root/Tar.txt" );
 
 ?>
 

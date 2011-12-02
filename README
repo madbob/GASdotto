@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------[Readme]
 
-GASdotto 2.1
+GASdotto 3.0
 Roberto -MadBob- Guido
-Aprile 2011
+Dicembre 2011
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -25,17 +25,21 @@ Per compilare il tutto e' necessario:
 - GWT-DND		http://code.google.com/p/gwt-dnd/				v2.5.6
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
-- PHP			http://php.net/					testato su versione 5.3.3
-- PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 8.3.5
+- Apache		http://apache.org/				testato su versione 2.2.21
+- PHP			http://php.net/					testato su versione 5.3.8
+- PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 9.1.1
+
+I seguenti pacchetti PHP sono utilizzati da GASdotto per vari compiti, ma e' presente un sistema
+di risoluzione automatica delle dipendenze percui anche se non vengono reperiti localmente vengono
+scaricati dal repository del progetto. E' comunque sempre preferibile, laddove possibile,
+provvedere ad una installazione di sistema.
 - TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
 - Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
 - Pear-Mail_Mime	http://pear.php.net/package/Mail_Mime/		testato su versione 1.5.3-0
-- Pear-Net_SMTP		http://pear.php.net/package/Net_SMTP/		testato su versione 1.4.2
 - Archive_Tar		http://pear.php.net/package/Archive_Tar/	testato su versione 1.3.8
-- Apache		http://apache.org/				testato su versione 2.2.15
 
 Il database in cui verranno messi i dati puo' essere:
-- PostgreSQL		http://www.postgresql.org/			testato su versione 8.4
+- PostgreSQL		http://www.postgresql.org/			testato su versione 9.1
 - MySQL			http://www.mysql.com/				testato su versione 5.1.50
 E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
@@ -43,6 +47,7 @@ Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard
 verificati:
 - Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 8.0
 - Chromium		http://www.google.com/chrome			testato su versione 9.0.597
+- Epiphany		http://projects.gnome.org/epiphany/		testato su versione 3.2.1
 E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
 
 -------------------------------------------------------------------------------------[Compilazione]
@@ -72,8 +77,7 @@ di installazione del DB
 
 ------------------------------------------------------------------------------------[Aggiornamento]
 
-A partire dalla release 2.1 la procedura di upgrade da una versione precedente e' stata snellita e
-resa trasparente. Per procedere correttamente ed in modo sicuro si consiglia di:
+Per procedere correttamente ed in modo sicuro si consiglia di:
 
 - spostare la cartella della vecchia versione in un luogo sicuro, ed effettuare una copia di
 backup del database
