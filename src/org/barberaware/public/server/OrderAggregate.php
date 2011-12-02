@@ -28,6 +28,11 @@ class OrderAggregate extends SharableFromServer {
 		$this->setPublic ( false );
 	}
 
+	/*
+		TODO	In assenza di controlli vengono pescati anche gli
+			OrderAggregate gia' chiusi e consegnati!
+	*/
+
 	public function export ( $options ) {
 		$ret = array ();
 		$name = array ();

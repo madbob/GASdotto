@@ -67,7 +67,7 @@ public class DeliveryPanel extends GenericPanel {
 					main.deleteElement ( tmp );
 				}
 
-				main.addElement ( object );
+				addAndHide ( object );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -98,7 +98,6 @@ public class DeliveryPanel extends GenericPanel {
 		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
 				Supplier supp;
-				FromServerRappresentation form;
 
 				if ( object.getBool ( "parent_aggregate" ) == true )
 					return;
@@ -107,15 +106,7 @@ public class DeliveryPanel extends GenericPanel {
 				if ( supp.iAmReference () == false && supp.iAmCarrier () == false )
 					return;
 
-				form = main.retrieveForm ( object );
-				if ( form == null ) {
-					if ( main.addElement ( object ) == 1 ) {
-						if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false ) {
-							form = main.retrieveForm ( object );
-							form.setVisible ( false );
-						}
-					}
-				}
+				addAndHide ( object );
 			}
 
 			public void onModify ( FromServer object ) {
@@ -272,6 +263,20 @@ public class DeliveryPanel extends GenericPanel {
 		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
 
 		doFilterOptions ();
+	}
+
+	private void addAndHide ( FromServer object ) {
+		FromServerRappresentation form;
+
+		form = main.retrieveForm ( object );
+		if ( form == null ) {
+			if ( main.addElement ( object ) == 1 ) {
+				if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false ) {
+					form = main.retrieveForm ( object );
+					form.setVisible ( false );
+				}
+			}
+		}
 	}
 
 	private void doFilterOptions () {
