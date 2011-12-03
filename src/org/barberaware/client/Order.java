@@ -118,6 +118,10 @@ public class Order extends FromServer implements OrderInterface {
 		Utils.getServer ().testObjectReceive ( params );
 	}
 
+	public boolean hasShippingPlaces () {
+		return this.getObject ( "supplier" ).getInt ( "shipping_manage" ) == Supplier.SHIPPING_TO_PLACE;
+	}
+
 	public boolean iAmReference () {
 		Supplier supplier;
 

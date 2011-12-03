@@ -25,42 +25,38 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class CashCount extends Composite {
 	private HorizontalPanel		main;
-	private ArrayList		dates;
+	private VerticalPanel		totalColumn;
 	private Date			now;
 
 	public CashCount () {
 		Label text;
-		VerticalPanel today;
 
 		main = new HorizontalPanel ();
 		initWidget ( main );
 		main.setStyleName ( "top-spaced" );
 		main.setSpacing ( 10 );
 
-		dates = new ArrayList ();
 		now = new Date ( System.currentTimeMillis () );
 		now = new Date ( now.getYear (), now.getMonth (), now.getDate () );
-		dates.add ( now );
 
-		today = new VerticalPanel ();
-		main.add ( today );
+		totalColumn = new VerticalPanel ();
+		main.add ( totalColumn );
 
 		text = new Label ( "Consegne di Oggi" );
-		today.add ( text );
-		today.setCellHorizontalAlignment ( text, HasHorizontalAlignment.ALIGN_CENTER );
+		totalColumn.add ( text );
+		totalColumn.setCellHorizontalAlignment ( text, HasHorizontalAlignment.ALIGN_CENTER );
 
 		text = new Label ();
 		text.setStyleName ( "bigger-text" );
 		text.setText ( Utils.priceToString ( 0 ) );
-		today.add ( text );
-		today.setCellHorizontalAlignment ( text, HasHorizontalAlignment.ALIGN_CENTER );
+		totalColumn.add ( text );
+		totalColumn.setCellHorizontalAlignment ( text, HasHorizontalAlignment.ALIGN_CENTER );
 	}
 
 	public void addOrder ( OrderUserInterface uorder ) {
 		boolean found;
 		float tot;
 		int row_index;
-		Date d;
 		ArrayList orders;
 		String supplier_name;
 		VerticalPanel col;
@@ -71,23 +67,36 @@ public class CashCount extends Composite {
 		OrderUser ord;
 
 		uord = ( FromServer ) uorder;
-
-		d = checkEligibility ( uord );
-		if ( d == null )
+		if ( checkEligibility ( uord ) == false )
 			return;
 
-		target_column = columnByDate ( d );
+		target_column = columnByPlace ( uord );
 		if ( target_column == null )
 			return;
 
 		if ( uord instanceof OrderUserAggregate ) {
 			if ( hasSuppliersColumn () == false ) {
 				col = new VerticalPanel ();
+				col.setSpacing ( 10 );
 				main.insert ( col, 0 );
+
+				/*
+					Una casella in cima al posto dell'intestazione, una casella al fondo in
+					prossimita' dei totali per luogo
+				*/
 
 				lab = new Label ( "" );
 				col.add ( lab );
 				lab.addStyleName ( "high-as-label" );
+
+				lab = new Label ( "" );
+				col.add ( lab );
+				lab.addStyleName ( "high-as-label" );
+
+				lab = ( Label ) totalColumn.getWidget ( 0 );
+				lab.setText ( "" );
+				lab.addStyleName ( "high-as-label" );
+				totalColumn.setSpacing ( 10 );
 			}
 			else {
 				col = ( VerticalPanel ) main.getWidget ( 0 );
@@ -99,7 +108,16 @@ public class CashCount extends Composite {
 				ord = ( OrderUser ) orders.get ( i );
 				supplier_name = ord.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
 				tot = ord.getDeliveredPriceWithFriends ();
+
+				row_index = 1;
 				found = false;
+
+				/*
+					Cerco tra le caselle della colonna dei
+					fornitori, se ne trovo una con lo stesso
+					nome sommo nella relativa casella della
+					colonna del luogo
+				*/
 
 				for ( int a = 1; a < col.getWidgetCount (); a++ ) {
 					lab = ( Label ) col.getWidget ( a );
@@ -109,36 +127,46 @@ public class CashCount extends Composite {
 						lab = ( Label ) target_column.getWidget ( a );
 						lab.removeStyleName ( "bigger-text" );
 						lab.setText ( Utils.priceToString ( Utils.stringToPrice ( lab.getText () ) + tot ) );
+						row_index = a;
 						break;
 					}
 				}
 
+				/*
+					Se non trovo il fornitore, creo una
+					nuova casella nella prima colonna ed
+					itero tutte le altre per metterci la
+					nuova cella vuota
+				*/
+
 				if ( found == false ) {
-					col.add ( new Label ( supplier_name ) );
 					row_index = col.getWidgetCount () - 1;
+					col.insert ( new Label ( supplier_name ), row_index );
 
 					for ( int e = 1; e < main.getWidgetCount (); e++ ) {
 						pan = ( VerticalPanel ) main.getWidget ( e );
 
-						if ( pan.getWidgetCount () < col.getWidgetCount () ) {
-							lab = new Label ( "" );
-							pan.add ( lab );
+						while ( pan.getWidgetCount () < col.getWidgetCount () ) {
+							lab = new Label ( Utils.priceToString ( 0 ) );
+							pan.insert ( lab, row_index );
 							pan.setCellHorizontalAlignment ( lab, HasHorizontalAlignment.ALIGN_CENTER );
 						}
-						else {
-							lab = ( Label ) pan.getWidget ( row_index );
-						}
+
+						lab = ( Label ) pan.getWidget ( row_index );
 
 						if ( pan == target_column )
 							lab.setText ( Utils.priceToString ( Utils.stringToPrice ( lab.getText () ) + tot ) );
 					}
 				}
 			}
+
+			computeAllTotals ( target_column );
 		}
 		else {
 			tot = uorder.getDeliveredPriceWithFriends ();
 			lab = ( Label ) target_column.getWidget ( 1 );
 			lab.setText ( Utils.priceToString ( Utils.stringToPrice ( lab.getText () ) + tot ) );
+			computeTotals ();
 		}
 	}
 
@@ -179,7 +207,6 @@ public class CashCount extends Composite {
 
 	public void delOrder ( OrderUserInterface uorder ) {
 		float tot;
-		Date d;
 		ArrayList orders;
 		String supplier_name;
 		Label lab;
@@ -189,12 +216,10 @@ public class CashCount extends Composite {
 		OrderUser ord;
 
 		uord = ( FromServer ) uorder;
-
-		d = checkEligibility ( uord );
-		if ( d == null )
+		if ( checkEligibility ( uord ) == false )
 			return;
 
-		target_column = columnByDate ( d );
+		target_column = columnByPlace ( uord );
 
 		if ( hasSuppliersColumn () == true ) {
 			if ( uorder instanceof OrderUserAggregate == false )
@@ -218,11 +243,14 @@ public class CashCount extends Composite {
 					}
 				}
 			}
+
+			computeAllTotals ( target_column );
 		}
 		else {
 			tot = uorder.getDeliveredPriceWithFriends ();
 			lab = ( Label ) target_column.getWidget ( 1 );
 			lab.setText ( Utils.priceToString ( Utils.stringToPrice ( lab.getText () ) - tot ) );
+			computeTotals ();
 		}
 	}
 
@@ -237,71 +265,136 @@ public class CashCount extends Composite {
 		while ( col.getWidgetCount () != 2 )
 			col.remove ( 1 );
 
-		dates.clear ();
-		dates.add ( now );
-
 		lab = ( Label ) col.getWidget ( 1 );
 		lab.setText ( Utils.priceToString ( 0 ) );
 	}
 
-	private Date checkEligibility ( FromServer order ) {
+	/*
+		Questa viene invocata quando c'e' un solo fornitore, e comunque
+		fa qualcosa di utile solo se sono contemplati luoghi di consegna
+	*/
+	private void computeTotals () {
+		float tot;
+		float maintot;
+		Label lab;
+		VerticalPanel pan;
+
+		if ( main.getWidgetCount () > 1 ) {
+			tot = 0;
+
+			for ( int e = 0; e < main.getWidgetCount () - 1; e++ ) {
+				pan = ( VerticalPanel ) main.getWidget ( e );
+				lab = ( Label ) pan.getWidget ( 1 );
+				tot += Utils.stringToPrice ( lab.getText () );
+			}
+
+			lab = ( Label ) totalColumn.getWidget ( 1 );
+			lab.setText ( Utils.priceToString ( tot ) );
+		}
+	}
+
+	/*
+		Questa viene invocata in presenza della tabella completa
+		fornitori x luoghi di consegna
+	*/
+	private void computeAllTotals ( VerticalPanel target_column ) {
+		float tot;
+		float maintot;
+		Label lab;
+		VerticalPanel pan;
+
+		maintot = 0;
+
+		for ( int i = 1; i < totalColumn.getWidgetCount () - 1; i++ ) {
+			tot = 0;
+
+			for ( int e = 1; e < main.getWidgetCount () - 1; e++ ) {
+				pan = ( VerticalPanel ) main.getWidget ( e );
+				lab = ( Label ) pan.getWidget ( i );
+				tot += Utils.stringToPrice ( lab.getText () );
+			}
+
+			lab = ( Label ) totalColumn.getWidget ( i );
+			lab.setText ( Utils.priceToString ( tot ) );
+
+			maintot += tot;
+		}
+
+		lab = ( Label ) totalColumn.getWidget ( target_column.getWidgetCount () - 1 );
+		lab.setText ( Utils.priceToString ( maintot ) );
+
+		tot = 0;
+
+		for ( int e = 1; e < target_column.getWidgetCount () - 1; e++ ) {
+			lab = ( Label ) target_column.getWidget ( e );
+			tot += Utils.stringToPrice ( lab.getText () );
+		}
+
+		lab = ( Label ) target_column.getWidget ( target_column.getWidgetCount () - 1 );
+		lab.setText ( Utils.priceToString ( tot ) );
+	}
+
+	private boolean checkEligibility ( FromServer order ) {
 		int status;
 		Date d;
 
 		d = order.getDate ( "deliverydate" );
 		if ( d == null )
-			return null;
+			return false;
 
 		status = order.getInt ( "status" );
 		if ( status != OrderUser.PARTIAL_DELIVERY && status != OrderUser.COMPLETE_DELIVERY )
-			return null;
+			return false;
 
-		return d;
+		d = new Date ( d.getYear (), d.getMonth (), d.getDate () );
+		return now.equals ( d );
 	}
 
-	private VerticalPanel columnByDate ( Date d ) {
+	private VerticalPanel columnByPlace ( FromServer ord ) {
 		boolean has_suppliers_columns;
+		boolean found;
 		int rows;
+		String place;
 		Label lab;
 		VerticalPanel ret;
-		Date ed;
+		OrderInterface parent;
+
+		parent = ( OrderInterface ) ord.getObject ( "baseorder" );
+		if ( parent.hasShippingPlaces () == false )
+			return totalColumn;
 
 		ret = null;
+		found = false;
 		has_suppliers_columns = hasSuppliersColumn ();
-		d = new Date ( d.getYear (), d.getMonth (), d.getDate () );
+		place = ord.getObject ( "baseuser" ).getObject ( "shipping" ).getString ( "name" );
 
-		for ( int i = 0; i < dates.size (); i++ ) {
-			ed = ( Date ) dates.get ( i );
+		for ( int i = ( has_suppliers_columns ? 1 : 0 ); i < main.getWidgetCount () - 1; i++ ) {
+			ret = ( VerticalPanel ) main.getWidget ( i );
+			lab = ( Label ) ret.getWidget ( 0 );
 
-			if ( ed.equals ( d ) ) {
-				if ( has_suppliers_columns == true )
-					i++;
-
-				ret = ( VerticalPanel ) main.getWidget ( i );
+			if ( lab.getText ().equals ( place ) ) {
+				found = true;
 				break;
 			}
-			else if ( ed.after ( d ) ) {
-				ret = ( VerticalPanel ) main.getWidget ( i );
-				rows = ret.getWidgetCount ();
+		}
 
-				ret = new VerticalPanel ();
-				lab = new Label ( d.getDate () + "/" + d.getMonth () );
+		if ( found == false ) {
+			ret = ( VerticalPanel ) main.getWidget ( 0 );
+			rows = ret.getWidgetCount ();
+
+			ret = new VerticalPanel ();
+			ret.setSpacing ( 10 );
+			lab = new Label ( place );
+			ret.add ( lab );
+			ret.setCellHorizontalAlignment ( lab, HasHorizontalAlignment.ALIGN_CENTER );
+
+			for ( int a = 1; a < rows; a++ ) {
+				lab = new Label ( "" );
 				ret.add ( lab );
 				ret.setCellHorizontalAlignment ( lab, HasHorizontalAlignment.ALIGN_CENTER );
-
-				if ( has_suppliers_columns == true )
-					i++;
-
-				for ( int a = 1; a < rows; a++ ) {
-					lab = new Label ( "" );
-					ret.add ( lab );
-					ret.setCellHorizontalAlignment ( lab, HasHorizontalAlignment.ALIGN_CENTER );
-				}
-
-				main.insert ( ret, i );
-				dates.add ( i, d );
-				break;
 			}
+
+			main.insert ( ret, main.getWidgetCount () - 1 );
 		}
 
 		return ret;

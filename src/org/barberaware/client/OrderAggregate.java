@@ -248,12 +248,27 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 		}
 	}
 
+	public boolean hasShippingPlaces () {
+		ArrayList orders;
+		Order ord;
+
+		orders = getObjects ();
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			ord = ( Order ) orders.get ( i );
+			if ( ord.hasShippingPlaces () == true )
+				return true;
+		}
+
+		return false;
+	}
+
 	public boolean iAmReference () {
 		ArrayList orders;
 		FromServer ord;
 		Supplier supplier;
 
-		orders = getArray ( "orders" );
+		orders = getObjects ();
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			ord = ( FromServer ) orders.get ( i );
