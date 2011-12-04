@@ -26,6 +26,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class CashCount extends Composite {
 	private HorizontalPanel		main;
 	private VerticalPanel		totalColumn;
+	private VerticalPanel		suppliersColumn;
 	private Date			now;
 
 	public CashCount () {
@@ -51,6 +52,8 @@ public class CashCount extends Composite {
 		text.setText ( Utils.priceToString ( 0 ) );
 		totalColumn.add ( text );
 		totalColumn.setCellHorizontalAlignment ( text, HasHorizontalAlignment.ALIGN_CENTER );
+
+		suppliersColumn = null;
 	}
 
 	public void addOrder ( OrderUserInterface uorder ) {
@@ -59,7 +62,6 @@ public class CashCount extends Composite {
 		int row_index;
 		ArrayList orders;
 		String supplier_name;
-		VerticalPanel col;
 		VerticalPanel pan;
 		VerticalPanel target_column;
 		Label lab;
@@ -76,9 +78,9 @@ public class CashCount extends Composite {
 
 		if ( uord instanceof OrderUserAggregate ) {
 			if ( hasSuppliersColumn () == false ) {
-				col = new VerticalPanel ();
-				col.setSpacing ( 10 );
-				main.insert ( col, 0 );
+				suppliersColumn = new VerticalPanel ();
+				suppliersColumn.setSpacing ( 10 );
+				main.insert ( suppliersColumn, 0 );
 
 				/*
 					Una casella in cima al posto dell'intestazione, una casella al fondo in
@@ -86,20 +88,17 @@ public class CashCount extends Composite {
 				*/
 
 				lab = new Label ( "" );
-				col.add ( lab );
+				suppliersColumn.add ( lab );
 				lab.addStyleName ( "high-as-label" );
 
 				lab = new Label ( "" );
-				col.add ( lab );
+				suppliersColumn.add ( lab );
 				lab.addStyleName ( "high-as-label" );
 
 				lab = ( Label ) totalColumn.getWidget ( 0 );
 				lab.setText ( "" );
 				lab.addStyleName ( "high-as-label" );
 				totalColumn.setSpacing ( 10 );
-			}
-			else {
-				col = ( VerticalPanel ) main.getWidget ( 0 );
 			}
 
 			orders = uord.getArray ( "orders" );
@@ -119,8 +118,8 @@ public class CashCount extends Composite {
 					colonna del luogo
 				*/
 
-				for ( int a = 1; a < col.getWidgetCount (); a++ ) {
-					lab = ( Label ) col.getWidget ( a );
+				for ( int a = 1; a < suppliersColumn.getWidgetCount (); a++ ) {
+					lab = ( Label ) suppliersColumn.getWidget ( a );
 
 					if ( lab.getText ().equals ( supplier_name ) ) {
 						found = true;
@@ -140,13 +139,13 @@ public class CashCount extends Composite {
 				*/
 
 				if ( found == false ) {
-					row_index = col.getWidgetCount () - 1;
-					col.insert ( new Label ( supplier_name ), row_index );
+					row_index = suppliersColumn.getWidgetCount () - 1;
+					suppliersColumn.insert ( new Label ( supplier_name ), row_index );
 
 					for ( int e = 1; e < main.getWidgetCount (); e++ ) {
 						pan = ( VerticalPanel ) main.getWidget ( e );
 
-						while ( pan.getWidgetCount () < col.getWidgetCount () ) {
+						while ( pan.getWidgetCount () < suppliersColumn.getWidgetCount () ) {
 							lab = new Label ( Utils.priceToString ( 0 ) );
 							pan.insert ( lab, row_index );
 							pan.setCellHorizontalAlignment ( lab, HasHorizontalAlignment.ALIGN_CENTER );
@@ -216,7 +215,6 @@ public class CashCount extends Composite {
 		String supplier_name;
 		Label lab;
 		VerticalPanel target_column;
-		VerticalPanel col;
 		FromServer uord;
 		OrderUser ord;
 
@@ -230,7 +228,6 @@ public class CashCount extends Composite {
 			if ( uorder instanceof OrderUserAggregate == false )
 				return;
 
-			col = ( VerticalPanel ) main.getWidget ( 0 );
 			orders = uord.getArray ( "orders" );
 
 			for ( int i = 0; i < orders.size (); i++ ) {
@@ -238,8 +235,8 @@ public class CashCount extends Composite {
 				supplier_name = ord.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
 				tot = ord.getDeliveredPriceWithFriends ();
 
-				for ( int a = 1; a < col.getWidgetCount (); a++ ) {
-					lab = ( Label ) col.getWidget ( a );
+				for ( int a = 1; a < suppliersColumn.getWidgetCount (); a++ ) {
+					lab = ( Label ) suppliersColumn.getWidget ( a );
 
 					if ( lab.getText ().equals ( supplier_name ) ) {
 						lab = ( Label ) target_column.getWidget ( a );
@@ -261,17 +258,17 @@ public class CashCount extends Composite {
 
 	public void clean () {
 		Label lab;
-		VerticalPanel col;
 
 		while ( main.getWidgetCount () != 1 )
 			main.remove ( 0 );
 
-		col = ( VerticalPanel ) main.getWidget ( 0 );
-		while ( col.getWidgetCount () != 2 )
-			col.remove ( 1 );
+		while ( totalColumn.getWidgetCount () != 2 )
+			totalColumn.remove ( 1 );
 
-		lab = ( Label ) col.getWidget ( 1 );
+		lab = ( Label ) totalColumn.getWidget ( 1 );
 		lab.setText ( Utils.priceToString ( 0 ) );
+
+		suppliersColumn = null;
 	}
 
 	/*
@@ -308,25 +305,27 @@ public class CashCount extends Composite {
 		Label lab;
 		VerticalPanel pan;
 
-		maintot = 0;
+		if ( target_column != totalColumn ) {
+			maintot = 0;
 
-		for ( int i = 1; i < totalColumn.getWidgetCount () - 1; i++ ) {
-			tot = 0;
+			for ( int i = 1; i < totalColumn.getWidgetCount () - 1; i++ ) {
+				tot = 0;
 
-			for ( int e = 1; e < main.getWidgetCount () - 1; e++ ) {
-				pan = ( VerticalPanel ) main.getWidget ( e );
-				lab = ( Label ) pan.getWidget ( i );
-				tot += Utils.stringToPrice ( lab.getText () );
+				for ( int e = 1; e < main.getWidgetCount () - 1; e++ ) {
+					pan = ( VerticalPanel ) main.getWidget ( e );
+					lab = ( Label ) pan.getWidget ( i );
+					tot += Utils.stringToPrice ( lab.getText () );
+				}
+
+				lab = ( Label ) totalColumn.getWidget ( i );
+				lab.setText ( Utils.priceToString ( tot ) );
+
+				maintot += tot;
 			}
 
-			lab = ( Label ) totalColumn.getWidget ( i );
-			lab.setText ( Utils.priceToString ( tot ) );
-
-			maintot += tot;
+			lab = ( Label ) totalColumn.getWidget ( target_column.getWidgetCount () - 1 );
+			lab.setText ( Utils.priceToString ( maintot ) );
 		}
-
-		lab = ( Label ) totalColumn.getWidget ( target_column.getWidgetCount () - 1 );
-		lab.setText ( Utils.priceToString ( maintot ) );
 
 		tot = 0;
 
@@ -404,11 +403,6 @@ public class CashCount extends Composite {
 	}
 
 	private boolean hasSuppliersColumn () {
-		VerticalPanel col;
-		Label lab;
-
-		col = ( VerticalPanel ) main.getWidget ( 0 );
-		lab = ( Label ) col.getWidget ( 0 );
-		return ( lab.getText () == "" );
+		return ( suppliersColumn != null );
 	}
 }

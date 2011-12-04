@@ -253,7 +253,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 		frame.addPair ( "Codice Fiscale", ver.getWidget ( "tax_code" ) );
 		frame.addPair ( "Partita IVA", ver.getWidget ( "vat_number" ) );
-		frame.addPair ( "Nascondi", ver.getWidget ( "hidden" ) );
+		frame.addPair ( "Inattivo", ver.getWidget ( "hidden" ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );
