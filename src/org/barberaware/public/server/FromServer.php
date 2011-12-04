@@ -343,14 +343,16 @@ abstract class FromServer {
 		return true;
 	}
 
-	public function get ( $request, $compress ) {
+	protected function getByQuery ( $request, $compress, $partial_query = null ) {
 		global $current_user;
 
 		$ret = array ();
 
-		if ( $request != null && ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
+		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
+
+		if ( $request != null && property_exists ( $request, 'has' ) && ( count ( $request->has ) != 0 ) ) {
 			$ids = join ( ',', $request->has );
-			$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s )", $this->tablename, $ids );
+			$query .= sprintf ( "id NOT IN ( %s )", $ids );
 		}
 		else {
 			/*
@@ -358,10 +360,10 @@ abstract class FromServer {
 				forzo l'esistenza di uno statement WHERE cui accodare gli altri
 				in AND
 			*/
-			$query = sprintf ( "SELECT id FROM %s WHERE true", $this->tablename );
+			$query .= sprintf ( "id > 0" );
 		}
 
-		if ( isset ( $request ) && isset ( $request->id ) )
+		if ( $request != null && property_exists ( $request, 'id' ) )
 			$query .= sprintf ( " AND id = %d ", $request->id );
 
 		if ( $this->user_check != null ) {
@@ -369,9 +371,15 @@ abstract class FromServer {
 				$query .= sprintf ( " AND %s = %d ", $this->user_check, $current_user );
 		}
 
+		if ( $partial_query != null )
+			$query .= ' AND ' . $partial_query . ' ';
+
 		$query .= $this->filter_by_current_gas ();
 
 		$query .= sprintf ( " ORDER BY %s", $this->sorting );
+
+		if ( isset ( $request->query_limit ) )
+			$query .= sprintf ( " LIMIT %d", $request->query_limit );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
@@ -384,6 +392,10 @@ abstract class FromServer {
 		}
 
 		return $ret;
+	}
+
+	public function get ( $request, $compress ) {
+		return $this->getByQuery ( $request, $compress, null );
 	}
 
 	public function filter_by_current_gas ( $field_name = 'id' ) {
@@ -406,7 +418,10 @@ abstract class FromServer {
 					break;
 			}
 
-			return " AND $field_name IN $ret";
+			if ( $field_name === -1 )
+				return $ret;
+			else
+				return " AND $field_name IN $ret";
 		}
 	}
 

@@ -890,7 +890,7 @@ function acl_filter_plain ( $obj ) {
 
 function acl_filter_hierarchy_asc ( $obj, $parent_class, $attribute ) {
 	$p = new $parent_class ();
-	$p_filter = $p->filter_by_current_gas ();
+	$p_filter = $p->filter_by_current_gas ( -1 );
 
 	if ( $p_filter == "" ) {
 		$ret = "";
@@ -906,7 +906,7 @@ function acl_filter_hierarchy_asc ( $obj, $parent_class, $attribute ) {
 
 function acl_filter_hierarchy_desc ( $obj, $child_class, $attribute ) {
 	$c = new $child_class ();
-	$c_filter = $c->filter_by_current_gas ();
+	$c_filter = $c->filter_by_current_gas ( -1 );
 
 	if ( $c_filter == "" ) {
 		$ret = "";
@@ -931,13 +931,11 @@ function get_acl_easy ( $type, $id ) {
 	else {
 		switch ( $o->public_mode [ 'mode' ] ) {
 			case 'asc':
-				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT " . $o->public_mode [ 'attribute' ] . " FROM " . $o->tablename . " WHERE id = $id )";
+				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT parent FROM " . $o->public_mode [ 'class' ] . "_" . $o->public_mode [ 'attribute' ] . " WHERE target = $id )";
 				break;
 
 			case 'desc':
-				$uclass = $o->public_mode [ 'class' ];
-				$u = new $uclass ();
-				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT parent FROM " . $u->tablename . "_" . $o->public_mode [ 'attribute' ] . " WHERE target = $id )";
+				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT " . $o->public_mode [ 'attribute' ] . " FROM " . $o->tablename . " WHERE id = $id )";
 				break;
 
 			case 'plain':
@@ -946,7 +944,7 @@ function get_acl_easy ( $type, $id ) {
 				break;
 		}
 
-		$result = query_and_check ( $query, "Impossibile recuperare privilegi di accesso al dato" );
+		$result = query_and_check ( $query, "Impossibile recuperare privilegi di accesso al dato classe $type" );
 		$row = $result->fetchAll ( PDO::FETCH_NUM );
 
 		if ( count ( $row ) > 0 )

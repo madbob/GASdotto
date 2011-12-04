@@ -39,17 +39,13 @@ class Order extends SharableFromServer {
 	}
 
 	public function get ( $request, $compress ) {
-		$ret = array ();
-
-		if ( isset ( $request->id ) ) {
-			$query = sprintf ( "SELECT id FROM %s WHERE id = %d", $this->tablename, $request->id );
-		}
-		else {
+		if ( $request != null ) {
 			/*
 				Non e' particolarmente efficiente fare il check sullo stato degli ordini
 				ad ogni interrogazione, ma l'alternativa sarebbe piazzare uno script in
 				cron rendendo piu' problematico il deploy dell'applicazione.
 			*/
+
 			/*
 				La data su cui viene confrontato l'ordine per la chiusura e' "oggi + 1",
 				per far quadrare i conti sui timestamp calcolati sulle ore
@@ -69,16 +65,16 @@ class Order extends SharableFromServer {
 				TODO	Settare status ordini con ciclicita'
 			*/
 
-			if ( isset ( $request->status ) ) {
+			if ( property_exists ( $request, 'status' ) ) {
 				if ( ( string ) $request->status == "any" ) {
 					/*
 						Aggiungo una condizione sempre vera giusto per
 						concatenare poi gli altri pezzi della query correttamente
 					*/
-					$query = sprintf ( "SELECT id FROM %s WHERE id > 0 ", $this->tablename );
+					$query = sprintf ( "id > 0 " );
 				}
 				else {
-					$query = sprintf ( "SELECT id FROM %s WHERE status = %d ", $this->tablename, $request->status );
+					$query = sprintf ( "status = %d ", $request->status );
 				}
 			}
 			else {
@@ -86,42 +82,20 @@ class Order extends SharableFromServer {
 					Gli ordini con status = 3 ("consegnato") non sono piu' esposti
 					all'applicazione, vengono conservati solo ad uso statistico
 				*/
-				$query = sprintf ( "SELECT id FROM %s WHERE status != 3 ", $this->tablename );
+				$query = sprintf ( "status != 3 " );
 			}
 
-			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-				$ids = join ( ',', $request->has );
-				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
-			}
-
-			if ( isset ( $request->supplier ) )
+			if ( property_exists ( $request, 'supplier' ) )
 				$query .= sprintf ( "AND supplier = %d ", $request->supplier );
 
-			if ( isset ( $request->startdate ) )
+			if ( property_exists ( $request, 'startdate' ) )
 				$query .= sprintf ( "AND startdate > DATE('%s') ", $request->startdate );
 
-			if ( isset ( $request->enddate ) )
+			if ( property_exists ( $request, 'enddate' ) )
 				$query .= sprintf ( "AND enddate < DATE('%s') ", $request->enddate );
-
-			$query .= $this->filter_by_current_gas ();
-
-			$query .= "ORDER BY id DESC";
-
-			if ( isset ( $request->query_limit ) )
-				$query .= sprintf ( " LIMIT %d", $request->query_limit );
 		}
 
-		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-		unset ( $returned );
-
-		foreach ( $rows as $row ) {
-			$obj = new $this->classname;
-			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request, $compress ) );
-		}
-
-		return $ret;
+		return parent::getByQuery ( $request, $compress, $query );
 	}
 
 	private function archiveProduct ( $prod, $product ) {

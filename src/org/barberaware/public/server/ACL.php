@@ -32,7 +32,7 @@ class ACL extends FromServer {
 	public function get ( $request, $compress ) {
 		$ret = array ();
 
-		if ( isset ( $request->target_type ) && isset ( $request->target_id ) ) {
+		if ( property_exists ( $request, 'target_type' ) && property_exists ( $request, 'target_id' ) ) {
 			$query = sprintf ( "SELECT id, gas FROM %s WHERE target_type = '%s' AND target_id = %d", $this->tablename, $request->target_type, $request->target_id );
 			$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
 			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );

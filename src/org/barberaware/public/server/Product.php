@@ -42,42 +42,17 @@ class Product extends SharableFromServer {
 		$this->addAttribute ( "variants", "ARRAY::ProductVariant" );
 		$this->addAttribute ( "archived", "BOOLEAN" );
 		$this->addAttribute ( "previous_description", "INTEGER" );
+
+		$this->setPublic ( false, 'desc', 'Supplier', 'supplier' );
 	}
 
 	public function get ( $request, $compress ) {
-		$ret = array ();
+		$query = 'archived = false';
 
-		if ( isset ( $request->id ) ) {
-			$query = sprintf ( "SELECT id FROM %s WHERE id = %d", $this->tablename, $request->id );
-		}
-		else {
-			if ( isset ( $request->supplier ) )
-				$tuning = sprintf ( " AND supplier = %d ", $request->supplier );
-			else
-				$tuning = "";
+		if ( $request != null && property_exists ( $request, 'supplier' ) )
+			$query .= sprintf ( " AND supplier = %d ", $request->supplier );
 
-			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-				$ids = join ( ',', $request->has );
-				$query = sprintf ( "SELECT id FROM %s WHERE id NOT IN ( %s ) AND archived = false %s ORDER BY id",
-							$this->tablename, $ids, $tuning );
-			}
-			else {
-				$query = sprintf ( "SELECT id FROM %s WHERE archived = false %s ORDER BY id",
-							$this->tablename, $tuning );
-			}
-		}
-
-		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-		unset ( $returned );
-
-		foreach ( $rows as $row ) {
-			$obj = new $this->classname;
-			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request, $compress ) );
-		}
-
-		return $ret;
+		return parent::getByQuery ( $request, $compress, $query );
 	}
 
 	public function save ( $obj ) {

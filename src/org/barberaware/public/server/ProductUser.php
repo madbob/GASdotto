@@ -29,6 +29,8 @@ class ProductUser extends FromServer {
 		$this->addAttribute ( "delivered", "FLOAT" );
 		$this->addAttribute ( "orderdate", "DATE" );
 		$this->addAttribute ( "orderperson", "OBJECT::User" );
+
+		$this->setPublic ( false, 'asc', 'OrderUser', 'products' );
 	}
 
 	public function save ( $obj ) {

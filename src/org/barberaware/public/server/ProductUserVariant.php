@@ -25,6 +25,8 @@ class ProductUserVariant extends FromServer {
 
 		$this->addAttribute ( "delivered", "BOOLEAN" );
 		$this->addAttribute ( "components", "ARRAY::ProductUserVariantComponent" );
+
+		$this->setPublic ( false, 'asc', 'ProductUser', 'variants' );
 	}
 
 	private function sort_components ( $first, $second ) {

@@ -33,26 +33,18 @@ class OrderUser extends FromServer {
 		$this->addAttribute ( "notes", "STRING" );
 
 		$this->enforceUserCheck ( "baseuser" );
-		$this->setPublic ( false, 'asc', 'User', 'baseuser' );
+		$this->setPublic ( false, 'desc', 'User', 'baseuser' );
 	}
 
 	public function get ( $request, $compress ) {
-		global $current_user;
-
-		$ret = array ();
-		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
-
-		if ( isset ( $request->id ) ) {
-			$query .= sprintf ( "id = %d ", $request->id );
-		}
-		else {
+		if ( $request != null ) {
 			$ord = new Order ();
 
 			if ( isset ( $request->baseorder ) ) {
-				$query .= sprintf ( "baseorder = %d ", $request->baseorder );
+				$query = sprintf ( "baseorder = %d ", $request->baseorder );
 			}
 			else if ( isset ( $request->supplier ) ) {
-				$query .= sprintf ( "baseorder IN ( SELECT id FROM %s WHERE supplier = %d ) ", $ord->tablename, $request->supplier );
+				$query = sprintf ( "baseorder IN ( SELECT id FROM %s WHERE supplier = %d ) ", $ord->tablename, $request->supplier );
 			}
 			else {
 				if ( !isset ( $request->all ) ) {
@@ -60,43 +52,21 @@ class OrderUser extends FromServer {
 						Per le richieste generiche, vengono scartati i dati per ordini
 						che sono gia' stati consegnati (status = 3)
 					*/
-					$query .= sprintf ( "baseorder NOT IN (SELECT id FROM %s WHERE status = %d) ", $ord->tablename, 3 );
+					$query = sprintf ( "baseorder NOT IN (SELECT id FROM %s WHERE status = %d) ", $ord->tablename, 3 );
 				}
 				else {
 					/*
 						Riempitivo...
 					*/
-					$query .= sprintf ( "id > -1 " );
+					$query = sprintf ( "id > -1 " );
 				}
 			}
 
-			if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-				$ids = join ( ',', $request->has );
-				$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
-			}
+			if ( current_permissions () != 0 && property_exists ( $request, 'baseuser' ) )
+				$query .= sprintf ( "AND baseuser = %d ", $request->baseuser );
 		}
 
-		if ( current_permissions () == 0 )
-			$query .= sprintf ( "AND baseuser = %d ", $current_user );
-		else if ( isset ( $request->baseuser ) )
-			$query .= sprintf ( "AND baseuser = %d ", $request->baseuser );
-
-		$query .= "ORDER BY id";
-
-		if ( isset ( $request->query_limit ) )
-			$query .= sprintf ( " LIMIT %d", $request->query_limit );
-
-		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-		unset ( $returned );
-
-		foreach ( $rows as $row ) {
-			$obj = new $this->classname;
-			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request, $compress ) );
-		}
-
-		return $ret;
+		return parent::getByQuery ( $request, $compress, $query );
 	}
 
 	public function save ( $obj ) {

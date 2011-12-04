@@ -48,36 +48,12 @@ class User extends FromServer {
 	}
 
 	public function get ( $request, $compress ) {
-		global $current_user;
-
-		$ret = array ();
-		$query = sprintf ( "SELECT id FROM %s WHERE id > 0 ", $this->tablename );
-
-		if ( !isset ( $request->privileges ) )
-			$query .= sprintf ( "AND privileges != 3 " );
+		if ( $request != null && property_exists ( $request, 'privileges' ) )
+			$query = sprintf ( "privileges = %d", $request->privileges );
 		else
-			$query .= sprintf ( "AND privileges = %d ", $request->privileges );
+			$query = sprintf ( "privileges != 3" );
 
-		if ( ( isset ( $request->has ) ) && ( count ( $request->has ) != 0 ) ) {
-			$ids = join ( ',', $request->has );
-			$query .= sprintf ( "AND id NOT IN ( %s ) ", $ids );
-		}
-
-		$query .= $this->filter_by_current_gas ();
-
-		$query .= sprintf ( "ORDER BY %s", $this->sorting );
-
-		$returned = query_and_check ( $query, "Impossibile recuperare lista oggetti " . $this->classname );
-		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-		unset ( $returned );
-
-		foreach ( $rows as $row ) {
-			$obj = new $this->classname;
-			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request, $compress ) );
-		}
-
-		return $ret;
+		return parent::getByQuery ( $request, $compress, $query );
 	}
 
 	public function save ( $obj ) {
