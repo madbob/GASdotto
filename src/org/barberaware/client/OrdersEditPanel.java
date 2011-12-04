@@ -145,6 +145,9 @@ public class OrdersEditPanel extends GenericPanel {
 					String id;
 					FromServerForm form;
 
+					if ( true_new == false )
+						aggregator.addElement ( object );
+
 					if ( object.getType () != "Order" || object.getBool ( "parent_aggregate" ) == true || true_new == true )
 						return;
 
