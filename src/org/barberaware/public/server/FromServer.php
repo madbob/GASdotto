@@ -350,21 +350,30 @@ abstract class FromServer {
 
 		$query = sprintf ( "SELECT id FROM %s WHERE ", $this->tablename );
 
-		if ( $request != null && property_exists ( $request, 'has' ) && ( count ( $request->has ) != 0 ) ) {
-			$ids = join ( ',', $request->has );
-			$query .= sprintf ( "id NOT IN ( %s )", $ids );
+		/*
+			Se viene richiesto un ID specifico solitamente sto
+			ricaricando un ordine utente e cose del genere (oggetto
+			con alwaysReload() nel client), di cui gia' ho l'ID
+			locale ma che appunto devo ricaricare. Ignoro dunque il
+			filtro in 'has'
+		*/
+		if ( $request != null && property_exists ( $request, 'id' ) ) {
+			$query .= sprintf ( "id = %d ", $request->id );
 		}
 		else {
-			/*
-				Per far quagliare la concatenazione di altri frammenti di query
-				forzo l'esistenza di uno statement WHERE cui accodare gli altri
-				in AND
-			*/
-			$query .= sprintf ( "id > 0" );
+			if ( $request != null && property_exists ( $request, 'has' ) && ( count ( $request->has ) != 0 ) ) {
+				$ids = join ( ',', $request->has );
+				$query .= sprintf ( "id NOT IN ( %s )", $ids );
+			}
+			else {
+				/*
+					Per far quagliare la concatenazione di altri frammenti di query
+					forzo l'esistenza di uno statement WHERE cui accodare gli altri
+					in AND
+				*/
+				$query .= sprintf ( "id > 0" );
+			}
 		}
-
-		if ( $request != null && property_exists ( $request, 'id' ) )
-			$query .= sprintf ( " AND id = %d ", $request->id );
 
 		if ( $this->user_check != null ) {
 			if ( current_permissions () == 0 )

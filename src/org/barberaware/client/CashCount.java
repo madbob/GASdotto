@@ -177,6 +177,11 @@ public class CashCount extends Composite {
 		ArrayList past_orders;
 
 		uord = ( FromServer ) uorder;
+
+		uord = ( FromServer ) uorder;
+		if ( checkEligibility ( uord ) == false )
+			return;
+
 		baseorder = uord.getObject ( "baseorder" );
 
 		clean ();
@@ -351,7 +356,6 @@ public class CashCount extends Composite {
 	}
 
 	private VerticalPanel columnByPlace ( FromServer ord ) {
-		boolean has_suppliers_columns;
 		boolean found;
 		int rows;
 		String place;
@@ -365,10 +369,9 @@ public class CashCount extends Composite {
 
 		ret = null;
 		found = false;
-		has_suppliers_columns = hasSuppliersColumn ();
 		place = ord.getObject ( "baseuser" ).getObject ( "shipping" ).getString ( "name" );
 
-		for ( int i = ( has_suppliers_columns ? 1 : 0 ); i < main.getWidgetCount () - 1; i++ ) {
+		for ( int i = ( hasSuppliersColumn () ? 1 : 0 ); i < main.getWidgetCount () - 1; i++ ) {
 			ret = ( VerticalPanel ) main.getWidget ( i );
 			lab = ( Label ) ret.getWidget ( 0 );
 
