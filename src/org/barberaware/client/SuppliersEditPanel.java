@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class SuppliersEditPanel extends GenericPanel {
 	private FormCluster		main;
+	private CheckBox		toggleHiddenView;
 
 	public SuppliersEditPanel () {
 		super ();
@@ -40,6 +41,9 @@ public class SuppliersEditPanel extends GenericPanel {
 					ver = commonFormBuilder ( supp );
 				else
 					ver = new SupplierUneditableForm ( supplier );
+
+				if ( supp.getBool ( "hidden" ) == true && toggleHiddenView.isChecked () == false )
+					ver.setVisible ( false );
 
 				return ver;
 			}
@@ -73,6 +77,15 @@ public class SuppliersEditPanel extends GenericPanel {
 						( supp.iAmReference () == false && ( ( form instanceof SupplierUneditableForm ) == false ) ) ) {
 					main.deleteElement ( object );
 					main.addElement ( object );
+				}
+
+				if ( supp.getBool ( "hidden" ) == true ) {
+					f.emblems ().activate ( "hidden" );
+					form.setVisible ( toggleHiddenView.isChecked () );
+				}
+				else {
+					f.emblems ().deactivate ( "hidden" );
+					form.setVisible ( true );
 				}
 			}
 
@@ -145,7 +158,47 @@ public class SuppliersEditPanel extends GenericPanel {
 		addTop ( Utils.getEmblemsCache ( "supplier" ).getLegend () );
 		addTop ( main );
 
+		doFilterOptions ();
+
 		Utils.getServer ().testObjectReceive ( "Supplier" );
+	}
+
+	private void doFilterOptions () {
+		HorizontalPanel pan;
+
+		pan = new HorizontalPanel ();
+		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
+		pan.setStyleName ( "panel-up" );
+		addTop ( pan );
+
+		toggleHiddenView = new CheckBox ( "Mostra Fornitori Disattivati" );
+		toggleHiddenView.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				boolean show;
+				ArrayList forms;
+				CheckBox myself;
+				FromServerForm form;
+
+				myself = ( CheckBox ) sender;
+				forms = main.collectForms ();
+				show = myself.isChecked ();
+
+				if ( show == true ) {
+					ObjectRequest params;
+					params = new ObjectRequest ( "Supplier" );
+					params.add ( "hidden", "true" );
+					Utils.getServer ().testObjectReceive ( params );
+				}
+
+				for ( int i = 0; i < forms.size (); i++ ) {
+					form = ( FromServerForm ) forms.get ( i );
+					if ( form.getValue ().getBool ( "hidden" ) == true )
+						form.setVisible ( show );
+				}
+			}
+		} );
+		pan.add ( toggleHiddenView );
 	}
 
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
@@ -200,6 +253,7 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Calendario Ordini", ver.getPersonalizedWidget ( "orders_months", new MonthsSelector ( true ) ) );
 		frame.addPair ( "Codice Fiscale", ver.getWidget ( "tax_code" ) );
 		frame.addPair ( "Partita IVA", ver.getWidget ( "vat_number" ) );
+		frame.addPair ( "Nascondi", ver.getWidget ( "hidden" ) );
 
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );
@@ -279,14 +333,20 @@ public class SuppliersEditPanel extends GenericPanel {
 		final FromServerForm ver;
 		Supplier supplier;
 		TabPanel tabs;
+		EmblemsBar bar;
 
 		supplier = ( Supplier ) supp;
 
 		ver = new FromServerForm ( supplier );
 		ver.emblemsAttach ( Utils.getEmblemsCache ( "supplier" ) );
 
+		bar = ver.emblems ();
+
 		if ( supplier.iAmReference () == true )
-			ver.emblems ().activate ( "iamreference" );
+			bar.activate ( "iamreference" );
+
+		if ( supplier.getBool ( "hidden" ) == true )
+			bar.activate ( "hidden" );
 
 		tabs = new TabPanel ();
 		tabs.setWidth ( "100%" );

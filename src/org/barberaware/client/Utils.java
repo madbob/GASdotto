@@ -116,6 +116,7 @@ public class Utils {
 
 		info = new EmblemsInfo ();
 		info.addSymbol ( "iamreference", "images/notifications/user_responsable.png", "Tu sei Referente per questo Fornitore" );
+		info.addSymbol ( "hidden", "images/notifications/user_leaved.png", "Fornitore Nascosto" );
 		emblemsCache.put ( "supplier", info );
 
 		info = new EmblemsInfo ();

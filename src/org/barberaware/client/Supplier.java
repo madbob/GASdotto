@@ -45,6 +45,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "files", FromServer.ARRAY, CustomFile.class );
 		addAttribute ( "orders_months", FromServer.STRING );
 		addAttribute ( "shipping_manage", FromServer.INTEGER );
+		addAttribute ( "hidden", FromServer.BOOLEAN );
 
 		setString ( "name", "Nuovo Fornitore" );
 		isSharable ( true );

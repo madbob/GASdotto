@@ -40,9 +40,26 @@ class Supplier extends SharableFromServer {
 		$this->addAttribute ( "files", "ARRAY::CustomFile" );
 		$this->addAttribute ( "orders_months", "STRING" );
 		$this->addAttribute ( "shipping_manage", "INTEGER" );
+		$this->addAttribute ( "hidden", "BOOLEAN" );
 
 		$this->setSorting ( "name" );
 		$this->setPublic ( false );
+	}
+
+	public function get ( $request, $compress ) {
+		if ( $request != null && property_exists ( $request, 'hidden') ) {
+			$query = sprintf ( 'hidden = %s', $request->hidden );
+		}
+		else {
+			/*
+				Il controllo su "is null" e' per gestire i fornitori gia' esistenti nel DB in caso di
+				aggiornamento alla versione 3.0. Effettivamente in checkdb.php manca la definizioni
+				di un trigger per settare i valori di default (in questo caso, "false")
+			*/
+			$query = 'hidden = false OR hidden IS NULL';
+		}
+
+		return parent::getByQuery ( $request, $compress, $query );
 	}
 
 	public function export ( $options ) {
