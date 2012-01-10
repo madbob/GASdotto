@@ -223,6 +223,9 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 		ArrayList aggregates;
 		OrderAggregate aggregate;
 
+		if ( order instanceof OrderAggregate )
+			return ( OrderAggregate ) order;
+
 		aggregates = Utils.getServer ().getObjectsFromCache ( "OrderAggregate" );
 
 		for ( int i = 0; i < aggregates.size (); i++ ) {

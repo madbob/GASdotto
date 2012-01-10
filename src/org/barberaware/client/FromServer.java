@@ -135,7 +135,7 @@ public abstract class FromServer implements Comparator {
 		FromServerAttribute ret;
 
 		if ( this == null )
-			Log.debug ( "Oggetto nullo!" );
+			Log.debug ( "Oggetto nullo! - getInternalAttribute (" + name + ")" );
 
 		ret = ( FromServerAttribute ) attributes.get ( name );
 		if ( ret == null ) {

@@ -558,7 +558,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	private FromServerForm doUneditableOrderRow ( FromServer order ) {
 		FromServerForm ver;
-		OrderUser uorder;
+		FromServer uorder;
 		OrderUserManager manager;
 
 		if ( hasOrders == false ) {
@@ -566,7 +566,11 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			remove ( 1 );
 		}
 
-		uorder = new OrderUser ();
+		if ( order instanceof OrderAggregate )
+			uorder = new OrderUserAggregate ();
+		else
+			uorder = new OrderUser ();
+
 		uorder.setObject ( "baseorder", order );
 		uorder.setObject ( "baseuser", Session.getUser () );
 
@@ -622,7 +626,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 		if ( form == null ) {
 			index = getSortedPosition ( order );
 			ver = doUneditableOrderRow ( OrderAggregate.retrieveAggregate ( order ) );
-			form = ( FromServerRappresentation ) order.getRelatedInfo ( "OrdersPrivilegedPanel" );
+			form = ver.getWrap ();
 			insert ( ver, index );
 		}
 
@@ -638,6 +642,9 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			uorder.setObject ( "baseorder", order );
 			uorder.setObject ( "baseuser", Session.getUser () );
 		}
+
+		if ( ver == null )
+			Log.debug ( "ver nullo" );
 
 		ver.setValue ( uorder );
 	}
