@@ -72,6 +72,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$bank_account = $user->bank_account;
 	list ( $user_abi, $user_cab, $user_account ) = explode ( ' ', $bank_account );
 	$user_name = $user->surname . ' ' . $user->firstname;
+	$user_address = $user->address;
 
 	$user_products = $order_user->products;
 	if ( is_array ( $user_products ) == false )
@@ -115,14 +116,15 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	$block++;
 
-	$output .= ' 10' . sprintf ( '%07d', $block ) . filler ( 12 ) . $expiry . '50000' . sprintf ( '%013d', $user_total * 100 ) . '-' . $abi . $cab . $account . $user_abi . $user_cab . filler ( 12 ) . $code . '4' . sprintf ( '%016s', $user_account ) . filler ( 6 ) . 'E' . "\n";
+	$output .= ' 10' . sprintf ( '%07d', $block ) . filler ( 12 ) . $expiry . '50000' . sprintf ( '%013d', $user_total * 100 ) . '-' . $abi . $cab . $account . $user_abi . $user_cab . filler ( 12 ) . $code . '4' . str_pad ( $user->id, 8, '0', STR_PAD_LEFT ) . filler ( 14 ) . 'E' . "\n";
 	$output .= ' 20' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $name ), 110 ) . "\n";
 	$output .= ' 30' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_name ), 110 ) . "\n";
+	$output .= ' 40' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_address->street ), 30 ) . str_pad ( strtoupper ( $user_address->cap ), 5 ) . str_pad ( strtoupper ( $user_address->city ), 25 ) . filler ( 50 ) . "\n";
 	$output .= ' 50' . sprintf ( '%07d', $block ) . str_pad ( 'PAGAMENTO ORDINE ' . strtoupper ( $supplier_name ), 110 ) . "\n";
 	$output .= ' 70' . sprintf ( '%07d', $block ) . filler ( 110 ) . "\n";
 
 	$gran_total += $user_total;
-	$rows += 5;
+	$rows += 6;
 }
 
 $output .= ' EF' . $stream_id . filler ( 6 ) . sprintf ( '%07d', $block ) . sprintf ( '%015d', $gran_total * 100 ) . sprintf ( '%022d', $rows + 1 ) . filler ( 24 ) . 'E' . filler ( 6 ) . "\n";
@@ -132,3 +134,4 @@ header ( 'Content-Disposition: inline; filename="' . 'RID_' . $supplier_name . '
 echo $output;
 
 ?>
+
