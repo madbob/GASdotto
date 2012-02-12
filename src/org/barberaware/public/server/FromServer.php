@@ -328,6 +328,8 @@ abstract class FromServer {
 			if ( $create == true ) {
 				foreach ( $parameters as $field => $value )
 					$this->getAttribute ( $field )->value = $value;
+
+				$this->save ( $this->exportable () );
 			}
 			else {
 				return false;

@@ -148,32 +148,33 @@ class Product extends SharableFromServer {
 						break;
 
 					case 'orderInfo':
-						$node = $contents->$name;
+						foreach ( $child->children () as $subchild ) {
+							$info_name = $subchild->getName ();
+							$info_value = $subchild;
 
-						foreach ( $node as $info_name => $info_value ) {
-							switch ( $name ) {
+							switch ( $info_name ) {
 								case 'packageQty':
-									$final->getAttribute ( 'stock_size' )->value = $value;
+									$final->getAttribute ( 'stock_size' )->value = $info_value;
 									break;
 
 								case 'minQty':
-									$final->getAttribute ( 'minimum_order' )->value = $value;
+									$final->getAttribute ( 'minimum_order' )->value = $info_value;
 									break;
 
 								case 'mulQty':
-									$final->getAttribute ( 'multiple_order' )->value = $value;
+									$final->getAttribute ( 'multiple_order' )->value = $info_value;
 									break;
 
 								case 'maxQty':
-									$final->getAttribute ( 'total_max_order' )->value = $value;
+									$final->getAttribute ( 'total_max_order' )->value = $info_value;
 									break;
 
 								case 'umPrice':
-									$final->getAttribute ( 'unit_price' )->value = $value;
+									$final->getAttribute ( 'unit_price' )->value = $info_value;
 									break;
 
 								case 'shippingCost':
-									$final->getAttribute ( 'shipping_price' )->value = $value;
+									$final->getAttribute ( 'shipping_price' )->value = $info_value;
 									break;
 							}
 						}
