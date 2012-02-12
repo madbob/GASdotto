@@ -701,7 +701,9 @@ function exportable_products ( $products ) {
 		$ret .= "\t\t\t\t<name>" . $product->name . "</name>\n";
 		$ret .= "\t\t\t\t<category>" . $product->category->name . "</category>\n";
 		$ret .= "\t\t\t\t<um>" . $product->measure->name . "</um>\n";
-		$ret .= "\t\t\t\t<description>" . $product->description . "</description>\n";
+
+		if ( property_exists ( $product, 'description' ) && $product->description != '' )
+			$ret .= "\t\t\t\t<description>" . $product->description . "</description>\n";
 
 		$ret .= "\t\t\t\t<orderInfo>\n";
 

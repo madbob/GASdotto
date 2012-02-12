@@ -420,14 +420,14 @@ function check_db_schema () {
 	test_class ( 'OrderUserFriend' );
 	test_class ( 'OrderUser' );
 
+	test_static_tables ();
+
 	if ( test_class ( 'ACL' ) == false ) {
 		align_acl ( 'Supplier' );
 		align_acl ( 'User', 'Users' );
 		align_acl ( 'Order', 'Orders' );
 		align_acl ( 'OrderAggregate' );
 	}
-
-	test_static_tables ();
 }
 
 /*

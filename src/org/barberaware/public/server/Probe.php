@@ -129,6 +129,9 @@ class Probe extends FromServer {
 		$query = sprintf ( "INSERT INTO accounts ( password, username ) VALUES ( '%s', ( SELECT id FROM Users WHERE login = 'root' ) )", md5 ( $obj->rootpassword ) );
 		query_and_check ( $query, "Impossibile salvare password per utente root" );
 
+		$query = sprintf ( "INSERT INTO ACL ( gas, target_type, target_id, privileges ) VALUES ( 1, 'User', 1, 0 )" );
+		query_and_check ( $query, "Impossibile assegnare ACL per utente root" );
+
 		/*
 			Inizializzo categorie
 		*/
