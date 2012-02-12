@@ -136,7 +136,7 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 			ArrayList orders;
 			FromServer order;
 
-			for ( int i = 1; i < getWidgetCount (); i++ )
+			while ( getWidgetCount () > 1 )
 				remove ( 1 );
 
 			orders = aggregate.getArray ( "orders" );

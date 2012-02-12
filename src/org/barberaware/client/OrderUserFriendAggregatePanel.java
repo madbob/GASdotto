@@ -221,48 +221,51 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			friends.remove ( 1 );
 
 		orders = currentValue.getArray ( "orders" );
-		dispatched_friends = new ArrayList ();
 
-		for ( int a = 0; a < orders.size (); a++ ) {
-			ord = ( FromServer ) orders.get ( a );
+		if ( orders != null ) {
+			dispatched_friends = new ArrayList ();
 
-			for ( int i = 0; i < singles.size (); i++ ) {
-				selection = ( ProductsUserSelectionWrapper ) singles.get ( i );
-				if ( selection.getValue ().getObject ( "baseorder" ).equals ( ord.getObject ( "baseorder" ) ) ) {
-					selection.setValue ( ord );
-					break;
+			for ( int a = 0; a < orders.size (); a++ ) {
+				ord = ( FromServer ) orders.get ( a );
+
+				for ( int i = 0; i < singles.size (); i++ ) {
+					selection = ( ProductsUserSelectionWrapper ) singles.get ( i );
+					if ( selection.getValue ().getObject ( "baseorder" ).equals ( ord.getObject ( "baseorder" ) ) ) {
+						selection.setValue ( ord );
+						break;
+					}
 				}
-			}
 
-			f = ord.getArray ( "friends" );
-			if ( f != null ) {
-				for ( int i = 0; i < f.size (); i++ ) {
-					friend = ( FromServer ) f.get ( i );
-					name = friend.getString ( "friendname" );
-					found = false;
+				f = ord.getArray ( "friends" );
+				if ( f != null ) {
+					for ( int i = 0; i < f.size (); i++ ) {
+						friend = ( FromServer ) f.get ( i );
+						name = friend.getString ( "friendname" );
+						found = false;
 
-					for ( int e = 0; e < dispatched_friends.size (); e++ ) {
-						forder = ( OrderUserFriendAggregate ) dispatched_friends.get ( e );
-						if ( forder.getString ( "friendname" ).equals ( name ) ) {
+						for ( int e = 0; e < dispatched_friends.size (); e++ ) {
+							forder = ( OrderUserFriendAggregate ) dispatched_friends.get ( e );
+							if ( forder.getString ( "friendname" ).equals ( name ) ) {
+								forder.addObject ( friend );
+								found = true;
+								break;
+							}
+						}
+
+						if ( found == false ) {
+							forder = new OrderUserFriendAggregate ();
+							forder.setString ( "friendname", name );
 							forder.addObject ( friend );
-							found = true;
-							break;
+							dispatched_friends.add ( forder );
 						}
 					}
-
-					if ( found == false ) {
-						forder = new OrderUserFriendAggregate ();
-						forder.setString ( "friendname", name );
-						forder.addObject ( friend );
-						dispatched_friends.add ( forder );
-					}
 				}
 			}
-		}
 
-		for ( int e = 0; e < dispatched_friends.size (); e++ ) {
-			forder = ( OrderUserFriendAggregate ) dispatched_friends.get ( e );
-			addFriendPanel ( forder );
+			for ( int e = 0; e < dispatched_friends.size (); e++ ) {
+				forder = ( OrderUserFriendAggregate ) dispatched_friends.get ( e );
+				addFriendPanel ( forder );
+			}
 		}
 
 		friends.selectTab ( 0 );
@@ -521,8 +524,10 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
-		currentValue = element;
+		if ( element == null )
+			element = fakeOrderUserAggregate ();
 
+		currentValue = element;
 		super.setValue ( currentValue );
 
 		if ( friends == null )
