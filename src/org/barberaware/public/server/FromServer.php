@@ -862,8 +862,16 @@ abstract class FromServer {
 				$obj->$name = $value;
 		}
 
-		if ( $this->is_public == false )
-			$obj->sharing_privileges = get_acl ( $this );
+		if ( $this->is_public == false ) {
+			/*
+				get_acl() ritorna un intero, ma qui lo castiamo
+				per buona misura. E' stato osservato che in
+				alcune condizioni (non chiare) l'oggetto in
+				uscita riporta l'attributo "sharing_privileges"
+				come stringa, confondendo il parser sul client
+			*/
+			$obj->sharing_privileges = (int) get_acl ( $this );
+		}
 
 		return $obj;
 	}

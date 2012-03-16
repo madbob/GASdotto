@@ -887,7 +887,7 @@ function current_gas () {
 function acl_filter_plain ( $obj ) {
 	global $current_gas;
 
-	return " ( SELECT target_id FROM acl WHERE gas = $current_gas AND target_type = '" . $obj->classname . "' ) ";
+	return " ( SELECT target_id FROM ACL WHERE gas = $current_gas AND target_type = '" . $obj->classname . "' ) ";
 }
 
 function acl_filter_hierarchy_asc ( $obj, $parent_class, $attribute ) {
@@ -933,16 +933,16 @@ function get_acl_easy ( $type, $id ) {
 	else {
 		switch ( $o->public_mode [ 'mode' ] ) {
 			case 'asc':
-				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT parent FROM " . $o->public_mode [ 'class' ] . "_" . $o->public_mode [ 'attribute' ] . " WHERE target = $id )";
+				$query = "SELECT privileges FROM ACL WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT parent FROM " . $o->public_mode [ 'class' ] . "_" . $o->public_mode [ 'attribute' ] . " WHERE target = $id )";
 				break;
 
 			case 'desc':
-				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT " . $o->public_mode [ 'attribute' ] . " FROM " . $o->tablename . " WHERE id = $id )";
+				$query = "SELECT privileges FROM ACL WHERE gas = $current_gas AND target_type = '" . $o->public_mode [ 'class' ] . "' AND target_id IN ( SELECT " . $o->public_mode [ 'attribute' ] . " FROM " . $o->tablename . " WHERE id = $id )";
 				break;
 
 			case 'plain':
 			default:
-				$query = "SELECT privileges FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+				$query = "SELECT privileges FROM ACL WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
 				break;
 		}
 
@@ -968,11 +968,11 @@ function save_acl ( $obj, $priv ) {
 	$type = $obj->classname;
 	$id = $obj->getAttribute ( 'id' )->value;
 
-	$query = "FROM acl WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+	$query = "FROM ACL WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
 	if ( db_row_count ( $query ) == 0 )
-		$query = "INSERT INTO acl ( gas, target_type, target_id, privileges ) VALUES ( $current_gas, '$type', $id, $priv )";
+		$query = "INSERT INTO ACL ( gas, target_type, target_id, privileges ) VALUES ( $current_gas, '$type', $id, $priv )";
 	else
-		$query = "UPDATE acl SET privileges = $priv WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
+		$query = "UPDATE ACL SET privileges = $priv WHERE gas = $current_gas AND target_type = '$type' AND target_id = $id";
 
 	query_and_check ( $query, "Impossibile aggiornare permessi di accesso" );
 }
@@ -982,7 +982,7 @@ function destroy_acl ( $obj ) {
 		$type = $obj->classname;
 		$id = $obj->getAttribute ( 'id' )->value;
 
-		$query = "DELETE FROM acl WHERE target_type = '$type' AND target_id = $id";
+		$query = "DELETE FROM ACL WHERE target_type = '$type' AND target_id = $id";
 		query_and_check ( $query, "Impossibile aggiornare permessi di accesso" );
 	}
 }
@@ -1088,7 +1088,7 @@ function check_session () {
 function perform_authentication ( $userid, $permanent ) {
 	global $session_key;
 
-	$query = "SELECT gas FROM acl WHERE target_type = 'User' AND target_id = $userid";
+	$query = "SELECT gas FROM ACL WHERE target_type = 'User' AND target_id = $userid";
 	$result = query_and_check ( $query, "Impossibile recuperare GAS di appartenenza del dato" );
 	$row = $result->fetchAll ( PDO::FETCH_NUM );
 	$gasid = $row [ 0 ] [ 0 ];

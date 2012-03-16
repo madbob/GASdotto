@@ -274,7 +274,7 @@ $data = array ();
 
 $headers = array ( 'Prodotto', 'Quantità', 'Unità Misura', 'Prezzo Totale', 'Prezzo Trasporto' );
 
-foreach ( $by_location as $place => $references ) {
+foreach ( $by_location as $place => &$references ) {
 	$title = null;
 
 	if ( $place !== 0 ) {
