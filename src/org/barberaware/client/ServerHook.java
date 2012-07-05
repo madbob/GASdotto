@@ -259,6 +259,7 @@ public class ServerHook {
 		JSONArray arr;
 		JSONObject obj;
 		FromServer tmp;
+		FromServer mod;
 
 		arr = response.isArray ();
 
@@ -271,6 +272,8 @@ public class ServerHook {
 			if ( tmp == null )
 				return;
 
+			mod = tmp;
+
 			triggerObjectBlockCreation ( tmp, true );
 			triggerObjectCreation ( tmp );
 
@@ -281,7 +284,7 @@ public class ServerHook {
 					triggerObjectCreation ( tmp );
 			}
 
-			triggerObjectBlockCreation ( tmp, false );
+			triggerObjectBlockCreation ( mod, false );
 		}
 	}
 
