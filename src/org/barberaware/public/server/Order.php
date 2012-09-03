@@ -36,6 +36,7 @@ class Order extends SharableFromServer {
 		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
 
 		$this->setPublic ( false );
+		$this->setSorting ( 'startdate' );
 	}
 
 	public function get ( $request, $compress ) {
@@ -241,7 +242,7 @@ class Order extends SharableFromServer {
 		return $supplier->export ( array ( 'products' => $products, 'child' => $order ) );
 	}
 
-	public static function import ( $ref, $contents ) {
+	public static function import ( &$ref, $contents ) {
 		$ret = array ();
 
 		$elements = $contents->xpath ( '//orders/order' );

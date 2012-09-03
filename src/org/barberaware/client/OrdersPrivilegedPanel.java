@@ -455,11 +455,13 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			private boolean filterEmptyOrders ( FromServer order ) {
 				int filtered;
 				ArrayList products;
+				ArrayList friends;
 				ArrayList orders;
 
 				if ( order instanceof OrderUser ) {
 					products = order.getArray ( "products" );
-					if ( products == null || products.size () == 0 ) {
+					friends = order.getArray ( "friends" );
+					if ( ( products == null || products.size () == 0 ) && ( friends == null || friends.size () == 0 ) ) {
 						order.destroy ( null );
 						return true;
 					}

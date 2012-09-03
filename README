@@ -25,8 +25,8 @@ Per compilare il tutto e' necessario:
 - GWT-DND		http://code.google.com/p/gwt-dnd/				v2.5.6
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
-- Apache		http://apache.org/				testato su versione 2.2.21
-- PHP			http://php.net/					testato su versione 5.3.8
+- Apache		http://apache.org/				testato su versione 2.2.22
+- PHP			http://php.net/					testato su versione 5.4.0
 - PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 9.1.1
 
 I seguenti pacchetti PHP sono utilizzati da GASdotto per vari compiti, ma e' presente un sistema

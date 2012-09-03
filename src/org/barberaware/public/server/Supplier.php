@@ -113,7 +113,7 @@ class Supplier extends SharableFromServer {
 		return array ( self::getAttribute ( 'name' )->value, array ( $ret ) );
 	}
 
-	public static function import ( $ref, $contents ) {
+	public static function import ( &$ref, $contents ) {
 		$final = new Supplier ();
 
 		foreach ( $contents->children () as $child ) {
@@ -173,7 +173,7 @@ class Supplier extends SharableFromServer {
 				default:
 					$proxy = SharableFromServer::mapTag ( $name );
 					if ( $proxy != null )
-						$proxy->import ( &$ref, $contents->name );
+						$proxy->import ( $ref, $contents->name );
 			}
 		}
 

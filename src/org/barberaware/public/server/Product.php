@@ -110,7 +110,7 @@ class Product extends SharableFromServer {
 		*/
 	}
 
-	public static function import ( $ref, $contents ) {
+	public static function import ( &$ref, $contents ) {
 		$ret = array ();
 
 		$elements = $contents->xpath ( '//products/product' );

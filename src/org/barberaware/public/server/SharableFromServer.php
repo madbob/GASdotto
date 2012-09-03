@@ -21,7 +21,7 @@ require_once ( "utils.php" );
 
 abstract class SharableFromServer extends FromServer {
 	abstract public function export ( $options );
-	abstract public static function import ( $ref, $contents );
+	abstract public static function import ( &$ref, $contents );
 
 	public static function header () {
 		$date = date ('d/m/Y');

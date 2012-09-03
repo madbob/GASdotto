@@ -46,7 +46,7 @@ class OrderAggregate extends SharableFromServer {
 		return array ( join ( ' - ', $name ), $ret );
 	}
 
-	public static function import ( $ref, $contents ) {
+	public static function import ( &$ref, $contents ) {
 		/*
 			dummy
 		*/

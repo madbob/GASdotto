@@ -466,7 +466,7 @@ abstract class FromServer {
 			}
 
 			else {
-				$attr->value = $val . "";
+				$attr->value = $val;
 			}
 		}
 	}
