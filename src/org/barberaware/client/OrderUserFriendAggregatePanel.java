@@ -336,10 +336,13 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			}
 
 			/*
-				-2 e non -1 perche' in ultima posizione c'e' il
-				tasto per eliminare l'ordine
+				Se editabile, in ultima posizione c'e' il tasto per eliminare l'ordine
 			*/
-			total_label = ( TotalRow ) cell.getWidget ( cell.getWidgetCount () - 2 );
+			if ( editable == true )
+				total_label = ( TotalRow ) cell.getWidget ( cell.getWidgetCount () - 2 );
+			else
+				total_label = ( TotalRow ) cell.getWidget ( cell.getWidgetCount () - 1 );
+
 			total_label.setVal ( local_tot );
 			total += local_tot;
 		}
