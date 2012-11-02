@@ -81,7 +81,7 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 					Orders.startdate > '%s' AND Orders.enddate < '%s'",
 						$supplier [ "id" ], $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare numero ordini" );
-	$tot = $returned->fetchAll ( PDO::FETCH_NUM );
+	$tot = $returned->fetchColumn ();
 	unset ( $returned );
 	unset ( $query );
 
@@ -92,7 +92,7 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 					Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
 						$supplier [ "id" ], $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
-	$price = $returned->fetchAll ( PDO::FETCH_NUM );
+	$price = $returned->fetchColumn ();
 	unset ( $returned );
 	unset ( $query );
 
@@ -104,22 +104,13 @@ function suppliers_data ( $supplier, $startdate, $enddate ) {
 					Product.id = ProductUser.product AND Orders.startdate > '%s' AND Orders.enddate < '%s'",
 						$supplier [ "id" ], $startdate, $enddate );
 	$returned = query_and_check ( $query, "Impossibile recuperare somma spesa" );
-	$price += $returned->fetchAll ( PDO::FETCH_NUM );
+	$price += $returned->fetchColumn ();
+
 	unset ( $returned );
 	unset ( $query );
 
-	if ( count ( $price ) == 0 )
-		$p = 0;
-	else
-		$p = $price [ 0 ] [ 0 ];
-
-	if ( count ( $tot ) == 0 )
-		$t = 0;
-	else
-		$t = $tot [ 0 ] [ 0 ];
-
 	$suppname = ellipse_string ( $supplier [ "name" ], 25 );
-	return array ( $suppname, $t, $p );
+	return array ( $suppname, $tot . "", $price . "" );
 }
 
 function users_data ( $user, $supplier, $startdate, $enddate ) {
