@@ -203,7 +203,7 @@ class FromServerAttribute {
 abstract class FromServer {
 	public		$classname	= "";
 	public		$tablename	= "";
-	public		$sorting	= "id";
+	public		$sorting	= "id DESC";
 	public		$user_check	= null;
 	public		$attributes	= array ();
 	public		$is_public	= true;
