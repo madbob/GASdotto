@@ -246,6 +246,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
 				public void onClick ( Widget sender ) {
 					boolean ret;
+					String confirmation;
 					FromServer object;
 
 					ret = deleteCallbacks ();
@@ -258,7 +259,12 @@ public class FromServerForm extends FromServerRappresentationFull {
 						invalidate ();
 					}
 					else {
-						if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
+						if ( object.hasAttribute ( "name" ) == true )
+							confirmation = "Sei sicuro di voler eliminare " + object.getString ( "name" ) + "?";
+						else
+							confirmation = "Sei sicuro di voler eliminare l'elemento?";
+
+						if ( Window.confirm ( confirmation ) == true ) {
 							object.destroy ( null );
 							invalidate ();
 							main.setOpen ( false );
