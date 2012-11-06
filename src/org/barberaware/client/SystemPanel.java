@@ -190,6 +190,7 @@ public class SystemPanel extends GenericPanel {
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
 		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
+		frame.addPair ( "Elenco Utenti", ver.getWidget ( "use_fullusers" ) );
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );

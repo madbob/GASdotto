@@ -36,6 +36,7 @@ public class GAS extends FromServer {
 		addAttribute ( "use_rid", FromServer.BOOLEAN );
 		addAttribute ( "rid_conf", FromServer.STRING );
 		addAttribute ( "use_shipping", FromServer.BOOLEAN );
+		addAttribute ( "use_fullusers", FromServer.BOOLEAN );
 
 		setString ( "name", "Senza Nome" );
 	}

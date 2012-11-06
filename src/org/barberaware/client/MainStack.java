@@ -70,7 +70,9 @@ public class MainStack extends Composite {
 			}
 
 			else if ( privileges == User.USER_RESPONSABLE ) {
-				add ( new UsersUneditablePanel () );
+				if ( Session.getGAS ().getBool ( "use_fullusers" ) == true )
+					add ( new UsersUneditablePanel () );
+
 				add ( new SuppliersEditPanel () );
 				add ( new OrdersEditPanel () );
 				add ( new OrdersPrivilegedPanel () );
@@ -81,7 +83,9 @@ public class MainStack extends Composite {
 			}
 
 			else {
-				add ( new UsersUneditablePanel () );
+				if ( Session.getGAS ().getBool ( "use_fullusers" ) == true )
+					add ( new UsersUneditablePanel () );
+
 				add ( new SuppliersPanel () );
 				add ( new OrdersPrivilegedPanel () );
 				add ( new NotificationPanel () );

@@ -36,6 +36,7 @@ class GAS extends FromServer {
 		$this->addAttribute ( "use_rid", "BOOLEAN" );
 		$this->addAttribute ( "rid_conf", "STRING" );
 		$this->addAttribute ( "use_shipping", "BOOLEAN" );
+		$this->addAttribute ( "use_fullusers", "BOOLEAN" );
 	}
 
 	public function get ( $request, $compress ) {
