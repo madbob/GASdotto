@@ -2,7 +2,7 @@
 
 GASdotto 3.0
 Roberto -MadBob- Guido
-Dicembre 2011
+Dicembre 2012
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -26,7 +26,7 @@ Per compilare il tutto e' necessario:
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
 - Apache		http://apache.org/				testato su versione 2.2.22
-- PHP			http://php.net/					testato su versione 5.4.0
+- PHP			http://php.net/					testato su versione 5.4.4
 - PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 9.1.1
 
 I seguenti pacchetti PHP sono utilizzati da GASdotto per vari compiti, ma e' presente un sistema
@@ -34,8 +34,8 @@ di risoluzione automatica delle dipendenze percui anche se non vengono reperiti 
 scaricati dal repository del progetto. E' comunque sempre preferibile, laddove possibile,
 provvedere ad una installazione di sistema.
 - TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
-- Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-2
-- Pear-Mail_Mime	http://pear.php.net/package/Mail_Mime/		testato su versione 1.5.3-0
+- Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-4
+- Pear-Mail_Mime	http://pear.php.net/package/Mail_Mime/		testato su versione 1.8.4-1
 - Archive_Tar		http://pear.php.net/package/Archive_Tar/	testato su versione 1.3.8
 
 Il database in cui verranno messi i dati puo' essere:
@@ -45,8 +45,8 @@ E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
 Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard web. Sono stati
 verificati:
-- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 8.0
-- Chromium		http://www.google.com/chrome			testato su versione 9.0.597
+- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 10.0.11
+- Chromium		http://www.google.com/chrome			testato su versione 22.0
 - Epiphany		http://projects.gnome.org/epiphany/		testato su versione 3.2.1
 E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
 
@@ -99,8 +99,7 @@ servizi che offrono spazio web gratuito o a basso costo. Se devi scegliere un tu
 per uno che non introduce banner pubblicitari in testa o al fondo delle pagine ospitate.
 
 Providers gia' identificati come non adeguati:
-- coolpage.biz (banners pubblicitari)
-- tophost.it (mancano alcune librerie PHP richieste)
+- coolpage.biz (banners pubblicitari iniettati nelle pagine)
 - altervista.org (mancano tutte le librerie PHP richieste a partire da PEAR)
 
 Sia che tu abbia problemi con questo genere di hosting, sia che la tua installazione venga
