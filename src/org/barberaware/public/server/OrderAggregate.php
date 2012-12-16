@@ -28,6 +28,11 @@ class OrderAggregate extends SharableFromServer {
 		$this->setPublic ( false );
 	}
 
+	public function get ( $request, $compress ) {
+		$query = parent::arrayRelationQuery ( 'orders', 'status', '!=', 3 );
+		return parent::getByQuery ( $request, $compress, $query );
+	}
+
 	/*
 		TODO	In assenza di controlli vengono pescati anche gli
 			OrderAggregate gia' chiusi e consegnati!

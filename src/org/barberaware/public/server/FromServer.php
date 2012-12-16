@@ -345,6 +345,25 @@ abstract class FromServer {
 		return true;
 	}
 
+	public function arrayRelationQuery ( $type, $column, $op, $value ) {
+		$attr = $this->getAttribute ( $type );
+
+		if ( strstr ( $attr->type, '::' ) == false )
+			error_exit ( 'Impossibile ricostruire relazione su attributo non di tipo ARRAY' );
+		else
+			list ( $type, $objtype ) = explode ( '::', $attr->type );
+
+		$table = $this->tablename;
+
+		$obj = new $objtype ();
+		$othertable = $obj->tablename;
+
+		$ret = "id IN (SELECT ${table}_{$type}.parent FROM ${table}_${type}, ${othertable} WHERE ${table}_${type}.target = ${othertable}.id AND ${othertable}.${column} $op $value)";
+
+		unset ( $obj );
+		return $ret;
+	}
+
 	protected function getByQuery ( $request, $compress, $partial_query = null ) {
 		global $current_user;
 
