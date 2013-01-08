@@ -39,7 +39,6 @@ class Probe extends FromServer {
 
 	public function get ( $request, $compress ) {
 		$this->getAttribute ( "servername" )->value = $_SERVER [ 'SERVER_NAME' ];
-		$this->getAttribute ( "newdb" )->value = true;
 		$this->getAttribute ( "writable" )->value = is_writable ( './' ) && is_writable ( './config.php' );
 
 		$drivers = PDO::getAvailableDrivers ();
@@ -102,7 +101,7 @@ class Probe extends FromServer {
 
 		fclose ( $f );
 
-		chmod ( './config.php', 0555 );
+		@chmod ( './config.php', 0555 );
 	}
 
 	public function save ( $obj ) {
@@ -116,7 +115,12 @@ class Probe extends FromServer {
 			Inizializzo GAS
 		*/
 
-		$query = sprintf ( "INSERT INTO GAS ( name, mail ) VALUES ( '%s', '%s' )", $obj->gasname, $obj->gasmail );
+		if ( property_exists ( $obj, 'gasmail' ) == true )
+			$mail = $obj->gasmail;
+		else
+			$mail = '';
+
+		$query = sprintf ( "INSERT INTO GAS ( name, mail ) VALUES ( '%s', '%s' )", $obj->gasname, $mail );
 		query_and_check ( $query, "Impossibile salvare dati del GAS" );
 
 		/*

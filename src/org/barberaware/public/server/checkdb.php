@@ -96,6 +96,9 @@ function map_type ( $type, $objtype, $default ) {
 }
 
 function check_type ( $correct_type, $t ) {
+	if ( $t == -1 )
+		return null;
+
 	global $dbdriver;
 
 	$change = null;
@@ -219,7 +222,11 @@ function test_class ( $class ) {
 
 			$found = false;
 			$change = null;
-			$t = $meta [ 'native_type' ];
+
+			if ( array_key_exists ( 'native_type', $meta ) )
+				$t = $meta [ 'native_type' ];
+			else
+				$t = -1;
 
 			foreach ( $obj->attributes as $attr ) {
 				if ( $meta [ 'name' ] == $attr->name ) {

@@ -351,7 +351,7 @@ abstract class FromServer {
 		if ( strstr ( $attr->type, '::' ) == false )
 			error_exit ( 'Impossibile ricostruire relazione su attributo non di tipo ARRAY' );
 		else
-			list ( $type, $objtype ) = explode ( '::', $attr->type );
+			list ( $stype, $objtype ) = explode ( '::', $attr->type );
 
 		$table = $this->tablename;
 
