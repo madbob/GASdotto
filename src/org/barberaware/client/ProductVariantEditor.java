@@ -71,6 +71,7 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		but = new Button ( "Salva", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				String n;
+				ArrayList vals;
 
 				n = name.getText ();
 				if ( n == "" ) {
@@ -78,11 +79,17 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 					return;
 				}
 
+				vals = values.getElements ();
+				if ( vals.size () == 0 ) {
+					Utils.showNotification ( "Non hai specificato alcun valore per questa variante" );
+					return;
+				}
+
 				if ( currentValue == null )
 					currentValue = new ProductVariant ();
 
 				currentValue.setString ( "name", n );
-				currentValue.setArray ( "values", values.getElements () );
+				currentValue.setArray ( "values", vals );
 				fireCallbacks ();
 				hide ();
 			}
