@@ -42,7 +42,7 @@ public class OrdersEditPanel extends GenericPanel {
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					FromServerForm ret;
 
-					if ( ord.getType () == "Order" && ord.getBool ( "parent_aggregate" ) == false )
+					if ( ord.getType () == "Order" && ( ord.getBool ( "parent_aggregate" ) == false || filter.isVisible () == true ) )
 						ret = editableOrder ( ord );
 					else if ( ord.getType () == "OrderAggregate" )
 						ret = editableOrderAggregate ( ord );
@@ -771,7 +771,7 @@ public class OrdersEditPanel extends GenericPanel {
 		Supplier supplier;
 		OrderDetails details;
 
-		if ( ord.getBool ( "parent_aggregate" ) == true )
+		if ( ord.getBool ( "parent_aggregate" ) == true && filter.isVisible () == false )
 			return null;
 
 		/*
