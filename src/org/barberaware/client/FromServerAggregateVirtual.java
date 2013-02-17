@@ -1,5 +1,5 @@
 /*  GASdotto
- *  Copyright (C) 2011 Roberto -MadBob- Guido <bob4job@gmail.com>
+ *  Copyright (C) 2011/2013 Roberto -MadBob- Guido <bob4job@gmail.com>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -33,5 +33,24 @@ public abstract class FromServerAggregateVirtual extends FromServerAggregate {
 			oggetti non validi
 		*/
 		setLocalID ( ( int ) Math.round ( Math.random () * 1000 ) );
+	}
+
+	public void destroy ( ServerResponse callback ) {
+		ArrayList objects;
+		FromServer tmp;
+
+		objects = getObjects ();
+
+		for ( int i = 0; i < objects.size (); i++ ) {
+			tmp = ( FromServer ) objects.get ( i );
+
+			/**
+				TODO	Qui ignoro deliberatamente la
+					callback fornita, non essendo
+					ancora gestite funzioni di
+					accumulazione
+			*/
+			tmp.destroy ( null );
+		}
 	}
 }
