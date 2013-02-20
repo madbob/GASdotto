@@ -198,7 +198,7 @@ public class FromServerAttribute {
 			return null;
 
 		if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
-			if ( string != null && string != "" )
+			if ( string != null )
 				return new JSONString ( string );
 			else
 				return null;
