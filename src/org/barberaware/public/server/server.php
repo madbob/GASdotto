@@ -44,6 +44,8 @@ if ( $type == "Probe" ) {
 }
 
 else if ( $type == "Reset" ) {
+	global $current_gas;
+
 	$mail = $obj->mail;
 	if ( !isset ( $mail ) )
 		exit ( 0 );
@@ -58,6 +60,22 @@ else if ( $type == "Reset" ) {
 					WHERE username = ( SELECT id FROM Users WHERE mail = '%s' OR mail2 = '%s' )",
 						md5 ( $password ), $mail, $mail );
 		query_and_check ( $query, "Impossibile salvare nuova password" );
+
+		/*
+			Qui cerco il GAS di riferimento per l'utente con
+			il dato indirizzo mail, e lo metto nella
+			variabile globale $current_gas in modo che sia
+			accessibile anche altrove (nello specifico, in
+			my_send_mail() )
+		*/
+
+		$query = sprintf ( "SELECT gas FROM ACL
+					WHERE target_type = 'User' AND
+						target_id = ( SELECT id FROM Users WHERE mail = '%s' OR mail2 = '%s' )",
+					$mail, $mail );
+		$returned = query_and_check ( $query, "Impossibile recuperare GAS di riferimento" );
+		$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		$current_gas = $row [ 0 ] [ 'gas' ];
 
 		$gas = current_gas ();
 
