@@ -191,7 +191,24 @@ $quantities_sums = array_fill ( 0, $all_products, 0 );
 $shipping_price = array_fill ( 0, $all_products, 0 );
 $existing_products = array_fill ( 0, $all_products, false );
 
+/*
+	Verifico quali prodotti sono contemplati tra tutti gli
+	ordini. Serve a sapere quali casella saltare in toto e
+	quali lasciare in bianco per incolonnare il tutto
+	(bug #189: contemplare solo i prodotti ordinati)
+*/
+
 search_existing ( $order_user );
+
+if ( property_exists ( $order_user, 'friends' ) ) {
+	$contents = $order_user->friends;
+	usort ( $contents, "sort_friend_orders_by_user" );
+
+	for ( $i = 0; $i < count ( $contents ); $i++ ) {
+		$order_friend = $contents [ $i ];
+		search_existing ( $order_friend );
+	}
+}
 
 $row = format_order ( $order_user, false );
 if ( $row != null )
@@ -200,17 +217,6 @@ if ( $row != null )
 if ( property_exists ( $order_user, 'friends' ) ) {
 	$contents = $order_user->friends;
 	usort ( $contents, "sort_friend_orders_by_user" );
-
-	/*
-		Verifico quali prodotti sono contemplati tra tutti gli ordini. Serve a sapere quali
-		casella saltare in toto e quali lasciare in bianco per incolonnare il tutto
-		(bug #189: contemplare solo i prodotti ordinati)
-	*/
-
-	for ( $i = 0; $i < count ( $contents ); $i++ ) {
-		$order_friend = $contents [ $i ];
-		search_existing ( $order_friend );
-	}
 
 	for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		$order_friend = $contents [ $i ];
