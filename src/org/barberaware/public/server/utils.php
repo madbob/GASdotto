@@ -347,11 +347,18 @@ function get_product_name ( $product ) {
 }
 
 function get_product_measure_symbol ( $product ) {
-	$measure = $product->getAttribute ( "measure" )->value;
-	if ( $measure != null )
-		return $measure->getAttribute ( 'name' )->value;
+	$unit = $product->getAttribute ( "unit_size" )->value;
 
-	return '';
+	if ( $unit <= 0.0 ) {
+		$measure = $product->getAttribute ( "measure" )->value;
+		if ( $measure != null )
+			return $measure->getAttribute ( 'name' )->value;
+		else
+			return '';
+	}
+	else {
+		return 'Pezzi';
+	}
 }
 
 function get_product_quantity_stocks ( $product, $quantity ) {
