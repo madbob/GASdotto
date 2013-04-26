@@ -1,7 +1,7 @@
 <?php
 
 /*  GASdotto
- *  Copyright (C) 2011 Roberto -MadBob- Guido <bob4job@gmail.com>
+ *  Copyright (C) 2013 Roberto -MadBob- Guido <bob4job@gmail.com>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ $extra_root = "https://raw.github.com/madbob/GASdotto/master/extra";
 
 /*
 	Preso da:
-	http://www.infosys.tuwien.ac.at/staff/treiber/blog/2011/02/15/php-allow_url_fopen-workaround/
+	http://www.infosys.tuwien.ac.at/staff/treiber/blog/2013/02/15/php-allow_url_fopen-workaround/
 */
 function file_get_contents_remote ( $url ) {
 	if ( !ini_get ( "allow_url_fopen" ) ) {
