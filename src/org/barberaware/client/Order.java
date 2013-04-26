@@ -129,6 +129,21 @@ public class Order extends FromServer implements OrderInterface {
 		return supplier.iAmReference ();
 	}
 
+	public boolean hasProduct ( Product product ) {
+		ArrayList products;
+		FromServer iter;
+
+		products = this.getArray ( "products" );
+
+		for ( int i = 0; i < products.size (); i++ ) {
+			iter = ( Product ) products.get ( i );
+			if ( iter.getLocalID () == product.getLocalID () )
+				return true;
+		}
+
+		return false;
+	}
+
 	/****************************************************************** Comparator */
 
 	public int compare ( Object first, Object second ) {

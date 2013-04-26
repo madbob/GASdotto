@@ -171,7 +171,7 @@ public class ProductDeliveryEditableAtomicVariantsCell extends Composite impleme
 		return total;
 	}
 
-	public ArrayList getAlignedProducts () {
+	public void alignProducts () {
 		/*
 			Questo algoritmo potrebbe sembrare sbagliato considerando che itero tutte
 			le varianti anziche' cercare quelle che sono state consegnate, ma c'e' da
@@ -258,8 +258,6 @@ public class ProductDeliveryEditableAtomicVariantsCell extends Composite impleme
 				}
 			}
 		}
-
-		return currentProducts;
 	}
 
 	/****************************************************************** SourcesChangeEvents */

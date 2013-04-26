@@ -282,4 +282,19 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 
 		return false;
 	}
+
+	public boolean hasProduct ( Product product ) {
+		ArrayList orders;
+		Order iter;
+
+		orders = this.getArray ( "orders" );
+
+		for ( int i = 0; i < orders.size (); i++ ) {
+			iter = ( Order ) orders.get ( i );
+			if ( iter.hasProduct ( product ) )
+				return true;
+		}
+
+		return false;
+	}
 }

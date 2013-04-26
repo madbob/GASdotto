@@ -23,7 +23,8 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsDeliveryTable extends Composite implements FromServerArray, SourcesChangeEvents {
+public class ProductsDeliveryTable extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
+	private FromServer		object;
 	private VerticalPanel		main;
 	private PriceViewer		totalLabel;
 	private ArrayList		changeCallbacks		= null;
@@ -67,6 +68,23 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray,
 			return totalLabel.getVal ();
 		else
 			return 0;
+	}
+
+	private Button createAddProductButton () {
+		Button ret;
+
+		ret = new Button ( "Aggiungi Prodotto" );
+		ret.addClickListener ( new ClickListener () {
+			public void onClick ( Widget sender ) {
+				ProductDeliveryCell row;
+
+				row = new ProductDeliveryCell ();
+				row.goDynamic ( ( Order ) object.getObject ( "baseorder" ) );
+				main.insert ( row, main.getWidgetCount () - 2 );
+			}
+		} );
+
+		return ret;
 	}
 
 	private Button createAutoCompleteButton () {
@@ -122,14 +140,10 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray,
 		bottom.setWidth ( "100%" );
 		main.add ( bottom );
 
-		/*
-			Le due label vuote servono solo a far quadrare i conti con gli
-			allineamenti, saranno comunque presto rimpiazzate da contenuti
-		*/
-
-		filler = new Label ();
-		bottom.add ( filler );
-		bottom.setCellWidth ( filler, "40%" );
+		button = createAddProductButton ();
+		bottom.add ( button );
+		bottom.setCellVerticalAlignment ( button, HasVerticalAlignment.ALIGN_MIDDLE );
+		bottom.setCellWidth ( button, "40%" );
 
 		filler = new Label ();
 		bottom.add ( filler );
@@ -155,23 +169,33 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray,
 		Utils.triggerChangesCallbacks ( changeCallbacks, this );
 	}
 
-	/****************************************************************** FromServerArray */
+	/****************************************************************** ObjectWidget */
 
-	public void addElement ( FromServer element ) {
-		/* dummy */
-	}
-
-	public void setElements ( ArrayList elements ) {
+	public void setValue ( FromServer element ) {
 		int rows;
 		boolean found;
 		float price_total;
+		ArrayList elements;
 		ProductUser prod_user;
 		ProductDeliveryCell row;
 		FromServer prod;
 
-		price_total = 0;
-		rows = main.getWidgetCount () - 1;
+		/*
+			In questa funzione prendo tutti i prodotti contemplati nell'ordine utente
+			(sia quello principale, che quelli degli amici ivi contenuti) per mezzo
+			dell'attributo "allproducts", e li assegno per tipo nelle diverse
+			ProductDeliveryCell.
+			Ogni ProductDeliveryCell tiene riferimento di tutti i ProductUsers e
+			le diverse implementazioni di ProductDeliveryEditableCell gestite al loro
+			interno provvedono (per mezzo della funzione getAlignedProducts()) a
+			distribuire la quantita' ordinata specificata tra i diversi ProductUsers.
+		*/
 
+		object = element;
+		elements = element.getArray ( "allproducts" );
+		price_total = 0;
+
+		rows = main.getWidgetCount () - 1;
 		for ( int i = 0; i < rows; i++ )
 			main.remove ( 1 );
 
@@ -215,26 +239,27 @@ public class ProductsDeliveryTable extends Composite implements FromServerArray,
 		bottomLine ( main, price_total );
 	}
 
-	public void removeElement ( FromServer element ) {
-		/* dummy */
-	}
-
-	public ArrayList getElements () {
-		ArrayList ret;
+	public FromServer getValue () {
 		ProductDeliveryCell row;
-
-		ret = new ArrayList ();
 
 		for ( int i = 1; i < main.getWidgetCount () - 2; i++ ) {
 			row = ( ProductDeliveryCell ) main.getWidget ( i );
-			ret.addAll ( row.getAlignedProducts () );
+
+			if ( row.previouslyExisting () ) {
+				row.alignProducts ();
+			}
+			else {
+				FromServer prod;
+				ArrayList products;
+
+				prod = row.getDynamicValue ();
+				products = object.getArray ( "products" );
+				products.add ( prod );
+				object.setArray ( "products", products );
+			}
 		}
 
-		return ret;
-	}
-
-	public void refreshElement ( FromServer element ) {
-		/* dummy */
+		return object;
 	}
 
 	/****************************************************************** SourcesChangeEvents */

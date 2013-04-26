@@ -28,7 +28,7 @@ public interface ProductDeliveryEditableCell extends SourcesChangeEvents {
 	public float getCurrentQuantity ();
 
 	public float shipAll ();
-	public ArrayList getAlignedProducts ();
+	public void alignProducts ();
 
 	public void addChangeListener ( ChangeListener listener );
 	public void removeChangeListener ( ChangeListener listener );

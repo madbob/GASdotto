@@ -121,7 +121,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 		I "peers" possono essere molti, si suppone che non modifichino
 		l'oggetto, gli viene assegnato quando qualcosa viene assegnato a
-		this viene assegnato ma non gli viene mai chiesto indietro.
+		this ma non gli viene mai chiesto indietro.
 		Usato prevalentemente per funzionalita' avanzate
 	*/
 

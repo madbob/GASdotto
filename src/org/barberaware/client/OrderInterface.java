@@ -22,5 +22,6 @@ import java.util.*;
 public interface OrderInterface {
 	public boolean iAmReference ();
 	public boolean hasShippingPlaces ();
+	public boolean hasProduct ( Product product );
 	public void asyncLoadUsersOrders ();
 }

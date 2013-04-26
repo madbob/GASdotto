@@ -76,7 +76,7 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 		return total;
 	}
 
-	public ArrayList getAlignedProducts () {
+	public void alignProducts () {
 		float total;
 		float quantity;
 		FromServer prod;
@@ -107,8 +107,6 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 			prod = ( FromServer ) currentProducts.get ( 0 );
 			prod.setFloat ( "delivered", prod.getFloat ( "quantity" ) + total );
 		}
-
-		return currentProducts;
 	}
 
 	/****************************************************************** SourcesChangeEvents */

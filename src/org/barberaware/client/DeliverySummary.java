@@ -126,7 +126,9 @@ public class DeliverySummary extends Composite {
 
 		if ( uorder instanceof OrderUser ) {
 			products = new ProductsDeliveryTable ();
-			row.add ( row.getPersonalizedWidget ( "allproducts", products ) );
+			products.setValue ( ( OrderUser ) uorder );
+			row.add ( products );
+			row.addChild ( products );
 		}
 		else if ( uorder instanceof OrderUserAggregate ) {
 			addAllSubOrders ( uord, row );
@@ -141,11 +143,11 @@ public class DeliverySummary extends Composite {
 		row.setCallback ( new FromServerRappresentationCallbacks () {
 			public FromServerRappresentation onAddChild ( FromServerRappresentation form, FromServer child ) {
 				float tot;
-				OrderUserDetails details;
-				OrderUserDetails iter;
+				ProductsDeliveryTable details;
+				ProductsDeliveryTable iter;
 				FromServerForm f;
 
-				details = new OrderUserDetails ();
+				details = new ProductsDeliveryTable ();
 				details.setValue ( child );
 
 				f = ( FromServerForm ) form;
@@ -242,13 +244,13 @@ public class DeliverySummary extends Composite {
 	private float currentTotalInForm ( FromServerRappresentationFull form ) {
 		float tot;
 		ArrayList children;
-		OrderUserDetails iter;
+		ProductsDeliveryTable iter;
 
 		tot = 0;
 		children = form.getChildren ();
 
 		for ( int i = 0; i < children.size (); i++ ) {
-			iter = ( OrderUserDetails ) children.get ( i );
+			iter = ( ProductsDeliveryTable ) children.get ( i );
 			tot += iter.getTotal ();
 		}
 
@@ -259,7 +261,7 @@ public class DeliverySummary extends Composite {
 		float tot;
 		ArrayList uorders;
 		FromServer uord;
-		OrderUserDetails details;
+		ProductsDeliveryTable table;
 
 		tot = 0;
 		uorders = uorder.getArray ( "orders" );
@@ -267,16 +269,16 @@ public class DeliverySummary extends Composite {
 		for ( int i = 0; i < uorders.size (); i++ ) {
 			uord = ( FromServer ) uorders.get ( i );
 
-			details = new OrderUserDetails ();
-			details.setValue ( uord );
-			details.addStyleName ( "bottom-spaced" );
+			table = new ProductsDeliveryTable ();
+			table.setValue ( uord );
+			table.addStyleName ( "bottom-spaced" );
 
-			tot += details.getTotal ();
+			tot += table.getTotal ();
 
-			row.add ( details );
-			row.addChild ( details );
+			row.add ( table );
+			row.addChild ( table );
 
-			attachPrivateTotalCallback ( details );
+			attachPrivateTotalCallback ( table );
 		}
 
 		if ( uorders.size () > 1 )
@@ -343,18 +345,18 @@ public class DeliverySummary extends Composite {
 		total.setVal ( tot );
 	}
 
-	private void attachPrivateTotalCallback ( OrderUserDetails details ) {
+	private void attachPrivateTotalCallback ( ProductsDeliveryTable details ) {
 		details.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				float tot;
 				ArrayList children;
 				FromServerRappresentation parent;
-				OrderUserDetails det;
+				ProductsDeliveryTable det;
 				Widget tmp;
 				PriceViewer view;
 
 				tot = 0;
-				det = ( OrderUserDetails ) sender;
+				det = ( ProductsDeliveryTable ) sender;
 				parent = det.getRappresentationParent ();
 
 				tmp = parent.retriveInternalWidget ( "total" );
@@ -364,7 +366,7 @@ public class DeliverySummary extends Composite {
 				children = parent.getChildren ();
 
 				for ( int i = 0; i < children.size (); i++ ) {
-					det = ( OrderUserDetails ) children.get ( i );
+					det = ( ProductsDeliveryTable ) children.get ( i );
 					tot += det.getTotal ();
 				}
 

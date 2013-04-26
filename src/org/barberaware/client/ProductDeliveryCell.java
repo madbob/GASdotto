@@ -33,6 +33,9 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 	private float				currentPrice		= 0;
 	private PriceViewer			priceLabel;
 
+	private boolean				dynamic			= false;
+	private FromServerSelector		dynamicProductSelect;
+
 	private ProductUser			referenceProd		= null;
 
 	private ArrayList			changeCallbacks		= null;
@@ -70,7 +73,7 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 				succedere che avanzi qualche prodotto (ordinato per arrotondamento) e
 				si distribuisca arbitrariamente
 			*/
-			if ( prod.getBool ( "mutable_price" ) == false && input > currentQuantity )
+			if ( currentQuantity != -1 && prod.getBool ( "mutable_price" ) == false && input > currentQuantity )
 				Utils.showNotification ( "Hai immesso una quantità diversa da quella ordinata", Notification.INFO );
 
 			price = referenceProd.getTotalPrice ( input );
@@ -130,7 +133,22 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 		}
 	}
 
+	private void prepareEditableCell ( ProductDeliveryEditableCell cell ) {
+		cell.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				newInputToCheck ();
+				triggerChange ();
+			}
+		} );
+	}
+
 	public void addProductUser ( FromServer prod_user ) {
+		/*
+			first_round e' per discriminare se sto aggiungendo il prodotto per la
+			prima volta (solitamente quando ho appena creato l'oggetto) o ne sto
+			aggiungendo altre istanze (quando in ProductsDeliveryTable itero anche
+			i prodotti negli ordini degli amici dell'ordine principale)
+		*/
 		boolean first_round;
 		String symbol;
 		ArrayList variants;
@@ -205,20 +223,80 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 			main.add ( priceLabel );
 			setCell ( priceLabel, "20%" );
 
-			box.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
-					newInputToCheck ();
-					triggerChange ();
-				}
-			} );
+			prepareEditableCell ( box );
 		}
 
 		priceLabel.setVal ( currentPrice );
 		box.addProductUser ( prod_user );
 	}
 
-	public ArrayList getAlignedProducts () {
-		return box.getAlignedProducts ();
+	public void goDynamic ( final Order reference_order ) {
+		referenceProd = new ProductUser ();
+		currentQuantity = -1;
+		dynamic = true;
+
+		dynamicProductSelect = new FromServerSelector ( "Product", true, true, true );
+
+		dynamicProductSelect.addFilter ( new FromServerValidateCallback () {
+			public boolean checkObject ( FromServer object ) {
+				return reference_order.hasProduct ( ( Product ) object );
+			}
+		} );
+
+		dynamicProductSelect.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				referenceProd.setObject ( "product", dynamicProductSelect.getValue () );
+				newInputToCheck ();
+				triggerChange ();
+			}
+		} );
+
+		dynamicProductSelect.unlock ();
+		main.add ( dynamicProductSelect );
+		setCell ( dynamicProductSelect, "40%" );
+
+		quantityLabel = new Label ();
+		main.add ( quantityLabel );
+		setCell ( quantityLabel, "20%" );
+
+		box = new ProductDeliveryEditablePlainCell ();
+		main.add ( ( Widget ) box );
+		setCell ( ( Widget ) box, "20%" );
+		prepareEditableCell ( box );
+
+		priceLabel = new PriceViewer ();
+		main.add ( priceLabel );
+		setCell ( priceLabel, "20%" );
+
+		box.addProductUser ( referenceProd );
+	}
+
+	public boolean previouslyExisting () {
+		return ( dynamic == false );
+	}
+
+	/*
+		If previouslyExisting() returns true
+	*/
+	public void alignProducts () {
+		box.alignProducts ();
+	}
+
+	/*
+		If previouslyExisting() returns false get this return value and insert into the
+		reference OrderUser
+	*/
+	public FromServer getDynamicValue () {
+		float quantity;
+
+		quantity = box.getCurrentQuantity ();
+		referenceProd.setFloat ( "quantity", quantity );
+		referenceProd.setFloat ( "delivered", quantity );
+
+		referenceProd.setObject ( "product", dynamicProductSelect.getValue () );
+		referenceProd.setDate ( "orderdate", new Date ( System.currentTimeMillis () ) );
+		referenceProd.setObject ( "orderperson", Session.getUser () );
+		return referenceProd;
 	}
 
 	/*

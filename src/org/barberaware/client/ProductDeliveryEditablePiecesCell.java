@@ -105,7 +105,7 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 		return total;
 	}
 
-	public ArrayList getAlignedProducts () {
+	public void alignProducts () {
 		int pieces;
 		float del;
 		float unit;
@@ -130,8 +130,6 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 				prod.setFloat ( "delivered", del );
 			}
 		}
-
-		return currentProducts;
 	}
 
 	/****************************************************************** SourcesChangeEvents */
