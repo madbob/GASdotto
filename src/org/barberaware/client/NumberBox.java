@@ -61,6 +61,13 @@ public class NumberBox extends TextBox implements IntNumericWidget {
 	}
 
 	public int getVal () {
-		return Integer.parseInt ( getText () );
+		String val;
+
+		val = getText ();
+
+		if ( val == "" )
+			return 0;
+		else
+			return Integer.parseInt ( getText () );
 	}
 }
