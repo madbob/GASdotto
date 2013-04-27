@@ -129,7 +129,7 @@ public class UsersPanel extends GenericPanel {
 					FromServer user;
 					CustomCaptionPanel frame;
 					CyclicToggle privileges;
-					DateSelector birth;
+					DateSelector custom_date;
 
 					/*
 						Questa funzione viene invocata ogni volta che un form viene aperto,
@@ -169,9 +169,9 @@ public class UsersPanel extends GenericPanel {
 
 					frame.addPair ( "Indirizzo", form.getWidget ( "address" ) );
 
-					birth = new DateSelector ();
-					birth.yearSelectable ( true );
-					frame.addPair ( "Data di Nascita", form.getPersonalizedWidget ( "birthday", birth ) );
+					custom_date = new DateSelector ();
+					custom_date.yearSelectable ( true );
+					frame.addPair ( "Data di Nascita", form.getPersonalizedWidget ( "birthday", custom_date ) );
 
 					frame.addPair ( "Persone in Famiglia", form.getWidget ( "family" ) );
 
@@ -225,8 +225,21 @@ public class UsersPanel extends GenericPanel {
 						correggere questo pannello ma semplicemente attendere che sia
 						ricaricato
 					*/
-					if ( handlePayments == true )
-						frame.addPair ( "Quota pagata", form.getWidget ( "paying" ) );
+					if ( handlePayments == true ) {
+						/*
+							Viene reso editabile anche l'anno per
+							ovviare ad un difetto di usabilita': quando
+							le quote vengono abilitate, per tutti gli
+							utenti esistenti viene settata all'1/1/2000
+							(per farla risultare sempre scaduta), dunque
+							se vengono abilitate "a regime" ci si devono
+							poi sistemare tutte le date - verosimilmente
+							ad una data dell'anno attuale
+						*/
+						custom_date = new DateSelector ();
+						custom_date.yearSelectable ( true );
+						frame.addPair ( "Quota pagata", form.getPersonalizedWidget ( "paying", custom_date ) );
+					}
 
 					privileges = new CyclicToggle ( true );
 					privileges.addState ( "images/user_role_standard.png" );
