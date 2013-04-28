@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="GASdotto" default="build" basedir=".">
   <!-- Arguments to gwtc and devmode targets -->
-  <property name="gwt.args" value="" />
+  <property name="gwt.args" value="-localWorkers 4 -optimize 9" />
 
   <!-- Configure path to GWT SDK -->
   <property name="gwt.sdk" location="/home/madbob/sources/GWT/gwt-2.5.1" />
