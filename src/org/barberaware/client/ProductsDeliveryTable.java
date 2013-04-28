@@ -80,6 +80,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 
 				row = new ProductDeliveryCell ();
 				row.goDynamic ( ( Order ) object.getObject ( "baseorder" ) );
+				attachDeliveryCell ( row );
 				main.insert ( row, main.getWidgetCount () - 2 );
 			}
 		} );
@@ -169,6 +170,15 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		Utils.triggerChangesCallbacks ( changeCallbacks, this );
 	}
 
+	private void attachDeliveryCell ( ProductDeliveryCell row ) {
+		row.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				upgradeTotal ();
+				triggerChange ();
+			}
+		} );
+	}
+
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer element ) {
@@ -219,14 +229,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 
 			if ( found == false ) {
 				row = new ProductDeliveryCell ();
-
-				row.addChangeListener ( new ChangeListener () {
-					public void onChange ( Widget sender ) {
-						upgradeTotal ();
-						triggerChange ();
-					}
-				} );
-
+				attachDeliveryCell ( row );
 				main.add ( row );
 			}
 
