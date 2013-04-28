@@ -2,7 +2,7 @@
 
 version=$1
 
-cp -r www/org.barberaware.GASdotto /tmp/gasdotto-${version}
+cp -r war/org.barberaware.GASdotto /tmp/gasdotto-${version}
 cd /tmp/gasdotto-${version}
 
 sed "s/\(^.*\$GASDOTTO_VERSION.*=\).*$/\1 \"$version\";/g" server/SystemConf.php -i

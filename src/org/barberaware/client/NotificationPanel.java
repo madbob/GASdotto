@@ -50,7 +50,7 @@ public class NotificationPanel extends GenericPanel {
 
 								if ( users.getExtraElement ( "Mailing List" ) == true ) {
 									mail = ( BooleanSelector ) parent.retriveInternalWidget ( "send_mail" );
-									mail.setValue ( true );
+									mail.setVal ( true );
 								}
 							}
 						} );

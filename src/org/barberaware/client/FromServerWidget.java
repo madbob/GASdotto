@@ -133,7 +133,7 @@ public class FromServerWidget extends Composite {
 			( ( DateWidget ) wid ).setValue ( object.getDate ( name ) );
 
 		else if ( type == FromServer.BOOLEAN )
-			( ( BooleanWidget ) wid ).setValue ( object.getBool ( name ) );
+			( ( BooleanWidget ) wid ).setVal ( object.getBool ( name ) );
 
 		else if ( type == FromServer.ADDRESS )
 			( ( AddressWidget ) wid ).setValue ( object.getAddress ( name ) );
@@ -168,7 +168,7 @@ public class FromServerWidget extends Composite {
 			object.setDate ( name, ( ( DateWidget ) wid ).getValue () );
 
 		else if ( type == FromServer.BOOLEAN )
-			object.setBool ( name, ( ( BooleanWidget ) wid ).getValue () );
+			object.setBool ( name, ( ( BooleanWidget ) wid ).getVal () );
 
 		else if ( type == FromServer.ADDRESS )
 			object.setAddress ( name, ( ( AddressWidget ) wid ).getValue () );
@@ -218,7 +218,7 @@ public class FromServerWidget extends Composite {
 		}
 
 		else if ( type == FromServer.BOOLEAN )
-			ret = object.getBool ( name ) == ( ( BooleanWidget ) wid ).getValue ();
+			ret = object.getBool ( name ) == ( ( BooleanWidget ) wid ).getVal ();
 
 		else if ( type == FromServer.ADDRESS )
 			ret = object.getAddress ( name ).equals ( ( ( AddressWidget ) wid ).getValue () );

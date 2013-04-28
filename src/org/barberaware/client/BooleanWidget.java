@@ -18,6 +18,6 @@
 package org.barberaware.client;
 
 public interface BooleanWidget {
-	public void setValue ( boolean value );
-	public boolean getValue ();
+	public void setVal ( boolean value );
+	public boolean getVal ();
 }

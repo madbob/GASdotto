@@ -27,14 +27,14 @@ public class BooleanViewer extends Label implements BooleanWidget {
 
 	/****************************************************************** BooleanWidget */
 
-	public void setValue ( boolean value ) {
+	public void setVal ( boolean value ) {
 		if ( value == false )
 			setText ( "NO" );
 		else
 			setText ( "SI" );
 	}
 
-	public boolean getValue () {
+	public boolean getVal () {
 		return getText () == "SI";
 	}
 }

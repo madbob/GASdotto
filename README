@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------------------[Readme]
 
-GASdotto 3.0
+GASdotto 3.2
 Roberto -MadBob- Guido
-Dicembre 2012
+Aprile 2013
 
 --------------------------------------------------------------------------------------------[Intro]
 
@@ -19,10 +19,7 @@ GASdotto e' strutturato come programma client/server: il client e' implementato 
 destinato ad essere compilato in Javascript per mezzo del Google Web Toolkit, il server e' in PHP.
 
 Per compilare il tutto e' necessario:
-- Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v1.5.3
-- GWT-Log		http://code.google.com/p/gwt-log/				v2.5.2
-- GWT-Visualization	http://code.google.com/p/gwt-google-apis/wiki/Downloads?tm=2	v1.0.1
-- GWT-DND		http://code.google.com/p/gwt-dnd/				v2.5.6
+- Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v2.5.1
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
 - Apache		http://apache.org/				testato su versione 2.2.22
@@ -40,15 +37,16 @@ provvedere ad una installazione di sistema.
 
 Il database in cui verranno messi i dati puo' essere:
 - PostgreSQL		http://www.postgresql.org/			testato su versione 9.1
-- MySQL			http://www.mysql.com/				testato su versione 5.1.50
+- MySQL			http://www.mysql.com/				testato su versione 5.5.30
 E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
 Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard web. Sono stati
 verificati:
-- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 10.0.11
+- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 18.0.2
 - Chromium		http://www.google.com/chrome			testato su versione 22.0
 - Epiphany		http://projects.gnome.org/epiphany/		testato su versione 3.2.1
-E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer.
+E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer, in qualsiasi sua
+versione.
 
 -------------------------------------------------------------------------------------[Compilazione]
 
@@ -56,14 +54,13 @@ I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili s
 raggiungibile con il comando
 git clone git://github.com/madbob/GASdotto.git
 
-- accertarsi che i files gwt-user.jar e gwt-dev-linux.jar di GWT appaiano nella variabile
-d'ambiente $CLASSPATH
-- eseguire ./GASdotto-compile
-- il prodotto della compilazione si trovera' nella cartella www/org.barberaware.GASdotto/
+- correggere il file build.xml con il path dei files .jar inclusi in GWT 2.5.1
+- eseguire `ant build`
+- il prodotto della compilazione si trovera' nella cartella war/org.barberaware.GASdotto/
 
 ------------------------------------------------------------------------------------[Installazione]
 
-- esporre la cartella www/org.barberaware.GASdotto/ prodotta al termine della compilazione,
+- esporre la cartella war/org.barberaware.GASdotto/ prodotta al termine della compilazione,
 oppure la cartella gasdotto/ rinvenuta nel pacchetto binario, sul server web
 - accertarsi che il file server/config.php abbia permessi di scrittura per il server web, per
 permettere l'esecuzione della procedura guidata di installazione ed il salvataggio dei parametri
@@ -109,4 +106,5 @@ conclusa con successo, faccelo sapere affinche' la lista condivisa venga aggiorn
 
 Il sito di riferimento del progetto e' http://gasdotto.net
 I trackers e le informazioni per coloro che vogliono manipolare il codice e contribuire allo
-sviluppo si trovano presso http://trac.gasdotto.net
+sviluppo si trovano presso https://github.com/madbob/GASdotto
+

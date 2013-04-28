@@ -160,8 +160,8 @@ public class SystemPanel extends GenericPanel {
 				BooleanSelector myself;
 
 				myself = ( BooleanSelector ) sender;
-				mailConf.setEnabled ( myself.getValue () );
-				mailList.setEnabled ( myself.getValue () );
+				mailConf.setEnabled ( myself.getVal () );
+				mailList.setEnabled ( myself.getVal () );
 			}
 		} );
 		frame.addPair ( "Abilita Notifiche Mail", ver.getPersonalizedWidget ( "use_mail", mail ) );
@@ -176,7 +176,7 @@ public class SystemPanel extends GenericPanel {
 				BooleanSelector myself;
 
 				myself = ( BooleanSelector ) sender;
-				ridConf.setEnabled ( myself.getValue () );
+				ridConf.setEnabled ( myself.getVal () );
 			}
 		} );
 		frame.addPair ( "Abilita Pagamenti RID", ver.getPersonalizedWidget ( "use_rid", rid ) );
@@ -255,7 +255,7 @@ public class SystemPanel extends GenericPanel {
 
 				if ( places.size () == 0 || ( places.size () == 1 && place.isValid () == true ) ) {
 					sel = ( BooleanSelector ) form.retriveInternalWidget ( "is_default" );
-					sel.setValue ( true );
+					sel.setVal ( true );
 				}
 
 				return true;

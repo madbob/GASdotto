@@ -201,7 +201,7 @@ public class GASPanel extends GenericPanel {
 				BooleanSelector myself;
 
 				myself = ( BooleanSelector ) sender;
-				masterMailConf.setEnabled ( myself.getValue () );
+				masterMailConf.setEnabled ( myself.getVal () );
 			}
 		} );
 		frame.addPair ( "Abilita Mail", masterForm.getPersonalizedWidget ( "use_mail", mail ) );

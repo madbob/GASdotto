@@ -68,12 +68,12 @@ public class BooleanSelector extends ToggleButton implements SourcesChangeEvents
 
 	/****************************************************************** BooleanWidget */
 
-	public void setValue ( boolean value ) {
+	public void setVal ( boolean value ) {
 		currentState = value;
 		super.setDown ( value );
 	}
 
-	public boolean getValue () {
+	public boolean getVal () {
 		return isDown ();
 	}
 

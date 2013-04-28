@@ -75,7 +75,7 @@ public class MailConfigurator extends Composite implements StringWidget {
 								username.setText ( obj.get ( "username" ).isString ().stringValue () );
 								server.setText ( obj.get ( "server" ).isString ().stringValue () );
 								port.setVal ( Integer.parseInt ( obj.get ( "port" ).isString ().stringValue () ) );
-								ssl.setValue ( Boolean.parseBoolean ( obj.get ( "ssl" ).isString ().stringValue () ) );
+								ssl.setVal ( Boolean.parseBoolean ( obj.get ( "ssl" ).isString ().stringValue () ) );
 							}
 							catch ( com.google.gwt.json.client.JSONException e ) {
 								Utils.showNotification ( "Ricevuti dati invalidi dal server" );
@@ -134,7 +134,7 @@ public class MailConfigurator extends Composite implements StringWidget {
 			password.setText ( tokens [ 2 ] );
 			server.setText ( tokens [ 3 ] );
 			port.setVal ( Integer.parseInt ( tokens [ 4 ] ) );
-			ssl.setValue ( Boolean.parseBoolean ( tokens [ 5 ] ) );
+			ssl.setVal ( Boolean.parseBoolean ( tokens [ 5 ] ) );
 		}
 	}
 
@@ -144,7 +144,7 @@ public class MailConfigurator extends Composite implements StringWidget {
 		}
 		else {
 			return address.getText () + "::" + username.getText () + "::" + password.getText () + "::" +
-				server.getText () + "::" + port.getVal () + "::" + Boolean.toString ( ssl.getValue () );
+				server.getText () + "::" + port.getVal () + "::" + Boolean.toString ( ssl.getVal () );
 		}
 	}
 }
