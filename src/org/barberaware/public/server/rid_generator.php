@@ -1,7 +1,7 @@
 <?php
 
 /*  GASdotto
- *  Copyright (C) 2013 Roberto -MadBob- Guido <bob4job@gmail.com>
+ *  Copyright (C) 2011 Roberto -MadBob- Guido <bob4job@gmail.com>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -116,7 +116,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	$block++;
 
-	$output .= ' 10' . sprintf ( '%07d', $block ) . filler ( 12 ) . $expiry . '50000' . sprintf ( '%013d', $user_total * 100 ) . '-' . $abi . $cab . $account . $user_abi . $user_cab . filler ( 12 ) . $code . '4' . str_pad ( $user->id, 8, '0', STR_PAD_LEFT ) . filler ( 14 ) . 'E' . "\n";
+	$output .= ' 10' . sprintf ( '%07d', $block ) . filler ( 12 ) . $expiry . '50000' . sprintf ( '%013d', $user_total * 100 ) . '-' . $abi . $cab . $account . $user_abi . $user_cab . filler ( 12 ) . $code . '4' . str_pad ( $user->id, 16, '0', STR_PAD_LEFT ) . filler ( 6 ) . 'E' . "\n";
 	$output .= ' 20' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $name ), 110 ) . "\n";
 	$output .= ' 30' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_name ), 110 ) . "\n";
 	$output .= ' 40' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_address->street ), 30 ) . str_pad ( strtoupper ( $user_address->cap ), 5 ) . str_pad ( strtoupper ( $user_address->city ), 25 ) . filler ( 50 ) . "\n";

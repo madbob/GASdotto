@@ -55,6 +55,7 @@ public class RIDConfigurator extends Composite implements StringWidget {
 		main.setWidget ( 1, 1, account );
 
 		code = new TextBox ();
+		code.setMaxLength ( 5 );
 		main.setWidget ( 2, 0, new Label ( "Codice Azienda" ) );
 		main.setWidget ( 2, 1, code );
 

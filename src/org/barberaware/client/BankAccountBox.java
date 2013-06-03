@@ -52,6 +52,7 @@ public class BankAccountBox extends Composite implements StringWidget {
 		cell.setCellHorizontalAlignment ( label, HasHorizontalAlignment.ALIGN_CENTER );
 
 		text = new TextBox ();
+		text.setMaxLength ( length );
 		text.setVisibleLength ( length );
 		cell.add ( text );
 
