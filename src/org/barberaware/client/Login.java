@@ -21,6 +21,7 @@ import java.lang.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class Login extends Composite {
 	private TextBox			username;
@@ -279,7 +280,7 @@ public class Login extends Composite {
 		Button button;
 		HorizontalPanel box;
 		Hyperlink passwordrecovery;
-		KeyboardListenerAdapter enter_key;
+		KeyUpHandler enter_key;
 
 		form = new FlexTable ();
 
@@ -333,16 +334,19 @@ public class Login extends Composite {
 			Per permettere l'autenticazione con la pressione del tasto Enter
 		*/
 
-		enter_key = new KeyboardListenerAdapter () {
-			public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
-				if ( keyCode == KeyboardListener.KEY_ENTER ) {
+		enter_key = new KeyUpHandler () {
+			public void onKeyUp ( KeyUpEvent event ) {
+				int keycode;
+
+				keycode = event.getNativeKeyCode();
+				if ( keycode == KeyCodes.KEY_ENTER ) {
 					executeLogin ();
 				}
 			}
 		};
 
-		username.addKeyboardListener ( enter_key );
-		password.addKeyboardListener ( enter_key );
+		username.addKeyUpHandler ( enter_key );
+		password.addKeyUpHandler ( enter_key );
 
 		return form;
 	}

@@ -21,6 +21,7 @@ import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -28,7 +29,7 @@ public class FloatBox extends TextBox implements FloatWidget {
 	public FloatBox () {
 		setText ( "0" );
 
-		super.addFocusListener (
+		addFocusListener (
 			new FocusListener () {
 				public void onFocus ( Widget sender ) {
 					/* dummy */
@@ -41,19 +42,25 @@ public class FloatBox extends TextBox implements FloatWidget {
 			}
 		);
 
-		super.addKeyboardListener (
-			new KeyboardListenerAdapter () {
-				public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
-					if ( ( !Character.isDigit ( keyCode ) ) &&
-							( keyCode != KeyboardListener.KEY_TAB ) &&
-							( keyCode != KeyboardListener.KEY_BACKSPACE ) &&
-							( keyCode != KeyboardListener.KEY_LEFT ) &&
-							( keyCode != KeyboardListener.KEY_UP ) &&
-							( keyCode != KeyboardListener.KEY_RIGHT ) &&
-							( keyCode != KeyboardListener.KEY_DOWN ) &&
-							( keyCode != ',' ) ) {
+		addKeyDownHandler (
+			new KeyDownHandler () {
+				public void onKeyDown ( KeyDownEvent event ) {
+					int keycode;
 
-						cancelKey ();
+					keycode = event.getNativeKeyCode();
+
+					if ( ( keycode < 48 || keycode > 57 ) && (
+							( keycode != (char) KeyCodes.KEY_TAB ) &&
+							( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
+							( keycode != (char) KeyCodes.KEY_LEFT ) &&
+							( keycode != (char) KeyCodes.KEY_UP ) &&
+							( keycode != (char) KeyCodes.KEY_RIGHT ) &&
+							( keycode != (char) KeyCodes.KEY_DOWN ) &&
+							( keycode != 188 ) )
+						) {
+
+						event.preventDefault ();
+						event.stopPropagation ();
 					}
 				}
 			}

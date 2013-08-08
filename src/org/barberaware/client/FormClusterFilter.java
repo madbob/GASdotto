@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class FormClusterFilter extends Composite {
 	private FormCluster	reference;
@@ -39,8 +40,8 @@ public class FormClusterFilter extends Composite {
 		searchBar.setStyleName ( "search-bar" );
 		main.add ( searchBar );
 
-		searchBar.addKeyboardListener ( new KeyboardListenerAdapter () {
-			public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
+		searchBar.addKeyUpHandler ( new KeyUpHandler () {
+			public void onKeyUp ( KeyUpEvent event ) {
 				String text;
 
 				text = searchBar.getText ();
