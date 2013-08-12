@@ -473,8 +473,16 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 			rows = numRows ();
 
 			for ( int i = 0; i < rows; i++ ) {
+				/*
+					Se ricevo un array vuoto, forzo un reset completo di
+					ProductUserSelector per mezzo di hardClear() in modo che
+					il widget sia popolato con un oggetto "vergine".
+					Altrimenti un semplice clear() andrebbe a sovrascrivere i
+					valori dell'oggetto precedentemente caricato, magari di
+					un ordine valido e gia' popolato
+				*/
 				selector = ( ProductUserSelector ) main.getWidget ( i, 1 );
-				selector.clear ();
+				selector.hardClear ();
 				selector.setVisible ( true );
 
 				/*
@@ -522,7 +530,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 					*/
 
 					if ( sel_prod.equals ( prod_internal ) ) {
-						selector.setValue ( prod.duplicate () );
+						selector.setValue ( prod /*.duplicate () */ );
 
 						if ( editable == false )
 							row_format.setVisible ( i, true );
@@ -583,7 +591,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 					qui duplico gli elementi validi per evitare
 					sovrapposizioni
 				*/
-				list.add ( prod.duplicate () );
+				list.add ( prod /*.duplicate () */ );
 			}
 		}
 

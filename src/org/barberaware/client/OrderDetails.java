@@ -33,6 +33,7 @@ public class OrderDetails extends FromServerRappresentationFull {
 	private DateWidget		startdate;
 	private DateWidget		enddate;
 	private DateWidget		shippingdate;
+	private ObjectWidget		payment;
 
 	public OrderDetails () {
 		main = new HorizontalPanel ();
@@ -93,19 +94,30 @@ public class OrderDetails extends FromServerRappresentationFull {
 		main.setCellWidth ( frame, "50%" );
 
 		if ( edit == true ) {
+			BankMovementSelector bms;
+
 			startdate = new DateSelector ();
 			enddate = new DateSelector ();
 			shippingdate = new DateSelector ();
+
+			bms = new BankMovementSelector ();
+			bms.setDefaultType ( BankMovement.ORDER_PAYMENT );
+			bms.setDefaultNote ( "Pagamento ordine a " + element.getObject ( "supplier" ).getString ( "name" ) );
+			payment = bms;
 		}
 		else {
 			startdate = new DateViewer ();
 			enddate = new DateViewer ();
 			shippingdate = new DateViewer ();
+			payment = new NameLabelWidget ();
 		}
 
 		frame.addPair ( "Data apertura", widgetWarp ( "startdate", ( Widget ) startdate ) );
 		frame.addPair ( "Data chiusura", widgetWarp ( "enddate", ( Widget ) enddate ) );
 		frame.addPair ( "Data consegna", widgetWarp ( "shippingdate", ( Widget ) shippingdate ) );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+			frame.addPair ( "Pagamento", widgetWarp ( "payment_event", ( Widget ) payment ) );
 
 		if ( element != null ) {
 			supplier.setValue ( element.getObject ( "supplier" ) );
@@ -114,6 +126,7 @@ public class OrderDetails extends FromServerRappresentationFull {
 			startdate.setValue ( element.getDate ( "startdate" ) );
 			enddate.setValue ( element.getDate ( "enddate" ) );
 			shippingdate.setValue ( element.getDate ( "shippingdate" ) );
+			payment.setValue ( element.getObject ( "payment_event" ) );
 		}
 	}
 

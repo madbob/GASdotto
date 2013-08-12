@@ -71,8 +71,7 @@ public class OrderCiclyc extends Composite implements StringWidget {
 
 	private Panel doDialog () {
 		VerticalPanel pan;
-		HorizontalPanel buttons;
-		Button but;
+		DialogButtons buttons;
 
 		pan = new VerticalPanel ();
 
@@ -99,27 +98,20 @@ public class OrderCiclyc extends Composite implements StringWidget {
 		pan.add ( dateSelector );
 		dateSelector.setVisible ( false );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog sender ) {
 				syncFromDialog ();
 				opened = false;
 				dialog.hide ();
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog sender ) {
 				opened = false;
 				dialog.hide ();
 			}
 		} );
-		buttons.add ( but );
 
 		return pan;
 	}

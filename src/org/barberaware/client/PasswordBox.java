@@ -65,9 +65,8 @@ public class PasswordBox extends Composite implements StringWidget {
 	private Panel doDialog () {
 		Grid layout;
 		VerticalPanel pan;
-		HorizontalPanel buttons;
+		DialogButtons buttons;
 		HTML message;
-		Button but;
 
 		pan = new VerticalPanel ();
 
@@ -85,13 +84,10 @@ public class PasswordBox extends Composite implements StringWidget {
 		layout.setWidget ( 1, 0, new Label ( "Conferma Password" ) );
 		layout.setWidget ( 1, 1, passwordCheck );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog sender ) {
 				String first;
 				String second;
 
@@ -107,16 +103,12 @@ public class PasswordBox extends Composite implements StringWidget {
 					Utils.showNotification ( "Le password immesse non combaciano" );
 				}
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog sender ) {
 				opened = false;
 				dialog.hide ();
 			}
 		} );
-		buttons.add ( but );
 
 		return pan;
 	}

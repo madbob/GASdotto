@@ -64,6 +64,10 @@ public class MainStack extends Composite {
 				add ( new OrdersEditPanel () );
 				add ( new OrdersPrivilegedPanel () );
 				add ( new DeliveryPanel () );
+
+				if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+					add ( new BankPanel () );
+
 				add ( new StatisticsPanel () );
 				add ( new NotificationPanel () );
 				add ( new SystemPanel () );

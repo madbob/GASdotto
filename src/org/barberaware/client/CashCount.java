@@ -106,7 +106,7 @@ public class CashCount extends Composite {
 			for ( int i = 0; i < orders.size (); i++ ) {
 				ord = ( OrderUser ) orders.get ( i );
 				supplier_name = ord.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
-				tot = ord.getDeliveredPriceWithFriends ();
+				tot = ord.getDeliveredPriceWithFriends ( true );
 
 				row_index = 1;
 				found = false;
@@ -162,52 +162,22 @@ public class CashCount extends Composite {
 			computeAllTotals ( target_column );
 		}
 		else {
-			tot = uorder.getDeliveredPriceWithFriends ();
+			tot = uorder.getDeliveredPriceWithFriends ( true );
 			lab = ( Label ) target_column.getWidget ( 1 );
 			lab.setText ( Utils.priceToString ( Utils.stringToPrice ( lab.getText () ) + tot ) );
 			computeTotals ();
 		}
 	}
 
-	public void modOrder ( OrderUserInterface uorder ) {
-		FromServer baseorder;
-		FromServer uord;
-		FromServer past_user_order;
-		ArrayList past_orders;
-
-		uord = ( FromServer ) uorder;
-
-		uord = ( FromServer ) uorder;
-		if ( checkEligibility ( uord ) == false )
-			return;
-
-		baseorder = uord.getObject ( "baseorder" );
-
-		clean ();
-
-		if ( baseorder instanceof OrderAggregate ) {
-			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
-		}
-		else if ( baseorder.getBool ( "parent_aggregate" ) == true ) {
-			baseorder = OrderAggregate.retrieveAggregate ( baseorder );
-			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUserAggregate" );
-		}
-		else {
-			past_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
-		}
-
-		for ( int i = 0; i < past_orders.size (); i++ ) {
-			past_user_order = ( FromServer ) past_orders.get ( i );
-
-			if ( past_user_order.getObject ( "baseorder" ).equals ( baseorder ) )
-				addOrder ( ( OrderUserInterface ) past_user_order );
-		}
-
-		/*
-			Qui non occorre invocare nuovamente addOrder() sull'ordine in input, in quanto esso gia'
-			esiste nella cache dunque viene comunque gestito nel ciclo qui sopra
-		*/
-	}
+	/*
+		Quando si modifica un OrderUser esso viene ricaricato interamente (avendo attiva
+		la funzione alwaysReload, cfr. FromServer), e cio' triggera il ricaricamento
+		dell'intero ordine di riferimento. In DeliverySummary, quando un ordine viene
+		modificato l'intero elenco di OrderUser che ad esso fanno riferimento viene
+		ricaricato. Ergo: non c'e' motivo di gestire qui in modo speciale la modifica di
+		un OrderUser.
+		Certamente overkill, ma semplifica la gestione di questa parte
+	*/
 
 	public void delOrder ( OrderUserInterface uorder ) {
 		float tot;
@@ -233,7 +203,7 @@ public class CashCount extends Composite {
 			for ( int i = 0; i < orders.size (); i++ ) {
 				ord = ( OrderUser ) orders.get ( i );
 				supplier_name = ord.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
-				tot = ord.getDeliveredPriceWithFriends ();
+				tot = ord.getDeliveredPriceWithFriends ( true );
 
 				for ( int a = 1; a < suppliersColumn.getWidgetCount (); a++ ) {
 					lab = ( Label ) suppliersColumn.getWidget ( a );
@@ -249,7 +219,7 @@ public class CashCount extends Composite {
 			computeAllTotals ( target_column );
 		}
 		else {
-			tot = uorder.getDeliveredPriceWithFriends ();
+			tot = uorder.getDeliveredPriceWithFriends ( true );
 			lab = ( Label ) target_column.getWidget ( 1 );
 			lab.setText ( Utils.priceToString ( Utils.stringToPrice ( lab.getText () ) - tot ) );
 			computeTotals ();

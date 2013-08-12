@@ -28,114 +28,114 @@ public class NotificationPanel extends GenericPanel {
 		super ();
 
 		main = new FormCluster ( "Notification", "Nuova Notifica" ) {
-				private MultiSelector destinationSelect ( final FromServerForm parent ) {
-					MultiSelector users;
+			private MultiSelector destinationSelect ( final FromServerForm parent ) {
+				MultiSelector users;
 
-					users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
+				users = new MultiSelector ( "User", SelectionDialog.SELECTION_MODE_ALL, null );
 
-					if ( Session.getGAS ().getString ( "mailinglist" ) != "" && Session.getGAS ().getBool ( "use_mail" ) == true ) {
-						users.addExtraElement ( "Mailing List" );
+				if ( Session.getGAS ().getString ( "mailinglist" ) != "" && Session.getGAS ().getBool ( "use_mail" ) == true ) {
+					users.addExtraElement ( "Mailing List" );
 
-						/*
-							Questo blocco serve solo a settare a priori l'invio della
-							mail della notifica se viene selezionato "Mailing List" nella
-							lista dei destinatari
-						*/
-						users.addCallback ( new SavingDialogCallback () {
-							public void onSave ( SavingDialog dialog ) {
-								BooleanSelector mail;
-								MultiSelector users;
-
-								users = ( MultiSelector ) dialog;
-
-								if ( users.getExtraElement ( "Mailing List" ) == true ) {
-									mail = ( BooleanSelector ) parent.retriveInternalWidget ( "send_mail" );
-									mail.setVal ( true );
-								}
-							}
-						} );
-					}
-
-					users.addSelectionCallbacks ( "Seleziona solo Referenti",
-						new FilterCallback () {
-							public boolean check ( FromServer obj, String text ) {
-								if ( obj.getInt ( "privileges" ) == User.USER_RESPONSABLE ||
-										obj.getInt ( "privileges" ) == User.USER_ADMIN )
-									return true;
-								else
-									return false;
-							}
-						}
-					);
-
-					return users;
-				}
-
-				protected FromServerForm doEditableRow ( FromServer n ) {
-					FromServerForm ver;
-					DateSelector date;
-					CustomCaptionPanel frame;
-					CaptionPanel sframe;
-					EnumSelector type_sel;
-					MultiSelector users;
-
-					if ( n.isValid () == true && n.getObject ( "sender" ).equals ( Session.getUser () ) == false )
-						return null;
-
-					ver = new FromServerForm ( n );
-
-					ver.setCallback ( new FromServerFormCallbacks () {
-						public boolean onSave ( FromServerRappresentationFull form ) {
+					/*
+						Questo blocco serve solo a settare a priori l'invio della
+						mail della notifica se viene selezionato "Mailing List" nella
+						lista dei destinatari
+					*/
+					users.addCallback ( new SavingDialogCallback () {
+						public void onSave ( SavingDialog dialog ) {
+							BooleanSelector mail;
 							MultiSelector users;
 
-							if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
-								users = ( MultiSelector ) form.retriveInternalWidget ( "recipent" );
-								form.getValue ().setBool ( "send_mailinglist", users.getExtraElement ( "Mailing List" ) );
-							}
-							else {
-								form.getValue ().setBool ( "send_mailinglist", false );
-							}
+							users = ( MultiSelector ) dialog;
 
-							return true;
+							if ( users.getExtraElement ( "Mailing List" ) == true ) {
+								mail = ( BooleanSelector ) parent.retriveInternalWidget ( "send_mail" );
+								mail.setVal ( true );
+							}
 						}
 					} );
-
-					frame = new CustomCaptionPanel ( "Attributi" );
-					ver.add ( frame );
-
-					frame.addPair ( "Titolo", ver.getWidget ( "name" ) );
-					frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect ( ver ) ) );
-
-					date = new DateSelector ();
-					frame.addPair ( "Data Inizio", ver.getPersonalizedWidget ( "startdate", date ) );
-					if ( n.getDate ( "startdate" ) == null )
-						date.setValue ( new Date ( System.currentTimeMillis () ) );
-
-					frame.addPair ( "Date Fine", ver.getWidget ( "enddate" ) );
-					ver.setValidation ( "enddate", FromServerValidateCallback.defaultDateValidationCallback () );
-
-					type_sel = new EnumSelector ();
-					type_sel.addItem ( "Informazione" );
-					type_sel.addItem ( "Avvertimento" );
-					frame.addPair ( "Tipo", ver.getPersonalizedWidget ( "alert_type", type_sel ) );
-
-					if ( Session.getGAS ().getBool ( "use_mail" ) == true )
-						frame.addPair ( "Invia anche via Mail", ver.getWidget ( "send_mail" ) );
-
-					sframe = new CaptionPanel ( "Testo" );
-					sframe.add ( ver.getWidget ( "description" ) );
-					ver.add ( sframe );
-
-					return ver;
 				}
 
-				protected FromServerForm doNewEditableRow () {
-					Notification notify;
+				users.addSelectionCallbacks ( "Seleziona solo Referenti",
+					new FilterCallback () {
+						public boolean check ( FromServer obj, String text ) {
+							if ( obj.getInt ( "privileges" ) == User.USER_RESPONSABLE ||
+									obj.getInt ( "privileges" ) == User.USER_ADMIN )
+								return true;
+							else
+								return false;
+						}
+					}
+				);
 
-					notify = new Notification ();
-					notify.setObject ( "sender", Session.getUser () );
-					return doEditableRow ( notify );
-				}
+				return users;
+			}
+
+			protected FromServerForm doEditableRow ( FromServer n ) {
+				FromServerForm ver;
+				DateSelector date;
+				CustomCaptionPanel frame;
+				CaptionPanel sframe;
+				EnumSelector type_sel;
+				MultiSelector users;
+
+				if ( n.isValid () == true && n.getObject ( "sender" ).equals ( Session.getUser () ) == false )
+					return null;
+
+				ver = new FromServerForm ( n );
+
+				ver.setCallback ( new FromServerFormCallbacks () {
+					public boolean onSave ( FromServerRappresentationFull form ) {
+						MultiSelector users;
+
+						if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+							users = ( MultiSelector ) form.retriveInternalWidget ( "recipent" );
+							form.getValue ().setBool ( "send_mailinglist", users.getExtraElement ( "Mailing List" ) );
+						}
+						else {
+							form.getValue ().setBool ( "send_mailinglist", false );
+						}
+
+						return true;
+					}
+				} );
+
+				frame = new CustomCaptionPanel ( "Attributi" );
+				ver.add ( frame );
+
+				frame.addPair ( "Titolo", ver.getWidget ( "name" ) );
+				frame.addPair ( "Destinatario", ver.getPersonalizedWidget ( "recipent", destinationSelect ( ver ) ) );
+
+				date = new DateSelector ();
+				frame.addPair ( "Data Inizio", ver.getPersonalizedWidget ( "startdate", date ) );
+				if ( n.getDate ( "startdate" ) == null )
+					date.setValue ( new Date ( System.currentTimeMillis () ) );
+
+				frame.addPair ( "Date Fine", ver.getWidget ( "enddate" ) );
+				ver.setValidation ( "enddate", FromServerValidateCallback.defaultDateValidationCallback () );
+
+				type_sel = new EnumSelector ();
+				type_sel.addItem ( "Informazione" );
+				type_sel.addItem ( "Avvertimento" );
+				frame.addPair ( "Tipo", ver.getPersonalizedWidget ( "alert_type", type_sel ) );
+
+				if ( Session.getGAS ().getBool ( "use_mail" ) == true )
+					frame.addPair ( "Invia anche via Mail", ver.getWidget ( "send_mail" ) );
+
+				sframe = new CaptionPanel ( "Testo" );
+				sframe.add ( ver.getWidget ( "description" ) );
+				ver.add ( sframe );
+
+				return ver;
+			}
+
+			protected FromServerForm doNewEditableRow () {
+				Notification notify;
+
+				notify = new Notification ();
+				notify.setObject ( "sender", Session.getUser () );
+				return doEditableRow ( notify );
+			}
 		};
 
 		addTop ( main );

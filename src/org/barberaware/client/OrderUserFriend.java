@@ -57,15 +57,4 @@ public class OrderUserFriend extends FromServer {
 		else
 			return ProductUser.sumProductUserArray ( products, "quantity" );
 	}
-
-	public float getDeliveredPrice () {
-		ArrayList products;
-
-		products = getArray ( "products" );
-
-		if ( products == null )
-			return 0;
-		else
-			return ProductUser.sumProductUserArray ( products, "delivered" );
-	}
 }

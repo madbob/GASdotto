@@ -176,19 +176,7 @@ public class MultiSelector extends Composite implements FromServerArray, SavingD
 	}
 
 	private void executeSavingCallbacks ( int mode ) {
-		SavingDialogCallback call;
-
-		if ( savingCallbacks == null )
-			return;
-
-		for ( int i = 0; i < savingCallbacks.size (); i++ ) {
-			call = ( SavingDialogCallback ) savingCallbacks.get ( i );
-
-			if ( mode == 0 )
-				call.onSave ( this );
-			else
-				call.onCancel ( this );
-		}
+		Utils.triggerSaveCallbacks ( savingCallbacks, this, mode );
 	}
 
 	/****************************************************************** SavingDialog */

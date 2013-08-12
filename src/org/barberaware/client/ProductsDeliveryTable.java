@@ -27,6 +27,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 	private FromServer		object;
 	private VerticalPanel		main;
 	private PriceViewer		totalLabel;
+	private BankMovementSelector	payment;
 	private ArrayList		changeCallbacks		= null;
 
 	public ProductsDeliveryTable () {
@@ -61,6 +62,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		hor.setCellWidth ( header, "20%" );
 
 		totalLabel = null;
+		payment = null;
 	}
 
 	public float getTotal () {
@@ -104,12 +106,19 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 					total_sum = total_sum + row.shipAll ();
 				}
 
-				totalLabel.setVal ( total_sum );
+				setTotal ( total_sum );
 				triggerChange ();
 			}
 		} );
 
 		return ret;
+	}
+
+	private void setTotal ( float total_sum ) {
+		totalLabel.setVal ( total_sum );
+
+		if ( payment != null )
+			payment.setDefaultAmount ( total_sum );
 	}
 
 	private void upgradeTotal () {
@@ -129,13 +138,14 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 			total_sum += prod.getTotalPrice ( row.getCurrentQuantity () );
 		}
 
-		totalLabel.setVal ( total_sum );
+		setTotal ( total_sum );
 	}
 
 	private void bottomLine ( VerticalPanel main, float price_total ) {
 		Label filler;
 		HorizontalPanel bottom;
 		Widget button;
+		Widget totalcell;
 
 		bottom = new HorizontalPanel ();
 		bottom.setWidth ( "100%" );
@@ -161,9 +171,34 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		}
 
 		totalLabel.setVal ( price_total );
-		bottom.add ( totalLabel );
-		bottom.setCellVerticalAlignment ( totalLabel, HasVerticalAlignment.ALIGN_MIDDLE );
-		bottom.setCellWidth ( totalLabel, "20%" );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			VerticalPanel totbox;
+
+			totbox = new VerticalPanel ();
+			totbox.add ( totalLabel );
+
+			if ( payment == null ) {
+				payment = new BankMovementSelector ();
+				payment.showCro ( false );
+				payment.setDefaultTarget ( object.getObject ( "baseuser" ) );
+				payment.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );
+				payment.setDefaultNote ( "Pagamento ordine a " + object.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" ) );
+			}
+
+			payment.setDefaultAmount ( price_total );
+			payment.setValue ( object.getObject ( "payment_event" ) );
+			totbox.add ( payment );
+
+			totalcell = totbox;
+		}
+		else {
+			totalcell = totalLabel;
+		}
+
+		bottom.add ( totalcell );
+		bottom.setCellVerticalAlignment ( totalcell, HasVerticalAlignment.ALIGN_MIDDLE );
+		bottom.setCellWidth ( totalcell, "20%" );
 	}
 
 	private void triggerChange () {
@@ -252,6 +287,11 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 				row.alignProducts ();
 			}
 			else {
+				/*
+					Qui entra quando il prodotto in oggetto
+					e' stato aggiunto dinamicamente
+					(funzione "Aggiungi Prodotto")
+				*/
 				FromServer prod;
 				ArrayList products;
 
@@ -261,6 +301,9 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 				object.setArray ( "products", products );
 			}
 		}
+
+		if ( payment != null )
+			object.setObject ( "payment_event", payment.getValue () );
 
 		return object;
 	}

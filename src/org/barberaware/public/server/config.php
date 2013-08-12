@@ -22,5 +22,6 @@ $dbuser			= "gasdotto";
 $dbpassword		= "pippo";
 $session_key		= "0tfvb9876tgbnouyhgfvbn";
 $dbname			= "gasdotto_test_roccafranca";
+$dbversion		= "0";
 
 ?>

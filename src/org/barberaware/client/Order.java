@@ -29,7 +29,6 @@ public class Order extends FromServer implements OrderInterface {
 		Attenzione che questi indici sono cablati anche nella componente server,
 		modificare con cautela
 	*/
-
 	public static int	OPENED		= 0;
 	public static int	CLOSED		= 1;
 	public static int	SUSPENDED	= 2;
@@ -82,10 +81,13 @@ public class Order extends FromServer implements OrderInterface {
 		addAttribute ( "anticipated", FromServer.PERCENTAGE );
 		addAttribute ( "mail_summary_sent", FromServer.DATE );
 		addAttribute ( "mail_summary_text", FromServer.LONGSTRING );
+		addAttribute ( "send_notification_mails", FromServer.BOOLEAN );
+		addAttribute ( "payment_event", FromServer.OBJECT, BankMovement.class );
 		addAttribute ( "parent_aggregate", FromServer.BOOLEAN );
 
 		setDate ( "startdate", new Date ( System.currentTimeMillis () ) );
 		setInt ( "status", OPENED );
+		setBool ( "send_notification_mails", true );
 
 		alwaysReload ( true );
 		isSharable ( true );

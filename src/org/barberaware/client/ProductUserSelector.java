@@ -514,6 +514,11 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		hideVariants ();
 	}
 
+	public void hardClear () {
+		currentValue = ( ProductUser ) currentValue.duplicate ();
+		clear ();
+	}
+
 	public float getTotalPrice () {
 		ProductUser current;
 

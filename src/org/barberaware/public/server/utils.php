@@ -26,6 +26,7 @@ require_once ( "Session.php" );
 require_once ( "SystemConf.php" );
 require_once ( "ACL.php" );
 require_once ( "CustomFile.php" );
+require_once ( "BankMovement.php" );
 require_once ( "GAS.php" );
 require_once ( "ShippingPlace.php" );
 require_once ( "User.php" );
@@ -141,6 +142,19 @@ function last_id ( $class ) {
 		return $db->lastInsertId ();
 }
 
+function adjustDB () {
+	global $dbversion;
+
+	$system = new SystemConf ();
+
+	if ( ( isset ( $dbversion ) == false ) || ( $dbversion != $system->getAttribute ( "gasdotto_main_version" )->value ) ) {
+		require_once ( "checkdb.php" );
+		check_db_schema ();
+	}
+
+	unset ( $system );
+}
+
 function connect_to_the_database () {
 	global $dbdriver;
 	global $dbhost;
@@ -167,6 +181,7 @@ function connect_to_the_database () {
 		if ( $db->query ( $query ) == false )
 			throw new PDOException ();
 
+		adjustDB ();
 		return true;
 	}
 	catch ( PDOException $e ) {
@@ -879,6 +894,10 @@ function my_send_mail ( $recipients, $subject, $public, $body, $html = null ) {
 		else
 			return null;
 	}
+}
+
+function common_html_header () {
+	return '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
 }
 
 /****************************************************************** multigas */

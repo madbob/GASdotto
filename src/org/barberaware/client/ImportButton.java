@@ -48,8 +48,7 @@ public class ImportButton extends FileUploadDialog {
 	protected boolean manageUploadResponse ( JSONValue response ) {
 		JSONArray orders;
 		VerticalPanel pan;
-		HorizontalPanel buttons;
-		Button but;
+		DialogButtons buttons;
 		JSONObject contents;
 		FromServer supplier;
 		FromServer order;
@@ -85,27 +84,20 @@ public class ImportButton extends FileUploadDialog {
 			dialog.setText ( "Importa Fornitore" );
 		}
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog sender ) {
 				alignResponse ();
 				replyServer ( "write" );
 				dialog.hide ();
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog sender ) {
 				replyServer ( "cancel" );
 				dialog.hide ();
 			}
 		} );
-		buttons.add ( but );
 
 		dialog.show ();
 		dialog.center ();

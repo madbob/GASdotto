@@ -49,9 +49,8 @@ public class MultiGasEnabler extends Composite {
 	private Panel doDialog () {
 		Grid layout;
 		VerticalPanel pan;
-		HorizontalPanel buttons;
+		DialogButtons buttons;
 		HTML message;
-		Button but;
 
 		pan = new VerticalPanel ();
 		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
@@ -67,13 +66,10 @@ public class MultiGasEnabler extends Composite {
 		layout.setWidget ( 0, 0, new Label ( "Password" ) );
 		layout.setWidget ( 0, 1, password );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog sender ) {
 				String p;
 				FromServer master;
 
@@ -109,15 +105,11 @@ public class MultiGasEnabler extends Composite {
 					dialog.hide ();
 				}
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog sender ) {
 				dialog.hide ();
 			}
 		} );
-		buttons.add ( but );
 
 		return pan;
 	}

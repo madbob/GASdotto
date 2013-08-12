@@ -645,9 +645,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 			uorder.setObject ( "baseuser", Session.getUser () );
 		}
 
-		if ( ver == null )
-			Log.debug ( "ver nullo" );
-
 		ver.setValue ( uorder );
 	}
 

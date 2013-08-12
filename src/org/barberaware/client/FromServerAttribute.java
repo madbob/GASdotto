@@ -41,6 +41,9 @@ public class FromServerAttribute {
 	*/
 	private ArrayList		array		= null;
 	private int			objectId	= -1;
+	private FromServer		realObject	= null;
+
+	private boolean			alwaysSend	= false;
 
 	private void buildCommon ( String name, int type ) {
 		this.name = name;
@@ -84,10 +87,16 @@ public class FromServerAttribute {
 	}
 
 	public void setObject ( FromServer value ) {
-		if ( value != null )
-			objectId = value.getLocalID ();
-		else
+		if ( value != null ) {
+			if ( value.getLocalID () == -1 )
+				realObject = value;
+			else
+				objectId = value.getLocalID ();
+		}
+		else {
+			realObject = null;
 			objectId = -1;
+		}
 	}
 
 	public void setDate ( Date value ) {
@@ -115,8 +124,10 @@ public class FromServerAttribute {
 		else if ( type == FromServer.ARRAY )
 			array = Utils.duplicateFromServerArray ( cpy.array );
 
-		else if ( type == FromServer.OBJECT )
+		else if ( type == FromServer.OBJECT ) {
+			realObject = cpy.realObject;
 			objectId = cpy.objectId;
+		}
 
 		else if ( type == FromServer.DATE )
 			date = cpy.date;
@@ -168,10 +179,14 @@ public class FromServerAttribute {
 		if ( fakeClosure != null )
 			ret = fakeClosure.retriveObject ( obj );
 
-		if ( ret == null )
-			return Utils.getServer ().getObjectFromCache ( getClassName (), objectId );
-		else
-			return ret;
+		if ( ret == null ) {
+			if ( realObject != null )
+				ret = realObject;
+			else if ( objectId != -1 )
+				ret = Utils.getServer ().getObjectFromCache ( getClassName (), objectId );
+		}
+
+		return ret;
 	}
 
 	public Date getDate ( FromServer obj ) {
@@ -212,6 +227,7 @@ public class FromServerAttribute {
 
 		else if ( type == FromServer.ARRAY ) {
 			JSONArray arr;
+			JSONValue o;
 			FromServer tmp;
 
 			arr = new JSONArray ();
@@ -219,7 +235,21 @@ public class FromServerAttribute {
 			if ( array != null ) {
 				for ( int i = 0; i < array.size (); i++ ) {
 					tmp = ( FromServer ) array.get ( i );
-					arr.set ( i, tmp.toJSONObject () );
+
+					/*
+						Attenzione, ci sono casi in cui questo puo' andare in ricorsione
+						infinita.
+
+						e.g. il Supplier contiene un elenco di User (i referenti), i quali
+						contengono una lista di Supplier (per le notifiche) tra cui il
+						Supplier stesso
+					*/
+					if ( tmp.getLocalID () == -1 || alwaysSend == true )
+						o = tmp.toJSONObject ();
+					else
+						o = new JSONString ( Integer.toString ( tmp.getLocalID () ) );
+
+					arr.set ( i, o );
 				}
 			}
 
@@ -230,12 +260,11 @@ public class FromServerAttribute {
 			JSONValue ret;
 			FromServer real_object;
 
-			if ( objectId == -1 )
-				real_object = FromServerFactory.create ( objectType.getName () );
-			else
-				real_object = this.getObject ( null );
+			real_object = this.getObject ( null );
+			if ( real_object == null )
+				return null;
 
-			if ( real_object.getLocalID () == -1 )
+			if ( real_object.getLocalID () == -1 || alwaysSend == true )
 				ret = real_object.toJSONObject ();
 			else
 				ret = new JSONString ( Integer.toString ( real_object.getLocalID () ) );
@@ -262,5 +291,9 @@ public class FromServerAttribute {
 
 		else
 			return null;
+	}
+
+	public void setAlwaysSend ( boolean send ) {
+		alwaysSend = send;
 	}
 }

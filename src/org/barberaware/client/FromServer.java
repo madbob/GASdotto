@@ -35,10 +35,9 @@ public abstract class FromServer implements Comparator {
 	public static int	DATE		= 5;
 	public static int	BOOLEAN		= 6;
 	public static int	LONGSTRING	= 7;
-	public static int	FAKESTRING	= 8;
-	public static int	PERCENTAGE	= 9;
-	public static int	ADDRESS		= 10;
-	public static int	PRICE		= 11;
+	public static int	PERCENTAGE	= 8;
+	public static int	ADDRESS		= 9;
+	public static int	PRICE		= 10;
 
 	private int		localID;
 	private String		type;
@@ -76,6 +75,9 @@ public abstract class FromServer implements Comparator {
 		sharingPrivileges = ACL.ACL_OWNER;
 		forceReloadFromServer = false;
 		savingOperation = false;
+
+		addAttribute ( "unique_identifier", FromServer.STRING );
+		setString ( "unique_identifier", Utils.randomString () );
 	}
 
 	public int getLocalID () {
@@ -148,6 +150,18 @@ public abstract class FromServer implements Comparator {
 	}
 
 	/*
+		Questo e' per forzare l'invio completo di un sotto-oggetto, anziche' solo il suo
+		ID, ogni volta che si salva. Da usare nei casi in cui tale sotto-oggetto puo'
+		essere modificato editando quello che lo contiene
+	*/
+	protected void alwaysSendObject ( String name, boolean send ) {
+		FromServerAttribute attr;
+
+		attr = ( FromServerAttribute ) attributes.get ( name );
+		attr.setAlwaysSend ( send );
+	}
+
+	/*
 		Questo crea una esatta copia dell'oggetto. Da usare con estrema cautela, in
 		quanto se i valori di una copia vengono modificati e l'oggetto viene spedito al
 		server quelli vengono prese per le informazioni buone e la cache e' invalida
@@ -170,6 +184,7 @@ public abstract class FromServer implements Comparator {
 			cpy_attr.setValue ( my_attr );
 		}
 
+		obj.setString ( "unique_identifier", Utils.randomString () );
 		return obj;
 	}
 
@@ -280,6 +295,22 @@ public abstract class FromServer implements Comparator {
 
 	/****************************************************************** utility sugli array */
 
+	public void addToArray ( String array_name, FromServer to_add ) {
+		ArrayList array;
+		FromServer tmp;
+
+		array = getArray ( array_name );
+
+		for ( int a = 0; a < array.size (); a++ ) {
+			tmp = ( FromServer ) array.get ( a );
+			if ( tmp.equals ( to_add ) )
+				return;
+		}
+
+		array.add ( to_add );
+		setArray ( array_name, array );
+	}
+
 	public boolean removeFromArray ( String array_name, FromServer to_remove ) {
 		ArrayList array;
 		FromServer tmp;
@@ -386,6 +417,26 @@ public abstract class FromServer implements Comparator {
 		return ret;
 	}
 
+	public ArrayList<String> getContainedObjectsName () {
+		String k;
+		Object [] keys;
+		ArrayList<String> ret;
+		FromServerAttribute attr;
+
+		ret = new ArrayList ();
+		keys = attributes.keySet ().toArray ();
+
+		for ( int i = 0; i < keys.length; i++ ) {
+			k = ( String ) keys [ i ];
+			attr = ( FromServerAttribute ) attributes.get ( k );
+
+			if ( ( attr.type == OBJECT || attr.type == ARRAY ) && attr.objectType != null )
+				ret.add ( k );
+		}
+
+		return ret;
+	}
+
 	public JSONObject toJSONObject () {
 		String k;
 		Object [] keys;
@@ -401,6 +452,14 @@ public abstract class FromServer implements Comparator {
 
 		for ( int i = 0; i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
+
+			/*
+				L'identificativo univoco ha senso solo all'interno
+				dell'applicazione client, non lo trasmetto in giro
+			*/
+			if ( k == "unique_identifier" )
+				continue;
+
 			attr = ( FromServerAttribute ) attributes.get ( k );
 
 			value = attr.getJSON ();
@@ -432,6 +491,9 @@ public abstract class FromServer implements Comparator {
 			if ( child_id != null ) {
 				ret = server.getObjectFromCache ( attr.getClassName (),
 								Integer.parseInt ( child_id.stringValue () ) );
+
+				if ( ret == null )
+					Log.debug ( "vuoto da cache: " + child_id );
 			}
 		}
 
@@ -439,6 +501,7 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public void fromJSONObject ( JSONObject obj, boolean skip_cache ) {
+		boolean do_callbacks;
 		String k;
 		Object [] keys;
 		JSONValue value;
@@ -459,6 +522,15 @@ public abstract class FromServer implements Comparator {
 				return;
 		}
 
+		do_callbacks = false;
+
+		/*
+			Metto un riferimento all'oggetto subito in cache, onde averlo a
+			disposizione in caso di riferimenti ricorsivi convertendo sotto-oggetti
+		*/
+		if ( skip_cache == false )
+			do_callbacks = Utils.getServer ().addToCache ( this );
+
 		value = obj.get ( "sharing_privileges" );
 		if ( value != null )
 			sharingPrivileges = ( int ) value.isNumber ().doubleValue ();
@@ -467,7 +539,11 @@ public abstract class FromServer implements Comparator {
 
 		for ( int i = 0; i < keys.length; i++ ) {
 			k = ( String ) keys [ i ];
+
 			attr = ( FromServerAttribute ) attributes.get ( k );
+			if ( attr.isFake () )
+				continue;
+
 			value = obj.get ( k );
 
 			if ( value == null ) {
@@ -502,8 +578,9 @@ public abstract class FromServer implements Comparator {
 						attr.setInt ( 0 );
 				}
 
-				else if ( attr.type == FromServer.FLOAT || attr.type == FromServer.PRICE )
+				else if ( attr.type == FromServer.FLOAT || attr.type == FromServer.PRICE ) {
 					attr.setFloat ( Float.parseFloat ( value.isString ().stringValue () ) );
+				}
 
 				else if ( attr.type == FromServer.ARRAY ) {
 					ArrayList arr;
@@ -540,8 +617,8 @@ public abstract class FromServer implements Comparator {
 			}
 		}
 
-		if ( skip_cache == false )
-			Utils.getServer ().addToCache ( this );
+		if ( do_callbacks == true )
+			Utils.getServer ().triggerObjectCreated ( this );
 	}
 
 	public void fromJSONObject ( JSONObject obj ) {
@@ -596,6 +673,10 @@ public abstract class FromServer implements Comparator {
 			k = ( String ) keys [ i ];
 			Log.debug ( k );
 		}
+	}
+
+	public void transferRelatedInfo ( FromServer to ) {
+		to.relatedInfo = this.relatedInfo;
 	}
 
 	/****************************************************************** Comparator */

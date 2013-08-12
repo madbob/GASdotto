@@ -66,8 +66,10 @@ public class ProductsUserSelectionWrapper extends FromServerRappresentation impl
 	}
 
 	public FromServer getValue () {
+		FromServer ret;
 		super.rebuildObject ();
-		return super.getValue ();
+		ret = super.getValue ();
+		return ret;
 	}
 
 	/****************************************************************** SourcesChangeEvents */

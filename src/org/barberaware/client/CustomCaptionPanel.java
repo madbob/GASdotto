@@ -21,7 +21,8 @@ import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 
 public class CustomCaptionPanel extends CaptionPanel {
-	private FlexTable	content;
+	private FlexTable			content;
+	private HTMLTable.CellFormatter		formatter;
 
 	public CustomCaptionPanel ( String title ) {
 		super ( title );
@@ -29,12 +30,17 @@ public class CustomCaptionPanel extends CaptionPanel {
 		content = new FlexTable ();
 		setContentWidget ( content );
 
+		formatter = content.getCellFormatter ();
 		setStyleName ( "custom-caption-panel" );
 	}
 
 	public void addPair ( String name, Widget element, int row ) {
-		content.setWidget ( row, 0, new Label ( name ) );
+		Label lab;
+
+		lab = new Label ( name );
+		content.setWidget ( row, 0, lab );
 		content.setWidget ( row, 1, element );
+		formatter.addStyleName ( row, 0, "custom-label" );
 	}
 
 	public void addPair ( String name, Widget element ) {

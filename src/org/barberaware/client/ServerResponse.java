@@ -26,6 +26,8 @@ import com.google.gwt.json.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class ServerResponse implements RequestCallback {
+	private ServerResponse		myChild		= null;
+
 	public void onError ( Request request, Throwable exception ) {
 		if ( exception instanceof RequestTimeoutException )
 			Utils.showNotification ( "Timeout sulla connessione: accertarsi che il server sia raggiungibile" );
@@ -63,13 +65,34 @@ public abstract class ServerResponse implements RequestCallback {
 
 		if ( ret != null && ret.stringValue ().startsWith ( "Errore: " ) ) {
 			Utils.showNotification ( ret.stringValue () );
-			onError ();
+			loopOnError ();
 		}
 		else {
-			onComplete ( jsonObject );
+			loopOnComplete ( jsonObject );
 		}
 
 		Utils.getServer ().dataArrived ();
+	}
+
+	public void overload ( ServerResponse child ) {
+		if ( myChild == null )
+			myChild = child;
+		else
+			myChild.overload ( child );
+	}
+
+	private void loopOnError () {
+		onError ();
+
+		if ( myChild != null )
+			myChild.loopOnError ();
+	}
+
+	private void loopOnComplete ( JSONValue response ) {
+		onComplete ( response );
+
+		if ( myChild != null )
+			myChild.loopOnComplete ( response );
 	}
 
 	protected void onError () {

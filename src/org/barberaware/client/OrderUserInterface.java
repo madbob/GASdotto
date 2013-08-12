@@ -21,5 +21,5 @@ import java.util.*;
 
 public interface OrderUserInterface {
 	public boolean hasFriends ();
-	public float getDeliveredPriceWithFriends ();
+	public float getDeliveredPriceWithFriends ( boolean today );
 }

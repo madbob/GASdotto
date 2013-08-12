@@ -126,8 +126,8 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	*/
 
 	public void setWrap ( FromServerRappresentation wrapped ) {
+		wrapped.setValue ( getValue () );
 		wrap = wrapped;
-		wrap.setValue ( getValue () );
 	}
 
 	public FromServerRappresentation getWrap () {
@@ -354,36 +354,41 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		FromServerWidget tmp;
 		FromServerRappresentation child;
 
-		myself_aggregate = null;
-
-		if ( object != null ) {
-			wids = widgets.values ().toArray ();
-
-			for ( int i = 0; i < wids.length; i++ ) {
-				tmp = ( FromServerWidget ) wids [ i ];
-				if ( tmp.assign ( object ) == false )
-					return false;
-			}
-
-			if ( object instanceof FromServerAggregate )
-				myself_aggregate = ( FromServerAggregate ) object;
+		if ( wrap != null ) {
+			return wrap.rebuildObject ();
 		}
+		else {
+			myself_aggregate = null;
 
-		if ( children.size () != 0 ) {
-			subchildren = new ArrayList ();
+			if ( object != null ) {
+				wids = widgets.values ().toArray ();
 
-			for ( int i = 0; i < children.size (); i++ ) {
-				child = ( FromServerRappresentation ) children.get ( i );
-				if ( child.rebuildObject () == false )
-					return false;
+				for ( int i = 0; i < wids.length; i++ ) {
+					tmp = ( FromServerWidget ) wids [ i ];
+					if ( tmp.assign ( object ) == false )
+						return false;
+				}
 
-				c = child.getValue ();
-				if ( c != null && ( myself_aggregate == null || myself_aggregate.validateNewChild ( c ) == true ) )
-					subchildren.add ( c );
+				if ( object instanceof FromServerAggregate )
+					myself_aggregate = ( FromServerAggregate ) object;
 			}
 
-			if ( myself_aggregate != null )
-				myself_aggregate.setObjects ( subchildren );
+			if ( children.size () != 0 ) {
+				subchildren = new ArrayList ();
+
+				for ( int i = 0; i < children.size (); i++ ) {
+					child = ( FromServerRappresentation ) children.get ( i );
+					if ( child.rebuildObject () == false )
+						return false;
+
+					c = child.getValue ();
+					if ( c != null && ( myself_aggregate == null || myself_aggregate.validateNewChild ( c ) == true ) )
+						subchildren.add ( c );
+				}
+
+				if ( myself_aggregate != null )
+					myself_aggregate.setObjects ( subchildren );
+			}
 		}
 
 		return true;

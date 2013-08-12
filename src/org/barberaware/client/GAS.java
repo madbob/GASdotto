@@ -37,6 +37,10 @@ public class GAS extends FromServer {
 		addAttribute ( "rid_conf", FromServer.STRING );
 		addAttribute ( "use_shipping", FromServer.BOOLEAN );
 		addAttribute ( "use_fullusers", FromServer.BOOLEAN );
+		addAttribute ( "use_bank", FromServer.BOOLEAN );
+		addAttribute ( "current_balance", FromServer.FLOAT );
+		addAttribute ( "current_bank_balance", FromServer.FLOAT );
+		addAttribute ( "current_cash_balance", FromServer.FLOAT );
 
 		setString ( "name", "Senza Nome" );
 	}

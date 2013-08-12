@@ -30,6 +30,7 @@ class OrderUser extends FromServer {
 		$this->addAttribute ( "deliverydate", "DATE" );
 		$this->addAttribute ( "deliveryperson", "OBJECT::User" );
 		$this->addAttribute ( "status", "INTEGER" );
+		$this->addAttribute ( "payment_event", "OBJECT::BankMovement" );
 		$this->addAttribute ( "notes", "STRING" );
 
 		$this->enforceUserCheck ( "baseuser" );
@@ -40,7 +41,10 @@ class OrderUser extends FromServer {
 		if ( $request != null ) {
 			$ord = new Order ();
 
-			if ( isset ( $request->baseorder ) ) {
+			if ( isset ( $request->id ) ) {
+				$query = sprintf ( "id = %d ", $request->id );
+			}
+			else if ( isset ( $request->baseorder ) ) {
 				$query = sprintf ( "baseorder = %d ", $request->baseorder );
 			}
 			else if ( isset ( $request->supplier ) ) {

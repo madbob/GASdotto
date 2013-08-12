@@ -81,28 +81,16 @@ public class FromServerResponse extends ServerResponse {
 					assegnati in funzione dei prodotti correntemente
 					ordinabili), e per caricarne una versione aggiornata
 				*/
-				if ( reference.alwaysReload () == true ) {
-					ObjectRequest params;
-
-					params = new ObjectRequest ( reference.getType () );
-					params.add ( "id", localID );
-					server.testObjectReceive ( params );
-				}
-				else {
+				if ( reference.alwaysReload () == true )
+					server.forceObjectReload ( reference.getType (), localID );
+				else
 					server.triggerObjectCreation ( reference );
-				}
 			}
 			else if ( type == ACTION_MODIFY ) {
-				if ( reference.alwaysReload () == true ) {
-					ObjectRequest params;
-
-					params = new ObjectRequest ( reference.getType () );
-					params.add ( "id", localID );
-					server.testObjectReceive ( params );
-				}
-				else {
+				if ( reference.alwaysReload () == true )
+					server.forceObjectReload ( reference.getType (), localID );
+				else
 					server.triggerObjectModification ( reference );
-				}
 			}
 			else if ( type == ACTION_DELETE ) {
 				server.triggerObjectDeletion ( reference );

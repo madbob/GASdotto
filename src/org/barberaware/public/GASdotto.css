@@ -2,6 +2,7 @@ body {
 	padding:		0px;
 	margin:			0px;
 	vertical-align:		top;
+	font-size:		12px;
 }
 
 .main {
@@ -131,6 +132,7 @@ body {
 	font-family:		arial, sans-serif;
 	text-align:		left;
 	vertical-align:		middle;
+	display:		block;
 }
 
 .element-summary div {
@@ -252,10 +254,30 @@ body {
 	font-size:		12px;
 }
 
+.custom-caption-panel {
+	width:			95%;
+}
+
+.custom-caption-panel table {
+	width:			100%;
+}
+
+.custom-caption-panel table tr {
+	min-height:		29px;
+}
+
+.custom-label {
+	width:			130px;
+}
+
 .table-header .gwt-Label {
 	font-weight:		bold;
 	border-bottom:		3px solid #4EDFCE;
 	padding:		2px;
+}
+
+.buttons-bar table {
+	width:			1%;
 }
 
 .buttons-bar .icons {
@@ -329,36 +351,49 @@ body {
 }
 
 .date-selector {
+	font-size:		12px;
 	margin:			1px;
 	background:		#FFFFFF url('images/date_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .address-selector {
+	font-size:		12px;
 	margin:			1px;
 	background:		#FFFFFF url('images/address_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
+.bankmovement-selector {
+	font-size:		12px;
+	margin:			1px;
+	background:		#FFFFFF url('images/bankmovement_selector.png') no-repeat scroll 0pt 50%;
+        padding-left:		18px;
+}
+
 .password-selector {
+	font-size:		12px;
 	margin:			1px;
 	background:		#FFFFFF url('images/password_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .cycle-selector {
+	font-size:		12px;
 	margin:			1px;
 	background:		#FFFFFF url('images/cycle_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .calculator-addicted {
+	font-size:		12px;
 	margin:			1px;
 	background:		#FFFFFF url('images/calc_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
 
 .cyclic-toggle {
+	font-size:		12px;
 	margin:			1px;
 	cursor:			pointer;
 	cursor:			hand;
@@ -371,6 +406,7 @@ body {
 }
 
 .search-bar {
+	font-size:		12px;
 	background:		#FFFFFF url('images/search_bar.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
 }
@@ -451,8 +487,7 @@ body {
 }
 
 .static-value {
-	font-size:		15px;
-	font-weight:		bold;
+	font-size:		12px;
 }
 
 .file-link {
@@ -507,6 +542,7 @@ body {
 	top:			45px;
 	right:			-350px;
 	z-index:		60;
+	width:			400px;
 }
 
 .legend-table {
@@ -604,11 +640,20 @@ fieldset legend {
 	border-radius:		3px;
 }
 
+fieldset table {
+	width:			100%;
+}
+
 input, select {
 	margin:			1px;
 	padding:		2px;
 	float:			left;
 	height:			25px;
+	width:			100%;
+}
+
+.gwt-CheckBox input {
+	width:			auto;
 }
 
 textarea {
@@ -707,6 +752,10 @@ br {
 	margin-bottom:		0px;
 	padding:		6px;
 	z-index:		51;
+}
+
+.gwt-TabBar .gwt-TabBarItem .gwt-Label {
+	width:			150px;
 }
 
 .gwt-TabBar .gwt-TabBarItem-selected {

@@ -292,7 +292,6 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 		quantity = box.getCurrentQuantity ();
 		referenceProd.setFloat ( "quantity", quantity );
 		referenceProd.setFloat ( "delivered", quantity );
-
 		referenceProd.setObject ( "product", dynamicProductSelect.getValue () );
 		referenceProd.setDate ( "orderdate", new Date ( System.currentTimeMillis () ) );
 		referenceProd.setObject ( "orderperson", Session.getUser () );

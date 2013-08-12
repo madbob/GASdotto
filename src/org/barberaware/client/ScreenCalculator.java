@@ -151,26 +151,13 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 	}
 
 	private void closeCallbacks ( int mode ) {
-		SavingDialogCallback call;
-
-		if ( savingCallbacks != null ) {
-			for ( int i = 0; i < savingCallbacks.size (); i++ ) {
-				call = ( SavingDialogCallback ) savingCallbacks.get ( i );
-
-				if ( mode == 1 )
-					call.onSave ( this );
-				else
-					call.onCancel ( this );
-			}
-		}
-
+		Utils.triggerSaveCallbacks ( savingCallbacks, this, mode );
 		hide ();
 	}
 
 	private Panel doDialog () {
 		VerticalPanel pan;
-		HorizontalPanel buttons;
-		Button but;
+		DialogButtons buttons;
 
 		pan = new VerticalPanel ();
 		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
@@ -183,26 +170,19 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 		table.setWidget ( 0, 0, new Label ( "Totale" ) );
 		table.setWidget ( 0, 1, completeSum );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog dialog ) {
 				saveOnTarget ();
 				wasUsed = true;
 				closeCallbacks ( 1 );
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog dialog ) {
 				closeCallbacks ( 0 );
 			}
 		} );
-		buttons.add ( but );
 
 		return pan;
 	}

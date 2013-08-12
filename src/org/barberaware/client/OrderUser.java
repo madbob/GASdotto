@@ -77,11 +77,13 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		addAttribute ( "deliverydate", FromServer.DATE );
 		addAttribute ( "deliveryperson", FromServer.OBJECT, User.class );
 		addAttribute ( "status", FromServer.INTEGER );
+		addAttribute ( "payment_event", FromServer.OBJECT, BankMovement.class );
 		addAttribute ( "notes", FromServer.STRING );
 
 		setInt ( "status", TO_DELIVER );
 
 		alwaysReload ( true );
+		alwaysSendObject ( "payment_event", true );
 	}
 
 	/*
@@ -129,17 +131,6 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 			return ProductUser.sumProductUserArray ( products, "quantity" );
 	}
 
-	public float getDeliveredPrice () {
-		ArrayList products;
-
-		products = getArray ( "products" );
-
-		if ( products == null )
-			return 0;
-		else
-			return ProductUser.sumProductUserArray ( products, "delivered" );
-	}
-
 	public float getTotalPriceWithFriends () {
 		float total;
 		ArrayList friends;
@@ -165,17 +156,28 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		return ( friends != null && friends.size () != 0 );
 	}
 
-	public float getDeliveredPriceWithFriends () {
+	public float getDeliveredPriceWithFriends ( boolean today ) {
 		float total;
-		ArrayList friends;
-		OrderUserFriend order;
 
-		total = getDeliveredPrice ();
-		friends = getArray ( "friends" );
+		total = 0;
 
-		for ( int i = 0; i < friends.size (); i++ ) {
-			order = ( OrderUserFriend ) friends.get ( i );
-			total += order.getDeliveredPrice ();
+		/*
+			Se sto usando la Gestione Cassa prendo per buono il prezzo pagato indicato
+			li', altrimenti faccio il calcolo sui prodotti consegnati
+		*/
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			FromServer event;
+
+			event = getObject ( "payment_event" );
+			if ( event != null && ( today == false || Utils.dateIsToday ( event.getDate ( "date" ) ) ) )
+				total = event.getFloat ( "amount" );
+		}
+		else {
+			ArrayList products;
+
+			products = getArray ( "allproducts" );
+			if ( products != null )
+				total = ProductUser.sumProductUserArray ( products, "delivered" );
 		}
 
 		return total;

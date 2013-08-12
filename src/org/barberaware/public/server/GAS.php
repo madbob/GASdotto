@@ -37,6 +37,10 @@ class GAS extends FromServer {
 		$this->addAttribute ( "rid_conf", "STRING" );
 		$this->addAttribute ( "use_shipping", "BOOLEAN" );
 		$this->addAttribute ( "use_fullusers", "BOOLEAN" );
+		$this->addAttribute ( "use_bank", "BOOLEAN" );
+		$this->addAttribute ( "current_balance", "FLOAT" );
+		$this->addAttribute ( "current_bank_balance", "FLOAT" );
+		$this->addAttribute ( "current_cash_balance", "FLOAT" );
 	}
 
 	public function get ( $request, $compress ) {

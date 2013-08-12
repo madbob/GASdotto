@@ -29,9 +29,8 @@ public class FromServerSavingDialog extends FromServerRappresentationFull implem
 	private ArrayList	savingCallbacks;
 
 	public FromServerSavingDialog ( FromServer ref, String title ) {
-		HorizontalPanel buttons;
+		DialogButtons buttons;
 		VerticalPanel fake;
-		Button but;
 
 		fake = new VerticalPanel ();
 		initWidget ( fake );
@@ -44,25 +43,18 @@ public class FromServerSavingDialog extends FromServerRappresentationFull implem
 		main = new VerticalPanel ();
 		dialog.setWidget ( main );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		main.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog sender ) {
 				savingObject ();
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog sender ) {
 				resetObject ();
 				closeCallbacks ( 0 );
 			}
 		} );
-		buttons.add ( but );
 	}
 
 	public void setWidget ( Widget wid ) {
@@ -84,19 +76,7 @@ public class FromServerSavingDialog extends FromServerRappresentationFull implem
 	}
 
 	private void closeCallbacks ( int mode ) {
-		SavingDialogCallback call;
-
-		if ( savingCallbacks != null ) {
-			for ( int i = 0; i < savingCallbacks.size (); i++ ) {
-				call = ( SavingDialogCallback ) savingCallbacks.get ( i );
-
-				if ( mode == 1 )
-					call.onSave ( this );
-				else
-					call.onCancel ( this );
-			}
-		}
-
+		Utils.triggerSaveCallbacks ( savingCallbacks, this, mode );
 		hide ();
 	}
 

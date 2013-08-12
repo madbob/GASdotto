@@ -208,8 +208,7 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 
 	private VerticalPanel doDialog () {
 		VerticalPanel pan;
-		HorizontalPanel buttons;
-		Button but;
+		DialogButtons buttons;
 		ScrollPanel scroll;
 
 		pan = new VerticalPanel ();
@@ -232,27 +231,20 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		itemsTable = new FlexTable ();
 		scroll.add ( itemsTable );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog dialog ) {
 				syncFromDialog ();
 				hide ();
 				executeCallbacks ( 0 );
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog dialog ) {
 				hide ();
 				executeCallbacks ( 1 );
 			}
 		} );
-		buttons.add ( but );
 
 		return pan;
 	}
@@ -292,27 +284,8 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		return buttons;
 	}
 
-	/*
-		mode = 0 se e' stato premuto il pulsante di salvataggio
-		mode = 1 se e' stato premuto il pulsante di annullamento
-	*/
 	private void executeCallbacks ( int mode ) {
-		int num;
-		SavingDialogCallback call;
-
-		if ( savingCallbacks == null )
-			return;
-
-		num = savingCallbacks.size ();
-
-		for ( int i = 0; i < num; i++ ) {
-			call = ( SavingDialogCallback ) savingCallbacks.get ( i );
-
-			if ( mode == 0 )
-				call.onSave ( this );
-			else if ( mode == 1 )
-				call.onCancel ( this );
-		}
+		Utils.triggerSaveCallbacks ( savingCallbacks, this, mode );
 	}
 
 	/*

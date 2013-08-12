@@ -34,8 +34,7 @@ public class StatisticsPanel extends GenericPanel {
 	private VerticalPanel		main;
 
 	private LinksDialog		usersFiles;
-	private DateSelector		supplierStartDate;
-	private DateSelector		supplierEndDate;
+	private DateRange		suppliersDate;
 	private PieChart		graphByPrices;
 	private PieChart.Options	graphByPricesOptions;
 	private ColumnChart		graphByOrders;
@@ -44,8 +43,7 @@ public class StatisticsPanel extends GenericPanel {
 	private VerticalPanel		supplierDetails;
 
 	private LinksDialog		productsFiles;
-	private DateSelector		productStartDate;
-	private DateSelector		productEndDate;
+	private DateRange		productsDate;
 	private FromServerSelector	supplier;
 	private ColumnChart		graphByProduct;
 	private ColumnChart.Options	graphByProductOptions;
@@ -64,7 +62,7 @@ public class StatisticsPanel extends GenericPanel {
 		FlexTable layout;
 		FlexTable.FlexCellFormatter formatter;
 		CaptionPanel frame;
-		FlexTable input;
+		DateRange input;
 
 		main = new VerticalPanel ();
 		addTop ( main );
@@ -76,38 +74,20 @@ public class StatisticsPanel extends GenericPanel {
 		formatter = layout.getFlexCellFormatter ();
 		frame.setContentWidget ( layout );
 
-		input = new FlexTable ();
-		layout.setWidget ( 0, 0, input );
-
-		listener = new ChangeListener () {
+		suppliersDate = new DateRange ();
+		suppliersDate.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				performUsersUpdate ();
 			}
-		};
-
-		now = new Date ( System.currentTimeMillis () );
-		supplierEndDate = new DateSelector ();
-		supplierEndDate.setValue ( now );
-
-		now = ( Date ) now.clone ();
-		now.setYear ( now.getYear () - 1 );
-		supplierStartDate = new DateSelector ();
-		supplierStartDate.setValue ( now );
-
-		supplierStartDate.addChangeListener ( listener );
-		input.setWidget ( 0, 0, new Label ( "Dal" ) );
-		input.setWidget ( 0, 1, supplierStartDate );
-
-		supplierEndDate.addChangeListener ( listener );
-		input.setWidget ( 1, 0, new Label ( "Al" ) );
-		input.setWidget ( 1, 1, supplierEndDate );
+		} );
+		layout.setWidget ( 0, 0, suppliersDate );
 
 		usersFiles = new LinksDialog ( "Scarica Statistiche" );
-		input.setWidget ( 2, 0, usersFiles );
-		input.getFlexCellFormatter ().setColSpan ( 2, 0, 2 );
+		layout.setWidget ( 1, 0, usersFiles );
 
 		graphByPrices = new PieChart ();
 		layout.setWidget ( 0, 1, graphByPrices );
+		formatter.setRowSpan ( 0, 1, 2 );
 		graphByPricesOptions = PieChart.Options.create ();
 		graphByPricesOptions.setWidth ( 500 );
 		graphByPricesOptions.setHeight ( 240 );
@@ -116,8 +96,8 @@ public class StatisticsPanel extends GenericPanel {
 		graphByPricesOptions.setTitle ( "Somme Totali Pagate (€)" );
 
 		graphByOrders = new ColumnChart ();
-		layout.setWidget ( 1, 0, graphByOrders );
-		formatter.setColSpan ( 1, 0, 2 );
+		layout.setWidget ( 2, 0, graphByOrders );
+		formatter.setColSpan ( 2, 0, 2 );
 		graphByOrdersOptions = ColumnChart.Options.create ();
 		graphByOrdersOptions.setWidth ( 800 );
 		graphByOrdersOptions.setHeight ( 240 );
@@ -178,38 +158,20 @@ public class StatisticsPanel extends GenericPanel {
 		hor.add ( new Label ( "Fornitore" ) );
 		hor.add ( supplier );
 
-		input = new FlexTable ();
-		layout.setWidget ( 1, 0, input );
-
-		now = new Date ( System.currentTimeMillis () );
-		productEndDate = new DateSelector ();
-		productEndDate.setValue ( now );
-
-		listener = new ChangeListener () {
+		productsDate = new DateRange ();
+		productsDate.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				performProductsUpdate ();
 			}
-		};
-
-		now = ( Date ) now.clone ();
-		now.setYear ( now.getYear () - 1 );
-		productStartDate = new DateSelector ();
-		productStartDate.setValue ( now );
-
-		productStartDate.addChangeListener ( listener );
-		input.setWidget ( 0, 0, new Label ( "Dal" ) );
-		input.setWidget ( 0, 1, productStartDate );
-
-		productEndDate.addChangeListener ( listener );
-		input.setWidget ( 1, 0, new Label ( "Al" ) );
-		input.setWidget ( 1, 1, productEndDate );
+		} );
+		layout.setWidget ( 1, 0, productsDate );
 
 		productsFiles = new LinksDialog ( "Scarica Statistiche" );
-		input.setWidget ( 2, 0, productsFiles );
-		input.getFlexCellFormatter ().setColSpan ( 2, 0, 2 );
+		layout.setWidget ( 2, 0, productsFiles );
 
 		graphByProductValue = new PieChart ();
 		layout.setWidget ( 1, 1, graphByProductValue );
+		formatter.setRowSpan ( 1, 1, 2 );
 		graphByProductValueOptions = PieChart.Options.create ();
 		graphByProductValueOptions.setWidth ( 500 );
 		graphByProductValueOptions.setHeight ( 240 );
@@ -218,8 +180,8 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProductValueOptions.setTitle ( "Valore dei Prodotti Ordinati (€)" );
 
 		graphByProduct = new ColumnChart ();
-		layout.setWidget ( 2, 0, graphByProduct );
-		formatter.setColSpan ( 2, 0, 2 );
+		layout.setWidget ( 3, 0, graphByProduct );
+		formatter.setColSpan ( 3, 0, 2 );
 		graphByProductOptions = ColumnChart.Options.create ();
 		graphByProductOptions.setWidth ( 800 );
 		graphByProductOptions.setHeight ( 240 );
@@ -419,9 +381,9 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProductValue.draw ( by_value, graphByProductValueOptions );
 	}
 
-	private String linkTemplate ( String data_type, String document_type, DateSelector start, DateSelector end, int extra ) {
+	private String linkTemplate ( String data_type, String document_type, DateRange range, int extra ) {
 		return "graph_data.php?type=" + data_type + "&document=" + document_type + "&extra=" + extra + "&graph=0&startdate=" +
-			Utils.encodeDate ( start.getValue () ) + "&enddate=" + Utils.encodeDate ( end.getValue () );
+			Utils.encodeDate ( range.getStartDate () ) + "&enddate=" + Utils.encodeDate ( range.getEndDate () );
 	}
 
 	private void notifyError ( Request request, Throwable exception ) {
@@ -435,26 +397,14 @@ public class StatisticsPanel extends GenericPanel {
 
 	private void updateUsersLinks () {
 		usersFiles.emptyBox ();
-		usersFiles.addLink ( "CSV", linkTemplate ( "users", "csv", supplierStartDate, supplierEndDate, -1 ) );
-		usersFiles.addLink ( "PDF", linkTemplate ( "users", "pdf", supplierStartDate, supplierEndDate, -1 ) );
+		usersFiles.addLink ( "CSV", linkTemplate ( "users", "csv", suppliersDate, -1 ) );
+		usersFiles.addLink ( "PDF", linkTemplate ( "users", "pdf", suppliersDate, -1 ) );
 	}
 
 	private void performUsersUpdate () {
-		Date s;
-		Date e;
-
-		s = supplierStartDate.getValue ();
-		e = supplierEndDate.getValue ();
-		if ( s.after ( e ) ) {
-			Utils.showNotification ( "La data di partenza è posteriore alla data di fine selezione" );
-			Utils.graphicPulseWidget ( supplierStartDate );
-			Utils.graphicPulseWidget ( supplierEndDate );
-			return;
-		}
-
 		updateUsersLinks ();
 
-		Utils.getServer ().rawGet ( linkTemplate ( "users", "visual", supplierStartDate, supplierEndDate, -1 ), new RequestCallback () {
+		Utils.getServer ().rawGet ( linkTemplate ( "users", "visual", suppliersDate, -1 ), new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				notifyError ( request, exception );
 			}
@@ -479,23 +429,12 @@ public class StatisticsPanel extends GenericPanel {
 
 	private void updateProductsLinks ( FromServer supp ) {
 		productsFiles.emptyBox ();
-		productsFiles.addLink ( "CSV", linkTemplate ( "products", "csv", productStartDate, productEndDate, supp.getLocalID () ) );
-		productsFiles.addLink ( "PDF", linkTemplate ( "products", "pdf", productStartDate, productEndDate, supp.getLocalID () ) );
+		productsFiles.addLink ( "CSV", linkTemplate ( "products", "csv", productsDate, supp.getLocalID () ) );
+		productsFiles.addLink ( "PDF", linkTemplate ( "products", "pdf", productsDate, supp.getLocalID () ) );
 	}
 
 	private void performProductsUpdate () {
-		Date s;
-		Date e;
 		FromServer supp;
-
-		s = productStartDate.getValue ();
-		e = productEndDate.getValue ();
-		if ( s.after ( e ) ) {
-			Utils.showNotification ( "La data di partenza è posteriore alla data di fine selezione" );
-			Utils.graphicPulseWidget ( productStartDate );
-			Utils.graphicPulseWidget ( productEndDate );
-			return;
-		}
 
 		supp = supplier.getValue ();
 		if ( supp == null )
@@ -503,7 +442,7 @@ public class StatisticsPanel extends GenericPanel {
 
 		updateProductsLinks ( supp );
 
-		Utils.getServer ().rawGet ( linkTemplate ( "products", "visual", productStartDate, productEndDate, supp.getLocalID () ), new RequestCallback () {
+		Utils.getServer ().rawGet ( linkTemplate ( "products", "visual", productsDate, supp.getLocalID () ), new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				notifyError ( request, exception );
 			}

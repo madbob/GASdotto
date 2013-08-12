@@ -118,6 +118,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					frame.addPair ( "Stato", ver.getPersonalizedWidget ( "status", Order.doOrderStatusSelector ( true ) ) );
 					frame.addPair ( "Anticipo", ver.getWidget ( "anticipated" ) );
+					frame.addPair ( "Invia Notifiche", ver.getWidget ( "send_notification_mails" ) );
 
 					/* seconda colonna */
 
@@ -434,15 +435,18 @@ public class OrdersEditPanel extends GenericPanel {
 		FromServerTable products;
 
 		products_frame = new CaptionPanel ( "Elenco Prodotti" );
+		products_frame.setWidth ( "100%" );
 		ver.setExtraWidget ( "products_preview_frame", products_frame );
 		ver.add ( products_frame );
 
 		container = new VerticalPanel ();
+		container.setWidth ( "100%" );
 		products_frame.add ( container );
 
 		container.add ( new HTML ( "Qui di seguito, i prodotti che saranno contemplati nell'ordine.<br />Per cambiare la lista o gli attributi, intervenire nel pannello \"Prodotti\" del fornitore desiderato." ) );
 
 		products = new FromServerTable ();
+		products.setWidth ( "100%" );
 		products.setEmptyWarning ( "Non ci sono prodotti caricati per il fornitore selezionato" );
 
 		products.addColumn ( "Nome", "name", false );

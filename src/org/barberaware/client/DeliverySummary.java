@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class DeliverySummary extends Composite {
 	private VerticalPanel		main;
+
 	private String			identifier;
 	private int			numOrders;
 	private int []			statusOrder		= { 0, 2, 3, 1 };
@@ -34,7 +35,7 @@ public class DeliverySummary extends Composite {
 		initWidget ( main );
 		main.setWidth ( "100%" );
 
-		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
+		identifier = Utils.randomString ();
 		numOrders = 0;
 		cleanUp ();
 	}
@@ -100,8 +101,8 @@ public class DeliverySummary extends Composite {
 		user = uord.getObject ( "baseuser" );
 
 		frame = new CustomCaptionPanel ( "Informazioni Utente" );
-		frame.setWidth ( "45%" );
 		informations.add ( frame );
+		informations.setCellWidth ( frame, "50%" );
 
 		phone = new StringLabel ();
 		phone.setValue ( user.getString ( "phone" ) );
@@ -116,8 +117,8 @@ public class DeliverySummary extends Composite {
 		/* ordine */
 
 		frame = new CustomCaptionPanel ( "Informazioni Ordine" );
-		frame.setWidth ( "45%" );
 		informations.add ( frame );
+		informations.setCellWidth ( frame, "50%" );
 
 		frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
 		frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
@@ -153,7 +154,7 @@ public class DeliverySummary extends Composite {
 				f = ( FromServerForm ) form;
 
 				if ( f.getChildren ().size () > 0 ) {
-					tot = currentTotalInForm ( f ) + ( ( OrderUser ) child ).getDeliveredPrice ();
+					tot = currentTotalInForm ( f ) + ( ( OrderUser ) child ).getDeliveredPriceWithFriends ( false );
 					addGranTotal ( f, tot );
 					f.insert ( details, f.getWidgetCount () - 3 );
 				}
@@ -285,6 +286,10 @@ public class DeliverySummary extends Composite {
 			addGranTotal ( row, tot );
 	}
 
+	/*
+		Questo viene usato solo in caso di ordini aggregati, permette
+		di visualizzare il totale complessivo di tutti gli ordini
+	*/
 	private void addGranTotal ( FromServerForm row, float tot ) {
 		Widget ext;
 		Label label;
@@ -346,13 +351,20 @@ public class DeliverySummary extends Composite {
 	}
 
 	private void attachPrivateTotalCallback ( ProductsDeliveryTable details ) {
+		/*
+			Reminder: qui vanno tutte le operazioni che necessitano
+			del totale dell'ordine completo, poiche' in questo
+			pannello ce ne possono essere diversi (nel caso di
+			ordini aggregati)
+		*/
+
 		details.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
 				float tot;
 				ArrayList children;
+				Widget tmp;
 				FromServerRappresentation parent;
 				ProductsDeliveryTable det;
-				Widget tmp;
 				PriceViewer view;
 
 				tot = 0;
@@ -455,3 +467,4 @@ public class DeliverySummary extends Composite {
 			main.add ( new Label ( "Non sono stati avanzati ordini" ) );
 	}
 }
+

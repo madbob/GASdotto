@@ -26,9 +26,11 @@ import com.allen_sauer.gwt.log.client.Log;
 public class ObjectRequest extends JSONObject {
 	private String			type;
 	private ArrayList		attributes;
+	private boolean			useCache;
 
 	public ObjectRequest ( String t ) {
 		type = t;
+		useCache = true;
 		attributes = new ArrayList ();
 		put ( "type", new JSONString ( type ) );
 	}
@@ -120,5 +122,13 @@ public class ObjectRequest extends JSONObject {
 		}
 
 		return good;
+	}
+
+	public void setUseCache ( boolean use ) {
+		useCache = use;
+	}
+
+	public boolean getUseCache () {
+		return useCache;
 	}
 }

@@ -34,6 +34,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	private boolean			alwaysShow;
 	private boolean			hasSharing;
 	private boolean			forceSave;
+	private boolean			noSaving;
 
 	public static int		FULL_EDITABLE				= 0;
 	public static int		EDITABLE_UNDELETABLE			= 1;
@@ -44,6 +45,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	private void buildCommon ( FromServer obj, int editable ) {
 		setValue ( obj );
 		forceSave = false;
+		noSaving = false;
 		hasSharing = false;
 		summary = null;
 
@@ -365,7 +367,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	}
 
 	public void checkSaving () {
-		if ( editMode != NOT_EDITABLE && contentsChanged () ) {
+		if ( editMode != NOT_EDITABLE && noSaving == false && contentsChanged () ) {
 			if ( Window.confirm ( "Vuoi salvare le modifiche effettuate?" ) == true )
 				savingObject ();
 			else
@@ -384,7 +386,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 	/****************************************************************** FromServerRappresentationFull */
 
 	protected void beforeSave () {
-		/* dummy */
+		noSaving = true;
 	}
 
 	protected void afterSave () {
@@ -393,5 +395,6 @@ public class FromServerForm extends FromServerRappresentationFull {
 
 		summaryContents ();
 		reviewSharing ();
+		noSaving = false;
 	}
 }

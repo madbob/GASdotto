@@ -66,7 +66,8 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		main = new FlexTable ();
 		main.setStyleName ( "elements-table" );
-		main.setCellPadding ( 10 );
+		main.setCellPadding ( 2 );
+		main.setWidth ( "100%" );
 		initWidget ( main );
 
 		main.addTableListener ( new TableListener () {
@@ -352,6 +353,8 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		cols = columns.size ();
 		row = retrieveElementRow ( element );
+		if ( row == -1 )
+			return;
 
 		for ( int i = 0; i < cols; i++ ) {
 			c = ( FromServerTableColumn ) columns.get ( i );

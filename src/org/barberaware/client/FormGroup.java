@@ -37,7 +37,7 @@ public abstract class FormGroup extends Composite {
 		initWidget ( main );
 
 		addable = false;
-		identifier = Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random () + "-" + Math.random ();
+		identifier = Utils.randomString ();
 
 		if ( adding_text != null ) {
 			addButtons = doAddButtonsBar ();

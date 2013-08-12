@@ -20,9 +20,10 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
-public class CyclicToggle extends Composite implements IntNumericWidget {
-	private DeckPanel		main;
-	private int			defaultSelection;
+public class CyclicToggle extends Composite implements IntNumericWidget, SourcesChangeEvents {
+	private DeckPanel			main;
+	private int				defaultSelection;
+	private ChangeListenerCollection	changeCallbacks;
 
 	public CyclicToggle ( boolean active ) {
 		FocusPanel focus;
@@ -46,6 +47,7 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 						index = 0;
 
 					main.showWidget ( index );
+					checkChange ();
 				}
 			} );
 		}
@@ -55,6 +57,7 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 		Le rappresentazioni degli stati vanno introdotte secondo lo stesso ordine della
 		enumerazione completa. Non sono ammessi buchi nella sequenza di numerazione
 	*/
+
 	public void addState ( String url ) {
 		/*
 			Per un qualche problema di visualizzazione, se nel DeckPanel metto la
@@ -66,6 +69,14 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 
 		useless = new HorizontalPanel ();
 		useless.add ( new Image ( url ) );
+		main.add ( useless );
+	}
+
+	public void addStateText ( String text ) {
+		HorizontalPanel useless;
+
+		useless = new HorizontalPanel ();
+		useless.add ( new Label ( text ) );
 		main.add ( useless );
 	}
 
@@ -82,5 +93,23 @@ public class CyclicToggle extends Composite implements IntNumericWidget {
 
 	public int getVal () {
 		return main.getVisibleWidget ();
+	}
+
+	private void checkChange () {
+		if ( changeCallbacks != null )
+			changeCallbacks.fireChange ( this );
+	}
+
+	/****************************************************************** SourcesChangeEvents */
+
+	public void addChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks == null )
+			changeCallbacks = new ChangeListenerCollection ();
+		changeCallbacks.add ( listener );
+	}
+
+	public void removeChangeListener ( ChangeListener listener ) {
+		if ( changeCallbacks != null )
+			changeCallbacks.remove ( listener );
 	}
 }

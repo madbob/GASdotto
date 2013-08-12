@@ -33,6 +33,7 @@ class Order extends SharableFromServer {
 		$this->addAttribute ( "anticipated", "STRING" );
 		$this->addAttribute ( "mail_summary_sent", "DATE" );
 		$this->addAttribute ( "mail_summary_text", "STRING" );
+		$this->addAttribute ( "payment_event", "OBJECT::BankMovement" );
 		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
 
 		$this->setPublic ( false );
@@ -120,6 +121,7 @@ class Order extends SharableFromServer {
 	}
 
 	public function save ( $obj ) {
+		$new_oder = false;
 		$ref = new Product ();
 
 		if ( $obj->id == -1 && ( property_exists ( $obj, 'products' ) == false || count ( $obj->products ) == 0 ) ) {
@@ -189,6 +191,8 @@ class Order extends SharableFromServer {
 				self::archiveProduct ( $ref, $product );
 				array_push ( $obj->products, $product->exportable () );
 			}
+
+			$new_oder = true;
 		}
 		else {
 			foreach ( $obj->products as $product ) {
@@ -218,7 +222,12 @@ class Order extends SharableFromServer {
 		if ( strtotime ( $startdate ) > strtotime ( $now ) )
 			$obj->status = 2;
 
-		return parent::save ( $obj );
+		$ret = parent::save ( $obj );
+
+		if ( $new_oder == true && $ret != -1 && $obj->send_notification_mails == 'true' )
+			self::send_notifications ( $obj );
+
+		return $ret;
 	}
 
 	public function export ( $options ) {
@@ -319,7 +328,7 @@ class Order extends SharableFromServer {
 
 				$extra_notify = '';
 
-				$html = '<html><head><meta http-equiv="Content-Type" content="text/html"; charset="UTF-8" /></head>';
+				$html = common_html_header ();
 				$html .= '<body><p>' . $text . '</p><br /><table><tr><td>Prodotto</td><td>Quantità</td><td>Prezzo</td><td>Prezzo Trasporto</td></tr>';
 
 				if ( $ou->status == 3 )
@@ -438,6 +447,44 @@ class Order extends SharableFromServer {
 			}
 
 			unset ( $orderusers );
+		}
+	}
+
+	private function send_notifications ( $obj ) {
+		$supplier = new Supplier ();
+		$supplier->readFromDB ( $obj->supplier );
+
+		$dests = array ();
+
+		$u = new User ();
+		$users = $u->getBySupplierSubscription ( $obj->supplier );
+		foreach ( $users as $user ) {
+			if ( $user->mail != '' )
+				$dests [] = $user->mail;
+			else if ( $user->mail2 != '' )
+				$dests [] = $user->mail2;
+		}
+
+		if ( count ( $dests ) != 0 ) {
+			$html = common_html_header () . '<body>';
+			$text = "E' stato aperto un nuovo ordine presso il fornitore " . $supplier->getAttribute ( 'name' )->value . "\n\n";
+			$html .= '<p>' . $text . '</p>';
+			$text .= "Prodotti ordinabili:\n";
+			$html .= '<p>' . $text . '</p>';
+
+			$html .= '<ul>';
+
+			foreach ( $obj->products as $prod ) {
+				$text .= ' - ' . $prod->name . "\n";
+				$html .= '<li>' . $prod->name . '</li>';
+			}
+
+			$html .= '</ul>';
+
+			$text .= "In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.\n";
+			$html .= '<p>In caso di problemi su questo ordine NON rispondere a questo messaggio ma contatta il Referente del Fornitore.</p>';
+
+			my_send_mail ( $dests, 'Nuovo ordine aperto per ' . $supplier->getAttribute ( 'name' )->value, true, $text, $html );
 		}
 	}
 }

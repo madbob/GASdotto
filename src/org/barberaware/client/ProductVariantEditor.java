@@ -32,7 +32,8 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 
 	public ProductVariantEditor ( boolean new_item ) {
 		VerticalPanel pan;
-		HorizontalPanel buttons;
+		DialogButtons buttons;
+		HorizontalPanel row;
 		Button but;
 
 		callbacks = null;
@@ -55,21 +56,18 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		}
 
 		name = new TextBox ();
-		buttons = new HorizontalPanel ();
-		buttons.add ( new Label ( "Nome Variante: " ) );
-		buttons.add ( name );
-		pan.add ( buttons );
+		row = new HorizontalPanel ();
+		row.add ( new Label ( "Nome Variante: " ) );
+		row.add ( name );
+		pan.add ( row );
 
 		values = new ProductVariantValuesList ();
 		pan.add ( values );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		pan.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog dialog ) {
 				String n;
 				ArrayList vals;
 
@@ -93,22 +91,18 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 				fireCallbacks ();
 				hide ();
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog dialog ) {
 				hide ();
 			}
 		} );
-		buttons.add ( but );
 	}
 
 	private void runDuplication () {
 		ArrayList products;
 		ArrayList variants;
 		VerticalPanel pan;
-		HorizontalPanel buttons;
+		DialogButtons buttons;
 		Button but;
 		FromServer product;
 		FromServer variant;
@@ -161,13 +155,10 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		else {
 			pan.add ( list );
 
-			buttons = new HorizontalPanel ();
-			buttons.setStyleName ( "dialog-buttons" );
-			buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+			buttons = new DialogButtons ();
 			pan.add ( buttons );
-
-			but = new Button ( "Salva", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			buttons.addCallback ( new SavingDialogCallback () {
+				public void onSave ( SavingDialog sender ) {
 					int sel;
 					int id;
 
@@ -181,15 +172,11 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 					setValueByID ( id );
 					dialog.hide ();
 				}
-			} );
-			buttons.add ( but );
 
-			but = new Button ( "Annulla", new ClickListener () {
-				public void onClick ( Widget sender ) {
+				public void onCancel ( SavingDialog sender ) {
 					dialog.hide ();
 				}
 			} );
-			buttons.add ( but );
 		}
 
 		dialog.center ();
@@ -206,18 +193,7 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 	}
 
 	private void fireCallbacks () {
-		int num;
-		SavingDialogCallback call;
-
-		if ( callbacks == null )
-			return;
-
-		num = callbacks.size ();
-
-		for ( int i = 0; i < num; i++ ) {
-			call = ( SavingDialogCallback ) callbacks.get ( i );
-			call.onSave ( this );
-		}
+		Utils.triggerSaveCallbacks ( callbacks, this, 1 );
 	}
 
 	/****************************************************************** ObjectWidget */

@@ -61,6 +61,7 @@ public class ServerHook {
 	private int		executingMonitor;
 	private ArrayList	monitorSchedulingQueue;
 	private RequestDesc	lastRequest		= null;
+	private HashMap		recursionStack;
 
 	/*
 		Si forza il numero massimo di richieste concorrenti verso il server a 2, onde
@@ -69,7 +70,7 @@ public class ServerHook {
 		problema, e le richieste schedulate non vengano eseguite: tenere presente questa
 		limitazione qualora si volesse ritoccare questo parametro
 	*/
-	private static int	MAXIMUM_CONCURRENT_REQUESTS	= 1;
+	private static int	MAXIMUM_CONCURRENT_REQUESTS	= 2;
 
 	private void initMonitors () {
 		String type;
@@ -127,6 +128,9 @@ public class ServerHook {
 		RequestBuilder builder;
 		Request response;
 
+		if ( request.getUseCache () == true )
+			loadWithCachedObjects ( request.getType (), request );
+
 		builder = new RequestBuilder ( RequestBuilder.POST, getURL () + "server.php?action=get" );
 
 		try {
@@ -140,7 +144,7 @@ public class ServerHook {
 		}
 	}
 
-	public HTML fileLink ( String name, String group, String file ) {
+	public static HTML fileLink ( String name, String group, String file ) {
 		return new HTML ( "<a href=\"" + getURL () + "/" + group + "/" + file + "\" class=\"file-link\">" + name + "</a>" );
 	}
 
@@ -196,7 +200,9 @@ public class ServerHook {
 	}
 
 	private void executeMonitor ( final ServerMonitor monitor, ObjectRequest params ) {
-		params.put ( "has", monitor.comparingObjects );
+		if ( params.getUseCache () == true )
+			params.put ( "has", monitor.comparingObjects );
+
 		executingMonitor++;
 
 		serverGet ( params, new ServerResponse () {
@@ -252,52 +258,81 @@ public class ServerHook {
 		}
 	}
 
-	public void responseToObjects ( JSONValue response ) {
-		int i;
+	public ArrayList<FromServer> responseToObjects ( JSONValue response, String defaultType ) {
 		int num;
 		int existing;
+		boolean first_round;
+		ArrayList<FromServer> ret;
 		JSONArray arr;
 		JSONObject obj;
 		FromServer tmp;
 		FromServer mod;
 
+		initRecursionStack ();
+		ret = new ArrayList<FromServer> ();
 		arr = response.isArray ();
 
 		if ( arr != null && arr.size () != 0 ) {
-			i = 0;
 			num = arr.size ();
+			mod = null;
+			first_round = true;
 
-			obj = arr.get ( i ).isObject ();
-			tmp = lookupObject ( obj );
-			if ( tmp == null )
-				return;
-
-			mod = tmp;
-
-			triggerObjectBlockCreation ( tmp, true );
-			triggerObjectCreation ( tmp );
-
-			for ( i = 1; i < num; i++ ) {
+			for ( int i = 0; i < num; i++ ) {
 				obj = arr.get ( i ).isObject ();
+
+				/*
+					In questo caso nell'array mi trovo solo l'ID di un oggetto
+					gia' gestito da qualche parte in precedenza, posso evitare
+					di attivare le callback di ricezione
+				*/
+				if ( obj == null ) {
+					if ( defaultType != null ) {
+						tmp = getObjectFromCache ( defaultType, arr.get ( i ).isString ().stringValue () );
+						if ( tmp != null )
+							ret.add ( tmp );
+					}
+
+					continue;
+				}
+
 				tmp = lookupObject ( obj );
-				if ( tmp != null )
-					triggerObjectCreation ( tmp );
+				if ( tmp == null )
+					continue;
+
+				if ( first_round == true ) {
+					mod = tmp;
+					triggerObjectBlockCreation ( tmp, true );
+					first_round = false;
+				}
+
+				triggerObjectCreation ( tmp );
+				ret.add ( tmp );
 			}
 
 			triggerObjectBlockCreation ( mod, false );
 		}
+
+		closeRecursionStack ();
+		return ret;
+	}
+
+	public void responseToObjects ( JSONValue response ) {
+		responseToObjects ( response, null );
 	}
 
 	private FromServer lookupObject ( JSONObject obj ) {
 		FromServer existing;
+		FromServer updated;
 
 		existing = getObjectFromCache ( obj.get ( "type" ).isString ().stringValue (), obj.get ( "id" ).isString ().stringValue () );
+		updated = FromServer.instance ( obj );
 
 		if ( existing == null ) {
-			return FromServer.instance ( obj );
+			return updated;
 		}
 		else {
-			triggerObjectModification ( existing );
+			existing.transferRelatedInfo ( updated );
+			triggerObjectModification ( updated );
 			return null;
 		}
 	}
@@ -353,6 +388,9 @@ public class ServerHook {
 		FromServer obj;
 		ServerMonitor monitor;
 
+		if ( FromServerFactory.classExists ( type ) == false )
+			return;
+
 		obj = FromServerFactory.dummyInstance ( type );
 		subclasses = obj.getContainedObjectsClasses ();
 		num = subclasses.size ();
@@ -369,7 +407,8 @@ public class ServerHook {
 	}
 
 	public void testObjectReceive ( ObjectRequest params ) {
-		loadWithCachedObjects ( params.getType (), params );
+		if ( params.getUseCache () == true )
+			loadWithCachedObjects ( params.getType (), params );
 
 		if ( executingMonitor >= MAXIMUM_CONCURRENT_REQUESTS ) {
 			monitorSchedulingQueue.add ( params );
@@ -382,15 +421,34 @@ public class ServerHook {
 	public void triggerObjectCreation ( FromServer object ) {
 		ServerMonitor tmp;
 
+		if ( testRecursionStack ( object ) == false )
+			return;
+		addToRecursionStack ( object );
+
 		tmp = getMonitor ( object.getType () );
 		if ( addObjectIntoMonitorCache ( tmp, object ) == true )
 			executeReceivingCallbacks ( tmp, object );
+	}
+
+	/*
+		Questa esegue sempre le callback di ricezione, senza
+		controllare se l'oggetto e' gia' in cache o meno. Usare con
+		cautela
+	*/
+	public void triggerObjectCreated ( FromServer object ) {
+		ServerMonitor tmp;
+
+		tmp = getMonitor ( object.getType () );
+		executeReceivingCallbacks ( tmp, object );
 	}
 
 	public void triggerObjectBlockCreation ( FromServer object, boolean mode ) {
 		int num;
 		ServerMonitor tmp;
 		ServerObjectReceive callback;
+
+		if ( object == null )
+			return;
 
 		tmp = getMonitor ( object.getType () );
 		num = tmp.callbacks.size ();
@@ -405,10 +463,14 @@ public class ServerHook {
 		}
 	}
 
-	public void triggerObjectModification ( FromServer object ) {
+	public void triggerObjectModification ( FromServer object, boolean force_propagation ) {
 		int num;
 		ServerMonitor tmp;
 		ServerObjectReceive callback;
+
+		if ( testRecursionStack ( object ) == false )
+			return;
+		addToRecursionStack ( object );
 
 		tmp = getMonitor ( object.getType () );
 		updateObjectInMonitorCache ( tmp, object );
@@ -418,6 +480,22 @@ public class ServerHook {
 			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 			callback.onModify ( object );
 		}
+
+		if ( object.alwaysReload () || force_propagation ) {
+			ArrayList<String> subnames;
+			FromServer child;
+
+			subnames = object.getContainedObjectsName ();
+			for ( String attribute : subnames ) {
+				child = object.getObject ( attribute );
+				if ( child != null && child.isValid () )
+					triggerObjectModification ( child, true );
+			}
+		}
+	}
+
+	public void triggerObjectModification ( FromServer object ) {
+		triggerObjectModification ( object, false );
 	}
 
 	public void triggerObjectDeletion ( FromServer object ) {
@@ -436,12 +514,66 @@ public class ServerHook {
 		}
 	}
 
-	public void addToCache ( FromServer object ) {
+	public void forceObjectReload ( String type, int id ) {
+		ObjectRequest params;
+
+		params = new ObjectRequest ( type );
+		params.add ( "id", id );
+		params.setUseCache ( false );
+		testObjectReceive ( params );
+	}
+
+	/****************************************************************** recursion stack */
+
+	private void initRecursionStack () {
+		recursionStack = new HashMap ();
+	}
+
+	private boolean testRecursionStack ( FromServer object ) {
+		ArrayList<FromServer> elements;
+
+		if ( recursionStack != null ) {
+			elements = ( ArrayList<FromServer> ) recursionStack.get ( object.getType () );
+			if ( elements == null )
+				return true;
+
+			for ( FromServer a : elements ) {
+				if ( a.getLocalID () == object.getLocalID () )
+					return false;
+			}
+		}
+
+		return true;
+	}
+
+	private void addToRecursionStack ( FromServer object ) {
+		String type;
+		ArrayList<FromServer> elements;
+
+		if ( recursionStack != null ) {
+			type = object.getType ();
+
+			elements = ( ArrayList<FromServer> ) recursionStack.get ( type );
+			if ( elements == null ) {
+				elements = new ArrayList<FromServer> ();
+				recursionStack.put ( type, elements );
+			}
+
+			elements.add ( object );
+		}
+	}
+
+	private void closeRecursionStack () {
+		recursionStack = null;
+	}
+
+	/****************************************************************** cache */
+
+	public boolean addToCache ( FromServer object ) {
 		ServerMonitor monitor;
 
 		monitor = getMonitor ( object.getType () );
-		if ( addObjectIntoMonitorCache ( monitor, object ) == true )
-			executeReceivingCallbacks ( monitor, object );
+		return addObjectIntoMonitorCache ( monitor, object );
 	}
 
 	/*

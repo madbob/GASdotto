@@ -76,6 +76,9 @@ public class FromServerFactory {
 		else if ( name.equals ( "User" ) ) {
 			return new User ();
 		}
+		else if ( name.equals ( "BankMovement" ) ) {
+			return new BankMovement ();
+		}
 		else if ( name.equals ( "Measure" ) ) {
 			return new Measure ();
 		}
@@ -128,11 +131,19 @@ public class FromServerFactory {
 		names.add ( "ProductUserVariantComponent" );
 		names.add ( "Supplier" );
 		names.add ( "User" );
+		names.add ( "BankMovement" );
 		names.add ( "CustomFile" );
 		names.add ( "Notification" );
 		names.add ( "ShippingPlace" );
 		names.add ( "SystemConf" );
 		names.add ( "Probe" );
 		return names;
+	}
+
+	public static boolean classExists ( String name ) {
+		ArrayList classes;
+
+		classes = getClasses ();
+		return classes.contains ( name );
 	}
 }

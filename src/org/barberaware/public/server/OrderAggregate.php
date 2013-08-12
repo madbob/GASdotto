@@ -29,7 +29,7 @@ class OrderAggregate extends SharableFromServer {
 	}
 
 	public function get ( $request, $compress ) {
-		$query = parent::arrayRelationQuery ( 'orders', 'status', '!=', 3 );
+		$query = parent::arrayRelationCustomQuery ( 'orders', 'status', '!=', 3 );
 		return parent::getByQuery ( $request, $compress, $query );
 	}
 

@@ -250,7 +250,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 		return false;
 	}
 
-	public float getDeliveredPriceWithFriends () {
+	public float getDeliveredPriceWithFriends ( boolean today ) {
 		float total;
 		ArrayList orders;
 		OrderUser ord;
@@ -260,7 +260,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			ord = ( OrderUser ) orders.get ( i );
-			total += ord.getDeliveredPriceWithFriends ();
+			total += ord.getDeliveredPriceWithFriends ( today );
 		}
 
 		return total;

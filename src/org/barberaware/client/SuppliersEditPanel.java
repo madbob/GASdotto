@@ -70,6 +70,9 @@ public class SuppliersEditPanel extends GenericPanel {
 				FromServerForm f;
 				Supplier supp;
 
+				if ( form == null )
+					return;
+
 				supp = ( Supplier ) object;
 				f = ( FromServerForm ) form;
 
@@ -204,7 +207,10 @@ public class SuppliersEditPanel extends GenericPanel {
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
 		VerticalPanel vertical;
 		HorizontalPanel hor;
+		VerticalPanel column;
+		FlexTable payments;
 		MultiSelector references;
+		BooleanSelector notifies;
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
 		OpenedOrdersList orders;
@@ -217,9 +223,12 @@ public class SuppliersEditPanel extends GenericPanel {
 		hor.setWidth ( "100%" );
 		vertical.add ( hor );
 
+		column = new VerticalPanel ();
+		hor.add ( column );
+		hor.setCellWidth ( column, "50%" );
+
 		frame = new CustomCaptionPanel ( "Attributi" );
-		hor.add ( frame );
-		hor.setCellWidth ( frame, "50%" );
+		column.add ( frame );
 
 		frame.addPair ( "Nome", ver.getWidget ( "name" ) );
 		frame.addPair ( "Nome Contatto", ver.getWidget ( "contact" ) );
@@ -255,6 +264,15 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Partita IVA", ver.getWidget ( "vat_number" ) );
 		frame.addPair ( "Inattivo", ver.getWidget ( "hidden" ) );
 
+		frame = new CustomCaptionPanel ( "Configurazioni" );
+		column.add ( frame );
+
+		if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+			notifies = supp.doSupplierNotificationsSelector ( Session.getUser () );
+			ver.setExtraWidget ( "send_notifies", notifies );
+			frame.addPair ( "Invia Notifiche", notifies );
+		}
+
 		frame = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( frame );
 		hor.setCellWidth ( frame, "50%" );
@@ -288,7 +306,17 @@ public class SuppliersEditPanel extends GenericPanel {
 		hor.setCellWidth ( sframe, "50%" );
 
 		sframe = new CaptionPanel ( "Modalità pagamento" );
-		sframe.add ( ver.getWidget ( "paying_mode" ) );
+		payments = new FlexTable ();
+		sframe.add ( payments );
+		payments.setWidget ( 0, 0, ver.getWidget ( "paying_mode" ) );
+		payments.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			payments.setWidget ( 1, 0, new Label ( "Accetta Bonifico" ) );
+			payments.setWidget ( 1, 1, ver.getWidget ( "paying_by_bank" ) );
+			payments.getCellFormatter ().addStyleName ( 1, 0, "custom-label" );
+		}
+
 		hor.add ( sframe );
 		hor.setCellWidth ( sframe, "50%" );
 

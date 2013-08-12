@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class FromServerWidget extends Composite {
 	public String				name;
 	public int				type;
@@ -114,7 +116,7 @@ public class FromServerWidget extends Composite {
 	}
 
 	public void set ( FromServer object ) {
-		if ( type == -1 )
+		if ( type == -1 || object == null )
 			return;
 
 		else if ( type == FromServer.STRING || type == FromServer.LONGSTRING )

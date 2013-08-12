@@ -34,6 +34,7 @@ class Supplier extends SharableFromServer {
 		$this->addAttribute ( "address", "ADDRESS" );
 		$this->addAttribute ( "order_mode", "STRING" );
 		$this->addAttribute ( "paying_mode", "STRING" );
+		$this->addAttribute ( "paying_by_bank", "BOOLEAN" );
 		$this->addAttribute ( "description", "STRING" );
 		$this->addAttribute ( "references", "ARRAY::User" );
 		$this->addAttribute ( "carriers", "ARRAY::User" );
@@ -41,6 +42,7 @@ class Supplier extends SharableFromServer {
 		$this->addAttribute ( "orders_months", "STRING" );
 		$this->addAttribute ( "shipping_manage", "INTEGER" );
 		$this->addAttribute ( "hidden", "BOOLEAN" );
+		$this->addAttribute ( "current_balance", "FLOAT" );
 
 		$this->setSorting ( "name" );
 		$this->setPublic ( false );

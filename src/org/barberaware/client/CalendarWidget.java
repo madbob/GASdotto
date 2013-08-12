@@ -172,7 +172,6 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 		exit = new Button ( "Annulla", new ClickListener () {
 			public void onClick ( Widget sender ) {
 				fireCallbacks ( 1 );
-				hide ();
 			}
 		} );
 
@@ -199,30 +198,8 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 	}
 
 	private void fireCallbacks ( int mode ) {
-		int i;
-		int num;
-		SavingDialogCallback call;
-
-		if ( callbacks == null )
-			return;
-
-		num = callbacks.size ();
-
-		if ( mode == 0 ) {
-			for ( i = 0; i < num; i++ ) {
-				call = ( SavingDialogCallback ) callbacks.get ( i );
-				call.onSave ( this );
-			}
-		}
-		else {
-			if ( originalDate != null )
-				date = originalDate;
-
-			for ( i = 0; i < num; i++ ) {
-				call = ( SavingDialogCallback ) callbacks.get ( i );
-				call.onCancel ( this );
-			}
-		}
+		Utils.triggerSaveCallbacks ( callbacks, this, mode );
+		hide ();
 	}
 
 	private void drawCalendar () {
@@ -362,7 +339,6 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 		setDate(getYear(), getMonth(), cell.getDay());
 		drawCalendar();
 		fireCallbacks ( 0 );
-		hide ();
 	}
 
 	public void yearSelectable ( boolean selectable ) {

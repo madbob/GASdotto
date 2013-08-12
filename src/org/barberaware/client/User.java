@@ -67,22 +67,34 @@ public class User extends FromServer {
 		addAttribute ( "mail", FromServer.STRING );
 		addAttribute ( "mail2", FromServer.STRING );
 		addAttribute ( "address", FromServer.ADDRESS );
-		addAttribute ( "paying", FromServer.DATE );
+		addAttribute ( "paying", FromServer.OBJECT, BankMovement.class );
 		addAttribute ( "privileges", FromServer.INTEGER );
 		addAttribute ( "family", FromServer.INTEGER );
 		addAttribute ( "photo", FromServer.STRING );
 		addAttribute ( "lastlogin", FromServer.DATE );
 		addAttribute ( "leaving_date", FromServer.DATE );
+
+		/*
+			"bank_account" fa riferimento alle coordinate bancarie da usare nei RID (quando attivati)
+			"current_balance" fa riferimento al "conto" gestito dalla cassa interna
+		*/
 		addAttribute ( "bank_account", FromServer.STRING );
+		addAttribute ( "current_balance", FromServer.FLOAT );
+		addAttribute ( "deposit", FromServer.OBJECT, BankMovement.class );
+
 		addAttribute ( "shipping", FromServer.OBJECT, ShippingPlace.class );
+		addAttribute ( "suppliers_notification", FromServer.ARRAY, Supplier.class );
 
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
+
+		alwaysReload ( true );
 	}
 
 	public void checkUserPaying ( FromServerForm form ) {
-		Date last_pay;
+		FromServer last_pay;
 		Date gas_date;
 		Date now;
+		Date pay_date;
 		EmblemsBar bar;
 
 		bar = form.emblems ();
@@ -93,8 +105,14 @@ public class User extends FromServer {
 			return;
 		}
 
-		last_pay = this.getDate ( "paying" );
-		if ( last_pay == null ) {
+		last_pay = this.getObject ( "paying" );
+		if ( last_pay == null || last_pay.getFloat ( "amount" ) == 0 ) {
+			bar.activate ( "paying" );
+			return;
+		}
+
+		pay_date = last_pay.getDate ( "date" );
+		if ( pay_date == null ) {
 			bar.activate ( "paying" );
 			return;
 		}
@@ -110,7 +128,7 @@ public class User extends FromServer {
 		else
 			gas_date.setYear ( now.getYear () - 1 );
 
-		if ( last_pay.before ( gas_date ) )
+		if ( pay_date.before ( gas_date ) )
 			bar.activate ( "paying" );
 		else
 			bar.deactivate ( "paying" );

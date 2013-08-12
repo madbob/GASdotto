@@ -70,8 +70,7 @@ public class AddressSelector extends Composite implements AddressWidget {
 	private Panel doDialog () {
 		VerticalPanel container;
 		FlexTable pan;
-		HorizontalPanel buttons;
-		Button but;
+		DialogButtons buttons;
 
 		container = new VerticalPanel ();
 
@@ -90,28 +89,21 @@ public class AddressSelector extends Composite implements AddressWidget {
 		city = new TextBox ();
 		pan.setWidget ( 2, 1, city );
 
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "dialog-buttons" );
-		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		buttons = new DialogButtons ();
 		container.add ( buttons );
-
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		buttons.addCallback ( new SavingDialogCallback () {
+			public void onSave ( SavingDialog sender ) {
 				if ( syncFromDialog () == true ) {
 					opened = false;
 					dialog.hide ();
 				}
 			}
-		} );
-		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+			public void onCancel ( SavingDialog sender ) {
 				opened = false;
 				dialog.hide ();
 			}
 		} );
-		buttons.add ( but );
 
 		return container;
 	}

@@ -24,22 +24,23 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ProfilePanel extends GenericPanel {
+	private FromServerForm		form;
+
 	public ProfilePanel () {
 		super ();
 
 		User user;
-		FromServerForm ver;
 		HorizontalPanel hor;
 		CustomCaptionPanel frame;
 		DateSelector birth;
 
 		user = Session.getUser ();
-		ver = new FromServerForm ( user, FromServerForm.EDITABLE_UNDELETABLE );
-		ver.alwaysOpened ( true );
+		form = new FromServerForm ( user, FromServerForm.EDITABLE_UNDELETABLE );
+		form.alwaysOpened ( true );
 
 		hor = new HorizontalPanel ();
 		hor.setWidth ( "100%" );
-		ver.add ( hor );
+		form.add ( hor );
 
 		/*
 			Per non creare troppa confusione ho mantenuto laddove possibile lo stesso
@@ -49,28 +50,28 @@ public class ProfilePanel extends GenericPanel {
 		frame = new CustomCaptionPanel ( "Anagrafica" );
 		hor.add ( frame );
 
-		frame.addPair ( "Nome", ver.getWidget ( "firstname" ) );
-		frame.addPair ( "Cognome", ver.getWidget ( "surname" ) );
+		frame.addPair ( "Nome", form.getWidget ( "firstname" ) );
+		frame.addPair ( "Cognome", form.getWidget ( "surname" ) );
 
-		frame.addPair ( "Telefono", ver.getWidget ( "phone" ) );
-		ver.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
+		frame.addPair ( "Telefono", form.getWidget ( "phone" ) );
+		form.setValidation ( "phone", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-		frame.addPair ( "Cellulare", ver.getWidget ( "mobile" ) );
-		ver.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
+		frame.addPair ( "Cellulare", form.getWidget ( "mobile" ) );
+		form.setValidation ( "mobile", FromServerValidateCallback.defaultPhoneValidationCallback () );
 
-		frame.addPair ( "Mail", ver.getWidget ( "mail" ) );
-		ver.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
+		frame.addPair ( "Mail", form.getWidget ( "mail" ) );
+		form.setValidation ( "mail", FromServerValidateCallback.defaultMailValidationCallback () );
 
-		frame.addPair ( "Mail 2", ver.getWidget ( "mail2" ) );
-		ver.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
+		frame.addPair ( "Mail 2", form.getWidget ( "mail2" ) );
+		form.setValidation ( "mail2", FromServerValidateCallback.defaultMailValidationCallback () );
 
-		frame.addPair ( "Indirizzo", ver.getWidget ( "address" ) );
+		frame.addPair ( "Indirizzo", form.getWidget ( "address" ) );
 
 		birth = new DateSelector ();
 		birth.yearSelectable ( true );
-		frame.addPair ( "Data di Nascita", ver.getPersonalizedWidget ( "birthday", birth ) );
+		frame.addPair ( "Data di Nascita", form.getPersonalizedWidget ( "birthday", birth ) );
 
-		frame.addPair ( "Persone in Famiglia", ver.getWidget ( "family" ) );
+		frame.addPair ( "Persone in Famiglia", form.getWidget ( "family" ) );
 
 		/*
 			La foto personale puo' essere personalizzato solo
@@ -90,7 +91,7 @@ public class ProfilePanel extends GenericPanel {
 			else
 				image.setUrl ( path );
 
-			frame.addPair ( "Foto", ver.getPersonalizedWidget ( "photo", photo ) );
+			frame.addPair ( "Foto", form.getPersonalizedWidget ( "photo", photo ) );
 			frame.addRight ( image );
 
 			photo.setDestination ( "upload_image.php" );
@@ -109,19 +110,22 @@ public class ProfilePanel extends GenericPanel {
 		frame = new CustomCaptionPanel ( "Nel GAS" );
 		hor.add ( frame );
 
-		frame.addPair ( "Password", ver.getPersonalizedWidget ( "password", new PasswordBox () ) );
-		ver.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
+		frame.addPair ( "Password", form.getPersonalizedWidget ( "password", new PasswordBox () ) );
+		form.setValidation ( "password", FromServerValidateCallback.defaultPasswordValidationCallback () );
 
 		if ( Session.getGAS ().getBool ( "use_shipping" ) == true )
-			frame.addPair ( "Luogo Consegna", ver.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
+			frame.addPair ( "Luogo Consegna", form.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
 
-		ver.setCallback ( new FromServerFormCallbacks () {
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+			frame.addPair ( "Bilancio Corrente", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
+
+		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerRappresentationFull form ) {
 				Utils.showNotification ( "Profilo Salvato", Notification.INFO );
 			}
 		} );
 
-		addTop ( ver );
+		addTop ( form );
 	}
 
 	/****************************************************************** GenericPanel */
@@ -139,5 +143,9 @@ public class ProfilePanel extends GenericPanel {
 	}
 
 	public void initView () {
+		FromServer myself;
+
+		myself = Utils.getServer ().getObjectFromCache ( "User", Session.getUser ().getLocalID () );
+		form.refreshContents ( myself );
 	}
 }

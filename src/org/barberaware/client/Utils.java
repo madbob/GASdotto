@@ -309,15 +309,41 @@ public class Utils {
 			return percentage + " €";
 	}
 
+	public static String randomString () {
+		return Math.random () + "-" + Math.random () + "-" + Math.random ();
+	}
+
 	public static void triggerChangesCallbacks ( ArrayList callbacks, Widget target ) {
+		int num;
 		ChangeListener call;
 
 		if ( callbacks == null )
 			return;
 
-		for ( int i = 0; i < callbacks.size (); i++ ) {
+		num = callbacks.size ();
+
+		for ( int i = 0; i < num; i++ ) {
 			call = ( ChangeListener ) callbacks.get ( i );
 			call.onChange ( target );
+		}
+	}
+
+	public static void triggerSaveCallbacks ( ArrayList callbacks, SavingDialog target, int mode ) {
+		int num;
+		SavingDialogCallback call;
+
+		if ( callbacks == null )
+			return;
+
+		num = callbacks.size ();
+
+		for ( int i = 0; i < callbacks.size (); i++ ) {
+			call = ( SavingDialogCallback ) callbacks.get ( i );
+
+			if ( mode == 0 )
+				call.onSave ( target );
+			else if ( mode == 1 )
+				call.onCancel ( target );
 		}
 	}
 
@@ -379,8 +405,9 @@ public class Utils {
 	public static String printableDate ( Date d, boolean with_year ) {
 		String ret;
 
-		if ( d == null )
+		if ( d == null ) {
 			return "Non settato";
+		}
 		else {
 			ret = d.getDate () + " " + months [ d.getMonth () ];
 			if ( with_year == true )
@@ -394,6 +421,13 @@ public class Utils {
 			return "Non settato";
 		else
 			return printableDate ( d ) + " " + d.getHours () + ":" + d.getMinutes () + ":" + d.getSeconds ();
+	}
+
+	public static boolean dateIsToday ( Date a ) {
+		Date today;
+
+		today = new Date ( System.currentTimeMillis () );
+		return ( printableDate ( a, true ) == printableDate ( today, true ) );
 	}
 
 	/****************************************************** sessione */

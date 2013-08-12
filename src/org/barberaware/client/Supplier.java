@@ -18,6 +18,8 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.ui.*;
+import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -39,6 +41,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "address", FromServer.ADDRESS );
 		addAttribute ( "order_mode", FromServer.LONGSTRING );
 		addAttribute ( "paying_mode", FromServer.LONGSTRING );
+		addAttribute ( "paying_by_bank", FromServer.BOOLEAN );
 		addAttribute ( "description", FromServer.LONGSTRING );
 		addAttribute ( "references", FromServer.ARRAY, User.class );
 		addAttribute ( "carriers", FromServer.ARRAY, User.class );
@@ -46,6 +49,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "orders_months", FromServer.STRING );
 		addAttribute ( "shipping_manage", FromServer.INTEGER );
 		addAttribute ( "hidden", FromServer.BOOLEAN );
+		addAttribute ( "current_balance", FromServer.FLOAT );
 
 		setString ( "name", "Nuovo Fornitore" );
 		isSharable ( true );
@@ -107,5 +111,47 @@ public class Supplier extends FromServer {
 		shipping.addState ( "images/shipping_to_place.png" );
 		shipping.setDefaultSelection ( 0 );
 		return shipping;
+	}
+
+	public BooleanSelector doSupplierNotificationsSelector ( final User for_user ) {
+		ArrayList preferred_suppliers;
+		FromServer preferred_supplier;
+		final Supplier supplier;
+		BooleanSelector notify;
+
+		supplier = this;
+
+		notify = new BooleanSelector ();
+		notify.setVal ( false );
+
+		preferred_suppliers = for_user.getArray ( "suppliers_notification" );
+		for ( int i = 0; i < preferred_suppliers.size (); i++ ) {
+			preferred_supplier = ( FromServer ) preferred_suppliers.get ( i );
+			if ( preferred_supplier.equals ( this ) == true ) {
+				notify.setVal ( true );
+				break;
+			}
+		}
+
+		notify.addChangeListener ( new ChangeListener () {
+			public void onChange ( Widget sender ) {
+				BooleanSelector sel;
+
+				sel = ( BooleanSelector ) sender;
+
+				if ( sel.getVal () == true )
+					for_user.addToArray ( "suppliers_notification", supplier );
+				else
+					for_user.removeFromArray ( "suppliers_notification", supplier );
+
+				for_user.save ( new ServerResponse () {
+					public void onComplete ( JSONValue response ) {
+						Utils.showNotification ( "Configurazione salvata", Notification.INFO );
+					}
+				} );
+			}
+		} );
+
+		return notify;
 	}
 }

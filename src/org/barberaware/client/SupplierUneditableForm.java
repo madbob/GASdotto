@@ -31,6 +31,8 @@ public class SupplierUneditableForm extends FromServerForm {
 		CaptionPanel frame;
 		CustomCaptionPanel cframe;
 		HorizontalPanel hor;
+		VerticalPanel column;
+		BooleanSelector notifies;
 		AddressString addr;
 		ProductsPresentationList products;
 		OpenedOrdersList orders;
@@ -43,14 +45,26 @@ public class SupplierUneditableForm extends FromServerForm {
 		hor.setWidth ( "100%" );
 		add ( hor );
 
+		column = new VerticalPanel ();
+		hor.add ( column );
+		hor.setCellWidth ( column, "50%" );
+
 		cframe = new CustomCaptionPanel ( "Attributi" );
-		hor.add ( cframe );
-		hor.setCellWidth ( cframe, "50%" );
+		column.add ( cframe );
 
 		cframe.addPair ( "Nome", getPersonalizedWidget ( "name", doString () ) );
 		cframe.addPair ( "Nome Contatto", getPersonalizedWidget ( "contact", doString () ) );
 		cframe.addPair ( "Calendario Ordini", getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
 		cframe.addPair ( "Luogo Consegna", getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( false ) ) );
+
+		cframe = new CustomCaptionPanel ( "Configurazioni" );
+		column.add ( cframe );
+
+		if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+			notifies = supplier.doSupplierNotificationsSelector ( Session.getUser () );
+			setExtraWidget ( "send_notifies", notifies );
+			cframe.addPair ( "Invia Notifiche", notifies );
+		}
 
 		cframe = new CustomCaptionPanel ( "Contatti" );
 		hor.add ( cframe );

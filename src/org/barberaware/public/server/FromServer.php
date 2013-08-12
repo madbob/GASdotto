@@ -106,17 +106,21 @@ class FromServerAttribute {
 		return null;
 	}
 
-	private static function filter_object ( $object, $filter, $compress ) {
+	public static function filter_object ( $object, &$filter, $compress ) {
 		if ( $object != null ) {
 			if ( $filter != null ) {
+				$id = $object->getAttribute ( "id" )->value;
 				$id_name = 'has_' . $object->classname;
 
 				if ( isset ( $filter->$id_name ) ) {
-					$id = $object->getAttribute ( "id" )->value;
-
 					if ( search_in_array ( $filter->$id_name, $id ) != -1 )
-						return $id . "";
+						return $id . "";		
 				}
+				else {
+					$filter->$id_name = array ();
+				}
+
+				array_push ( $filter->$id_name, $id );
 			}
 
 			return $object->exportable ( $filter, $compress );
@@ -126,7 +130,7 @@ class FromServerAttribute {
 		}
 	}
 
-	public function export_field ( $parent, $filter, $compress ) {
+	public function export_field ( $parent, &$filter, $compress ) {
 		if ( strstr ( $this->type, '::' ) == false )
 			$type = $this->type;
 		else
@@ -292,6 +296,8 @@ abstract class FromServer {
 			return;
 		}
 
+		$cache [ $token ] = &$this;
+
 		$query = sprintf ( "SELECT * FROM %s WHERE id = %d", $this->tablename, $id );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
@@ -308,8 +314,6 @@ abstract class FromServer {
 			if ( $val !== null )
 				$attr->value = $val;
 		}
-
-		$cache [ $token ] = $this;
 	}
 
 	public function readFromDBAlt ( $parameters, $create ) {
@@ -345,7 +349,11 @@ abstract class FromServer {
 		return true;
 	}
 
-	public function arrayRelationQuery ( $type, $column, $op, $value ) {
+	/*
+		Per selezionare in funzione del valore assunto da un dato attributo dell'oggetto in
+		relazione
+	*/
+	public function arrayRelationCustomQuery ( $type, $column, $op, $value ) {
 		$attr = $this->getAttribute ( $type );
 
 		if ( strstr ( $attr->type, '::' ) == false )
@@ -361,6 +369,15 @@ abstract class FromServer {
 		$ret = "id IN (SELECT ${table}_{$type}.parent FROM ${table}_${type}, ${othertable} WHERE ${table}_${type}.target = ${othertable}.id AND ${othertable}.${column} $op $value)";
 
 		unset ( $obj );
+		return $ret;
+	}
+
+	/*
+		Per selezionare in funzione di una specifica relazione
+	*/
+	public function arrayRelationQuery ( $type, $value ) {
+		$table = $this->tablename;
+		$ret = "id IN (SELECT ${table}_{$type}.parent FROM ${table}_${type} WHERE ${table}_${type}.target = ${value})";
 		return $ret;
 	}
 
@@ -418,7 +435,8 @@ abstract class FromServer {
 		foreach ( $rows as $row ) {
 			$obj = new $this->classname;
 			$obj->readFromDB ( $row [ 'id' ] );
-			array_push ( $ret, $obj->exportable ( $request, $compress ) );
+			array_push ( $ret, FromServerAttribute::filter_object ( $obj, $request, $compress ) );
+			unset ( $obj );
 		}
 
 		return $ret;
@@ -467,10 +485,19 @@ abstract class FromServer {
 			$val = $fields [ $keys [ $i ] ];
 
 			if ( strncmp ( $attr->type, "OBJECT", strlen ( "OBJECT" ) ) == 0 ) {
-				if ( is_object ( $val ) )
-					$attr->value = $val->id . "";
-				else
+				if ( is_object ( $val ) ) {
+					if ( $val->id == -1 ) {
+						list ( $type, $objtype ) = explode ( '::', $attr->type );
+						$attr->value = new $objtype ();
+						$attr->value->from_object_to_internal ( $val );
+					}
+					else {
+						$attr->value = $val->id . "";
+					}
+				}
+				else {
 					$attr->value = $val . "";
+				}
 			}
 
 			else if ( strcmp ( $attr->type, "ADDRESS" ) == 0 ) {
@@ -517,10 +544,11 @@ abstract class FromServer {
 						$ret = $ret->id;
 					else
 						$ret = $ret->getAttribute ( 'id' )->value;
+
+					if ( $ret == -1 )
+						$ret = null;
 				}
 
-				if ( $ret == -1 )
-					$ret = 'null';
 				break;
 
 			case "DATE":
@@ -564,17 +592,19 @@ abstract class FromServer {
 					for ( $a = 0; $a < count ( $arr ); $a++ ) {
 						$element = $arr [ $a ];
 
-						if ( check_acl_easy ( $element->type, $element->id, 1 ) == false )
+						if ( is_object ( $element ) )
+							$singleid = $element->id;
+						else
+							$singleid = $element;
+
+						if ( check_acl_easy ( $objtype, $singleid, 1 ) == false )
 							continue;
 
-						$singleid = $element->id;
-
-						if ( $singleid == -1 ) {
+						if ( is_object ( $element ) && $singleid == -1 ) {
 							$tmpobj = new $element->type ();
 							$singleid = $tmpobj->save ( $element );
+							unset ( $tmpobj );
 						}
-
-						unset ( $tmpobj );
 
 						$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
 									$this->tablename, $name, $id, $singleid );
@@ -609,63 +639,81 @@ abstract class FromServer {
 					unset ( $existing );
 					unset ( $tmpobj );
 
-					/*
-						Procedimento:
-						- raccolgo tutti gli elementi gia' salvati nel DB
-						- li confronto con quelli nell'array in ingresso
-							- se sono nell'array e anche nel DB, gli assegno -100
-							- se sono nel DB ma non nell'array, li elimino
-						- ripasso l'array
-							- se hanno ID = -1 li salvo nel DB come nuovi oggetti, ed assegno loro il nuovo ID
-							- se hanno ID = -100 li salto (perche' ci sono gia', l'ho controllato prima)
-							- se ID != -100, salvo
-					*/
+					$founds = array ();
 
-					foreach ( $rows as $row ) {
+					for ( $a = 0; $a < count ( $arr ); $a++ ) {
+						$element = $arr [ $a ];
 						$found = false;
 
-						for ( $a = 0; $a < count ( $arr ); $a++ ) {
-							$element = $arr [ $a ];
+						if ( is_object ( $element ) )
 							$singleid = $element->id;
+						else
+							$singleid = $element;
 
+						if ( is_object ( $element ) && $singleid == -1 ) {
+							$tmpobj = new $element->type ();
+							$singleid = $tmpobj->save ( $element );
+							unset ( $tmpobj );
+						}
+
+						foreach ( $rows as $row ) {
 							if ( $singleid == $row [ 'target' ] ) {
-								if ( check_acl_easy ( $element->type, $singleid, 1 ) ) {
-									$tmpobj = new $element->type ();
-									$tmpobj->save ( $element );
-								}
-
-								$element->id = -100;
 								$found = true;
+								$founds [] = $singleid;
 								break;
 							}
 						}
 
 						if ( $found == false ) {
-							$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d AND target = %d",
-										$this->tablename, $name, $id, $row [ 'target' ] );
-							query_and_check ( $query, "Impossibile eliminare oggetto per sincronizzare oggetto " . $this->classname );
+							$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
+										$this->tablename, $name, $id, $singleid );
+							query_and_check ( $query, "Impossibile aggiungere elemento per sincronizzare oggetto " . $this->classname );
+							$founds [] = last_id ( $this->tablename . '_' . $name );
 						}
 					}
 
-					for ( $a = 0; $a < count ( $arr ); $a++ ) {
-						$single_data = $arr [ $a ];
-
-						if ( $single_data->id != -100 ) {
-							if ( check_acl_easy ( $single_data->type, $single_data->id, 1 ) == false )
-								continue;
-
-							if ( $single_data->id == -1 ) {
-								$tmpobj = new $single_data->type ();
-								$single_data->id = $tmpobj->save ( $single_data );
-							}
-
-							$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
-										$this->tablename, $name, $id, $single_data->id );
-							query_and_check ( $query, "Impossibile aggiungere elemento per sincronizzare oggetto " . $this->classname );
-						}
+					if ( count ( $founds ) != 0 ) {
+						$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d AND target NOT IN (%s)",
+									$this->tablename, $name, $id, join ( ', ', $founds ) );
+						query_and_check ( $query, "Impossibile eliminare oggetto per sincronizzare oggetto " . $this->classname );
 					}
 				}
 			}
+		}
+	}
+
+	protected function save_objects ( $obj, $id ) {
+		$updates = array ();
+
+		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+			$attr = $this->attributes [ $i ];
+
+			if ( strstr ( $attr->type, '::' ) == false )
+				$type = $attr->type;
+			else
+				list ( $type, $objtype ) = explode ( '::', $attr->type );
+
+			if ( $type == "OBJECT" ) {
+				$name = $attr->name;
+
+				if ( property_exists ( $obj, $name ) == false )
+					continue;
+
+				$sub = $obj->$name;
+
+				if ( is_object ( $sub ) ) {
+					$tmpobj = new $objtype ();
+					$sub_id = $tmpobj->save ( $sub );
+					$updates [] = "$name = $sub_id";
+				}
+			}
+		}
+
+		if ( count ( $updates ) != 0 ) {
+			$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
+						$this->tablename, join (', ', $updates), $id );
+
+			query_and_check ( $query, "Impossibile salvare oggetti" );
 		}
 	}
 
@@ -673,7 +721,10 @@ abstract class FromServer {
 		global $dbdriver;
 		global $current_user;
 
-		$this->from_object_to_internal ( $obj );
+		if ( $obj instanceof FromServer )
+			$this->dupBy ( $obj );
+		else
+			$this->from_object_to_internal ( $obj );
 
 		$check_query = "";
 		if ( $this->user_check != null ) {
@@ -730,6 +781,7 @@ abstract class FromServer {
 
 			$ret = last_id ( $this->tablename );
 			$this->save_arrays ( true, $obj, $ret );
+			$this->save_objects ( $obj, $ret );
 			$this->getAttribute ( 'id' )->value = $ret;
 
 			if ( $this->is_public == false )
@@ -761,6 +813,7 @@ abstract class FromServer {
 
 			$ret = $id;
 			$this->save_arrays ( false, $obj, $ret );
+			$this->save_objects ( $obj, $ret );
 		}
 
 		return $ret;
@@ -866,6 +919,14 @@ abstract class FromServer {
 		return $id;
 	}
 
+	protected function dupBy ( $obj ) {
+		for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+			$my_attr = $this->attributes [ $i ];
+			$his_attr = $obj->getAttribute ( $my_attr->name );
+			$my_attr->value = $his_attr->value;
+		}
+	}
+
 	public function exportable ( $filter = null, $compress = false ) {
 		$obj = new stdClass ();
 
@@ -877,8 +938,19 @@ abstract class FromServer {
 			$name = $attr->name;
 			$value = $attr->export_field ( $this, $filter, $compress );
 
-			if ( $value != null )
+			if ( $value != null ) {
 				$obj->$name = $value;
+
+				/*
+				if ( $filter != null && is_object ( $value ) && property_exists ( $value, 'id' ) ) {
+					$filter_name = 'has_' . $this->classname;
+					if ( property_exists ( $filter, $filter_name ) == false )
+						$filter->$filter_name = array ();
+
+					array_push ( $filter->$filter_name, $value->id );
+				}
+				*/
+			}
 		}
 
 		if ( $this->is_public == false ) {

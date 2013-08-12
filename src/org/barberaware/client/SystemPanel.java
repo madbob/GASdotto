@@ -170,6 +170,10 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Configurazione Mail", ver.getPersonalizedWidget ( "mail_conf", mailConf ) );
 		mailConf.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
+		mailList = new DummyTextBox ();
+		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
+		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
+
 		rid = new BooleanSelector ();
 		rid.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {
@@ -185,9 +189,7 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Configurazione RID", ver.getPersonalizedWidget ( "rid_conf", ridConf ) );
 		ridConf.setEnabled ( Session.getGAS ().getBool ( "use_rid" ) );
 
-		mailList = new DummyTextBox ();
-		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
-		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
+		frame.addPair ( "Abilita Gestione Cassa", ver.getWidget ( "use_bank" ) );
 
 		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
 		frame.addPair ( "Elenco Utenti", ver.getWidget ( "use_fullusers" ) );

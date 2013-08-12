@@ -34,14 +34,17 @@ class User extends FromServer {
 		$this->addAttribute ( "mail", "STRING" );
 		$this->addAttribute ( "mail2", "STRING" );
 		$this->addAttribute ( "address", "ADDRESS" );
-		$this->addAttribute ( "paying", "DATE" );
+		$this->addAttribute ( "paying", "OBJECT::BankMovement" );
 		$this->addAttribute ( "privileges", "INTEGER", "1" );
 		$this->addAttribute ( "family", "INTEGER" );
 		$this->addAttribute ( "photo", "STRING" );
 		$this->addAttribute ( "lastlogin", "DATE" );
 		$this->addAttribute ( "leaving_date", "DATE" );
 		$this->addAttribute ( "bank_account", "STRING" );
+		$this->addAttribute ( "current_balance", "FLOAT" );
+		$this->addAttribute ( "deposit", "OBJECT::BankMovement" );
 		$this->addAttribute ( "shipping", "OBJECT::ShippingPlace", ShippingPlace::getDefault () );
+		$this->addAttribute ( "suppliers_notification", "ARRAY::Supplier" );
 
 		$this->setSorting ( "surname" );
 		$this->setPublic ( false );
@@ -103,6 +106,11 @@ class User extends FromServer {
 		$query = sprintf ( "UPDATE %s SET lastlogin = DATE('%s') WHERE id = %d",
 		                   $this->tablename, date ( "Y-m-d", time () ), $this->getAttribute ( "id" )->value );
 		query_and_check ( $query, "Impossibile salvare data login" );
+	}
+
+	public function getBySupplierSubscription ( $supplier_id ) {
+		$query = parent::arrayRelationQuery ( 'suppliers_notification', $supplier_id );
+		return parent::getByQuery ( null, false, $query );
 	}
 }
 

@@ -116,6 +116,7 @@ public class DeliveryPanel extends GenericPanel {
 				ArrayList uorders;
 				FromServerForm form;
 				FromServerForm f;
+				CashCount cash;
 
 				if ( object.getBool ( "parent_aggregate" ) == true ) {
 					onDestroy ( object );
@@ -130,6 +131,9 @@ public class DeliveryPanel extends GenericPanel {
 					}
 
 					form.emblems ().activate ( "status", object.getInt ( "status" ) );
+
+					cash = ( CashCount ) form.retriveInternalWidget ( "cash" );
+					cash.clean ();
 
 					uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
 					for ( int i = 0; i < uorders.size (); i++ ) {
@@ -494,7 +498,6 @@ public class DeliveryPanel extends GenericPanel {
 				break;
 			case 1:
 				summary.modOrder ( uorder );
-				cash.modOrder ( uorder );
 				break;
 			case 2:
 				summary.delOrder ( uorder );

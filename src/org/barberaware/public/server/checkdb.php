@@ -44,10 +44,24 @@ function linking_table_query ( $obj, $name, $objtype ) {
 function update_column ( $table, $column, $type ) {
 	global $dbdriver;
 
-	if ( $dbdriver == 'pgsql' )
-		$query = sprintf ( 'ALTER TABLE %s ALTER COLUMN %s TYPE %s', $table, $column, $type );
-	else
+	if ( $dbdriver == 'pgsql' ) {
+		if ( strpos ( $type, 'references' ) !== false ) {
+			$query = sprintf ( 'ALTER TABLE %s ALTER COLUMN %s TYPE int USING 0', $table, $column );
+			local_query_and_check ( $query, "Impossibile modificare tipo della colonna" );
+
+			$type = substr ( $type, 4 );
+			$query = sprintf ( 'ALTER TABLE %s ADD CONSTRAINT %s_%s_fkey FOREIGN KEY (%s) %s', $table, $table, $column, $column, $type );
+		}
+		else {
+			$query = sprintf ( 'ALTER TABLE %s ALTER COLUMN %s TYPE %s', $table, $column, $type );
+		}
+	}
+	else {
+		/*
+			TODO	Gestire correttamente il cambiamento in foreign key per MySQL
+		*/
 		$query = sprintf ( 'ALTER TABLE %s CHANGE %s %s %s', $table, $column, $column, $type );
+	}
 
 	local_query_and_check ( $query, "Impossibile modificare tipo della colonna" );
 }
@@ -290,6 +304,67 @@ function test_class ( $class ) {
 	return $ret;
 }
 
+function migrate_table ( $class ) {
+	global $db;
+	global $dbdriver;
+
+	$obj = new $class;
+
+	$query = 'SELECT * FROM ' . $obj->tablename . ' ORDER BY id LIMIT 1';
+	$ret = $db->query ( $query );
+
+	if ( $ret == false )
+		return;
+
+	switch ( $class ) {
+		case 'User':
+			for ( $i = 0; $i < $ret->columnCount (); $i++ ) {
+				$meta = $ret->getColumnMeta ( $i );
+
+				/*
+					Per migrare la quota annuale da semplice data a BankMovement
+				*/
+				if ( $meta [ 'name' ] == 'paying' ) {
+					$t = $meta [ 'native_type' ];
+					$change = check_type ( 'OBJECT::BankMovement', $t );
+
+					if ( $change != null ) {
+						$map = array ();
+						$tmp = new BankMovement ();
+
+						$rows = $ret->fetchAll ( PDO::FETCH_ASSOC );
+
+						foreach ( $rows as $row ) {
+							$userid = $row [ 'id' ];
+
+							$d = new stdClass ();
+							$d->id = -1;
+							$d->movementtype = 2;
+							$d->method = 1;
+							$d->amount = 0;
+							$d->payuser = $userid;
+							$d->paysupplier = -1;
+							$d->date = $row [ 'paying' ];
+							$id = $tmp->save ( $d );
+							unset ( $d );
+
+							$map [ $userid ] = $id;
+						}
+
+						update_column ( $obj->tablename, 'paying', $change );
+
+						foreach ( $map as $user => $movement ) {
+							$query = sprintf ( "UPDATE %s SET paying = %d WHERE id = %d", $obj->tablename, $movement, $user );
+							local_query_and_check ( $query, "Impossibile aggiornare colonna quote utenti" );
+						}
+					}
+				}
+			}
+
+			break;
+	}
+}
+
 function check_manual_columns ( $tablename, $columns, $ret ) {
 	$found_attrs = array ();
 
@@ -410,6 +485,8 @@ function test_static_tables () {
 function check_db_schema () {
 	test_class ( 'GAS' );
 	test_class ( 'ShippingPlace' );
+	test_class ( 'BankMovement' );
+	migrate_table ( 'User' );
 	test_class ( 'User' );
 	test_class ( 'CustomFile' );
 	test_class ( 'Notification' );
