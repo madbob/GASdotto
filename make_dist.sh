@@ -2,6 +2,8 @@
 
 version=$1
 
+ant -f build.xml.prod
+
 cp -r war/org.barberaware.GASdotto /tmp/gasdotto-${version}
 cd /tmp/gasdotto-${version}
 
