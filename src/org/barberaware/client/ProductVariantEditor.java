@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -45,8 +46,8 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		setWidget ( pan );
 
 		if ( new_item == true ) {
-			but = new Button ( "Duplica da variante esistente", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Duplica da variante esistente", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					runDuplication ();
 				}
 			} );
@@ -145,8 +146,8 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 		if ( list.getItemCount () == 0 ) {
 			pan.add ( new Label ( "Non ci sono altri prodotti con varianti da duplicare" ) );
 
-			but = new Button ( "Annulla", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Annulla", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					dialog.hide ();
 				}
 			} );

@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class PasswordBox extends Composite implements StringWidget {
 	private PasswordTextBox		main;
@@ -39,8 +40,8 @@ public class PasswordBox extends Composite implements StringWidget {
 		main = new PasswordTextBox ();
 		main.setVisibleLength ( 40 );
 		main.setStyleName ( "password-selector" );
-		main.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
+		main.addFocusHandler ( new FocusHandler () {
+			public void onFocus ( FocusEvent event ) {
 				if ( opened == false ) {
 					opened = true;
 
@@ -51,10 +52,6 @@ public class PasswordBox extends Composite implements StringWidget {
 					password.setFocus ( true );
 					dialog.show ();
 				}
-			}
-
-			public void onLostFocus ( Widget sender ) {
-				/* dummy */
 			}
 		} );
 

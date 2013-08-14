@@ -29,63 +29,56 @@ public class PercentageBox extends TextBox implements PercentageWidget {
 		valid = true;
 		setText ( "0" );
 
-		addFocusListener (
-			new FocusListener () {
-				public void onFocus ( Widget sender ) {
-				}
+		addBlurHandler ( new BlurHandler () {
+			public void onBlur ( BlurEvent event ) {
+				String text;
 
-				public void onLostFocus ( Widget sender ) {
-					String text;
+				text = getText ();
+				valid = true;
 
-					text = getText ();
-					valid = true;
+				if ( text.equals ( "" ) )
+					setText ( "0" );
 
-					if ( text.equals ( "" ) )
-						setText ( "0" );
+				else {
+					int len;
 
-					else {
-						int len;
+					len = text.length ();
 
-						len = text.length ();
-
-						for ( int i = 0; i < len; i++ )
-							if ( text.charAt ( i ) == '%' ) {
-								if ( i != len - 1 ) {
-									Utils.showNotification ( "Valore non valido" );
-									valid = false;
-								}
-
-								break;
+					for ( int i = 0; i < len; i++ )
+						if ( text.charAt ( i ) == '%' ) {
+							if ( i != len - 1 ) {
+								Utils.showNotification ( "Valore non valido" );
+								valid = false;
 							}
-					}
+
+							break;
+						}
 				}
 			}
-		);
+		} );
 
-		addKeyDownHandler (
-			new KeyDownHandler () {
-				public void onKeyDown ( KeyDownEvent event ) {
-					int keycode;
+		addKeyDownHandler ( new KeyDownHandler () {
+			public void onKeyDown ( KeyDownEvent event ) {
+				int keycode;
 
-					keycode = event.getNativeKeyCode();
+				keycode = event.getNativeKeyCode();
 
-					if ( ( keycode < 48 || keycode > 57 ) && (
-							( keycode != (char) KeyCodes.KEY_TAB ) &&
-							( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
-							( keycode != (char) KeyCodes.KEY_LEFT ) &&
-							( keycode != (char) KeyCodes.KEY_UP ) &&
-							( keycode != (char) KeyCodes.KEY_RIGHT ) &&
-							( keycode != (char) KeyCodes.KEY_DOWN ) &&
-							( keycode != 190 ) &&
-							( keycode != 37 ) )
-						) {
+				if ( ( keycode < 48 || keycode > 57 ) && (
+						( keycode != (char) KeyCodes.KEY_TAB ) &&
+						( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
+						( keycode != (char) KeyCodes.KEY_LEFT ) &&
+						( keycode != (char) KeyCodes.KEY_UP ) &&
+						( keycode != (char) KeyCodes.KEY_RIGHT ) &&
+						( keycode != (char) KeyCodes.KEY_DOWN ) &&
+						( keycode != 190 ) &&
+						( keycode != 37 ) )
+					) {
 
-						event.preventDefault ();
-						event.stopPropagation ();
-					}
+					event.preventDefault ();
+					event.stopPropagation ();
 				}
 			}
-		);
+		} );
 
 		setVisibleLength ( 6 );
 	}

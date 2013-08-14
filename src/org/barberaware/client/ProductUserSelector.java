@@ -27,6 +27,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -79,13 +80,13 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		if ( edit == true ) {
 			qb = new FloatBox ();
 
-			qb.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
+			qb.addFocusHandler ( new FocusHandler () {
+				public void onFocus ( FocusEvent event ) {
 					if ( constraints != null ) {
 						int index;
 						FromServer prod;
 
-						index = firstRow.getWidgetIndex ( sender );
+						index = firstRow.getWidgetIndex ( ( Widget ) event.getSource () );
 						prod = currentValue.getObject ( "product" );
 
 						if ( hasMaxAvailable == true ) {
@@ -102,7 +103,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 									JSONObject data;
 
 									try {
-										jsonObject = JSONParser.parse ( response.getText () );
+										jsonObject = JSONParser.parseStrict ( response.getText () );
 										data = jsonObject.isObject ();
 										quantity = Float.parseFloat ( data.get ( "quantity" ).isString ().stringValue () );
 
@@ -137,8 +138,10 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 						}
 					}
 				}
+			} );
 
-				public void onLostFocus ( Widget sender ) {
+			qb.addBlurHandler ( new BlurHandler () {
+				public void onBlur ( BlurEvent event ) {
 					float val;
 					float input;
 					float relative_max;
@@ -149,7 +152,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 					if ( constraints != null ) {
 						int index;
 
-						index = firstRow.getWidgetIndex ( sender );
+						index = firstRow.getWidgetIndex ( ( Widget ) event.getSource () );
 						firstRow.remove ( index + 1 );
 						firstRow.insert ( measure, index + 1 );
 					}

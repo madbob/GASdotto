@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -353,14 +354,14 @@ public class UsersPanel extends GenericPanel {
 		pan.add ( filter );
 
 		toggleLeavedView = new CheckBox ( "Mostra Utenti Cessati" );
-		toggleLeavedView.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggleLeavedView.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				boolean show;
 				ArrayList forms;
 				CheckBox myself;
 				FromServerForm form;
 
-				myself = ( CheckBox ) sender;
+				myself = ( CheckBox ) event.getSource ();
 				forms = main.collectForms ();
 				show = myself.isChecked ();
 

@@ -146,8 +146,8 @@ public class Login extends Composite {
 		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		contents.add ( buttons );
 
-		button = new Button ( "Prometto che cambierò password!", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new Button ( "Prometto che cambierò password!", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				Window.Location.reload ();
 			}
 		} );
@@ -234,8 +234,8 @@ public class Login extends Composite {
 		contents.add ( bar );
 
 		but = new Button ( "Resetta Password" );
-		but.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				String mail;
 				ObjectRequest params;
 
@@ -264,8 +264,8 @@ public class Login extends Composite {
 		bar.add ( but );
 
 		but = new Button ( "Annulla" );
-		but.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				recoveryDialog.hide ();
 			}
 		} );
@@ -300,8 +300,8 @@ public class Login extends Composite {
 		box.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 		form.setWidget ( 2, 1, box );
 
-		button = new Button ( "Login", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new Button ( "Login", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				executeLogin ();
 			}
 		} );
@@ -318,8 +318,8 @@ public class Login extends Composite {
 			passwordrecovery.addStyleName ( "small-text" );
 			passwordrecovery.addStyleName ( "top-spaced" );
 
-			passwordrecovery.addClickListener ( new ClickListener () {
-				public void onClick ( Widget sender ) {
+			passwordrecovery.addClickHandler ( new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					recoveryDialog = passwordRecoveryBox ();
 					recoveryDialog.center ();
 					recoveryDialog.show ();

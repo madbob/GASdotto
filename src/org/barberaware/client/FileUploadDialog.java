@@ -21,6 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -53,8 +54,8 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 		main.setSpacing ( 5 );
 
 		button = new Button ();
-		button.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				if ( opened == false ) {
 					opened = true;
 					dialog.center ();
@@ -118,16 +119,16 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		pan.add ( buttons );
 
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Salva", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				opened = false;
 				form.submit ();
 			}
 		} );
 		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Annulla", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				opened = false;
 				dialog.hide ();
 			}
@@ -148,7 +149,7 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 				dialog.hide ();
 
 				try {
-					jsonObject = JSONParser.parse ( str );
+					jsonObject = JSONParser.parseStrict ( str );
 					if ( manageUploadResponse ( jsonObject ) == false )
 						return;
 				}

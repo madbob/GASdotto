@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class OrderCiclyc extends Composite implements StringWidget {
 	public int			ORDER_NEVER_REPEATS		= 0;
@@ -50,18 +51,14 @@ public class OrderCiclyc extends Composite implements StringWidget {
 		main = new TextBox ();
 		main.setStyleName ( "cycle-selector" );
 		main.setVisibleLength ( 40 );
-		main.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
+		main.addFocusHandler ( new FocusHandler () {
+			public void onFocus ( FocusEvent event ) {
 				if ( opened == false ) {
 					opened = true;
 					syncToDialog ();
 					dialog.center ();
 					dialog.show ();
 				}
-			}
-
-			public void onLostFocus ( Widget sender ) {
-				/* dummy */
 			}
 		} );
 
@@ -85,8 +82,8 @@ public class OrderCiclyc extends Composite implements StringWidget {
 		selector.addItem ( "Ogni anno", Integer.toString ( ORDER_REPEATS_EACH_YEAR ) );
 		selector.addItem ( "Specifica manuale", Integer.toString ( ORDER_REPEATS_DEFINED ) );
 		pan.add ( selector );
-		selector.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		selector.addChangeHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				if ( selector.getSelectedIndex () == ORDER_REPEATS_DEFINED )
 					dateSelector.setVisible ( true );
 				else

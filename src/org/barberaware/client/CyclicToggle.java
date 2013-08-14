@@ -19,11 +19,13 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
+import com.google.gwt.event.shared.*;
+import com.google.gwt.event.logical.shared.*;
 
-public class CyclicToggle extends Composite implements IntNumericWidget, SourcesChangeEvents {
+public class CyclicToggle extends Composite implements IntNumericWidget, HasValueChangeHandlers<Integer> {
 	private DeckPanel			main;
 	private int				defaultSelection;
-	private ChangeListenerCollection	changeCallbacks;
 
 	public CyclicToggle ( boolean active ) {
 		FocusPanel focus;
@@ -36,8 +38,8 @@ public class CyclicToggle extends Composite implements IntNumericWidget, Sources
 		initWidget ( focus );
 
 		if ( active == true ) {
-			focus.addClickListener ( new ClickListener () {
-				public void onClick ( Widget sender ) {
+			focus.addClickHandler ( new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					int index;
 
 					index = main.getVisibleWidget ();
@@ -47,7 +49,7 @@ public class CyclicToggle extends Composite implements IntNumericWidget, Sources
 						index = 0;
 
 					main.showWidget ( index );
-					checkChange ();
+					propagateEvent ( index );
 				}
 			} );
 		}
@@ -84,6 +86,12 @@ public class CyclicToggle extends Composite implements IntNumericWidget, Sources
 		defaultSelection = sel;
 	}
 
+	private void propagateEvent ( int index ) {
+		ValueChangeEvent.fire ( this, index );
+	}
+
+	/****************************************************************** IntNumericWidget */
+
 	public void setVal ( int state ) {
 		if ( state > -1 && state < main.getWidgetCount () )
 			main.showWidget ( state );
@@ -95,21 +103,9 @@ public class CyclicToggle extends Composite implements IntNumericWidget, Sources
 		return main.getVisibleWidget ();
 	}
 
-	private void checkChange () {
-		if ( changeCallbacks != null )
-			changeCallbacks.fireChange ( this );
-	}
+	/****************************************************************** HasValueChangeHandlers */
 
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ChangeListenerCollection ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
+	public HandlerRegistration addValueChangeHandler ( ValueChangeHandler<Integer> handler ) {
+		return addHandler ( handler, ValueChangeEvent.getType () );
 	}
 }

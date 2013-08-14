@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -31,15 +32,15 @@ public class DialogButtons extends HorizontalPanel implements SavingDialog {
 		this.setStyleName ( "dialog-buttons" );
 		this.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Salva", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				fireClick ( 0 );
 			}
 		} );
 		this.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Annulla", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				fireClick ( 1 );
 			}
 		} );

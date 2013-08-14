@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class UserSelector extends DeckPanel implements ObjectWidget, Lockable {
 	private FromServerSelector			select;
@@ -34,8 +35,8 @@ public class UserSelector extends DeckPanel implements ObjectWidget, Lockable {
 		user = Session.getUser ();
 
 		first = new Label ( user.getString ( "name" ) + " (clicca qui per modificare)" );
-		first.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		first.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				showWidget ( 1 );
 				fire ();
 			}

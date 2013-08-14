@@ -414,7 +414,7 @@ public class StatisticsPanel extends GenericPanel {
 				JSONObject obj;
 
 				try {
-					jsonObject = JSONParser.parse ( response.getText () );
+					jsonObject = JSONParser.parseStrict ( response.getText () );
 					obj = jsonObject.isObject ();
 					populateUsersGraph ( obj.get ( "data" ).isArray () );
 				}
@@ -452,7 +452,7 @@ public class StatisticsPanel extends GenericPanel {
 				JSONObject obj;
 
 				try {
-					jsonObject = JSONParser.parse ( response.getText () );
+					jsonObject = JSONParser.parseStrict ( response.getText () );
 					obj = jsonObject.isObject ();
 					populateProductsGraph ( obj.get ( "data" ).isArray () );
 				}

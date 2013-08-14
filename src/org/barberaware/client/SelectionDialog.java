@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -83,11 +84,11 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		check = new CheckBox ();
 
 		if ( selectionMode == SELECTION_MODE_SINGLE ) {
-			check.addClickListener ( new ClickListener () {
-				public void onClick ( Widget sender ) {
+			check.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 					CheckBox c;
 
-					c = ( CheckBox ) sender;
+					c = ( CheckBox ) event.getSource ();
 
 					if ( c.isChecked () )
 						uncheckAllBut ( c );
@@ -129,13 +130,16 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 
 		toggle = new Button ( name );
 
-		toggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggle.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				int pos;
 				int num;
+				Widget sender;
 				CheckBox checkbox;
 				FromServer tmp;
 				FilterCallback callback;
+
+				sender = ( Widget ) event.getSource ();
 
 				/*
 					Se il pannello gia' comprende i tasti "seleziona tutto" e "deseleziona
@@ -256,8 +260,8 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		buttons = new HorizontalPanel ();
 
 		toggle = new Button ( "Seleziona Tutti" );
-		toggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggle.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				CheckBox iter;
 
 				for ( int i = 0; i < itemsTable.getRowCount (); i++ ) {
@@ -269,8 +273,8 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 		buttons.add ( toggle );
 
 		toggle = new Button ( "Deseleziona Tutti" );
-		toggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggle.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				CheckBox iter;
 
 				for ( int i = 0; i < itemsTable.getRowCount (); i++ ) {

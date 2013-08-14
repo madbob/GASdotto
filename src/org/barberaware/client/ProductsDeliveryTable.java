@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -76,8 +77,8 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		Button ret;
 
 		ret = new Button ( "Aggiungi Prodotto" );
-		ret.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		ret.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				ProductDeliveryCell row;
 
 				row = new ProductDeliveryCell ();
@@ -94,8 +95,8 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		Button ret;
 
 		ret = new Button ( "Consegna Tutto" );
-		ret.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		ret.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				float total_sum;
 				ProductDeliveryCell row;
 

@@ -31,9 +31,10 @@ import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Element;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
-public class CalendarWidget extends DialogBox implements ClickListener, SavingDialog {
-	private class NavBar extends Composite implements ClickListener {
+public class CalendarWidget extends DialogBox implements ClickHandler, SavingDialog {
+	private class NavBar extends Composite implements ClickHandler {
 		public DockPanel	bar = new DockPanel ();
 		public Button		prevMonth = new Button ( "&lt;", this );
 		public Button		nextMonth = new Button ( "&gt;", this );
@@ -67,7 +68,11 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 			bar.setCellWidth ( title, "100%" );
 		}
 
-		public void onClick ( Widget sender ) {
+		public void onClick ( ClickEvent event ) {
+			Widget sender;
+
+			sender = ( Widget ) event.getSource ();
+
 			if ( sender == prevMonth )
 				calendar.prevMonth ();
 			else if ( sender == nextMonth )
@@ -94,27 +99,15 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 				bar.setCellVerticalAlignment ( head, HasVerticalAlignment.ALIGN_MIDDLE );
 				bar.setCellWidth ( head, "100%" );
 
-				year.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-						/* dummy */
-					}
-
-					public void onLostFocus ( Widget sender ) {
+				year.addBlurHandler ( new BlurHandler () {
+					public void onBlur ( BlurEvent event ) {
 						calendar.forceYear ( year.getVal () );
 					}
 				} );
 
-				year.addKeyboardListener ( new KeyboardListener () {
-					public void onKeyDown ( Widget sender, char keyCode, int modifiers ) {
-						/* dummy */
-					}
-
-					public void onKeyUp ( Widget sender, char keyCode, int modifiers ) {
+				year.addKeyUpHandler ( new KeyUpHandler () {
+					public void onKeyUp ( KeyUpEvent event ) {
 						calendar.forceYear ( year.getVal () );
-					}
-
-					public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
-						/* dummy */
 					}
 				} );
 			}
@@ -169,8 +162,8 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 
 		setText ( "Seleziona una Data" );
 
-		exit = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		exit = new Button ( "Annulla", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				fireCallbacks ( 1 );
 			}
 		} );
@@ -238,7 +231,7 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 					HTML html = new CellHTML(
 					"<span>" + String.valueOf(displayNum) + "</span>",
 					displayNum);
-					html.addClickListener(this);
+					html.addClickHandler(this);
 					grid.getCellFormatter().setStyleName(i, k, "cell");
 					if (displayNum == today) {
 						grid.getCellFormatter().addStyleName(i, k, "today");
@@ -334,8 +327,8 @@ public class CalendarWidget extends DialogBox implements ClickListener, SavingDi
 		return date;
 	}
 
-	public void onClick(Widget sender) {
-		CellHTML cell = (CellHTML)sender;
+	public void onClick(ClickEvent event) {
+		CellHTML cell = (CellHTML) event.getSource ();
 		setDate(getYear(), getMonth(), cell.getDay());
 		drawCalendar();
 		fireCallbacks ( 0 );

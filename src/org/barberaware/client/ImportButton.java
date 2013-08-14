@@ -22,6 +22,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -195,16 +196,16 @@ public class ImportButton extends FileUploadDialog {
 			suppliersList.setEnabled ( true );
 		}
 
-		existingNo.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				if ( ( ( RadioButton ) sender ).isChecked () )
+		existingNo.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				if ( ( ( RadioButton ) event.getSource () ).isChecked () )
 					suppliersList.setEnabled ( true );
 			}
 		});
 
-		existing.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				if ( ( ( RadioButton ) sender ).isChecked () )
+		existing.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				if ( ( ( RadioButton ) event.getSource () ).isChecked () )
 					suppliersList.setEnabled ( false );
 			}
 		});

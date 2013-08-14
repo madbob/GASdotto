@@ -26,41 +26,33 @@ public class NumberBox extends TextBox implements IntNumericWidget {
 	public NumberBox () {
 		setText ( "0" );
 
-		addFocusListener (
-			new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					/* dummy */
-				}
+		addBlurHandler ( new BlurHandler () {
+			public void onBlur ( BlurEvent event ) {
+				if ( getText ().equals ( "" ) )
+					setText ( "0" );
+			}
+		} );
 
-				public void onLostFocus ( Widget sender ) {
-					if ( getText ().equals ( "" ) )
-						setText ( "0" );
+		addKeyDownHandler ( new KeyDownHandler () {
+			public void onKeyDown ( KeyDownEvent event ) {
+				int keycode;
+
+				keycode = event.getNativeKeyCode();
+
+				if ( ( keycode < 48 || keycode > 57 ) && (
+						( keycode != (char) KeyCodes.KEY_TAB ) &&
+						( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
+						( keycode != (char) KeyCodes.KEY_LEFT ) &&
+						( keycode != (char) KeyCodes.KEY_UP ) &&
+						( keycode != (char) KeyCodes.KEY_RIGHT ) &&
+						( keycode != (char) KeyCodes.KEY_DOWN ) )
+					) {
+
+					event.preventDefault ();
+					event.stopPropagation ();
 				}
 			}
-		);
-
-		addKeyDownHandler (
-			new KeyDownHandler () {
-				public void onKeyDown ( KeyDownEvent event ) {
-					int keycode;
-
-					keycode = event.getNativeKeyCode();
-
-					if ( ( keycode < 48 || keycode > 57 ) && (
-							( keycode != (char) KeyCodes.KEY_TAB ) &&
-							( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
-							( keycode != (char) KeyCodes.KEY_LEFT ) &&
-							( keycode != (char) KeyCodes.KEY_UP ) &&
-							( keycode != (char) KeyCodes.KEY_RIGHT ) &&
-							( keycode != (char) KeyCodes.KEY_DOWN ) )
-						) {
-
-						event.preventDefault ();
-						event.stopPropagation ();
-					}
-				}
-			}
-		);
+		} );
 	}
 
 	public void setVal ( int value ) {

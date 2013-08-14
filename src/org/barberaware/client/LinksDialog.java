@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class LinksDialog extends Composite {
 	private String		mainText;
@@ -70,8 +71,8 @@ public class LinksDialog extends Composite {
 		buttons = new HorizontalPanel ();
 		buttons.setStyleName ( "dialog-buttons" );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Annulla", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				dialog.hide ();
 			}
 		} );
@@ -90,8 +91,8 @@ public class LinksDialog extends Composite {
 		HTML button;
 
 		button = Utils.getServer ().fileLink ( mainText + " - " + name, "", link );
-		button.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				dialog.hide ();
 			}
 		} );

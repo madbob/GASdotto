@@ -22,6 +22,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -669,7 +670,7 @@ public class OrdersEditPanel extends GenericPanel {
 				}
 
 				try {
-					jsonObject = JSONParser.parse ( response.getText () );
+					jsonObject = JSONParser.parseStrict ( response.getText () );
 
 					products = jsonObject.isArray ();
 					if ( products == null ) {
@@ -928,11 +929,11 @@ public class OrdersEditPanel extends GenericPanel {
 		aggregateToggle = new CheckBox ( "Modalità Aggregazione Ordini" );
 		box.add ( aggregateToggle );
 
-		aggregateToggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		aggregateToggle.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				CheckBox self;
 
-				self = ( CheckBox ) sender;
+				self = ( CheckBox ) event.getSource ();
 
 				if ( self.isChecked () == true ) {
 					container.showWidget ( 1 );

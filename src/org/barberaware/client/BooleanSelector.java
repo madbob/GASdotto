@@ -19,74 +19,21 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
-public class BooleanSelector extends ToggleButton implements SourcesChangeEvents, BooleanWidget {
-	private boolean				currentState;
-	private ChangeListenerCollection	changeCallbacks;
-
+public class BooleanSelector extends ToggleButton implements BooleanWidget {
 	public BooleanSelector () {
 		super ( "NO", "SI" );
 		setStyleName ( "boolean-selector" );
-
-		currentState = false;
-
-		addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
-				BooleanSelector myself;
-
-				myself = ( BooleanSelector ) sender;
-				checkChange ( myself );
-			}
-		} );
-
-		addKeyboardListener ( new KeyboardListener () {
-			public void onKeyDown ( Widget sender, char keyCode, int modifiers ) {
-				/* dummy */
-			}
-
-			public void onKeyPress ( Widget sender, char keyCode, int modifiers ) {
-				/* dummy */
-			}
-
-			public void onKeyUp ( Widget sender, char keyCode, int modifiers ) {
-				BooleanSelector myself;
-
-				myself = ( BooleanSelector ) sender;
-				checkChange ( myself );
-			}
-		} );
-	}
-
-	private void checkChange ( BooleanSelector myself ) {
-		if ( currentState != myself.isDown () ) {
-			currentState = myself.isDown ();
-
-			if ( changeCallbacks != null )
-				changeCallbacks.fireChange ( this );
-		}
 	}
 
 	/****************************************************************** BooleanWidget */
 
 	public void setVal ( boolean value ) {
-		currentState = value;
 		super.setDown ( value );
 	}
 
 	public boolean getVal () {
 		return isDown ();
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ChangeListenerCollection ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }

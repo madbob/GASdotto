@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -55,8 +56,8 @@ public class HomePanel extends GenericPanel {
 			buttons.setWidth ( "100%" );
 			container.add ( buttons );
 
-			but = new Button ( "Va bene, fallo sparire", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Va bene, fallo sparire", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					ord.setInt ( "status", Order.SHIPPED );
 					ord.save ( null );
 					hide ();
@@ -65,8 +66,8 @@ public class HomePanel extends GenericPanel {
 			buttons.add ( but );
 			buttons.setCellHorizontalAlignment ( but, HasHorizontalAlignment.ALIGN_CENTER );
 
-			but = new Button ( "No, non fare nulla", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "No, non fare nulla", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					hide ();
 				}
 			} );

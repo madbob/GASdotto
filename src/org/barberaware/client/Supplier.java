@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -133,13 +134,9 @@ public class Supplier extends FromServer {
 			}
 		}
 
-		notify.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				BooleanSelector sel;
-
-				sel = ( BooleanSelector ) sender;
-
-				if ( sel.getVal () == true )
+		notify.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
+				if ( event.getValue () == true )
 					for_user.addToArray ( "suppliers_notification", supplier );
 				else
 					for_user.removeFromArray ( "suppliers_notification", supplier );

@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -62,13 +63,11 @@ public class BankMovementForm extends FromServerRappresentation {
 				method.addState ( "images/by_cash.png" );
 				main.setWidget ( 2, 1, getPersonalizedWidget ( "method", method ) );
 
-				method.addChangeListener (
-					new ChangeListener () {
-						public void onChange ( Widget sender ) {
-							renderCro ();
-						}
+				method.addValueChangeHandler ( new ValueChangeHandler<Integer> () {
+					public void onValueChange ( ValueChangeEvent<Integer> event ) {
+						renderCro ();
 					}
-				);
+				} );
 
 				main.setWidget ( 3, 0, new Label ( "CRO" ) );
 				main.setWidget ( 3, 1, getWidget ( "cro" ) );

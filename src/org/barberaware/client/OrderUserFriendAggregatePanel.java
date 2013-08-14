@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -152,9 +153,12 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 		panel = new ButtonsBar ();
 
-		button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new PushButton ( new Image ( "images/delete.png" ), new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				Widget sender;
+
 				if ( Window.confirm ( "Sei sicuro di voler eliminare l'elemento?" ) == true ) {
+					sender = ( Widget ) event.getSource ();
 					friends.remove ( sender.getParent ().getParent ().getParent ().getParent () );
 					friends.selectTab ( 0 );
 					updateTotal ();

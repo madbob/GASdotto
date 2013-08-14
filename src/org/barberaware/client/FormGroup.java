@@ -21,6 +21,7 @@ import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -337,8 +338,8 @@ public abstract class FormGroup extends Composite {
 	private void doAddButton ( String adding_text ) {
 		AddButton button;
 
-		button = new AddButton ( adding_text, new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new AddButton ( adding_text, new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				FromServerForm new_form;
 
 				new_form = doNewEditableRow ();

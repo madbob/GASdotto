@@ -21,6 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -165,10 +166,10 @@ public class FromServerForm extends FromServerRappresentationFull {
 		}
 	}
 
-	public void addBottomButton ( String image, String text, ClickListener listener ) {
+	public void addBottomButton ( String image, String text, ClickHandler handler ) {
 		PushButton button;
 
-		button = new PushButton ( new Image ( image ), listener );
+		button = new PushButton ( new Image ( image ), handler );
 		buttons.add ( button, text );
 	}
 
@@ -245,8 +246,8 @@ public class FromServerForm extends FromServerRappresentationFull {
 		panel = new ButtonsBar ();
 
 		if ( editable == FULL_EDITABLE ) {
-			button = new PushButton ( new Image ( "images/delete.png" ), new ClickListener () {
-				public void onClick ( Widget sender ) {
+			button = new PushButton ( new Image ( "images/delete.png" ), new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					boolean ret;
 					String confirmation;
 					FromServer object;
@@ -278,8 +279,8 @@ public class FromServerForm extends FromServerRappresentationFull {
 		}
 
 		if ( editable != EDITABLE_UNDELETABLE_UNCANCELLABLE ) {
-			button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
-				public void onClick ( Widget sender ) {
+			button = new PushButton ( new Image ( "images/cancel.png" ), new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					if ( getValue ().isValid () == false ) {
 						invalidate ();
 					}
@@ -293,8 +294,8 @@ public class FromServerForm extends FromServerRappresentationFull {
 		}
 
 		if ( editable == FULL_EDITABLE || editable == EDITABLE_UNDELETABLE || editable == EDITABLE_UNDELETABLE_UNCANCELLABLE ) {
-			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
-				public void onClick ( Widget sender ) {
+			button = new PushButton ( new Image ( "images/confirm.png" ), new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					if ( forceSave == true || contentsChanged () )
 						if ( savingObject () == false )
 							return;

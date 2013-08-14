@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -63,8 +64,8 @@ public class MultiSelector extends Composite implements FromServerArray, SavingD
 		initWidget ( main );
 
 		mod_button = new Button ( "Modifica Lista" );
-		mod_button.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		mod_button.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				if ( callbacksInited == false ) {
 					registerCallbacks ();
 					callbacksInited = true;

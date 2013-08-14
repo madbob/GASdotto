@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -48,8 +49,8 @@ public class BankMovementSelector extends FromServerRappresentation {
 		main = new TextBox ();
 		main.setStyleName ( "bankmovement-selector" );
 		main.setVisibleLength ( 40 );
-		main.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
+		main.addFocusHandler ( new FocusHandler () {
+			public void onFocus ( FocusEvent event ) {
 				if ( opened == false ) {
 					VerticalPanel pan;
 					DialogButtons buttons;

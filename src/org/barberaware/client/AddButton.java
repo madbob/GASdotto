@@ -20,12 +20,13 @@ package org.barberaware.client;
 import java.util.*;
 import java.lang.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class AddButton extends PushButton {
-	public AddButton ( String text, ClickListener callback ) {
+	public AddButton ( String text, ClickHandler callback ) {
 		super ();
 		setStyleName ( "add-button" );
 		setText ( text );
-		addClickListener ( callback );
+		addClickHandler ( callback );
 	}
 }

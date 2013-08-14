@@ -22,6 +22,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -94,8 +95,8 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 			dragControl = controller;
 			mainOrders = panel;
 
-			delbutton = new PushButton ( new Image ( "images/mini_delete.png" ), new ClickListener () {
-				public void onClick ( Widget sender ) {
+			delbutton = new PushButton ( new Image ( "images/mini_delete.png" ), new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					removeMyself ();
 				}
 			} );
@@ -213,8 +214,8 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 		notice.addStyleName ( "main-panel-explain" );
 		container.add ( notice );
 
-		button = new AddButton ( "Nuovo Aggregato", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new AddButton ( "Nuovo Aggregato", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				aggregationsList.insert ( new DroppableAggregate ( dragController, ordersList, new OrderAggregate () ), 0 );
 			}
 		} );
@@ -244,8 +245,8 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 
 		panel = new ButtonsBar ();
 
-		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				DroppableAggregate aggr;
 
 				for ( int i = 0; i < aggregationsList.getWidgetCount (); i++ ) {
@@ -269,8 +270,8 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 		} );
 		panel.add ( button, "Annulla" );
 
-		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				int num_orders;
 				ArrayList elements;
 				OrderAggregate aggr;

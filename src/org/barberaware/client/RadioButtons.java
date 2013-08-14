@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -34,13 +35,13 @@ public class RadioButtons extends ButtonsBar implements SourcesChangeEvents {
 	public void add ( Image up, String name ) {
 		ToggleButton toggle;
 
-		toggle = new ToggleButton ( up, new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggle = new ToggleButton ( up, new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				boolean found;
 				ToggleButton t;
 				ToggleButton iter;
 
-				t = ( ToggleButton ) sender;
+				t = ( ToggleButton ) event.getSource ();
 				found = false;
 
 				for ( int i = 0; i < getWidgetCount (); i++ ) {

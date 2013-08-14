@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class AddressSelector extends Composite implements AddressWidget {
 	private TextBox			main;
@@ -42,8 +43,8 @@ public class AddressSelector extends Composite implements AddressWidget {
 		main = new TextBox ();
 		main.setStyleName ( "address-selector" );
 		main.setVisibleLength ( 40 );
-		main.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
+		main.addFocusHandler ( new FocusHandler () {
+			public void onFocus ( FocusEvent event ) {
 				if ( opened == false ) {
 					opened = true;
 					syncToDialog ();
@@ -51,10 +52,6 @@ public class AddressSelector extends Composite implements AddressWidget {
 					street.setFocus ( true );
 					dialog.show ();
 				}
-			}
-
-			public void onLostFocus ( Widget sender ) {
-				/* dummy */
 			}
 		} );
 

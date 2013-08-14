@@ -39,7 +39,7 @@ public abstract class ServerObjectReceive implements RequestCallback {
 
 		str = response.getText ();
 
-		jsonObject = JSONParser.parse ( str );
+		jsonObject = JSONParser.parseStrict ( str );
 
 		if ( jsonObject.isString () != null ) {
 			Utils.showNotification ( str );

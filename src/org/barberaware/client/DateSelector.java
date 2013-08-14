@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -53,18 +54,14 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 		main = new TextBox ();
 		main.setStyleName ( "date-selector" );
 		main.setVisibleLength ( 40 );
-		main.addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
+		main.addFocusHandler ( new FocusHandler () {
+			public void onFocus ( FocusEvent event ) {
 				if ( opened == false ) {
 					opened = true;
 					cal.setDate ( currentDate );
 					cal.center ();
 					cal.show ();
 				}
-			}
-
-			public void onLostFocus ( Widget sender ) {
-				/* dummy */
 			}
 		} );
 

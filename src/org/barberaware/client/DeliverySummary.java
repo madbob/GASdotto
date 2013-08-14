@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -71,22 +72,22 @@ public class DeliverySummary extends Composite {
 				solo i tasti funzione utili in quel dato contesto, anziche' la sfilza presente adesso
 		*/
 
-		row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		row.addBottomButton ( "images/save.png", "Salva<br/>Informazioni", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				row.getValue ().setInt ( "status", OrderUser.SAVED );
 				commonActionsOnEdit ( row );
 			}
 		} );
 
-		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
 				commonActionsOnEdit ( row );
 			}
 		} );
 
-		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				row.getValue ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
 				commonActionsOnEdit ( row );
 			}

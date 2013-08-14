@@ -31,62 +31,60 @@ public class PriceBox extends TextBox implements FloatWidget {
 		setText ( Utils.priceToString ( 0 ) );
 		currentValue = 0;
 
-		addFocusListener (
-			new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					setText ( Utils.floatToString ( currentValue ) );
+		addFocusHandler ( new FocusHandler () {
+			public void onFocus ( FocusEvent event ) {
+				setText ( Utils.floatToString ( currentValue ) );
+			}
+		} );
+
+		addBlurHandler ( new BlurHandler () {
+			public void onBlur ( BlurEvent event ) {
+				float val;
+				String converted;
+
+				if ( getText ().equals ( "" ) ) {
+					setText ( Utils.priceToString ( 0 ) );
 				}
-
-				public void onLostFocus ( Widget sender ) {
-					float val;
-					String converted;
-
-					if ( getText ().equals ( "" ) ) {
-						setText ( Utils.priceToString ( 0 ) );
+				else {
+					try {
+						/*
+							La doppia conversione e' per accertarsi che in
+							currentValue ci sia sempre il valore correttamente
+							arrotondato
+						*/
+						val = Utils.stringToFloat ( getText () );
+						converted = Utils.priceToString ( val );
+						setText ( converted );
+						currentValue = Utils.stringToPrice ( converted );
 					}
-					else {
-						try {
-							/*
-								La doppia conversione e' per accertarsi che in
-								currentValue ci sia sempre il valore correttamente
-								arrotondato
-							*/
-							val = Utils.stringToFloat ( getText () );
-							converted = Utils.priceToString ( val );
-							setText ( converted );
-							currentValue = Utils.stringToPrice ( converted );
-						}
-						catch ( NumberFormatException e ) {
-							setText ( Utils.priceToString ( currentValue ) );
-						}
+					catch ( NumberFormatException e ) {
+						setText ( Utils.priceToString ( currentValue ) );
 					}
 				}
 			}
-		);
+		} );
 
-		addKeyDownHandler (
-			new KeyDownHandler () {
-				public void onKeyDown ( KeyDownEvent event ) {
-					int keycode;
+		addKeyDownHandler ( new KeyDownHandler () {
+			public void onKeyDown ( KeyDownEvent event ) {
+				int keycode;
 
-					keycode = event.getNativeKeyCode();
+				keycode = event.getNativeKeyCode();
 
-					if ( ( keycode < 48 || keycode > 57 ) && (
-							( keycode != (char) KeyCodes.KEY_TAB ) &&
-							( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
-							( keycode != (char) KeyCodes.KEY_LEFT ) &&
-							( keycode != (char) KeyCodes.KEY_UP ) &&
-							( keycode != (char) KeyCodes.KEY_RIGHT ) &&
-							( keycode != (char) KeyCodes.KEY_DOWN ) &&
-							( keycode != 188 ) )
-						) {
+				if ( ( keycode < 48 || keycode > 57 ) && (
+						( keycode != (char) KeyCodes.KEY_TAB ) &&
+						( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
+						( keycode != (char) KeyCodes.KEY_LEFT ) &&
+						( keycode != (char) KeyCodes.KEY_UP ) &&
+						( keycode != (char) KeyCodes.KEY_RIGHT ) &&
+						( keycode != (char) KeyCodes.KEY_DOWN ) &&
+						( keycode != 188 ) )
+					) {
 
-						event.preventDefault ();
-						event.stopPropagation ();
-					}
+					event.preventDefault ();
+					event.stopPropagation ();
 				}
 			}
-		);
+		} );
 
 		setVisibleLength ( 6 );
 	}

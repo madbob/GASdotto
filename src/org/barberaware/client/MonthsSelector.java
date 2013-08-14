@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -42,8 +43,8 @@ public class MonthsSelector extends Composite implements StringWidget {
 		if ( editable == true ) {
 			main.addStyleName ( "clickable" );
 
-			main.addClickListener ( new ClickListener () {
-				public void onClick ( Widget sender ) {
+			main.addClickHandler ( new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					selector.center ();
 					selector.show ();
 				}
@@ -102,16 +103,16 @@ public class MonthsSelector extends Composite implements StringWidget {
 		buttons = new HorizontalPanel ();
 		buttons.setWidth ( "100%" );
 
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Salva", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				monthsSelected ();
 				selector.hide ();
 			}
 		} );
 		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Annulla", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				selector.hide ();
 			}
 		} );

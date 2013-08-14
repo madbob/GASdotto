@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -33,8 +34,8 @@ public class ShareButton extends PushButton implements ObjectWidget {
 	public ShareButton () {
 		super ( new Image ( "images/share.png" ) );
 
-		addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				showDialog ();
 			}
 		} );
@@ -113,8 +114,8 @@ public class ShareButton extends PushButton implements ObjectWidget {
 		ret.add ( box );
 
 		if ( complex_buttons == true ) {
-			but = new Button ( "Salva", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Salva", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					if ( localPrivileges != null )
 						localPrivileges.saveChanges ();
 
@@ -123,16 +124,16 @@ public class ShareButton extends PushButton implements ObjectWidget {
 			} );
 			box.add ( but );
 
-			but = new Button ( "Annulla", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Annulla", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					closeDialog ();
 				}
 			} );
 			box.add ( but );
 		}
 		else {
-			but = new Button ( "Chiudi", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Chiudi", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					closeDialog ();
 				}
 			} );
@@ -197,8 +198,8 @@ public class ShareButton extends PushButton implements ObjectWidget {
 		ret.add ( content );
 
 		content = Utils.getServer ().fileLink ( "Esporta", "", "exporter.php?type=" + currentObject.getType () + "&id=" + currentObject.getLocalID () );
-		content.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		content.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				closeDialog ();
 			}
 		} );

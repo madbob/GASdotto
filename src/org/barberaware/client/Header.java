@@ -20,6 +20,7 @@ package org.barberaware.client;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class Header extends Composite {
 	private MainStack	stack;
@@ -36,16 +37,16 @@ public class Header extends Composite {
 		contents.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 
 		but = new Button ( "Logout" );
-		but.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				Utils.performLogout ();
 			}
 		} );
 		contents.add ( but );
 
 		but = new Button ( "Annulla" );
-		but.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				logout.hide ();
 			}
 		} );
@@ -68,8 +69,8 @@ public class Header extends Composite {
 
 		main.add ( container );
 
-		main.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		main.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				logout.center ();
 				logout.show ();
 			}

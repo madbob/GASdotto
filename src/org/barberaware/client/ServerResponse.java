@@ -52,10 +52,10 @@ public abstract class ServerResponse implements RequestCallback {
 					stringhe che arrivano per isolare il pezzo di JSON e buttare tutto il resto.
 
 					Da correggere qui e in tutti gli altri posti in cui viene usato
-					JSONParser.parse
+					JSONParser.parseStrict
 			*/
 
-			jsonObject = JSONParser.parse ( str );
+			jsonObject = JSONParser.parseStrict ( str );
 			ret = jsonObject.isString ();
 		}
 		catch ( com.google.gwt.json.client.JSONException e ) {

@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -186,8 +187,8 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		descDialogText = new Label ();
 		pan.add ( descDialogText );
 
-		but = new Button ( "OK", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "OK", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				descDialog.hide ();
 			}
 		} );

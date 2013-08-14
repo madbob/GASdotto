@@ -69,7 +69,7 @@ public class MailConfigurator extends Composite implements StringWidget {
 
 						if ( response.getText () != "" ) {
 							try {
-								jsonObject = JSONParser.parse ( response.getText () );
+								jsonObject = JSONParser.parseStrict ( response.getText () );
 								obj = jsonObject.isObject ().get ( "smtp" ).isObject ();
 
 								username.setText ( obj.get ( "username" ).isString ().stringValue () );

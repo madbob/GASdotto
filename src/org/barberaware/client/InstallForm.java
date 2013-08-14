@@ -23,6 +23,7 @@ import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -46,8 +47,8 @@ public class InstallForm extends Composite {
 		main.add ( new HTML ( message ) );
 
 		installbutton = new Button ( "Installa GASdotto" );
-		installbutton.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		installbutton.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				doProbe ();
 			}
 		} );

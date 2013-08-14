@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -155,13 +156,10 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Inizio Anno Sociale", ver.getPersonalizedWidget ( "payment_date", paydate ) );
 
 		mail = new BooleanSelector ();
-		mail.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				BooleanSelector myself;
-
-				myself = ( BooleanSelector ) sender;
-				mailConf.setEnabled ( myself.getVal () );
-				mailList.setEnabled ( myself.getVal () );
+		mail.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
+				mailConf.setEnabled ( event.getValue () );
+				mailList.setEnabled ( event.getValue () );
 			}
 		} );
 		frame.addPair ( "Abilita Notifiche Mail", ver.getPersonalizedWidget ( "use_mail", mail ) );
@@ -175,12 +173,9 @@ public class SystemPanel extends GenericPanel {
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
 		rid = new BooleanSelector ();
-		rid.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				BooleanSelector myself;
-
-				myself = ( BooleanSelector ) sender;
-				ridConf.setEnabled ( myself.getVal () );
+		rid.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
+				ridConf.setEnabled ( event.getValue () );
 			}
 		} );
 		frame.addPair ( "Abilita Pagamenti RID", ver.getPersonalizedWidget ( "use_rid", rid ) );

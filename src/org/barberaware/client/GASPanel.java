@@ -21,6 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -196,12 +197,9 @@ public class GASPanel extends GenericPanel {
 			frame.addPair ( "Logo Homepage", masterForm.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
 
 		mail = new BooleanSelector ();
-		mail.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
-				BooleanSelector myself;
-
-				myself = ( BooleanSelector ) sender;
-				masterMailConf.setEnabled ( myself.getVal () );
+		mail.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
+				masterMailConf.setEnabled ( event.getValue () );
 			}
 		} );
 		frame.addPair ( "Abilita Mail", masterForm.getPersonalizedWidget ( "use_mail", mail ) );

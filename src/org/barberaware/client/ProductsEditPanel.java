@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -39,8 +40,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 			buttons.setWidth ( "100%" );
 			container.add ( buttons );
 
-			but = new Button ( "Si, aggiungilo", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "Si, aggiungilo", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					ArrayList products;
 
 					products = order.getArray ( "products" );
@@ -54,8 +55,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 			buttons.add ( but );
 			buttons.setCellHorizontalAlignment ( but, HasHorizontalAlignment.ALIGN_CENTER );
 
-			but = new Button ( "No, non fare nulla", new ClickListener () {
-				public void onClick ( Widget sender ) {
+			but = new Button ( "No, non fare nulla", new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
 					hide ();
 				}
 			} );
@@ -86,11 +87,11 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		initWidget ( container );
 
 		switchable = new ToggleButton ( new Image ( "images/view_details.png" ), new Image ( "images/view_list.png" ) );
-		switchable.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		switchable.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				ToggleButton but;
 
-				but = ( ToggleButton ) sender;
+				but = ( ToggleButton ) event.getSource ();
 				if ( but.isDown () )
 					main.showWidget ( 1 );
 				else
@@ -154,8 +155,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 					buttons.setStyleName ( "bottom-buttons" );
 					main.add ( buttons );
 
-					buttons.add ( new AddButton ( "Nuova Variante", new ClickListener () {
-						public void onClick ( Widget sender ) {
+					buttons.add ( new AddButton ( "Nuova Variante", new ClickHandler () {
+						public void onClick ( ClickEvent event ) {
 							ProductVariantEditor editor;
 
 							editor = new ProductVariantEditor ( true );
@@ -319,8 +320,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 				}
 		};
 
-		list.extraAddButton ( new AddButton ( "Duplica Prodotto", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		list.extraAddButton ( new AddButton ( "Duplica Prodotto", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				duplicateProduct ();
 			}
 		} ) );
@@ -428,8 +429,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		buttons = new ButtonsBar ();
 		container.add ( buttons );
 
-		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new PushButton ( new Image ( "images/cancel.png" ), new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				table.revertChanges ();
 				/*
 					La rappresentazione a tabella e' secondaria rispetto alla
@@ -442,8 +443,8 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 		} );
 		buttons.add ( button, "Annulla" );
 
-		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new PushButton ( new Image ( "images/confirm.png" ), new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				table.saveChanges ();
 				main.showWidget ( 0 );
 			}

@@ -21,6 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -34,8 +35,8 @@ public class MultiGasEnabler extends Composite {
 		button = new Button ( "Abilita" );
 		initWidget ( button );
 
-		button.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				dialog.center ();
 				dialog.show ();
 			}
@@ -139,8 +140,8 @@ public class MultiGasEnabler extends Composite {
 		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 		contents.add ( buttons );
 
-		button = new Button ( "Me lo son scritto!", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		button = new Button ( "Me lo son scritto!", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				Utils.performLogout ();
 			}
 		} );

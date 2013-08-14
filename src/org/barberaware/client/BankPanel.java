@@ -21,6 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -36,6 +37,7 @@ public class BankPanel extends GenericPanel {
 		HorizontalPanel hor;
 		GAS gas;
 		PriceViewer price;
+		AddButton button;
 		CustomCaptionPanel frame;
 
 		/*
@@ -85,6 +87,31 @@ public class BankPanel extends GenericPanel {
 		mainTable.clean ( true );
 		addTop ( mainTable );
 
+		/*
+			Pulsanti per creare nuovi movimenti
+		*/
+
+		hor = new HorizontalPanel ();
+		hor.setStyleName ( "bottom-buttons" );
+
+		button = new AddButton ( "Nuovo Movimento", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				BankManualUpdate update;
+
+				update = new BankManualUpdate ();
+				update.center ();
+				update.show ();
+			}
+		} );
+		hor.add ( button );
+
+		/**
+			TODO	Qui ci dovra' stare il pulsante per importare
+				i movimenti estratti da un CSV esterno
+		*/
+
+		addTop ( hor );
+
 		hor = new HorizontalPanel ();
 		hor.setWidth ( "100%" );
 		addTop ( hor );
@@ -108,8 +135,8 @@ public class BankPanel extends GenericPanel {
 
 		userFilter = new FromServerSelector ( "User", true, true, true );
 		userFilter.addAllSelector ();
-		userFilter.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		userFilter.addChangeHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				loadData ();
 			}
 		} );
@@ -117,8 +144,8 @@ public class BankPanel extends GenericPanel {
 
 		supplierFilter = new FromServerSelector ( "Supplier", true, true, true );
 		supplierFilter.addAllSelector ();
-		supplierFilter.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		supplierFilter.addChangeHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				loadData ();
 			}
 		} );
@@ -145,49 +172,6 @@ public class BankPanel extends GenericPanel {
 		price = new PriceViewer ();
 		price.setVal ( gas.getFloat ( "current_cash_balance" ) );
 		frame.addPair ( "Saldo Cassa", price );
-
-		/*
-			Pulsanti per creare nuovi movimenti
-		*/
-
-		HorizontalPanel buttons;
-		AddButton button;
-
-		buttons = new HorizontalPanel ();
-		buttons.setStyleName ( "bottom-buttons" );
-
-		button = new AddButton ( "Nuovo Movimento", new ClickListener () {
-			public void onClick ( Widget sender ) {
-				BankManualUpdate update;
-
-				update = new BankManualUpdate ();
-				update.center ();
-				update.show ();
-			}
-		} );
-		buttons.add ( button );
-
-		/**
-			TODO	Qui ci dovra' stare il pulsante per importare
-				i movimenti estratti da un CSV esterno
-		*/
-
-		addTop ( buttons );
-
-		Utils.getServer ().onObjectEvent ( "BankMovement", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				if ( dates.testBetween ( object.getDate ( "date" ) ) )
-					mainTable.addElement ( object );
-			}
-
-			public void onModify ( FromServer object ) {
-				mainTable.refreshElement ( object );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				mainTable.removeElement ( object );
-			}
-		} );
 	}
 
 	private void loadData () {

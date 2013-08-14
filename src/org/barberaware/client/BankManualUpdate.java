@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -57,12 +58,10 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		user = new FromServerSelector ( "User", false, true, false );
 		pan.add ( user );
 
-		reason.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		reason.addChangeHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				int selected;
-				ListBox reason;
 
-				reason = ( ListBox ) sender;
 				selected = reason.getSelectedIndex ();
 
 				if ( selected != 0 && selected != 1 )

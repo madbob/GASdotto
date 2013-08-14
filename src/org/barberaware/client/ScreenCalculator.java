@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -82,12 +83,8 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 			table.setWidget ( row, 1, box );
 			table.setWidget ( row, 2, new Label ( "+" ) );
 
-			box.addFocusListener ( new FocusListener () {
-				public void onFocus ( Widget sender ) {
-					/* dummy */
-				}
-
-				public void onLostFocus ( Widget sender ) {
+			box.addBlurHandler ( new BlurHandler () {
+				public void onBlur ( BlurEvent event ) {
 					updateSum ();
 				}
 			} );

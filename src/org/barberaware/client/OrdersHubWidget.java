@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -89,8 +90,8 @@ public abstract class OrdersHubWidget extends Composite {
 		now.setYear ( now.getYear () - 1 );
 		startdate.setValue ( now );
 
-		toggle.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggle.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				triggerStatus ();
 				triggerFilters ();
 			}

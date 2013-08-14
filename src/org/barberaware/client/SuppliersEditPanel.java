@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -176,14 +177,14 @@ public class SuppliersEditPanel extends GenericPanel {
 		addTop ( pan );
 
 		toggleHiddenView = new CheckBox ( "Mostra Fornitori Disattivati" );
-		toggleHiddenView.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		toggleHiddenView.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				boolean show;
 				ArrayList forms;
 				CheckBox myself;
 				FromServerForm form;
 
-				myself = ( CheckBox ) sender;
+				myself = ( CheckBox ) event.getSource ();
 				forms = main.collectForms ();
 				show = myself.isChecked ();
 

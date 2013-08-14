@@ -21,6 +21,7 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -47,8 +48,8 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		doDialog ();
 
 		main = new Image ( "images/notify-warning.png" );
-		main.addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		main.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				dialog.center ();
 				dialog.show ();
 			}
@@ -76,16 +77,16 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		buttons.setWidth ( "100%" );
 		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
-		but = new Button ( "Salva", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Salva", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				triggerSave ();
 				dialog.hide ();
 			}
 		} );
 		buttons.add ( but );
 
-		but = new Button ( "Annulla", new ClickListener () {
-			public void onClick ( Widget sender ) {
+		but = new Button ( "Annulla", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				dialog.hide ();
 			}
 		} );

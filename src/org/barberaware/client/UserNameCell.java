@@ -22,6 +22,7 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -31,12 +32,8 @@ public class UserNameCell extends DummyTextBox {
 	public UserNameCell ( FromServerForm parent_form ) {
 		super ();
 
-		addFocusListener ( new FocusListener () {
-			public void onFocus ( Widget sender ) {
-				/* dummy */
-			}
-
-			public void onLostFocus ( Widget sender ) {
+		addBlurHandler ( new BlurHandler () {
+			public void onBlur ( BlurEvent event ) {
 				String name;
 				int id;
 
@@ -57,7 +54,7 @@ public class UserNameCell extends DummyTextBox {
 
 						if ( response.getText () != "" ) {
 							try {
-								jsonObject = JSONParser.parse ( response.getText () );
+								jsonObject = JSONParser.parseStrict ( response.getText () );
 								setValueInternal ( "" );
 								Utils.showNotification ( jsonObject.isString ().stringValue () );
 							}

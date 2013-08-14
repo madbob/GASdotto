@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -613,36 +614,27 @@ public class OrderSummary extends Composite implements Lockable {
 			if ( order.sharingStatus ()<= ACL.ACL_READWRITE ) {
 				box = new PriceBox ();
 				box.setVal ( product.getFloat ( "unit_price" ) );
-				box.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-					}
-
-					public void onLostFocus ( Widget sender ) {
-						alignRow ( sender, PRODUCT_PRICE_COLUMN );
+				box.addBlurHandler ( new BlurHandler () {
+					public void onBlur ( BlurEvent event ) {
+						alignRow ( ( Widget ) event.getSource (), PRODUCT_PRICE_COLUMN );
 					}
 				} );
 				main.setWidget ( index, PRODUCT_PRICE_COLUMN, box );
 
 				box = new PriceBox ();
 				box.setVal ( transport );
-				box.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-					}
-
-					public void onLostFocus ( Widget sender ) {
-						alignRow ( sender, PRODUCT_TRANSPORT_COLUMN );
+				box.addBlurHandler ( new BlurHandler () {
+					public void onBlur ( BlurEvent event ) {
+						alignRow ( ( Widget ) event.getSource (), PRODUCT_TRANSPORT_COLUMN );
 					}
 				} );
 				main.setWidget ( index, PRODUCT_TRANSPORT_COLUMN, box );
 
 				perc = new PercentageBox ();
 				perc.setValue ( surplus );
-				perc.addFocusListener ( new FocusListener () {
-					public void onFocus ( Widget sender ) {
-					}
-
-					public void onLostFocus ( Widget sender ) {
-						alignRowOverprice ( sender );
+				perc.addBlurHandler ( new BlurHandler () {
+					public void onBlur ( BlurEvent event ) {
+						alignRowOverprice ( ( Widget ) event.getSource () );
 					}
 				} );
 				main.setWidget ( index, PRODUCT_OVERPRICE_COLUMN, perc );

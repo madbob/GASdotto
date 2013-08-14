@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class FromServerButton extends Button {
 	private FromServer reference;
@@ -29,8 +30,8 @@ public class FromServerButton extends Button {
 		reference = ref;
 		callback = call;
 
-		addClickListener ( new ClickListener () {
-			public void onClick ( Widget sender ) {
+		addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				callback.execute ( reference );
 			}
 		} );
