@@ -316,6 +316,10 @@ public class SuppliersEditPanel extends GenericPanel {
 			payments.setWidget ( 1, 0, new Label ( "Accetta Bonifico" ) );
 			payments.setWidget ( 1, 1, ver.getWidget ( "paying_by_bank" ) );
 			payments.getCellFormatter ().addStyleName ( 1, 0, "custom-label" );
+
+			payments.setWidget ( 2, 0, new Label ( "Totale da Ricevere" ) );
+			payments.setWidget ( 2, 1, ver.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
+			payments.getCellFormatter ().addStyleName ( 2, 0, "custom-label" );
 		}
 
 		hor.add ( sframe );

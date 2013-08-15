@@ -108,21 +108,21 @@ class FromServerAttribute {
 
 	public static function filter_object ( $object, &$filter, $compress ) {
 		if ( $object != null ) {
-			if ( $filter != null ) {
-				$id = $object->getAttribute ( "id" )->value;
-				$id_name = 'has_' . $object->classname;
+			if ( $filter == null )
+				$filter = new stdClass ();
 
-				if ( isset ( $filter->$id_name ) ) {
-					if ( search_in_array ( $filter->$id_name, $id ) != -1 )
-						return $id . "";		
-				}
-				else {
-					$filter->$id_name = array ();
-				}
+			$id = $object->getAttribute ( "id" )->value;
+			$id_name = 'has_' . $object->classname;
 
-				array_push ( $filter->$id_name, $id );
+			if ( isset ( $filter->$id_name ) ) {
+				if ( search_in_array ( $filter->$id_name, $id ) != -1 )
+					return $id . "";		
+			}
+			else {
+				$filter->$id_name = array ();
 			}
 
+			array_push ( $filter->$id_name, $id );
 			return $object->exportable ( $filter, $compress );
 		}
 		else {
@@ -668,15 +668,19 @@ abstract class FromServer {
 							$query = sprintf ( "INSERT INTO %s_%s ( parent, target ) VALUES ( %d, %d )",
 										$this->tablename, $name, $id, $singleid );
 							query_and_check ( $query, "Impossibile aggiungere elemento per sincronizzare oggetto " . $this->classname );
-							$founds [] = last_id ( $this->tablename . '_' . $name );
+							$founds [] = $singleid;
 						}
 					}
 
 					if ( count ( $founds ) != 0 ) {
 						$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d AND target NOT IN (%s)",
 									$this->tablename, $name, $id, join ( ', ', $founds ) );
-						query_and_check ( $query, "Impossibile eliminare oggetto per sincronizzare oggetto " . $this->classname );
 					}
+					else {
+						$query = sprintf ( "DELETE FROM %s_%s WHERE parent = %d", $this->tablename, $name, $id );
+					}
+
+					query_and_check ( $query, "Impossibile eliminare oggetto per sincronizzare oggetto " . $this->classname );
 				}
 			}
 		}
@@ -938,19 +942,8 @@ abstract class FromServer {
 			$name = $attr->name;
 			$value = $attr->export_field ( $this, $filter, $compress );
 
-			if ( $value != null ) {
+			if ( $value != null )
 				$obj->$name = $value;
-
-				/*
-				if ( $filter != null && is_object ( $value ) && property_exists ( $value, 'id' ) ) {
-					$filter_name = 'has_' . $this->classname;
-					if ( property_exists ( $filter, $filter_name ) == false )
-						$filter->$filter_name = array ();
-
-					array_push ( $filter->$filter_name, $value->id );
-				}
-				*/
-			}
 		}
 
 		if ( $this->is_public == false ) {

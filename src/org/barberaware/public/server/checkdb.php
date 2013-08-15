@@ -290,7 +290,7 @@ function test_class ( $class ) {
 					}
 				}
 				else {
-					$type = map_type ( $type, $objtype, false );
+					$type = map_type ( $type, $objtype, true );
 					$query = sprintf ( 'ALTER TABLE %s ADD COLUMN %s %s', $obj->tablename, $attr->name, $type );
 					local_query_and_check ( $query, "Impossibile aggiungere colonna" );
 				}
@@ -416,7 +416,7 @@ function check_manual_columns ( $tablename, $columns, $ret ) {
 			else
 				list ( $type, $objtype ) = explode ( '::', $type );
 
-			$type = map_type ( $type, $objtype, false );
+			$type = map_type ( $type, $objtype, true );
 			$query = sprintf ( 'ALTER TABLE %s ADD COLUMN %s %s', $tablename, $columns [ $i ], $type );
 			local_query_and_check ( $query, "Impossibile aggiungere colonna" );
 		}

@@ -102,6 +102,7 @@ public class OrderDetails extends FromServerRappresentationFull {
 
 			bms = new BankMovementSelector ();
 			bms.setDefaultType ( BankMovement.ORDER_PAYMENT );
+			bms.setDefaultTargetSupplier ( element.getObject ( "supplier" ) );
 			bms.setDefaultNote ( "Pagamento ordine a " + element.getObject ( "supplier" ).getString ( "name" ) );
 			payment = bms;
 		}

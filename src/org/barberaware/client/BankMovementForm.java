@@ -30,12 +30,14 @@ public class BankMovementForm extends FromServerRappresentation {
 	private Date			defaultDate;
 	private float			defaultAmount;
 	private String			defaultNote;
-	private FromServer		target;
+	private FromServer		targetUser;
+	private FromServer		targetSupplier;
 	private boolean			displayCro;
 	private boolean			justDate;
 
 	public BankMovementForm () {
-		target = null;
+		targetUser = null;
+		targetSupplier = null;
 		defaultAmount = 0;
 		defaultDate = new Date ( System.currentTimeMillis () );
 		displayCro = true;
@@ -126,8 +128,12 @@ public class BankMovementForm extends FromServerRappresentation {
 		}
 	}
 
-	public void setDefaultTarget ( FromServer t ) {
-		target = t;
+	public void setDefaultTargetUser ( FromServer t ) {
+		targetUser = t;
+	}
+
+	public void setDefaultTargetSupplier ( FromServer t ) {
+		targetSupplier = t;
 	}
 
 	public void showCro ( boolean show ) {
@@ -172,11 +178,11 @@ public class BankMovementForm extends FromServerRappresentation {
 		rebuildObject ();
 		ret = super.getValue ();
 
-		if ( ret != null && target != null ) {
-			if ( target instanceof User )
-				ret.setObject ( "payuser", target );
-			else if ( target instanceof Supplier )
-				ret.setObject ( "paysupplier", target );
+		if ( ret != null ) {
+			if ( targetUser != null )
+				ret.setObject ( "payuser", targetUser );
+			if ( targetSupplier != null )
+				ret.setObject ( "paysupplier", targetSupplier );
 		}
 
 		return ret;

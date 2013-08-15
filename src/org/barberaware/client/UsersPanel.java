@@ -235,14 +235,14 @@ public class UsersPanel extends GenericPanel {
 				if ( handlePayments == true ) {
 					bms = new BankMovementSelector ();
 					bms.setDefaultType ( BankMovement.DEPOSIT_PAYMENT );
-					bms.setDefaultTarget ( user );
+					bms.setDefaultTargetUser ( user );
 					bms.setDefaultNote ( "Cauzione " + user.getString ( "name" ) );
 					bms.showJustDate ( Session.getGAS ().getBool ( "use_bank" ) == false );
 					frame.addPair ( "Cauzione", form.getPersonalizedWidget ( "deposit", bms ) );
 
 					bms = new BankMovementSelector ();
 					bms.setDefaultType ( BankMovement.ANNUAL_PAYMENT );
-					bms.setDefaultTarget ( user );
+					bms.setDefaultTargetUser ( user );
 					bms.setDefaultNote ( "Quota pagata " + user.getString ( "name" ) );
 					bms.showJustDate ( Session.getGAS ().getBool ( "use_bank" ) == false );
 					frame.addPair ( "Quota pagata", form.getPersonalizedWidget ( "paying", bms ) );

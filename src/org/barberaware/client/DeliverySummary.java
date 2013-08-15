@@ -81,8 +81,39 @@ public class DeliverySummary extends Composite {
 
 		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
-				row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
-				commonActionsOnEdit ( row );
+				boolean pass;
+				ArrayList products;
+				FromServer uorder;
+				FromServer payment;
+
+				pass = true;
+
+				/*
+					Se sto gestendo i pagamenti
+						e quest'ordine non risulta essere pagato
+							ma ci sono dei prodotti consegnati
+								blocca tutto
+				*/
+				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+					uorder = row.getValue ();
+					payment = uorder.getObject ( "payment_event" );
+
+					if ( payment.getFloat ( "amount" ) == 0 ) {
+						products = uorder.getArray ( "allproducts" );
+
+						if ( products != null ) {
+							if ( ProductUser.sumProductUserArray ( products, "delivered" ) != 0 ) {
+								Utils.infoDialog ( "Ordine non Pagato", "Questo ordine non risulta essere pagato!" );
+								pass = false;
+							}
+						}
+					}
+				}
+
+				if ( pass == true ) {
+					row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+					commonActionsOnEdit ( row );
+				}
 			}
 		} );
 

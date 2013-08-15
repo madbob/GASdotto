@@ -90,6 +90,11 @@ class BankMovement extends FromServer {
 		if ( $amount == 0 )
 			return;
 
+		if ( $user != null && is_object ( $user ) )
+			$user = $user->id;
+		if ( $supplier != null && is_object ( $supplier ) )
+			$supplier = $supplier->id;
+
 		$add = array ();
 		$sub = array ();
 

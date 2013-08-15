@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.Timer;
 import com.google.gwt.json.client.*;
 import com.google.gwt.i18n.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -71,6 +72,39 @@ public class Utils {
 	public static void bigError ( String message, String url, String line ) {
 		disaster.setMessage ( message );
 		disaster.show ();
+	}
+
+	public static void infoDialog ( String title, String content ) {
+		final DialogBox box;
+		VerticalPanel contents;
+		HTML message;
+		HorizontalPanel buttons;
+		Button button;
+
+		box = new DialogBox ();
+		box.setText ( title );
+
+		contents = new VerticalPanel ();
+
+		message = new HTML ( content );
+		message.setStyleName ( "message" );
+		contents.add ( message );
+
+		buttons = new HorizontalPanel ();
+		buttons.setStyleName ( "dialog-buttons" );
+		buttons.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
+		contents.add ( buttons );
+
+		button = new Button ( "OK", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				box.hide ();
+			}
+		} );
+		buttons.add ( button );
+
+		box.setWidget ( contents );
+		box.center ();
+		box.show ();
 	}
 
 	/****************************************************** emblemi */

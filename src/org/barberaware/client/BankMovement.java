@@ -122,5 +122,20 @@ public class BankMovement extends FromServer {
 
 		return ret;
 	}
+
+	public boolean testAmounts () {
+		FromServer user;
+
+		user = getObject ( "payuser" );
+
+		if ( user != null ) {
+			if ( user.getFloat ( "current_balance" ) < getFloat ( "amount" ) && getInt ( "method" ) == BY_BANK ) {
+				Utils.infoDialog ( "Credito non Sufficiente", "Il credito disponibile per questo utente non è sufficiente! Si accettano solo pagamenti in contanti." );
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
 

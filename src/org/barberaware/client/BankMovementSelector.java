@@ -30,17 +30,23 @@ public class BankMovementSelector extends FromServerRappresentation {
 	private DialogBox		dialog;
 	private float			defaultAmount;
 	private Date			defaultDate;
-	private FromServer		defaultTarget;
+	private FromServer		defaultTargetUser;
+	private FromServer		defaultTargetSupplier;
 	private boolean			defaultCro;
 	private int			defaultType;
 	private String			defaultNote;
 
 	private boolean			justDate;
 	private boolean			opened;
+	private boolean			saved;
+	private boolean			artificial;
 	private FromServer		originalValue;
 
 	public BankMovementSelector () {
 		opened = false;
+		saved = false;
+		artificial = false;
+
 		defaultDate = new Date ( System.currentTimeMillis () );
 		defaultAmount = 0;
 		defaultType = 0;
@@ -65,7 +71,8 @@ public class BankMovementSelector extends FromServerRappresentation {
 					setWrap ( form );
 					form.setDefaultDate ( defaultDate );
 					form.setDefaultAmount ( defaultAmount );
-					form.setDefaultTarget ( defaultTarget );
+					form.setDefaultTargetUser ( defaultTargetUser );
+					form.setDefaultTargetSupplier ( defaultTargetSupplier );
 					form.setDefaultNote ( defaultNote );
 					form.showCro ( defaultCro );
 					form.showJustDate ( justDate );
@@ -75,10 +82,16 @@ public class BankMovementSelector extends FromServerRappresentation {
 					pan.add ( buttons );
 					buttons.addCallback ( new SavingDialogCallback () {
 						public void onSave ( SavingDialog sender ) {
-							opened = false;
-							dialog.hide ();
-							rebuildObject ();
-							showName ();
+							BankMovement movement;
+
+							movement = ( BankMovement ) getValue ();
+
+							if ( movement.testAmounts () == true ) {
+								opened = false;
+								saved = true;
+								dialog.hide ();
+								showName ();
+							}
 						}
 
 						public void onCancel ( SavingDialog sender ) {
@@ -123,8 +136,12 @@ public class BankMovementSelector extends FromServerRappresentation {
 		return defaultAmount;
 	}
 
-	public void setDefaultTarget ( FromServer target ) {
-		defaultTarget = target;
+	public void setDefaultTargetUser ( FromServer target ) {
+		defaultTargetUser = target;
+	}
+
+	public void setDefaultTargetSupplier ( FromServer target ) {
+		defaultTargetSupplier = target;
 	}
 
 	public void setDefaultType ( int type ) {
@@ -157,8 +174,10 @@ public class BankMovementSelector extends FromServerRappresentation {
 	/****************************************************************** FromServerRappresentation */
 
 	public void setValue ( FromServer obj ) {
-		if ( obj == null )
+		if ( obj == null ) {
 			obj = new BankMovement ();
+			artificial = true;
+		}
 
 		super.setValue ( obj );
 		showName ();
@@ -167,11 +186,16 @@ public class BankMovementSelector extends FromServerRappresentation {
 	public FromServer getValue () {
 		FromServer ret;
 
-		rebuildObject ();
+		if ( artificial == true && saved == false ) {
+			ret = null;
+		}
+		else {
+			rebuildObject ();
 
-		ret = super.getValue ();
-		if ( ret != null )
-			ret.setInt ( "movementtype", defaultType );
+			ret = super.getValue ();
+			if ( ret != null )
+				ret.setInt ( "movementtype", defaultType );
+		}
 
 		return ret;
 	}

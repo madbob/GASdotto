@@ -182,7 +182,8 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 			if ( payment == null ) {
 				payment = new BankMovementSelector ();
 				payment.showCro ( false );
-				payment.setDefaultTarget ( object.getObject ( "baseuser" ) );
+				payment.setDefaultTargetUser ( object.getObject ( "baseuser" ) );
+				payment.setDefaultTargetSupplier ( object.getObject ( "baseorder" ).getObject ( "supplier" ) );
 				payment.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );
 				payment.setDefaultNote ( "Pagamento ordine a " + object.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" ) );
 			}
