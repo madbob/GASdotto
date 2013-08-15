@@ -624,6 +624,7 @@ fieldset {
 	border:			1px #BBBBBB solid;
 	padding:		7px;
 	margin:			10px;
+	width:			92%;
 }
 
 fieldset legend {

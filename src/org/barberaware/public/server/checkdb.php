@@ -512,6 +512,12 @@ function check_db_schema () {
 		align_acl ( 'Order', 'Orders' );
 		align_acl ( 'OrderAggregate' );
 	}
+
+	/*
+		Nel dubbio in chiusura do anche una controllata ai conti...
+	*/
+	$tmp = new BankMovement ();
+	$tmp->fix ();
 }
 
 /*

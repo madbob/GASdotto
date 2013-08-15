@@ -41,6 +41,9 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		wrap = null;
 	}
 
+	/*
+		Per recuperare il wrapper interno del widget assegnato ad un attributo
+	*/
 	protected FromServerWidget retriveWidgetFromList ( String attribute ) {
 		return ( FromServerWidget ) widgets.get ( attribute );
 	}

@@ -49,6 +49,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			movimento nella callback sotto
 		*/
 		reason = new ListBox ();
+		reason.addItem ( "Versamento Credito Utente" );
 		reason.addItem ( "Trasferimento Conto / Cassa" );
 		reason.addItem ( "Trasferimento Cassa / Conto" );
 		reason.addItem ( "Acquisto del GAS con Bonifico" );
@@ -64,16 +65,36 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 				selected = reason.getSelectedIndex ();
 
-				if ( selected != 0 && selected != 1 )
-					user.setVisible ( false );
-				else
-					user.setVisible ( true );
+				switch ( selected ) {
+					case 0:
+						user.setVisible ( true );
+						info.setDefaultMethod ( BankMovement.BY_CASH );
+						break;
+
+					case 1:
+					case 3:
+						user.setVisible ( false );
+						info.setDefaultMethod ( BankMovement.BY_BANK );
+						break;
+
+					case 2:
+					case 4:
+						user.setVisible ( false );
+						info.setDefaultMethod ( BankMovement.BY_CASH );
+						break;
+				}
 			}
 		} );
 
 		info = new BankMovementForm ();
 		pan.add ( info );
-		info.setValue ( null );
+		info.setValue ( new BankMovement () );
+		info.showMethod ( false );
+		/*
+			Di default il pagamento e' settato su "Versamento Utente", che si intende
+			in contanti, dunque a prescindere lo imposto cosi'
+		*/
+		info.setDefaultMethod ( BankMovement.BY_CASH );
 
 		buttons = new DialogButtons ();
 
@@ -109,7 +130,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			return;
 
 		reason.setVisible ( false );
-		user.setValue ( selected.getObject ( "payuser" ) );
+		user.setValue ( Utils.getServer ().getObjectFromCache ( "User", selected.getInt ( "payuser" ) ) );
 		info.setValue ( selected );
 	}
 
@@ -119,22 +140,26 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		movement = info.getValue ();
 
 		if ( user.isVisible () )
-			movement.setObject ( "payuser", user.getValue () );
+			movement.setInt ( "payuser", user.getValue ().getLocalID () );
 
 		switch ( reason.getSelectedIndex () ) {
 			case 0:
-				movement.setInt ( "movementtype", BankMovement.INTERNAL_TRANSFER );
-				movement.setInt ( "method", BankMovement.BY_BANK );
+				movement.setInt ( "movementtype", BankMovement.USER_CREDIT );
+				movement.setInt ( "method", BankMovement.BY_CASH );
 				break;
 			case 1:
 				movement.setInt ( "movementtype", BankMovement.INTERNAL_TRANSFER );
-				movement.setInt ( "method", BankMovement.BY_CASH );
+				movement.setInt ( "method", BankMovement.BY_BANK );
 				break;
 			case 2:
+				movement.setInt ( "movementtype", BankMovement.INTERNAL_TRANSFER );
+				movement.setInt ( "method", BankMovement.BY_CASH );
+				break;
+			case 3:
 				movement.setInt ( "movementtype", BankMovement.GAS_BUYING );
 				movement.setInt ( "method", BankMovement.BY_BANK );
 				break;
-			case 3:
+			case 4:
 				movement.setInt ( "movementtype", BankMovement.GAS_BUYING );
 				movement.setInt ( "method", BankMovement.BY_CASH );
 				break;

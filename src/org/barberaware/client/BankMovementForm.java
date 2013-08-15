@@ -29,6 +29,7 @@ public class BankMovementForm extends FromServerRappresentation {
 	private CyclicToggle		method;
 	private Date			defaultDate;
 	private float			defaultAmount;
+	private int			defaultMethod;
 	private String			defaultNote;
 	private FromServer		targetUser;
 	private FromServer		targetSupplier;
@@ -136,6 +137,19 @@ public class BankMovementForm extends FromServerRappresentation {
 		targetSupplier = t;
 	}
 
+	public void setDefaultMethod ( int method ) {
+		FromServer movement;
+
+		defaultMethod = method;
+		movement = getValue ();
+
+		if ( movement != null ) {
+			movement.setInt ( "method", defaultMethod );
+			refreshContents ( movement );
+			renderCro ();
+		}
+	}
+
 	public void showCro ( boolean show ) {
 		displayCro = show;
 		renderCro ();
@@ -143,6 +157,17 @@ public class BankMovementForm extends FromServerRappresentation {
 
 	public void showJustDate ( boolean just ) {
 		justDate = just;
+	}
+
+	public void showMethod ( boolean show ) {
+		HTMLTable.RowFormatter format;
+
+		format = main.getRowFormatter ();
+
+		if ( show == true )
+			format.removeStyleName ( 2, "hidden" );
+		else
+			format.addStyleName ( 2, "hidden" );
 	}
 
 	private void renderCro () {
@@ -179,10 +204,12 @@ public class BankMovementForm extends FromServerRappresentation {
 		ret = super.getValue ();
 
 		if ( ret != null ) {
-			if ( targetUser != null )
-				ret.setObject ( "payuser", targetUser );
+			if ( targetUser != null ) {
+				Log.debug ( "son qua, " + targetUser.getString ( "name" ) );
+				ret.setInt ( "payuser", targetUser.getLocalID () );
+			}
 			if ( targetSupplier != null )
-				ret.setObject ( "paysupplier", targetSupplier );
+				ret.setInt ( "paysupplier", targetSupplier.getLocalID () );
 		}
 
 		return ret;

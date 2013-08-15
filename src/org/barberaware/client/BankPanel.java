@@ -26,7 +26,7 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class BankPanel extends GenericPanel {
-	private FromServerTable		mainTable;
+	private MovementsSummary	mainTable;
 	private DateRange		dates;
 	private FromServerSelector	userFilter;
 	private FromServerSelector	supplierFilter;
@@ -44,47 +44,7 @@ public class BankPanel extends GenericPanel {
 			Tabella principale
 		*/
 
-		mainTable = new FromServerTable ();
-		mainTable.setEmptyWarning ( "Non ci sono movimenti registrati nell'intervallo di tempo selezionato." );
-
-		mainTable.addColumn ( "Causale", "movementtype", new WidgetFactoryCallback () {
-			public Widget create () {
-				CyclicToggle ret;
-
-				ret = new CyclicToggle ( false );
-				ret.addStateText ( "Versamento Deposito" );
-				ret.addStateText ( "Restituzione Deposito" );
-				ret.addStateText ( "Quota Annuale" );
-				ret.addStateText ( "Pagamento Ordine Utente" );
-				ret.addStateText ( "Pagamento Ordine a Fornitore" );
-				ret.addStateText ( "Versamento Credito Utente" );
-				ret.addStateText ( "Acquisto GAS" );
-				ret.addStateText ( "Trasferimento Interno" );
-				return ret;
-			}
-		} );
-
-		mainTable.addColumn ( "Data", "date", new WidgetFactoryCallback () {
-			public Widget create () {
-				return new DateViewer ();
-			}
-		} );
-
-		mainTable.addColumn ( "Riferimento", "payreference", false );
-
-		mainTable.addColumn ( "Valore", "amount", new WidgetFactoryCallback () {
-			public Widget create () {
-				return new PriceViewer ();
-			}
-		} );
-
-		mainTable.addColumn ( "Edita", FromServerTable.TABLE_EDIT, new WidgetFactoryCallback () {
-			public Widget create () {
-				return new BankManualUpdate ();
-			}
-		} );
-
-		mainTable.clean ( true );
+		mainTable = new MovementsSummary ( true );
 		addTop ( mainTable );
 
 		/*
@@ -178,8 +138,6 @@ public class BankPanel extends GenericPanel {
 		FromServer target;
 		ObjectRequest params;
 
-		mainTable.clean ( true );
-
 		params = new ObjectRequest ( "BankMovement" );
 		params.add ( "startdate", Utils.encodeDate ( dates.getStartDate () ) );
 		params.add ( "enddate", Utils.encodeDate ( dates.getEndDate () ) );
@@ -192,14 +150,7 @@ public class BankPanel extends GenericPanel {
 		if ( target != null )
 			params.add ( "paysupplier", Integer.toString ( target.getLocalID () ) );
 
-		Utils.getServer ().serverGet ( params, new ServerResponse () {
-			public void onComplete ( JSONValue response ) {
-				ArrayList<FromServer> movements;
-
-				movements = Utils.getServer ().responseToObjects ( response, "BankMovement" );
-				mainTable.setElements ( movements );
-			}
-		} );
+		mainTable.refresh ( params );
 	}
 
 	/****************************************************************** GenericPanel */
@@ -217,9 +168,35 @@ public class BankPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		/*
+		Utils.getServer ().testObjectReceive ( "User" );
+		Utils.getServer ().testObjectReceive ( "Supplier" );
+
 		supplierFilter.unlock ();
 		userFilter.unlock ();
 		loadData ();
+		*/
+
+		ObjectRequest params;
+
+		params = new ObjectRequest ( "User" );
+
+		Utils.getServer ().serverGet ( params, new ServerResponse () {
+			public void onComplete ( JSONValue response ) {
+				ObjectRequest params;
+
+				Utils.getServer ().responseToObjects ( response );
+				params = new ObjectRequest ( "Supplier" );
+
+				Utils.getServer ().serverGet ( params, new ServerResponse () {
+					public void onComplete ( JSONValue response ) {
+						supplierFilter.unlock ();
+						userFilter.unlock ();
+						loadData ();
+					}
+				} );
+			}
+		} );
 	}
 }
 

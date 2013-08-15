@@ -30,17 +30,24 @@ public class ProfilePanel extends GenericPanel {
 		super ();
 
 		User user;
+		VerticalPanel ver;
 		HorizontalPanel hor;
+		CaptionPanel mframe;
 		CustomCaptionPanel frame;
 		DateSelector birth;
+		UserMovementsSummary movements;
 
 		user = Session.getUser ();
 		form = new FromServerForm ( user, FromServerForm.EDITABLE_UNDELETABLE );
 		form.alwaysOpened ( true );
 
+		ver = new VerticalPanel ();
+		ver.setWidth ( "100%" );
+		form.add ( ver );
+
 		hor = new HorizontalPanel ();
 		hor.setWidth ( "100%" );
-		form.add ( hor );
+		ver.add ( hor );
 
 		/*
 			Per non creare troppa confusione ho mantenuto laddove possibile lo stesso
@@ -119,6 +126,17 @@ public class ProfilePanel extends GenericPanel {
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
 			frame.addPair ( "Bilancio Corrente", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
 
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			mframe = new CaptionPanel ( "Storico Movimenti Cassa" );
+			ver.add ( mframe );
+
+			movements = new UserMovementsSummary ( user );
+			mframe.add ( movements );
+
+			form.setExtraWidget ( "movements", movements );
+			movements.refresh ();
+		}
+
 		form.setCallback ( new FromServerFormCallbacks () {
 			public void onSaved ( FromServerRappresentationFull form ) {
 				Utils.showNotification ( "Profilo Salvato", Notification.INFO );
@@ -144,8 +162,14 @@ public class ProfilePanel extends GenericPanel {
 
 	public void initView () {
 		FromServer myself;
+		UserMovementsSummary movements;
 
 		myself = Utils.getServer ().getObjectFromCache ( "User", Session.getUser ().getLocalID () );
 		form.refreshContents ( myself );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			movements = ( UserMovementsSummary ) form.retriveInternalWidget ( "movements" );
+			movements.refresh ();
+		}
 	}
 }

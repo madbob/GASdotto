@@ -51,26 +51,26 @@ public class BankMovement extends FromServer {
 
 		addFakeAttribute ( "payreference", FromServer.OBJECT, new ValueFromObjectClosure () {
 			public FromServer retriveObject ( FromServer obj ) {
-				FromServer ref;
+				int ref;
 
-				ref = obj.getObject ( "payuser" );
+				ref = obj.getInt ( "payuser" );
 
-				if ( ref == null ) {
-					ref = obj.getObject ( "paysupplier" );
+				if ( ref < 1 ) {
+					ref = obj.getInt ( "paysupplier" );
 
-					if ( ref == null )
+					if ( ref < 1 )
 						return Session.getGAS ();
 					else
-						return ref;
+						return Utils.getServer ().getObjectFromCache ( "Supplier", ref );
 				}
 				else {
-					return ref;
+					return Utils.getServer ().getObjectFromCache ( "User", ref );
 				}
 			}
 		} );
 
-		addAttribute ( "payuser", FromServer.OBJECT, User.class );
-		addAttribute ( "paysupplier", FromServer.OBJECT, Supplier.class );
+		addAttribute ( "payuser", FromServer.INTEGER );
+		addAttribute ( "paysupplier", FromServer.INTEGER );
 		addAttribute ( "date", FromServer.DATE );
 		addAttribute ( "registrationdate", FromServer.DATE );
 		addAttribute ( "registrationperson", FromServer.OBJECT, User.class );
@@ -126,9 +126,11 @@ public class BankMovement extends FromServer {
 	public boolean testAmounts () {
 		FromServer user;
 
-		user = getObject ( "payuser" );
+		user = Utils.getServer ().getObjectFromCache ( "User", getInt ( "payuser" ) );
 
 		if ( user != null ) {
+			Log.debug ( user.getString ( "name" ) + ": " + user.getFloat ( "current_balance" ) + " / " + getFloat ( "amount" ) );
+
 			if ( user.getFloat ( "current_balance" ) < getFloat ( "amount" ) && getInt ( "method" ) == BY_BANK ) {
 				Utils.infoDialog ( "Credito non Sufficiente", "Il credito disponibile per questo utente non è sufficiente! Si accettano solo pagamenti in contanti." );
 				return false;

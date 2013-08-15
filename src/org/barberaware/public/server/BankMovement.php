@@ -23,8 +23,8 @@ class BankMovement extends FromServer {
 	public function __construct () {
 		parent::__construct ( "BankMovement" );
 
-		$this->addAttribute ( "payuser", "OBJECT::User" );
-		$this->addAttribute ( "paysupplier", "OBJECT::Supplier" );
+		$this->addAttribute ( "payuser", "INTEGER" );
+		$this->addAttribute ( "paysupplier", "INTEGER" );
 		$this->addAttribute ( "date", "DATE" );
 		$this->addAttribute ( "registrationdate", "DATE" );
 		$this->addAttribute ( "registrationperson", "OBJECT::User" );
@@ -89,11 +89,6 @@ class BankMovement extends FromServer {
 
 		if ( $amount == 0 )
 			return;
-
-		if ( $user != null && is_object ( $user ) )
-			$user = $user->id;
-		if ( $supplier != null && is_object ( $supplier ) )
-			$supplier = $supplier->id;
 
 		$add = array ();
 		$sub = array ();
@@ -264,12 +259,38 @@ class BankMovement extends FromServer {
 			if ( property_exists ( $request, 'paysupplier' ) )
 				$query [] = sprintf ( "paysupplier = %d", $request->paysupplier );
 
+			/*
+				Non filtrare sempre per amount != 0: buona parte dei BankMovement
+				registrati potrebbero essere semplici placeholders creati salvando
+				l'oggetto di riferimento, dunque appunto avere amount = 0, se non
+				vengono restituiti al client questo continuera' a crearne di nuovi
+				ogni volta
+			*/
 			$query [] = 'amount != 0';
 		}
 
 		$query = join ( ' AND ', $query );
 
 		return parent::getByQuery ( $request, $compress, $query );
+	}
+
+	public function fix () {
+		$query = sprintf ( "UPDATE Users SET current_balance = 0" );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		$query = sprintf ( "UPDATE Supplier SET current_balance = 0" );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0" );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0", $this->tablename );
+		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+			$this->manageSums ( $row [ 'movementtype' ], $row [ 'method' ], $row [ 'amount' ], $row [ 'payuser' ], $row [ 'paysupplier' ], false );
+			unset ( $row );
+		}
 	}
 }
 

@@ -91,6 +91,8 @@ public class Order extends FromServer implements OrderInterface {
 
 		alwaysReload ( true );
 		isSharable ( true );
+
+		alwaysSendObject ( "payment_event", true );
 	}
 
 	public static CyclicToggle doOrderStatusSelector ( boolean active ) {

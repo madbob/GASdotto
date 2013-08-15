@@ -132,24 +132,41 @@ public class UsersPanel extends GenericPanel {
 
 			protected void asyncLoad ( final FromServerForm form ) {
 				HorizontalPanel hor;
+				VerticalPanel ver;
+				CaptionPanel mframe;
 				FromServer user;
 				CustomCaptionPanel frame;
 				CyclicToggle privileges;
 				DateSelector custom_date;
 				BankMovementSelector bms;
+				UserMovementsSummary movements;
 
 				/*
 					Questa funzione viene invocata ogni volta che un form viene aperto,
 					dunque devo accertarmi che non sia gia' stato popolato
 				*/
-				if ( form.retriveInternalWidget ( "login" ) != null )
+				if ( form.retriveInternalWidget ( "login" ) != null ) {
+					/*
+						... ma nel caso almeno l'elenco degli ultimi
+						movimenti lo aggiorno
+					*/
+					if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+						movements = ( UserMovementsSummary ) form.retriveInternalWidget ( "movements" );
+						movements.refresh ();
+					}
+
 					return;
+				}
 
 				user = form.getValue ();
 
+				ver = new VerticalPanel ();
+				ver.setWidth ( "100%" );
+				form.add ( ver );
+
 				hor = new HorizontalPanel ();
 				hor.setWidth ( "100%" );
-				form.add ( hor );
+				ver.add ( hor );
 
 				/* prima colonna */
 
@@ -274,6 +291,17 @@ public class UsersPanel extends GenericPanel {
 
 				if ( Session.getGAS ().getBool ( "use_bank" ) == true )
 					frame.addPair ( "Bilancio Corrente", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
+
+				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+					mframe = new CaptionPanel ( "Storico Movimenti Cassa" );
+					ver.add ( mframe );
+
+					movements = new UserMovementsSummary ( user );
+					mframe.add ( movements );
+
+					form.setExtraWidget ( "movements", movements );
+					movements.refresh ();
+				}
 			}
 
 			protected void customModify ( FromServer obj, FromServerRappresentation form ) {

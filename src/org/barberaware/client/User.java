@@ -88,6 +88,8 @@ public class User extends FromServer {
 		setDate ( "join_date", new Date ( System.currentTimeMillis () ) );
 
 		alwaysReload ( true );
+		alwaysSendObject ( "paying", true );
+		alwaysSendObject ( "deposit", true );
 	}
 
 	public void checkUserPaying ( FromServerForm form ) {

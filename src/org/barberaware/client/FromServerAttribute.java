@@ -261,10 +261,10 @@ public class FromServerAttribute {
 			FromServer real_object;
 
 			real_object = this.getObject ( null );
-			if ( real_object == null )
-				return null;
 
-			if ( real_object.getLocalID () == -1 || alwaysSend == true )
+			if ( real_object == null )
+				ret = null;
+			else if ( real_object.getLocalID () == -1 || alwaysSend == true )
 				ret = real_object.toJSONObject ();
 			else
 				ret = new JSONString ( Integer.toString ( real_object.getLocalID () ) );

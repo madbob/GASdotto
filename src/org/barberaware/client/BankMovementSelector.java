@@ -82,16 +82,7 @@ public class BankMovementSelector extends FromServerRappresentation {
 					pan.add ( buttons );
 					buttons.addCallback ( new SavingDialogCallback () {
 						public void onSave ( SavingDialog sender ) {
-							BankMovement movement;
-
-							movement = ( BankMovement ) getValue ();
-
-							if ( movement.testAmounts () == true ) {
-								opened = false;
-								saved = true;
-								dialog.hide ();
-								showName ();
-							}
+							doSave ();
 						}
 
 						public void onCancel ( SavingDialog sender ) {
@@ -160,6 +151,20 @@ public class BankMovementSelector extends FromServerRappresentation {
 		justDate = just;
 	}
 
+	private void doSave () {
+		BankMovement movement;
+
+		rebuildObject ();
+		movement = ( BankMovement ) super.getValue ();
+
+		if ( movement.testAmounts () == true ) {
+			opened = false;
+			saved = true;
+			dialog.hide ();
+			showName ();
+		}
+	}
+
 	private void showName () {
 		FromServer obj;
 
@@ -174,11 +179,6 @@ public class BankMovementSelector extends FromServerRappresentation {
 	/****************************************************************** FromServerRappresentation */
 
 	public void setValue ( FromServer obj ) {
-		if ( obj == null ) {
-			obj = new BankMovement ();
-			artificial = true;
-		}
-
 		super.setValue ( obj );
 		showName ();
 	}

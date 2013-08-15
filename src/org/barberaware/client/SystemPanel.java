@@ -20,6 +20,9 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -37,6 +40,7 @@ public class SystemPanel extends GenericPanel {
 		VerticalPanel ver;
 		MultiGasEnabler multigas;
 		ImportButton importer;
+		Button fixer;
 
 		sframe = new CaptionPanel ( "Configurazione GAS" );
 		sframe.add ( doGlobalConfForm () );
@@ -91,6 +95,30 @@ public class SystemPanel extends GenericPanel {
 		ver.add ( importer );
 		sframe.add ( ver );
 		add ( sframe );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			sframe = new CaptionPanel ( "Revisione Saldi" );
+			ver = new VerticalPanel ();
+			ver.add ( new HTML ( "Con questa funzione è possibile ricalcolare tutti i saldi salvati nell'applicazione. Da usare qualora i conti non tornassero o per operazioni di verifica periodica. Cliccando il pulsante sottostante la procedura verrà automaticamente avviata, nota che potrebbe richiedere un pò di tempo." ) );
+			fixer = new Button ( "Revisiona" );
+			fixer.addClickHandler ( new ClickHandler () {
+				public void onClick ( ClickEvent event ) {
+					Utils.getServer ().rawGet ( "bank_op.php?type=fix", new RequestCallback () {
+						public void onError ( Request request, Throwable exception ) {
+							Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+						}
+
+						public void onResponseReceived ( Request request, Response response ) {
+							Window.Location.reload ();
+						}
+					} );
+				}
+			} );
+			fixer.addStyleName ( "top-spaced" );
+			ver.add ( fixer );
+			sframe.add ( ver );
+			add ( sframe );
+		}
 
 		if ( Session.getSystemConf ().getBool ( "has_multigas" ) == false ) {
 			sframe = new CaptionPanel ( "Multi-GAS" );
