@@ -23,6 +23,7 @@ import com.google.gwt.user.client.ui.*;
 
 public class FilesStaticList extends Composite implements FromServerArray {
 	private VerticalPanel	main;
+	private boolean		empty;
 	private ArrayList	currentFiles;
 
 	public FilesStaticList () {
@@ -31,6 +32,7 @@ public class FilesStaticList extends Composite implements FromServerArray {
 
 		currentFiles = null;
 
+		empty = true;
 		main.add ( new Label ( "Non ci sono files" ) );
 	}
 
@@ -44,16 +46,20 @@ public class FilesStaticList extends Composite implements FromServerArray {
 
 	/****************************************************************** FromServerArray */
 
-	/*
-		Funzione non implementata a causa del suo non utilizzo
-	*/
 	public void addElement ( FromServer element ) {
-		/* dummy */
+		Widget cell;
+
+		if ( empty == true ) {
+			empty = false;
+			main.clear ();
+		}
+
+		cell = doCell ( ( CustomFile ) element );
+		main.add ( cell );
 	}
 
 	public void setElements ( ArrayList elements ) {
 		int tot;
-		Widget cell;
 
 		main.clear ();
 
@@ -65,10 +71,8 @@ public class FilesStaticList extends Composite implements FromServerArray {
 		tot = elements.size ();
 		currentFiles = elements;
 
-		for ( int i = 0; i < tot; i++ ) {
-			cell = doCell ( ( CustomFile ) elements.get ( i ) );
-			main.add ( cell );
-		}
+		for ( int i = 0; i < tot; i++ )
+			addElement ( ( CustomFile ) elements.get ( i ) );
 	}
 
 	/*

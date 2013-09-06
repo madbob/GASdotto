@@ -34,7 +34,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		final VerticalPanel pan;
 		DialogButtons buttons;
 
-		this.setText ( "Aggiornamento Manuale" );
+		this.setText ( "Gestione Movimenti" );
 
 		pan = new VerticalPanel ();
 		this.setWidget ( pan );

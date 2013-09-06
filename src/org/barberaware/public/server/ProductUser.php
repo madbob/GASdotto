@@ -30,6 +30,9 @@ class ProductUser extends FromServer {
 		$this->addAttribute ( "orderdate", "DATE" );
 		$this->addAttribute ( "orderperson", "OBJECT::User" );
 
+		$this->preserveAttribute ( "product" );
+		$this->preserveAttribute ( "orderperson" );
+
 		// $this->setPublic ( false, 'asc', 'OrderUser', 'products' );
 	}
 

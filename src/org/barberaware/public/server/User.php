@@ -51,6 +51,18 @@ class User extends FromServer {
 	}
 
 	public function get ( $request, $compress ) {
+		if ( $request != null && property_exists ( $request, 'password' ) ) {
+			$query = sprintf ( "SELECT password FROM accounts
+						WHERE username = (SELECT id FROM %s WHERE login = '%s')", $this->tablename, $request->username );
+			$returned = query_and_check ( $query, "Impossibile validare utente" );
+			$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
+
+			if ( md5 ( $request->password ) == $row [ 0 ] [ 'password' ] )
+				return "OK";
+			else
+				return "NO";
+		}
+
 		if ( $request != null && property_exists ( $request, 'privileges' ) )
 			$query = sprintf ( "privileges = %d", $request->privileges );
 		else

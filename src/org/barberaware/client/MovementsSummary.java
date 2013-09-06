@@ -45,6 +45,8 @@ public class MovementsSummary extends FromServerTable {
 			}
 		} );
 
+		addColumn ( "Descrizione", "notes", false );
+
 		addColumn ( "Data", "date", new WidgetFactoryCallback () {
 			public Widget create () {
 				return new DateViewer ();
@@ -60,13 +62,21 @@ public class MovementsSummary extends FromServerTable {
 			}
 		} );
 
+		clean ( true );
+	}
+
+	public void addEditingColumns () {
 		addColumn ( "Edita", FromServerTable.TABLE_EDIT, new WidgetFactoryCallback () {
 			public Widget create () {
 				return new BankManualUpdate ();
 			}
 		} );
 
-		clean ( true );
+		addColumn ( "Rimuovi", FromServerTable.TABLE_REMOVE, new WidgetFactoryCallback () {
+			public Widget create () {
+				return new BankRemoveDialog ();
+			}
+		} );
 	}
 
 	public void refresh ( ObjectRequest filters ) {

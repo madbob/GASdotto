@@ -27,6 +27,8 @@ class CustomFile extends FromServer {
 		$this->addAttribute ( "server_path", "STRING" );
 		$this->addAttribute ( "by_user", "OBJECT::User" );
 		$this->addAttribute ( "upload_date", "DATE" );
+
+		$this->preserveAttribute ( "by_user" );
 	}
 }
 

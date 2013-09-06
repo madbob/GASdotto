@@ -139,7 +139,7 @@ public class UsersPanel extends GenericPanel {
 				CyclicToggle privileges;
 				DateSelector custom_date;
 				BankMovementSelector bms;
-				UserMovementsSummary movements;
+				FilteredMovementsSummary movements;
 
 				/*
 					Questa funzione viene invocata ogni volta che un form viene aperto,
@@ -151,7 +151,7 @@ public class UsersPanel extends GenericPanel {
 						movimenti lo aggiorno
 					*/
 					if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-						movements = ( UserMovementsSummary ) form.retriveInternalWidget ( "movements" );
+						movements = ( FilteredMovementsSummary ) form.retriveInternalWidget ( "movements" );
 						movements.refresh ();
 					}
 
@@ -290,13 +290,13 @@ public class UsersPanel extends GenericPanel {
 				frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 
 				if ( Session.getGAS ().getBool ( "use_bank" ) == true )
-					frame.addPair ( "Bilancio Corrente", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
+					frame.addPair ( "Credito Disponibile", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
 
 				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
 					mframe = new CaptionPanel ( "Storico Movimenti Cassa" );
 					ver.add ( mframe );
 
-					movements = new UserMovementsSummary ( user );
+					movements = new FilteredMovementsSummary ( user, null );
 					mframe.add ( movements );
 
 					form.setExtraWidget ( "movements", movements );

@@ -27,6 +27,8 @@ class ACL extends FromServer {
 		$this->addAttribute ( "target_type", "STRING" );
 		$this->addAttribute ( "target_id", "INTEGER" );
 		$this->addAttribute ( "privileges", "INTEGER" );
+
+		$this->preserveAttribute ( "gas" );
 	}
 
 	public function get ( $request, $compress ) {

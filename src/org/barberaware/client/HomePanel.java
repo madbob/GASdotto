@@ -92,6 +92,9 @@ public class HomePanel extends GenericPanel {
 		notifications = new NotificationsBox ();
 		add ( notifications );
 
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+			add ( doCreditBox () );
+
 		openedOrders = doOrdersSummary ( "Ordini aperti in questo momento (in rosso quelli in chiusura)", "Non ci sono ordini aperti in questo momento.", 0 );
 		add ( openedOrders );
 
@@ -285,6 +288,17 @@ public class HomePanel extends GenericPanel {
 				return "Order in HomePanel";
 			}
 		} );
+	}
+
+	private Widget doCreditBox () {
+		CaptionPanel ret;
+		User user;
+
+		user = Session.getUser ();
+
+		ret = new CaptionPanel ( "Credito" );
+		ret.add ( new HTML ( "Il tuo credito disponibile ammonta a <span class=\"big-text\">" + Utils.priceToString ( user.getFloat ( "current_balance" ) ) + "</span>" ) );
+		return ret;
 	}
 
 	private PlainOrdersBox doOrdersSummary ( String title, String empty, int expiry ) {

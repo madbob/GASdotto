@@ -34,6 +34,8 @@ public class SupplierUneditableForm extends FromServerForm {
 		VerticalPanel column;
 		BooleanSelector notifies;
 		AddressString addr;
+		FilesStaticList files;
+		CustomFile products_fake_file;
 		ProductsPresentationList products;
 		OpenedOrdersList orders;
 		PastOrdersList past_orders;
@@ -55,7 +57,9 @@ public class SupplierUneditableForm extends FromServerForm {
 		cframe.addPair ( "Nome", getPersonalizedWidget ( "name", doString () ) );
 		cframe.addPair ( "Nome Contatto", getPersonalizedWidget ( "contact", doString () ) );
 		cframe.addPair ( "Calendario Ordini", getPersonalizedWidget ( "orders_months", new MonthsSelector ( false ) ) );
-		cframe.addPair ( "Luogo Consegna", getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( false ) ) );
+
+		if ( Session.getGAS ().getBool ( "use_shipping" ) == true )
+			cframe.addPair ( "Luogo Consegna", getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( false ) ) );
 
 		cframe = new CustomCaptionPanel ( "Configurazioni" );
 		column.add ( cframe );
@@ -79,7 +83,9 @@ public class SupplierUneditableForm extends FromServerForm {
 		cframe.addPair ( "Mail", getPersonalizedWidget ( "mail", doString () ) );
 		cframe.addPair ( "Sito Web", getPersonalizedWidget ( "website", doString () ) );
 
-		/* dettagli */
+		/*
+			Dettagli
+		*/
 
 		desc = supplier.getString ( "description" );
 		if ( desc == "" )
@@ -99,6 +105,11 @@ public class SupplierUneditableForm extends FromServerForm {
 		frame = new CaptionPanel ( "Ultimi 10 ordini effettuati da me" );
 		add ( frame );
 		frame.add ( past_orders );
+
+		/*
+			Gestione Referenti
+			(Solo se l'utente corrente e' amministratore)
+		*/
 
 		if ( Session.getUser ().getInt ( "privileges" ) == User.USER_ADMIN ||
 				( supplier.iAmReference () == true && supplier.sharingStatus () == ACL.ACL_READONLY ) ) {
@@ -138,14 +149,23 @@ public class SupplierUneditableForm extends FromServerForm {
 			frame.add ( getPersonalizedWidget ( "references", references ) );
 		}
 
-		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
-			FilesStaticList files;
+		/*
+			Files
+		*/
 
-			files = new FilesStaticList ();
-			frame = new CaptionPanel ( "Files" );
-			add ( frame );
-			frame.add ( getPersonalizedWidget ( "files", files ) );
-		}
+		files = new FilesStaticList ();
+		frame = new CaptionPanel ( "Files" );
+		add ( frame );
+		frame.add ( getPersonalizedWidget ( "files", files ) );
+
+		products_fake_file = new CustomFile ();
+		products_fake_file.setString ( "name", "Listino Prodotti" );
+		products_fake_file.setString ( "server_path", "suppliers_products.php?supplier=" + supplier.getLocalID () );
+		files.addElement ( products_fake_file );
+
+		/*
+			Prodotti
+		*/
 
 		products = new ProductsPresentationList ( supplier );
 		setExtraWidget ( "products", products );

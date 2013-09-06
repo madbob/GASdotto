@@ -313,6 +313,8 @@ public class SuppliersEditPanel extends GenericPanel {
 		payments.getFlexCellFormatter ().setColSpan ( 0, 0, 2 );
 
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			FilteredMovementsSummary movements;
+
 			payments.setWidget ( 1, 0, new Label ( "Accetta Bonifico" ) );
 			payments.setWidget ( 1, 1, ver.getWidget ( "paying_by_bank" ) );
 			payments.getCellFormatter ().addStyleName ( 1, 0, "custom-label" );
@@ -320,6 +322,11 @@ public class SuppliersEditPanel extends GenericPanel {
 			payments.setWidget ( 2, 0, new Label ( "Totale da Ricevere" ) );
 			payments.setWidget ( 2, 1, ver.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
 			payments.getCellFormatter ().addStyleName ( 2, 0, "custom-label" );
+
+			movements = new FilteredMovementsSummary ( null, supp );
+			payments.setWidget ( 3, 0, movements );
+			payments.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
+			movements.refresh ();
 		}
 
 		hor.add ( sframe );
@@ -363,10 +370,12 @@ public class SuppliersEditPanel extends GenericPanel {
 	}
 
 	private FromServerForm commonFormBuilder ( FromServer supp ) {
+		VerticalPanel files_pan;
 		final FromServerForm ver;
 		Supplier supplier;
 		TabPanel tabs;
 		EmblemsBar bar;
+		LinksDialog productslist;
 
 		supplier = ( Supplier ) supp;
 
@@ -389,14 +398,18 @@ public class SuppliersEditPanel extends GenericPanel {
 		tabs.add ( attributesBuilder ( ver, supplier ), "Dettagli" );
 		tabs.add ( productsBuilder ( ver, supplier ), "Prodotti" );
 
-		/*
-			La tab dei files viene attivata solo se effettivamente e' concesso il
-			caricamento dei files sul server
-		*/
+		files_pan = new VerticalPanel ();
+		tabs.add ( files_pan, "Files" );
+
+		productslist = new LinksDialog ( "Listino Prodotti" );
+		productslist.addLink ( "CSV", "suppliers_products.php?supplier=" + supplier.getLocalID () );
+		files_pan.add ( productslist );
+
 		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
 			FilesGroup files;
+
 			files = new FilesGroup ();
-			tabs.add ( ver.getPersonalizedWidget ( "files", files ), "Files" );
+			files_pan.add ( ver.getPersonalizedWidget ( "files", files ) );
 		}
 
 		tabs.selectTab ( 0 );

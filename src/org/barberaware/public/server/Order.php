@@ -36,6 +36,9 @@ class Order extends SharableFromServer {
 		$this->addAttribute ( "payment_event", "OBJECT::BankMovement" );
 		$this->addAttribute ( "parent_aggregate", "BOOLEAN" );
 
+		$this->preserveAttribute ( "supplier" );
+		$this->preserveAttribute ( "products" );
+
 		$this->setPublic ( false );
 		$this->setSorting ( 'startdate' );
 	}

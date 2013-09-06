@@ -295,6 +295,11 @@ public class ServerHook {
 					continue;
 				}
 
+				/*
+					Se l'oggetto esiste gia', la callback
+					triggerObjectModification viene invocata
+					da lookupObject()
+				*/
 				tmp = lookupObject ( obj );
 				if ( tmp == null )
 					continue;
@@ -492,6 +497,8 @@ public class ServerHook {
 					triggerObjectModification ( child, true );
 			}
 		}
+
+		object.executeLocalObjectEvent ( FromServerResponse.ACTION_MODIFY );
 	}
 
 	public void triggerObjectModification ( FromServer object ) {
@@ -512,6 +519,8 @@ public class ServerHook {
 			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
 			callback.onDestroy ( object );
 		}
+
+		object.executeLocalObjectEvent ( FromServerResponse.ACTION_DELETE );
 	}
 
 	public void forceObjectReload ( String type, int id ) {

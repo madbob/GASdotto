@@ -75,7 +75,7 @@ public class BankMovementForm extends FromServerRappresentation {
 				main.setWidget ( 3, 0, new Label ( "CRO" ) );
 				main.setWidget ( 3, 1, getWidget ( "cro" ) );
 
-				main.setWidget ( 4, 0, new Label ( "Note" ) );
+				main.setWidget ( 4, 0, new Label ( "Descrizione" ) );
 				main.setWidget ( 4, 1, getWidget ( "notes" ) );
 			}
 			else {
@@ -204,10 +204,8 @@ public class BankMovementForm extends FromServerRappresentation {
 		ret = super.getValue ();
 
 		if ( ret != null ) {
-			if ( targetUser != null ) {
-				Log.debug ( "son qua, " + targetUser.getString ( "name" ) );
+			if ( targetUser != null )
 				ret.setInt ( "payuser", targetUser.getLocalID () );
-			}
 			if ( targetSupplier != null )
 				ret.setInt ( "paysupplier", targetSupplier.getLocalID () );
 		}

@@ -33,6 +33,9 @@ class BankMovement extends FromServer {
 		$this->addAttribute ( "method", "INTEGER" );
 		$this->addAttribute ( "cro", "STRING" );
 		$this->addAttribute ( "notes", "STRING" );
+
+		$this->preserveAttribute ( "registrationperson" );
+		$this->noBackDestroy ();
 	}
 
 	/*
@@ -216,6 +219,16 @@ class BankMovement extends FromServer {
 			return $obj;
 	}
 
+	private function revertById ( $id ) {
+		$query = sprintf ( "SELECT * FROM %s WHERE id = %d", $this->tablename, $id );
+		$returned = query_and_check ( $query, "Impossibile riallineare movimento in " . $this->classname );
+		$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
+		$row = $rows [ 0 ];
+		$this->manageSums ( $row [ 'movementtype' ], $row [ 'method' ], $row [ 'amount' ], $row [ 'payuser' ], $row [ 'paysupplier' ], true );
+		unset ( $returned );
+		unset ( $rows );
+	}
+
 	public function save ( $obj ) {
 		if ( $obj instanceof FromServer )
 			$this->dupBy ( $obj );
@@ -223,16 +236,8 @@ class BankMovement extends FromServer {
 			$this->from_object_to_internal ( $obj );
 
 		$id = $this->getAttribute ( "id" )->value;
-
-		if ( $id != -1 ) {
-			$query = sprintf ( "SELECT * FROM %s WHERE id = %d", $this->tablename, $id );
-			$returned = query_and_check ( $query, "Impossibile riallineare movimento in " . $this->classname );
-			$rows = $returned->fetchAll ( PDO::FETCH_ASSOC );
-			$row = $rows [ 0 ];
-			$this->manageSums ( $row [ 'movementtype' ], $row [ 'method' ], $row [ 'amount' ], $row [ 'payuser' ], $row [ 'paysupplier' ], true );
-			unset ( $returned );
-			unset ( $rows );
-		}
+		if ( $id != -1 )
+			$this->revertById ( $id );
 
 		$id = parent::save ( $obj );
 
@@ -244,6 +249,11 @@ class BankMovement extends FromServer {
 		}
 
 		return $id;
+	}
+
+	public function destroy ( $obj ) {
+		$this->revertById ( $obj->id );
+		return parent::destroy ( $obj );
 	}
 
 	public function get ( $request, $compress ) {

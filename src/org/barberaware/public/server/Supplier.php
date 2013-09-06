@@ -44,6 +44,9 @@ class Supplier extends SharableFromServer {
 		$this->addAttribute ( "hidden", "BOOLEAN" );
 		$this->addAttribute ( "current_balance", "FLOAT" );
 
+		$this->preserveAttribute ( "references" );
+		$this->preserveAttribute ( "carriers" );
+
 		$this->setSorting ( "name" );
 		$this->setPublic ( false );
 	}

@@ -227,6 +227,7 @@ body {
 
 .elements-table td {
 	margin:			0px;
+	font-size:		12px;
 }
 
 .elements-table input {
@@ -268,6 +269,10 @@ body {
 
 .custom-label {
 	width:			130px;
+}
+
+.bankmovement-viewer {
+	margin:			20px;
 }
 
 .table-header .gwt-Label {

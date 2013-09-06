@@ -35,7 +35,7 @@ public class ProfilePanel extends GenericPanel {
 		CaptionPanel mframe;
 		CustomCaptionPanel frame;
 		DateSelector birth;
-		UserMovementsSummary movements;
+		FilteredMovementsSummary movements;
 
 		user = Session.getUser ();
 		form = new FromServerForm ( user, FromServerForm.EDITABLE_UNDELETABLE );
@@ -124,13 +124,13 @@ public class ProfilePanel extends GenericPanel {
 			frame.addPair ( "Luogo Consegna", form.getPersonalizedWidget ( "shipping", new FromServerSelector ( "ShippingPlace", false, false, false ) ) );
 
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
-			frame.addPair ( "Bilancio Corrente", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
+			frame.addPair ( "Credito Disponibile", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
 
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
 			mframe = new CaptionPanel ( "Storico Movimenti Cassa" );
 			ver.add ( mframe );
 
-			movements = new UserMovementsSummary ( user );
+			movements = new FilteredMovementsSummary ( user, null );
 			mframe.add ( movements );
 
 			form.setExtraWidget ( "movements", movements );
@@ -162,13 +162,13 @@ public class ProfilePanel extends GenericPanel {
 
 	public void initView () {
 		FromServer myself;
-		UserMovementsSummary movements;
+		FilteredMovementsSummary movements;
 
 		myself = Utils.getServer ().getObjectFromCache ( "User", Session.getUser ().getLocalID () );
 		form.refreshContents ( myself );
 
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-			movements = ( UserMovementsSummary ) form.retriveInternalWidget ( "movements" );
+			movements = ( FilteredMovementsSummary ) form.retriveInternalWidget ( "movements" );
 			movements.refresh ();
 		}
 	}

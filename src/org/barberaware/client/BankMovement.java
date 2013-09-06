@@ -129,8 +129,6 @@ public class BankMovement extends FromServer {
 		user = Utils.getServer ().getObjectFromCache ( "User", getInt ( "payuser" ) );
 
 		if ( user != null ) {
-			Log.debug ( user.getString ( "name" ) + ": " + user.getFloat ( "current_balance" ) + " / " + getFloat ( "amount" ) );
-
 			if ( user.getFloat ( "current_balance" ) < getFloat ( "amount" ) && getInt ( "method" ) == BY_BANK ) {
 				Utils.infoDialog ( "Credito non Sufficiente", "Il credito disponibile per questo utente non è sufficiente! Si accettano solo pagamenti in contanti." );
 				return false;

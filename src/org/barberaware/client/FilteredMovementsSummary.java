@@ -23,16 +23,18 @@ import com.google.gwt.user.client.ui.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class UserMovementsSummary extends Composite {
+public class FilteredMovementsSummary extends Composite {
 	private MovementsSummary	mainTable;
 	private DateRange		dates;
-	private FromServer		target;
+	private FromServer		targetUser;
+	private FromServer		targetSupplier;
 
-	public UserMovementsSummary ( FromServer user ) {
+	public FilteredMovementsSummary ( FromServer user, FromServer supplier ) {
 		VerticalPanel main;
 		HorizontalPanel hor;
 
-		target = user;
+		targetUser = user;
+		targetSupplier = supplier;
 
 		main = new VerticalPanel ();
 		initWidget ( main );
@@ -56,7 +58,11 @@ public class UserMovementsSummary extends Composite {
 		params = new ObjectRequest ( "BankMovement" );
 		params.add ( "startdate", Utils.encodeDate ( dates.getStartDate () ) );
 		params.add ( "enddate", Utils.encodeDate ( dates.getEndDate () ) );
-		params.add ( "payuser", Integer.toString ( target.getLocalID () ) );
+
+		if ( targetUser != null )
+			params.add ( "payuser", Integer.toString ( targetUser.getLocalID () ) );
+		if ( targetSupplier != null )
+			params.add ( "paysupplier", Integer.toString ( targetSupplier.getLocalID () ) );
 
 		mainTable.refresh ( params );
 	}

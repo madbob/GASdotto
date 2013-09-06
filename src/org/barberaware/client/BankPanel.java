@@ -45,6 +45,7 @@ public class BankPanel extends GenericPanel {
 		*/
 
 		mainTable = new MovementsSummary ( true );
+		mainTable.addEditingColumns ();
 		addTop ( mainTable );
 
 		/*
@@ -115,6 +116,7 @@ public class BankPanel extends GenericPanel {
 			Filtri
 		*/
 
+		/*
 		frame = new CustomCaptionPanel ( "Saldo" );
 		hor.add ( frame );
 		hor.setCellWidth ( frame, "50%" );
@@ -132,6 +134,13 @@ public class BankPanel extends GenericPanel {
 		price = new PriceViewer ();
 		price.setVal ( gas.getFloat ( "current_cash_balance" ) );
 		frame.addPair ( "Saldo Cassa", price );
+		*/
+
+		GASBankSummary gas_sum;
+
+		gas_sum = new GASBankSummary ();
+		hor.add ( gas_sum );
+		hor.setCellWidth ( gas_sum, "50%" );
 	}
 
 	private void loadData () {
@@ -156,7 +165,7 @@ public class BankPanel extends GenericPanel {
 	/****************************************************************** GenericPanel */
 
 	public String getName () {
-		return "Gestione Cassa";
+		return "Gestione Contabile";
 	}
 
 	public String getSystemID () {
@@ -168,15 +177,6 @@ public class BankPanel extends GenericPanel {
 	}
 
 	public void initView () {
-		/*
-		Utils.getServer ().testObjectReceive ( "User" );
-		Utils.getServer ().testObjectReceive ( "Supplier" );
-
-		supplierFilter.unlock ();
-		userFilter.unlock ();
-		loadData ();
-		*/
-
 		ObjectRequest params;
 
 		params = new ObjectRequest ( "User" );

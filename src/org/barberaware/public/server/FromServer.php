@@ -26,9 +26,10 @@ require_once ( "utils.php" );
 */
 
 class FromServerAttribute {
-	public $name		= "";
-	public $type		= "";
-	public $value		= "";
+	public $name			= "";
+	public $type			= "";
+	public $value			= "";
+	public $preserveOnDestroy	= false;
 
 	public function __construct ( $name, $type ) {
 		$this->name = $name;
@@ -38,6 +39,10 @@ class FromServerAttribute {
 			$this->value = array ();
 		else
 			$this->value = "";
+	}
+
+	public function preserve () {
+		$this->preserveOnDestroy = true;
 	}
 
 	public function traslate_field ( $parent, $value ) {
@@ -211,6 +216,7 @@ abstract class FromServer {
 	public		$user_check	= null;
 	public		$attributes	= array ();
 	public		$is_public	= true;
+	public		$back_destroy	= true;
 
 	/*
 		Qui, se is_public e' false, viene piazzato un array con le seguenti chiavi:
@@ -283,6 +289,25 @@ abstract class FromServer {
 		}
 
 		return null;
+	}
+
+	/*
+		Da invocare sugli attributi facenti riferimento ad altri oggetti
+		i quali non devono essere distrutti in caso di eliminazione
+		dell'elemento per mezzo della funzione destroy()
+	*/
+	public function preserveAttribute ( $name ) {
+		$a = $this->getAttribute ( $name );
+		$a->preserve ();
+	}
+
+	/*
+		Se invocata, un oggetto della classe di riferimento non transita
+		per destroy_related() (dunque la catena di eliminazioni non
+		risale)
+	*/
+	public function noBackDestroy () {
+		$this->back_destroy = false;
 	}
 
 	public function readFromDB ( $id ) {
@@ -833,7 +858,8 @@ abstract class FromServer {
 		/*
 			TODO	Qui ci sarebbe da spianare anche gli oggetti che fanno riferimento a quello che si
 				sta distruggendo, ma solo in determinati casi (eliminando un Product si eliminano le
-				relative varianti, ma distruggendo un OrderAggregate non si distruggono gli Order)
+				relative varianti, ma distruggendo un OrderAggregate non si distruggono gli Order).
+				Applicare l'attributo preserveOnDestroy in FromServerAttribute
 		*/
 
 		$attr = $this->getAttribute ( "id" );
@@ -853,6 +879,9 @@ abstract class FromServer {
 				query_and_check ( $query, "Impossibile eliminare oggetti correlati a " . $this->classname );
 			}
 		}
+
+		if ( $this->back_destroy == false )
+			return;
 
 		$classes = get_from_server_classes ();
 

@@ -33,6 +33,10 @@ class OrderUser extends FromServer {
 		$this->addAttribute ( "payment_event", "OBJECT::BankMovement" );
 		$this->addAttribute ( "notes", "STRING" );
 
+		$this->preserveAttribute ( "baseorder" );
+		$this->preserveAttribute ( "baseuser" );
+		$this->preserveAttribute ( "deliveryperson" );
+
 		$this->enforceUserCheck ( "baseuser" );
 		$this->setPublic ( false, 'desc', 'User', 'baseuser' );
 	}

@@ -27,25 +27,25 @@ import com.google.gwt.json.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FromServer implements Comparator {
-	public static int	STRING		= 0;
-	public static int	INTEGER		= 1;
-	public static int	FLOAT		= 2;
-	public static int	ARRAY		= 3;
-	public static int	OBJECT		= 4;
-	public static int	DATE		= 5;
-	public static int	BOOLEAN		= 6;
-	public static int	LONGSTRING	= 7;
-	public static int	PERCENTAGE	= 8;
-	public static int	ADDRESS		= 9;
-	public static int	PRICE		= 10;
+	public static int			STRING		= 0;
+	public static int			INTEGER		= 1;
+	public static int			FLOAT		= 2;
+	public static int			ARRAY		= 3;
+	public static int			OBJECT		= 4;
+	public static int			DATE		= 5;
+	public static int			BOOLEAN		= 6;
+	public static int			LONGSTRING	= 7;
+	public static int			PERCENTAGE	= 8;
+	public static int			ADDRESS		= 9;
+	public static int			PRICE		= 10;
 
-	private int		localID;
-	private String		type;
-	private HashMap		attributes;
-	private HashMap		relatedInfo;
+	private int				localID;
+	private String				type;
+	private HashMap				attributes;
+	private HashMap				relatedInfo;
 
-	private boolean		sharable;
-	private int		sharingPrivileges;
+	private boolean				sharable;
+	private int				sharingPrivileges;
 
 	/*
 		Internamente questo attributo, settato in fase di costruzione di una delle classi
@@ -54,7 +54,7 @@ public abstract class FromServer implements Comparator {
 		server apporta delle trasformazioni sui dati salvati, e dunque l'oggetto che si
 		ha gia' in locale potrebbe non avere valori completamente validi
 	*/
-	private boolean		forceReloadFromServer;
+	private boolean				forceReloadFromServer;
 
 	/*
 		Flag speciale, settato a true quando si esegue il salvataggio e a false quando
@@ -63,7 +63,13 @@ public abstract class FromServer implements Comparator {
 		ID == -1, in quanto e' in fase di trasferimento sul server e si assume dunque che
 		un ID gli venga assegnato nel giro di poco
 	*/
-	private boolean		savingOperation;
+	private boolean				savingOperation;
+
+	/*
+		Array di eventuali callbacks locali, che vengono invocate sulla modifica e
+		rimozione del singolo oggetto
+	*/
+	private ArrayList<ServerObjectReceive>	localCallbacks;
 
 	/****************************************************************** init */
 
@@ -75,6 +81,7 @@ public abstract class FromServer implements Comparator {
 		sharingPrivileges = ACL.ACL_OWNER;
 		forceReloadFromServer = false;
 		savingOperation = false;
+		localCallbacks = null;
 
 		addAttribute ( "unique_identifier", FromServer.STRING );
 		setString ( "unique_identifier", Utils.randomString () );
@@ -491,9 +498,6 @@ public abstract class FromServer implements Comparator {
 			if ( child_id != null ) {
 				ret = server.getObjectFromCache ( attr.getClassName (),
 								Integer.parseInt ( child_id.stringValue () ) );
-
-				if ( ret == null )
-					Log.debug ( "vuoto da cache: " + child_id );
 			}
 		}
 
@@ -625,6 +629,30 @@ public abstract class FromServer implements Comparator {
 		fromJSONObject ( obj, false );
 	}
 
+	public void addLocalObjectEvent ( ServerObjectReceive callback ) {
+		if ( localCallbacks == null )
+			localCallbacks = new ArrayList<ServerObjectReceive> ();
+
+		localCallbacks.add ( callback );
+	}
+
+	public void executeLocalObjectEvent ( int type ) {
+		if ( localCallbacks == null )
+			return;
+
+		for ( ServerObjectReceive c : localCallbacks ) {
+			/*
+				FromServerResponse.ACTION_CREATE non viene volutamente gestito:
+				difficile che ci siano gia' delle callback su un elemento appena
+				creato / ricevuto
+			*/
+			if ( type == FromServerResponse.ACTION_MODIFY )
+				c.onModify ( this );
+			else if ( type == FromServerResponse.ACTION_DELETE )
+				c.onDestroy ( this );
+		}
+	}
+
 	public void addRelatedInfo ( String identifier, Object object ) {
 		if ( relatedInfo == null )
 			relatedInfo = new HashMap ();
@@ -677,6 +705,7 @@ public abstract class FromServer implements Comparator {
 
 	public void transferRelatedInfo ( FromServer to ) {
 		to.relatedInfo = this.relatedInfo;
+		to.localCallbacks = this.localCallbacks;
 	}
 
 	/****************************************************************** Comparator */

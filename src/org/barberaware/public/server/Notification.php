@@ -33,6 +33,9 @@ class Notification extends FromServer {
 		$this->addAttribute ( "send_mail", "BOOLEAN" );
 		$this->addAttribute ( "send_mailinglist", "BOOLEAN" );
 
+		$this->preserveAttribute ( "sender" );
+		$this->preserveAttribute ( "recipent" );
+
 		$this->setPublic ( false, 'desc', 'User', 'sender' );
 	}
 

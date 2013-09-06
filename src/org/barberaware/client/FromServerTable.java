@@ -83,7 +83,26 @@ public class FromServerTable extends Composite implements FromServerArray {
 					obj = ( FromServer ) rows.get ( row - 1 );
 
 					if ( col.action == TABLE_REMOVE ) {
-						removeElement ( obj );
+						if ( col.customWid == null ) {
+							removeElement ( obj );
+						}
+						else {
+							dialog = ( SavingDialog ) col.customWid.create ();
+							( ( ObjectWidget ) dialog ).setValue ( obj );
+
+							dialog.addCallback ( new SavingDialogCallback () {
+								public void onSave ( SavingDialog dialog ) {
+									ObjectWidget myself;
+
+									myself = ( ObjectWidget ) dialog;
+									removeElement ( myself.getValue () );
+								}
+							} );
+
+							true_dialog = ( DialogBox ) dialog;
+							true_dialog.center ();
+							true_dialog.show ();
+						}
 					}
 					else if ( col.action == TABLE_EDIT ) {
 						dialog = ( SavingDialog ) col.customWid.create ();
@@ -118,8 +137,11 @@ public class FromServerTable extends Composite implements FromServerArray {
 	}
 
 	/*
-		Se action == TABLE_REMOVE la callback custom viene ignorata
-		Se action == TABLE_EDIT la callback deve ritornare sempre un SavingDialog che implementi ObjectWidget
+		Se action == TABLE_REMOVE la callback custom puo' essere null (e dunque viene
+			ignorata) oppure deve ritornare sempre un SavingDialog che implementi
+			ObjectWidget e che al salvataggio conferma la rimozione dell'elemento
+		Se action == TABLE_EDIT la callback deve ritornare sempre un SavingDialog che
+			implementi ObjectWidget
 	*/
 	public void addColumn ( String header, int action, WidgetFactoryCallback custom ) {
 		columns.add ( new FromServerTableColumn ( header, null, false, custom, action ) );
