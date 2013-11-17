@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
@@ -29,8 +30,6 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 	private ScreenCalculator	calculator;
 
 	private ArrayList		currentProducts;
-
-	private ArrayList		changeCallbacks;
 
 	public ProductDeliveryEditablePiecesCell () {
 		box = new FloatBox ();
@@ -57,7 +56,7 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 	}
 
 	private void triggerChange () {
-		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	/****************************************************************** ProductDeliveryEditableCell */
@@ -127,18 +126,5 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 				prod.setFloat ( "delivered", del );
 			}
 		}
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }

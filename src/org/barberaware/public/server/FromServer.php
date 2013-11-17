@@ -675,7 +675,7 @@ abstract class FromServer {
 						else
 							$singleid = $element;
 
-						if ( is_object ( $element ) && $singleid == -1 ) {
+						if ( is_object ( $element ) ) {
 							$tmpobj = new $element->type ();
 							$singleid = $tmpobj->save ( $element );
 							unset ( $tmpobj );

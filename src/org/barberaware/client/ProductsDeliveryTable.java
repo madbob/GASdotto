@@ -18,18 +18,18 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsDeliveryTable extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
+public class ProductsDeliveryTable extends FromServerRappresentation implements ObjectWidget {
 	private FromServer		object;
 	private VerticalPanel		main;
 	private PriceViewer		totalLabel;
 	private BankMovementSelector	payment;
-	private ArrayList		changeCallbacks		= null;
 
 	public ProductsDeliveryTable () {
 		Label header;
@@ -204,16 +204,16 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 	}
 
 	private void triggerChange () {
-		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	private void attachDeliveryCell ( ProductDeliveryCell row ) {
-		row.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		row.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				upgradeTotal ();
 				triggerChange ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 	}
 
 	/****************************************************************** ObjectWidget */
@@ -308,18 +308,5 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 			object.setObject ( "payment_event", payment.getValue () );
 
 		return object;
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }

@@ -21,7 +21,7 @@ import java.util.*;
 
 import com.google.gwt.user.client.ui.*;
 
-public interface ProductDeliveryEditableCell extends SourcesChangeEvents {
+public interface ProductDeliveryEditableCell {
 	public void addProductUser ( FromServer product );
 
 	public void clear ();
@@ -29,7 +29,4 @@ public interface ProductDeliveryEditableCell extends SourcesChangeEvents {
 
 	public float shipAll ();
 	public void alignProducts ();
-
-	public void addChangeListener ( ChangeListener listener );
-	public void removeChangeListener ( ChangeListener listener );
 }

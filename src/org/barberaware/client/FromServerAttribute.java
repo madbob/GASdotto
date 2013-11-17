@@ -112,31 +112,32 @@ public class FromServerAttribute {
 	}
 
 	public void setValue ( FromServerAttribute cpy ) {
-		if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE )
+		if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
 			string = cpy.string;
-
-		else if ( type == FromServer.INTEGER )
+		}
+		else if ( type == FromServer.INTEGER ) {
 			integer = cpy.integer;
-
-		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
+		}
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE ) {
 			floating = cpy.floating;
-
-		else if ( type == FromServer.ARRAY )
+		}
+		else if ( type == FromServer.ARRAY ) {
 			array = Utils.duplicateFromServerArray ( cpy.array );
-
+		}
 		else if ( type == FromServer.OBJECT ) {
 			realObject = cpy.realObject;
 			objectId = cpy.objectId;
 		}
-
-		else if ( type == FromServer.DATE )
+		else if ( type == FromServer.DATE ) {
 			date = cpy.date;
-
-		else if ( type == FromServer.BOOLEAN )
+		}
+		else if ( type == FromServer.BOOLEAN ) {
 			bool = cpy.bool;
-
-		else if ( type == FromServer.ADDRESS )
-			addr = ( Address ) cpy.addr.clone ();
+		}
+		else if ( type == FromServer.ADDRESS ) {
+			if ( cpy.addr != null )
+				addr = ( Address ) cpy.addr.clone ();
+		}
 	}
 
 	public String getString ( FromServer obj ) {

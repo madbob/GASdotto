@@ -179,6 +179,9 @@ public class BankMovementSelector extends FromServerRappresentation {
 	/****************************************************************** FromServerRappresentation */
 
 	public void setValue ( FromServer obj ) {
+		if ( obj == null )
+			artificial = true;
+
 		super.setValue ( obj );
 		showName ();
 	}

@@ -146,6 +146,9 @@ public class Utils {
 		if ( Session.getGAS ().getBool ( "payments" ) == true )
 			info.addSymbol ( "paying", "images/notifications/user_not_paying.png", "L'Utente non ha Pagato l'Iscrizione" );
 
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+			info.addSymbol ( "nocredit", "images/notifications/user_no_credit.png", "Credito Insufficiente" );
+
 		emblemsCache.put ( "delivery", info );
 
 		info = new EmblemsInfo ();

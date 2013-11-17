@@ -18,8 +18,10 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -27,8 +29,6 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 	private FlexTable		main;
 
 	private ArrayList		currentProducts;
-
-	private ArrayList		changeCallbacks;
 
 	public ProductDeliveryEditableVariantsCell () {
 		main = new FlexTable ();
@@ -38,7 +38,7 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 	}
 
 	private void triggerChange () {
-		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	/****************************************************************** ProductDeliveryEditableCell */
@@ -269,18 +269,5 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 
 			prod.setFloat ( "delivered", total );
 		}
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }

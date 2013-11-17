@@ -45,6 +45,7 @@ public class OrderUserFriend extends FromServer {
 		addAttribute ( "parent", FromServer.OBJECT, OrderUser.class );
 
 		alwaysReload ( true );
+		alwaysSendObject ( "products", true );
 	}
 
 	public float getTotalPrice () {

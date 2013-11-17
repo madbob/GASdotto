@@ -98,7 +98,7 @@ public class DeliverySummary extends Composite {
 					uorder = row.getValue ();
 					payment = uorder.getObject ( "payment_event" );
 
-					if ( payment.getFloat ( "amount" ) == 0 ) {
+					if ( payment == null || payment.getFloat ( "amount" ) == 0 ) {
 						products = uorder.getArray ( "allproducts" );
 
 						if ( products != null ) {
@@ -145,6 +145,15 @@ public class DeliverySummary extends Composite {
 		phone.setValue ( user.getString ( "mobile" ) );
 		row.setExtraWidget ( "mobile", phone );
 		frame.addPair ( "Cellulare", phone );
+
+		if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+			PriceViewer balance;
+
+			balance = new PriceViewer ();
+			balance.setVal ( user.getFloat ( "current_balance" ) );
+			row.setExtraWidget ( "current_balance", balance );
+			frame.addPair ( "Credito Disponibile", balance );
+		}
 
 		/* ordine */
 
@@ -207,6 +216,7 @@ public class DeliverySummary extends Composite {
 		checkPay ( user, row );
 
 		setStatusIcon ( row );
+		setCreditIcon ( row );
 		main.insert ( row, getSortedIndex ( uord ) );
 		numOrders += 1;
 
@@ -390,8 +400,8 @@ public class DeliverySummary extends Composite {
 			ordini aggregati)
 		*/
 
-		details.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		details.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				float tot;
 				ArrayList children;
 				Widget tmp;
@@ -400,7 +410,7 @@ public class DeliverySummary extends Composite {
 				PriceViewer view;
 
 				tot = 0;
-				det = ( ProductsDeliveryTable ) sender;
+				det = ( ProductsDeliveryTable ) event.getSource ();
 				parent = det.getRappresentationParent ();
 
 				tmp = parent.retriveInternalWidget ( "total" );
@@ -417,7 +427,7 @@ public class DeliverySummary extends Composite {
 				view = ( PriceViewer ) tmp;
 				view.setVal ( tot );
 			}
-		} );
+		}, ChangeEvent.getType () );
 	}
 
 	private void commonActionsOnEdit ( FromServerForm row ) {
@@ -444,6 +454,21 @@ public class DeliverySummary extends Composite {
 
 		bar = form.emblems ();
 		bar.activate ( "status", form.getValue ().getInt ( "status" ) );
+	}
+
+	private void setCreditIcon ( FromServerForm form ) {
+		EmblemsBar bar;
+		FromServer user;
+		FromServer order;
+
+		bar = form.emblems ();
+		order = form.getValue ();
+		user = order.getObject ( "baseuser" );
+
+		if ( user.getFloat ( "current_balance" ) < ( ( OrderUserInterface ) order ).getTotalPriceWithFriends () )
+			bar.activate ( "nocredit" );
+		else
+			bar.deactivate ( "nocredit" );
 	}
 
 	private int getSortedIndex ( FromServer order ) {

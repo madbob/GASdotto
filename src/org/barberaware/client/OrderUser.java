@@ -83,6 +83,8 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		setInt ( "status", TO_DELIVER );
 
 		alwaysReload ( true );
+		alwaysSendObject ( "products", true );
+		alwaysSendObject ( "friends", true );
 		alwaysSendObject ( "payment_event", true );
 	}
 
@@ -131,6 +133,15 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 			return ProductUser.sumProductUserArray ( products, "quantity" );
 	}
 
+	/****************************************************************** OrderUserInterface */
+
+	public boolean hasFriends () {
+		ArrayList friends;
+
+		friends = getArray ( "friends" );
+		return ( friends != null && friends.size () != 0 );
+	}
+
 	public float getTotalPriceWithFriends () {
 		float total;
 		ArrayList friends;
@@ -145,15 +156,6 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 		}
 
 		return total;
-	}
-
-	/****************************************************************** OrderUserInterface */
-
-	public boolean hasFriends () {
-		ArrayList friends;
-
-		friends = getArray ( "friends" );
-		return ( friends != null && friends.size () != 0 );
 	}
 
 	public float getDeliveredPriceWithFriends ( boolean today ) {

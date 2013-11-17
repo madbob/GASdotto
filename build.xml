@@ -28,7 +28,7 @@
         source="1.5" target="1.5" nowarn="true"
         debug="true" debuglevel="lines,vars,source">
       <classpath refid="project.class.path"/>
-      <!-- <compilerarg value="-Xlint"/> -->
+      <compilerarg value="-Xlint"/>
     </javac>
     <copy todir="war/WEB-INF/classes">
       <fileset dir="src" excludes="**/*.java"/>

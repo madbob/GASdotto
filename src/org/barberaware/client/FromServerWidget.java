@@ -116,35 +116,40 @@ public class FromServerWidget extends Composite {
 	}
 
 	public void set ( FromServer object ) {
-		if ( type == -1 || object == null )
+		if ( type == -1 || object == null ) {
 			return;
-
-		else if ( type == FromServer.STRING || type == FromServer.LONGSTRING )
+		}
+		else if ( type == FromServer.STRING || type == FromServer.LONGSTRING ) {
 			( ( StringWidget ) wid ).setValue ( object.getString ( name ) );
-
-		else if ( type == FromServer.INTEGER )
+		}
+		else if ( type == FromServer.INTEGER ) {
 			( ( IntNumericWidget ) wid ).setVal ( object.getInt ( name ) );
-
-		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
+		}
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE ) {
 			( ( FloatWidget ) wid ).setVal ( object.getFloat ( name ) );
-
-		else if ( type == FromServer.PERCENTAGE )
+		}
+		else if ( type == FromServer.PERCENTAGE ) {
 			( ( PercentageWidget ) wid ).setValue ( object.getString ( name ) );
-
-		else if ( type == FromServer.DATE )
+		}
+		else if ( type == FromServer.DATE ) {
 			( ( DateWidget ) wid ).setValue ( object.getDate ( name ) );
-
-		else if ( type == FromServer.BOOLEAN )
+		}
+		else if ( type == FromServer.BOOLEAN ) {
 			( ( BooleanWidget ) wid ).setVal ( object.getBool ( name ) );
-
-		else if ( type == FromServer.ADDRESS )
+		}
+		else if ( type == FromServer.ADDRESS ) {
 			( ( AddressWidget ) wid ).setValue ( object.getAddress ( name ) );
-
-		else if ( type == FromServer.ARRAY )
+		}
+		else if ( type == FromServer.ARRAY ) {
 			( ( FromServerArray ) wid ).setElements ( object.getArray ( name ) );
+		}
+		else if ( type == FromServer.OBJECT ) {
+			FromServer tmp;
 
-		else if ( type == FromServer.OBJECT )
-			( ( ObjectWidget ) wid ).setValue ( object.getObject ( name ) );
+			tmp = object.getObject ( name );
+			if ( tmp != null )
+				( ( ObjectWidget ) wid ).setValue ( tmp.duplicate () );
+		}
 	}
 
 	public boolean assign ( FromServer object ) {
@@ -250,9 +255,9 @@ public class FromServerWidget extends Composite {
 			previous = object.getObject ( name );
 			selected = ( ( ObjectWidget ) wid ).getValue ();
 
-			if ( previous != null && selected != null )
+			if ( previous != null && selected != null ) {
 				ret = previous.equals ( selected );
-
+			}
 			else {
 				if ( previous == null && selected == null )
 					ret = true;

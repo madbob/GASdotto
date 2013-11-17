@@ -43,7 +43,7 @@ public class BankMovement extends FromServer {
 				Date d = obj.getDate ( "date" );
 
 				if ( d != null && obj.getFloat ( "amount" ) != 0 )
-					return Utils.printableDate ( d );
+					return Utils.printableDate ( d ) + " / " + Utils.priceToString ( obj.getFloat ( "amount" ) );
 				else
 					return "Mai";
 			}
@@ -121,6 +121,10 @@ public class BankMovement extends FromServer {
 		}
 
 		return ret;
+	}
+
+	public boolean equals ( Object second ) {
+		return ( this.compare ( this, second ) == 0 );
 	}
 
 	public boolean testAmounts () {

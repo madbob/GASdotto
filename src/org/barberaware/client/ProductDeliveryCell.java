@@ -18,12 +18,14 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductDeliveryCell extends Composite implements SourcesChangeEvents {
+public class ProductDeliveryCell extends Composite {
 	private HorizontalPanel			main;
 
 	private float				currentQuantity		= 0;
@@ -37,8 +39,6 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 	private FromServerSelector		dynamicProductSelect;
 
 	private ProductUser			referenceProd		= null;
-
-	private ArrayList			changeCallbacks		= null;
 
 	public ProductDeliveryCell () {
 		main = new HorizontalPanel ();
@@ -83,7 +83,7 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 	}
 
 	private void triggerChange () {
-		Utils.triggerChangesCallbacks ( changeCallbacks, this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	public void setCell ( Widget wid, String width ) {
@@ -134,12 +134,12 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 	}
 
 	private void prepareEditableCell ( ProductDeliveryEditableCell cell ) {
-		cell.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		( ( Widget ) cell ).addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				newInputToCheck ();
 				triggerChange ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 	}
 
 	public void addProductUser ( FromServer prod_user ) {
@@ -314,18 +314,5 @@ public class ProductDeliveryCell extends Composite implements SourcesChangeEvent
 
 	public FromServer getReferenceProduct () {
 		return referenceProd;
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }
