@@ -76,7 +76,6 @@ public class HomePanel extends GenericPanel {
 
 			this.setText ( "Chiudi Ordine" );
 			this.setWidget ( container );
-
 		}
 	}
 
@@ -100,6 +99,9 @@ public class HomePanel extends GenericPanel {
 
 		closedOrders = doOrdersSummary ( "Ordini ora in consegna (in rosso quelli che saranno consegnati a breve)", "Non ci sono ordini in consegna.", 1 );
 		add ( closedOrders );
+
+		add ( new HTML ( "<hr />" ) );
+		add ( new LinksBox () );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {

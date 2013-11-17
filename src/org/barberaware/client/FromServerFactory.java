@@ -20,7 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 
 public class FromServerFactory {
-	private static HashMap		dummyInstances		= null;
+	private static HashMap<String, FromServer>	dummyInstances		= null;
 
 	public static FromServer create ( String name ) {
 		char first;
@@ -85,6 +85,9 @@ public class FromServerFactory {
 		else if ( name.equals ( "Notification" ) ) {
 			return new Notification ();
 		}
+		else if ( name.equals ( "Link" ) ) {
+			return new Link ();
+		}
 		else if ( name.equals ( "ACL" ) ) {
 			return new ACL ();
 		}
@@ -99,9 +102,9 @@ public class FromServerFactory {
 		FromServer ret;
 
 		if ( dummyInstances == null )
-			dummyInstances = new HashMap ();
+			dummyInstances = new HashMap<String, FromServer> ();
 
-		ret = ( FromServer ) dummyInstances.get ( name );
+		ret = dummyInstances.get ( name );
 		if ( ret == null ) {
 			ret = create ( name );
 			dummyInstances.put ( name, ret );
@@ -110,10 +113,10 @@ public class FromServerFactory {
 		return ret;
 	}
 
-	public static ArrayList getClasses () {
-		ArrayList names;
+	public static ArrayList<String> getClasses () {
+		ArrayList<String> names;
 
-		names = new ArrayList ();
+		names = new ArrayList<String> ();
 		names.add ( "Category" );
 		names.add ( "GAS" );
 		names.add ( "Measure" );
@@ -134,6 +137,7 @@ public class FromServerFactory {
 		names.add ( "BankMovement" );
 		names.add ( "CustomFile" );
 		names.add ( "Notification" );
+		names.add ( "Link" );
 		names.add ( "ShippingPlace" );
 		names.add ( "SystemConf" );
 		names.add ( "Probe" );

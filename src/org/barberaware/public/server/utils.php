@@ -31,6 +31,7 @@ require_once ( "GAS.php" );
 require_once ( "ShippingPlace.php" );
 require_once ( "User.php" );
 require_once ( "Notification.php" );
+require_once ( "Link.php" );
 require_once ( "Supplier.php" );
 require_once ( "Measure.php" );
 require_once ( "Category.php" );

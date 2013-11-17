@@ -490,6 +490,7 @@ function check_db_schema () {
 	test_class ( 'User' );
 	test_class ( 'CustomFile' );
 	test_class ( 'Notification' );
+	test_class ( 'Link' );
 	test_class ( 'Supplier' );
 	test_class ( 'Measure' );
 	test_class ( 'Category' );
