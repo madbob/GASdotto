@@ -18,27 +18,27 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class DateRange extends Composite implements SourcesChangeEvents {
+public class DateRange extends Composite {
 	private DateSelector			startDate;
 	private DateSelector			endDate;
-
-	private ChangeListenerCollection	changeCallbacks;
 
 	public DateRange () {
 		Date now;
 		FlexTable main;
-		ChangeListener internal_listener;
+		ChangeHandler internal_listener;
 
 		main = new FlexTable ();
 		initWidget ( main );
 
-		internal_listener = new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		internal_listener = new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				verifyAndFire ();
 			}
 		};
@@ -52,8 +52,8 @@ public class DateRange extends Composite implements SourcesChangeEvents {
 		startDate = new DateSelector ();
 		startDate.setValue ( now );
 
-		endDate.addChangeListener ( internal_listener );
-		startDate.addChangeListener ( internal_listener );
+		endDate.addDomHandler ( internal_listener, ChangeEvent.getType () );
+		startDate.addDomHandler ( internal_listener, ChangeEvent.getType () );
 
 		main.setWidget ( 0, 0, new Label ( "Dal" ) );
 		main.setWidget ( 0, 1, startDate );
@@ -105,21 +105,7 @@ public class DateRange extends Composite implements SourcesChangeEvents {
 			return;
 		}
 
-		if ( changeCallbacks != null )
-			changeCallbacks.fireChange ( this );
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ChangeListenerCollection ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 }
 

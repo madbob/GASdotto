@@ -23,10 +23,12 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.core.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.visualization.client.*;
 import com.google.gwt.visualization.client.Properties;
 import com.google.gwt.visualization.client.visualizations.*;
 import com.google.gwt.visualization.client.events.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -75,11 +77,11 @@ public class StatisticsPanel extends GenericPanel {
 		frame.setContentWidget ( layout );
 
 		suppliersDate = new DateRange ();
-		suppliersDate.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		suppliersDate.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				performUsersUpdate ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 		layout.setWidget ( 0, 0, suppliersDate );
 
 		usersFiles = new LinksDialog ( "Scarica Statistiche" );
@@ -159,11 +161,11 @@ public class StatisticsPanel extends GenericPanel {
 		hor.add ( supplier );
 
 		productsDate = new DateRange ();
-		productsDate.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		productsDate.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				performProductsUpdate ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 		layout.setWidget ( 1, 0, productsDate );
 
 		productsFiles = new LinksDialog ( "Scarica Statistiche" );

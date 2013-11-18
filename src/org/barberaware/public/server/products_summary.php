@@ -23,6 +23,7 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 	$unit = $prod->getAttribute ( "unit_size" )->value;
 	$uprice = $prod->getAttribute ( "unit_price" )->value;
 	$sprice = $prod->getAttribute ( "shipping_price" )->value;
+	$mutable = $prod->getAttribute ( "mutable_price" )->value;
 
 	if ( $unit <= 0.0 )
 		$q = $prod_user->quantity;
@@ -42,7 +43,7 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 		/*
 			Questo macello cosmico e' per tenere il conto di quante volte una variante e'
 			stata ordinata.
-			In ($references[$q][1]) e ($references[$q][2]) ci sono gli array con le
+			In ($references[$e][1]) e ($references[$e][2]) ci sono gli array con le
 			varianti ed i valori sinora trovati. Se uno di questi array (il primo) e'
 			vuoto, vuol dire che la combinazione che sto testando non e' ancora stata
 			trovata e dunque la immetto. Altrimenti verifico che la combinazione
@@ -51,14 +52,14 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 		foreach ( $prod_user->variants as $v ) {
 			$found = false;
 
-			for ( $q = $a; $q < count ( $references ); $q++ ) {
-				if ( is_array ( $references [ $q ] [ 1 ] ) == false )
+			for ( $e = $a; $e < count ( $references ); $e++ ) {
+				if ( is_array ( $references [ $e ] [ 1 ] ) == false )
 					break;
 
-				if ( count ( $references [ $q ] [ 1 ] ) == 0 ) {
+				if ( count ( $references [ $e ] [ 1 ] ) == 0 ) {
 					foreach ( $v->components as $c ) {
-						$references [ $q ] [ 1 ] [] = $c->variant->id;
-						$references [ $q ] [ 2 ] [] = $c->value->id;
+						$references [ $e ] [ 1 ] [] = $c->variant->id;
+						$references [ $e ] [ 2 ] [] = $c->value->id;
 						$found = true;
 					}
 				}
@@ -69,8 +70,8 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 					for ( $z = 0; $z < count ( $comps ); $z++ ) {
 						$c = $comps [ $z ];
 
-						if ( $references [ $q ] [ 1 ] [ $z ] != $c->variant->id ||
-								$references [ $q ] [ 2 ] [ $z ] != $c->value->id ) {
+						if ( $references [ $e ] [ 1 ] [ $z ] != $c->variant->id ||
+								$references [ $e ] [ 2 ] [ $z ] != $c->value->id ) {
 							$found = false;
 							break;
 						}
@@ -78,9 +79,13 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 				}
 
 				if ( $found == true ) {
-					$references [ $q ] [ 3 ] += 1;
-					$references [ $q ] [ 4 ] += $uprice;
-					$references [ $q ] [ 5 ] += $sprice;
+					if ( $mutable == true )
+						$references [ $e ] [ 3 ] += $q;
+					else
+						$references [ $e ] [ 3 ] += 1;
+
+					$references [ $e ] [ 4 ] += $uprice;
+					$references [ $e ] [ 5 ] += $sprice;
 					break;
 				}
 			}

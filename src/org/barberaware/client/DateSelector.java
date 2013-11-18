@@ -18,19 +18,19 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class DateSelector extends Composite implements DateWidget, SourcesChangeEvents {
+public class DateSelector extends Composite implements DateWidget {
 	private TextBox				main;
 	private CalendarWidget			cal;
 	private Date				currentDate;
 	private boolean				opened;
 	private boolean				showYear;
-	private ChangeListenerCollection	changeCallbacks;
 
 	public DateSelector () {
 		opened = false;
@@ -72,9 +72,7 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 	private void syncDate ( Date date ) {
 		currentDate = date;
 		main.setText ( Utils.printableDate ( date, showYear ) );
-
-		if ( changeCallbacks != null )
-			changeCallbacks.fireChange ( this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	public void setEnabled ( boolean enabled ) {
@@ -93,19 +91,6 @@ public class DateSelector extends Composite implements DateWidget, SourcesChange
 	public void ignoreYear ( boolean ignore ) {
 		showYear = !ignore;
 		cal.ignoreYear ( ignore );
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ChangeListenerCollection ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 
 	/****************************************************************** DateWidget */

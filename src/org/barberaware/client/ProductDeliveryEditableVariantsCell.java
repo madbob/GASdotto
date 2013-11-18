@@ -92,8 +92,8 @@ public class ProductDeliveryEditableVariantsCell extends Composite implements Pr
 				if ( delivered == true )
 					box.setVal ( 1 );
 
-				box.addChangeListener ( new ChangeListener () {
-					public void onChange ( Widget sender ) {
+				box.addChangeHandler ( new ChangeHandler () {
+					public void onChange ( ChangeEvent event ) {
 						triggerChange ();
 					}
 				} );

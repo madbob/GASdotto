@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
@@ -97,17 +98,17 @@ public abstract class OrdersHubWidget extends Composite {
 			}
 		} );
 
-		startdate.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		startdate.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				triggerFilters ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
-		enddate.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		enddate.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				triggerFilters ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		supplier.addChangeListener ( new ChangeListener () {
 			public void onChange ( Widget sender ) {

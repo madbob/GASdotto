@@ -33,8 +33,8 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 		box = new FloatBox ();
 		initWidget ( box );
 
-		box.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		box.addChangeHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				triggerChange ();
 			}
 		} );

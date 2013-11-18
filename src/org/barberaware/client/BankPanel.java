@@ -86,11 +86,11 @@ public class BankPanel extends GenericPanel {
 		hor.setCellWidth ( frame, "50%" );
 
 		dates = new DateRange ();
-		dates.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		dates.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				loadData ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 		frame.addPair ( "Dal", dates.getStartDateWidget () );
 		frame.addPair ( "Al", dates.getEndDateWidget () );
 

@@ -18,8 +18,10 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -40,11 +42,11 @@ public class FilteredMovementsSummary extends Composite {
 		initWidget ( main );
 
 		dates = new DateRange ();
-		dates.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		dates.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				refresh ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		main.add ( dates );
 
