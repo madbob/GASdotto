@@ -165,8 +165,9 @@ public class FromServerWidget extends Composite {
 		else if ( type == FromServer.INTEGER )
 			object.setInt ( name, ( ( IntNumericWidget ) wid ).getVal () );
 
-		else if ( type == FromServer.FLOAT || type == FromServer.PRICE )
+		else if ( type == FromServer.FLOAT || type == FromServer.PRICE ) {
 			object.setFloat ( name, ( ( FloatWidget ) wid ).getVal () );
+		}
 
 		else if ( type == FromServer.PERCENTAGE )
 			object.setString ( name, ( ( PercentageWidget ) wid ).getValue () );

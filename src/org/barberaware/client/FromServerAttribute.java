@@ -88,10 +88,14 @@ public class FromServerAttribute {
 
 	public void setObject ( FromServer value ) {
 		if ( value != null ) {
+			/*
 			if ( value.getLocalID () == -1 )
 				realObject = value;
 			else
 				objectId = value.getLocalID ();
+			*/
+
+			realObject = value;
 		}
 		else {
 			realObject = null;

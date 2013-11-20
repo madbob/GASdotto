@@ -36,6 +36,7 @@ public class BankMovementSelector extends FromServerRappresentation {
 	private int			defaultType;
 	private String			defaultNote;
 
+	private boolean			editable;
 	private boolean			justDate;
 	private boolean			opened;
 	private boolean			saved;
@@ -51,6 +52,7 @@ public class BankMovementSelector extends FromServerRappresentation {
 		defaultAmount = 0;
 		defaultType = 0;
 		justDate = false;
+		editable = true;
 
 		main = new TextBox ();
 		main.setStyleName ( "bankmovement-selector" );
@@ -68,6 +70,8 @@ public class BankMovementSelector extends FromServerRappresentation {
 					pan = new VerticalPanel ();
 
 					form = new BankMovementForm ();
+					form.setEditable ( editable );
+					form.showJustDate ( justDate );
 					setWrap ( form );
 					form.setDefaultDate ( defaultDate );
 					form.setDefaultAmount ( defaultAmount );
@@ -75,7 +79,6 @@ public class BankMovementSelector extends FromServerRappresentation {
 					form.setDefaultTargetSupplier ( defaultTargetSupplier );
 					form.setDefaultNote ( defaultNote );
 					form.showCro ( defaultCro );
-					form.showJustDate ( justDate );
 					pan.add ( form );
 
 					buttons = new DialogButtons ();
@@ -149,6 +152,10 @@ public class BankMovementSelector extends FromServerRappresentation {
 
 	public void showJustDate ( boolean just ) {
 		justDate = just;
+	}
+
+	public void setEditable ( boolean edit ) {
+		editable = edit;
 	}
 
 	private void doSave () {

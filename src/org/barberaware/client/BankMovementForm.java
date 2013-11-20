@@ -35,6 +35,7 @@ public class BankMovementForm extends FromServerRappresentation {
 	private FromServer		targetSupplier;
 	private boolean			displayCro;
 	private boolean			justDate;
+	private boolean			editable;
 
 	public BankMovementForm () {
 		targetUser = null;
@@ -43,6 +44,7 @@ public class BankMovementForm extends FromServerRappresentation {
 		defaultDate = new Date ( System.currentTimeMillis () );
 		displayCro = true;
 		justDate = false;
+		editable = true;
 
 		main = new FlexTable ();
 		main.setWidth ( "100%" );
@@ -55,10 +57,16 @@ public class BankMovementForm extends FromServerRappresentation {
 		if ( main.getRowCount () == 0 ) {
 			if ( justDate == false ) {
 				main.setWidget ( 0, 0, new Label ( "Data" ) );
-				main.setWidget ( 0, 1, getWidget ( "date" ) );
+				if ( editable == true )
+					main.setWidget ( 0, 1, getWidget ( "date" ) );
+				else
+					main.setWidget ( 0, 1, getPersonalizedWidget ( "date", new DateViewer () ) );
 
 				main.setWidget ( 1, 0, new Label ( "Importo" ) );
-				main.setWidget ( 1, 1, getWidget ( "amount" ) );
+				if ( editable == true )
+					main.setWidget ( 1, 1, getWidget ( "amount" ) );
+				else
+					main.setWidget ( 1, 1, getPersonalizedWidget ( "amount", new PriceViewer () ) );
 
 				main.setWidget ( 2, 0, new Label ( "Metodo" ) );
 				method = new CyclicToggle ( true );
@@ -157,6 +165,10 @@ public class BankMovementForm extends FromServerRappresentation {
 
 	public void showJustDate ( boolean just ) {
 		justDate = just;
+	}
+
+	public void setEditable ( boolean edit ) {
+		editable = edit;
 	}
 
 	public void showMethod ( boolean show ) {

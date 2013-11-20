@@ -24,12 +24,15 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class LinksBox extends CaptionPanel {
 	private FlowPanel	main;
+	private boolean		empty;
 
 	public LinksBox () {
 		super ( "Link Utili" );
 
 		main = new FlowPanel ();
 		add ( main );
+
+		empty = true;
 
 		Utils.getServer ().onObjectEvent ( "Link", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -38,6 +41,8 @@ public class LinksBox extends CaptionPanel {
 				button = new Anchor ( object.getString ( "name" ), false, getRightURL ( object ), "_blank" );
 				button.addStyleName ( "external-link" );
 				main.add ( button );
+
+				checkEmpty ();
 			}
 
 			public void onModify ( FromServer object ) {
@@ -54,12 +59,15 @@ public class LinksBox extends CaptionPanel {
 				Anchor button;
 
 				button = findLink ( object.getString ( "url" ) );
-				if ( button != null )
+				if ( button != null ) {
 					button.removeFromParent ();
+					checkEmpty ();
+				}
 			}
 		} );
 
 		Utils.getServer ().testObjectReceive ( "Link" );
+		checkEmpty ();
 	}
 
 	private Anchor findLink ( String url ) {
@@ -85,5 +93,18 @@ public class LinksBox extends CaptionPanel {
 			url = "http://" + url;
 
 		return url;
+	}
+
+	private void checkEmpty () {
+		if ( main.getWidgetCount () == 0 ) {
+			empty = true;
+			main.add ( new Label ( "Non sono stati definiti links" ) );
+		}
+		else {
+			if ( empty == true )
+				main.getWidget ( 0 ).removeFromParent ();
+
+			empty = false;
+		}
 	}
 }
