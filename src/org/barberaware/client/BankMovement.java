@@ -80,9 +80,6 @@ public class BankMovement extends FromServer {
 		addAttribute ( "cro", FromServer.STRING );
 		addAttribute ( "notes", FromServer.LONGSTRING );
 
-		setDate ( "registrationdate", new Date ( System.currentTimeMillis () ) );
-		setObject ( "registrationperson", Session.getUser () );
-
 		alwaysReload ( true );
 	}
 
@@ -140,6 +137,12 @@ public class BankMovement extends FromServer {
 		}
 
 		return true;
+	}
+
+	public void save ( ServerResponse callback ) {
+		setDate ( "registrationdate", new Date ( System.currentTimeMillis () ) );
+		setObject ( "registrationperson", Session.getUser () );
+		super.save ( callback );
 	}
 }
 

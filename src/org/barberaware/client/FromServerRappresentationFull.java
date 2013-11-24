@@ -25,10 +25,10 @@ import com.google.gwt.json.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FromServerRappresentationFull extends FromServerRappresentation {
-	private ArrayList		callbacks;
+	private ArrayList<FromServerFormCallbacks>	callbacks;
 
 	public FromServerRappresentationFull () {
-		callbacks = new ArrayList ();
+		callbacks = new ArrayList<FromServerFormCallbacks> ();
 		noExplicitCallbacks ();
 	}
 
@@ -48,7 +48,7 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 		FromServerFormCallbacks call;
 
 		for ( int i = 0; i < callbacks.size (); i++ ) {
-			call = ( FromServerFormCallbacks ) callbacks.get ( i );
+			call = callbacks.get ( i );
 			if ( call.getID () == id ) {
 				callbacks.remove ( call );
 				break;
@@ -63,7 +63,7 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 		confirm = true;
 
 		for ( int i = 0; i < callbacks.size (); i++ )
-			confirm = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSave ( this ) || confirm;
+			confirm = callbacks.get ( i ).onSave ( this ) || confirm;
 
 		if ( confirm == false || rebuildObject () == false )
 			return false;
@@ -87,12 +87,12 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 
 	protected void savedCallbacks () {
 		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onSaved ( this );
+			callbacks.get ( i ).onSaved ( this );
 	}
 
 	protected void resetCallbacks () {
 		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onReset ( this );
+			callbacks.get ( i ).onReset ( this );
 	}
 
 	protected boolean deleteCallbacks () {
@@ -102,7 +102,7 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 		ret = true;
 
 		for ( int i = 0; i < callbacks.size (); i++ ) {
-			callback = ( FromServerFormCallbacks ) callbacks.get ( i );
+			callback = callbacks.get ( i );
 			/*
 				In questo modo eseguo tutte le callback di
 				onDelete, ma se anche una sola torna false la
@@ -116,22 +116,22 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 
 	protected void openCallbacks () {
 		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onOpen ( this );
+			callbacks.get ( i ).onOpen ( this );
 	}
 
 	protected void closingCallbacks () {
 		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClosing ( this );
+			callbacks.get ( i ).onClosing ( this );
 	}
 
 	protected void closeCallbacks () {
 		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onClose ( this );
+			callbacks.get ( i ).onClose ( this );
 	}
 
 	protected void errorCallbacks () {
 		for ( int i = 0; i < callbacks.size (); i++ )
-			( ( FromServerFormCallbacks ) callbacks.get ( i ) ).onError ( this );
+			callbacks.get ( i ).onError ( this );
 	}
 
 	protected String retrieveNameInCallbacks () {
@@ -146,7 +146,7 @@ public abstract class FromServerRappresentationFull extends FromServerRappresent
 			un punto qualunque dell'esecuzione altrimenti forzeranno sempre il "name" dell'oggetto
 		*/
 		for ( int i = callbacks.size () - 1; i > -1; i-- ) {
-			name = ( ( FromServerFormCallbacks ) callbacks.get ( i ) ).getName ( this );
+			name = callbacks.get ( i ).getName ( this );
 			if ( name != null && name.equals ( "" ) == false )
 				return name;
 		}

@@ -43,7 +43,7 @@ public class UsersPanel extends GenericPanel {
 			protected FromServerForm doEditableRow ( FromServer u ) {
 				final FromServerForm ver;
 
-				if ( u.getInt ( "privileges" ) == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
+				if ( u.getInt ( "privileges" ) == User.USER_LEAVED && toggleLeavedView.getValue () == false )
 					return null;
 
 				ver = new FromServerForm ( u );
@@ -118,6 +118,7 @@ public class UsersPanel extends GenericPanel {
 					}
 				}
 
+				ver.forceNextSave ( true );
 				setRoleIcon ( ver, u );
 				return ver;
 			}
@@ -316,6 +317,7 @@ public class UsersPanel extends GenericPanel {
 						user.checkUserPaying ( f );
 					}
 
+					f.forceNextSave ( true );
 					setRoleIcon ( f, obj );
 				}
 			}
@@ -391,7 +393,7 @@ public class UsersPanel extends GenericPanel {
 
 				myself = ( CheckBox ) event.getSource ();
 				forms = main.collectForms ();
-				show = myself.isChecked ();
+				show = myself.getValue ();
 
 				if ( show == true ) {
 					ObjectRequest params;
@@ -418,7 +420,7 @@ public class UsersPanel extends GenericPanel {
 		bar = form.emblems ();
 		bar.activate ( "privileges", priv );
 
-		if ( priv == User.USER_LEAVED && toggleLeavedView.isChecked () == false )
+		if ( priv == User.USER_LEAVED && toggleLeavedView.getValue () == false )
 			form.setVisible ( false );
 	}
 

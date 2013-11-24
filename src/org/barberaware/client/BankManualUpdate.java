@@ -54,6 +54,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		reason.addItem ( "Trasferimento Cassa / Conto" );
 		reason.addItem ( "Acquisto del GAS con Bonifico" );
 		reason.addItem ( "Acquisto del GAS in Contanti" );
+		reason.addItem ( "Cauzione Utente" );
+		reason.addItem ( "Restituzione Cauzione" );
 		pan.add ( reason );
 
 		user = new FromServerSelector ( "User", false, true, false );
@@ -67,6 +69,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 				switch ( selected ) {
 					case 0:
+					case 5:
+					case 6:
 						user.setVisible ( true );
 						info.setDefaultMethod ( BankMovement.BY_CASH );
 						break;
@@ -161,6 +165,14 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				break;
 			case 4:
 				movement.setInt ( "movementtype", BankMovement.GAS_BUYING );
+				movement.setInt ( "method", BankMovement.BY_CASH );
+				break;
+			case 5:
+				movement.setInt ( "movementtype", BankMovement.DEPOSIT_PAYMENT );
+				movement.setInt ( "method", BankMovement.BY_CASH );
+				break;
+			case 6:
+				movement.setInt ( "movementtype", BankMovement.DEPOSIT_RETURN );
 				movement.setInt ( "method", BankMovement.BY_CASH );
 				break;
 		}

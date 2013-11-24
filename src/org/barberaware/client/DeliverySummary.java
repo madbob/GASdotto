@@ -457,6 +457,9 @@ public class DeliverySummary extends Composite {
 	}
 
 	private void setCreditIcon ( FromServerForm form ) {
+		if ( Session.getGAS ().getBool ( "use_bank" ) == false )
+			return;
+
 		EmblemsBar bar;
 		FromServer user;
 		FromServer order;

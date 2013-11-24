@@ -332,6 +332,8 @@ function migrate_table ( $class ) {
 						$map = array ();
 						$tmp = new BankMovement ();
 
+						$query = 'SELECT * FROM ' . $obj->tablename;
+						$ret = $db->query ( $query );
 						$rows = $ret->fetchAll ( PDO::FETCH_ASSOC );
 
 						foreach ( $rows as $row ) {
@@ -341,7 +343,13 @@ function migrate_table ( $class ) {
 							$d->id = -1;
 							$d->movementtype = 2;
 							$d->method = 1;
-							$d->amount = 0;
+							/*
+								Inizializzo con un ammontare a caso che non sia 0,
+								in quanto i BankMovement a 0 risultano non validi
+								e tutti gli utenti risulterebbero non paganti
+								(anche se la data e' corretta)
+							*/
+							$d->amount = 1;
 							$d->payuser = $userid;
 							$d->paysupplier = -1;
 							$d->date = $row [ 'paying' ];
@@ -351,7 +359,17 @@ function migrate_table ( $class ) {
 							$map [ $userid ] = $id;
 						}
 
-						update_column ( $obj->tablename, 'paying', $change );
+						/*
+							Qui non faccio un semplice update_column() in quanto il DB
+							tenterebbe di convertire le date in riferimenti per le
+							foreign key, ovviamente non trovandole e riportando un errore
+						*/
+
+						$query = sprintf ( 'ALTER TABLE %s DROP COLUMN %s', $obj->tablename, $meta [ 'name' ] );
+						local_query_and_check ( $query, "Impossibile eliminare colonna non piu' usata" );
+
+						$query = sprintf ( 'ALTER TABLE %s ADD COLUMN %s %s', $obj->tablename, $meta [ 'name' ], $change );
+						local_query_and_check ( $query, "Impossibile aggiungere colonna" );
 
 						foreach ( $map as $user => $movement ) {
 							$query = sprintf ( "UPDATE %s SET paying = %d WHERE id = %d", $obj->tablename, $movement, $user );

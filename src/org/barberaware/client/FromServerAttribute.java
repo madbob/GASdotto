@@ -89,13 +89,16 @@ public class FromServerAttribute {
 	public void setObject ( FromServer value ) {
 		if ( value != null ) {
 			/*
+				Modificare questo, per tenere sempre una copia
+				locale dell'oggetto, implica spaccare ogni cosa:
+				gli oggetti verrebbero molto rapidamente
+				duplicati in giro e salterebbero tutte le
+				referenze
+			*/
 			if ( value.getLocalID () == -1 )
 				realObject = value;
 			else
 				objectId = value.getLocalID ();
-			*/
-
-			realObject = value;
 		}
 		else {
 			realObject = null;

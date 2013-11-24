@@ -43,7 +43,7 @@ public class SuppliersEditPanel extends GenericPanel {
 				else
 					ver = new SupplierUneditableForm ( supplier );
 
-				if ( supp.getBool ( "hidden" ) == true && toggleHiddenView.isChecked () == false )
+				if ( supp.getBool ( "hidden" ) == true && toggleHiddenView.getValue () == false )
 					ver.setVisible ( false );
 
 				return ver;
@@ -85,7 +85,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				if ( supp.getBool ( "hidden" ) == true ) {
 					f.emblems ().activate ( "hidden" );
-					form.setVisible ( toggleHiddenView.isChecked () );
+					form.setVisible ( toggleHiddenView.getValue () );
 				}
 				else {
 					f.emblems ().deactivate ( "hidden" );
@@ -98,6 +98,7 @@ public class SuppliersEditPanel extends GenericPanel {
 				Lockable products;
 				Lockable references;
 				FromServer supplier;
+				FilteredMovementsSummary movements;
 
 				supplier = form.getValue ();
 
@@ -120,6 +121,11 @@ public class SuppliersEditPanel extends GenericPanel {
 				params.add ( "baseuser", Session.getUser ().getLocalID () );
 				params.add ( "query_limit", 10 );
 				Utils.getServer ().testObjectReceive ( params );
+
+				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+					movements = ( FilteredMovementsSummary ) form.retriveInternalWidget ( "movements" );
+					movements.refresh ();
+				}
 			}
 		};
 
@@ -186,7 +192,7 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				myself = ( CheckBox ) event.getSource ();
 				forms = main.collectForms ();
-				show = myself.isChecked ();
+				show = myself.getValue ();
 
 				if ( show == true ) {
 					ObjectRequest params;
@@ -297,14 +303,9 @@ public class SuppliersEditPanel extends GenericPanel {
 		sframe.add ( ver.getWidget ( "description" ) );
 		vertical.add ( sframe );
 
-		hor = new HorizontalPanel ();
-		hor.setWidth ( "100%" );
-		vertical.add ( hor );
-
 		sframe = new CaptionPanel ( "Modalità avanzamento ordini" );
 		sframe.add ( ver.getWidget ( "order_mode" ) );
-		hor.add ( sframe );
-		hor.setCellWidth ( sframe, "50%" );
+		vertical.add ( sframe );
 
 		sframe = new CaptionPanel ( "Modalità pagamento" );
 		payments = new FlexTable ();
@@ -324,13 +325,12 @@ public class SuppliersEditPanel extends GenericPanel {
 			payments.getCellFormatter ().addStyleName ( 2, 0, "custom-label" );
 
 			movements = new FilteredMovementsSummary ( null, supp );
+			ver.setExtraWidget ( "movements", movements );
 			payments.setWidget ( 3, 0, movements );
 			payments.getFlexCellFormatter ().setColSpan ( 3, 0, 2 );
-			movements.refresh ();
 		}
 
-		hor.add ( sframe );
-		hor.setCellWidth ( sframe, "50%" );
+		vertical.add ( sframe );
 
 		sframe = new CaptionPanel ( "Storico ultimi 10 ordini" );
 		orders = new OpenedOrdersList ( supp );

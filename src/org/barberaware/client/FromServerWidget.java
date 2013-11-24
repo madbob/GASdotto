@@ -148,7 +148,7 @@ public class FromServerWidget extends Composite {
 
 			tmp = object.getObject ( name );
 			if ( tmp != null )
-				( ( ObjectWidget ) wid ).setValue ( tmp.duplicate () );
+				( ( ObjectWidget ) wid ).setValue ( tmp );
 		}
 	}
 

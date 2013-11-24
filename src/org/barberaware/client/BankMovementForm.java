@@ -186,6 +186,14 @@ public class BankMovementForm extends FromServerRappresentation {
 		HTMLTable.RowFormatter format;
 		StringWidget cro;
 
+		/*
+			Se sono in modalita' "solo data", il widget del CRO non
+			viene manco inizializzato dunque non c'e' nulla da
+			gestire qui
+		*/
+		if ( justDate == true )
+			return;
+
 		format = main.getRowFormatter ();
 
 		if ( method.getVal () == BankMovement.BY_BANK && displayCro == true ) {
