@@ -60,6 +60,12 @@ public class BankPanel extends GenericPanel {
 				BankManualUpdate update;
 
 				update = new BankManualUpdate ();
+				update.addCallback ( new SavingDialogCallback () {
+					public void onSave ( SavingDialog dialog ) {
+						loadData ();
+					}
+				} );
+
 				update.center ();
 				update.show ();
 			}

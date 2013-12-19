@@ -25,15 +25,15 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ScreenCalculator extends DialogBox implements SavingDialog {
-	private ArrayList		boxes;
-	private FlexTable		table;
-	private FloatBox		completeSum;
-	private FloatBox		finalTarget;
+	private ArrayList			boxes;
+	private FlexTable			table;
+	private FloatBox			completeSum;
+	private FloatBox			finalTarget;
 
-	private boolean			running;
-	private boolean			wasUsed;
+	private boolean				running;
+	private boolean				wasUsed;
 
-	private ArrayList		savingCallbacks;
+	private ArrayList<SavingDialogCallback>	savingCallbacks;
 
 	public ScreenCalculator () {
 		boxes = new ArrayList ();
@@ -188,7 +188,7 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( savingCallbacks == null )
-			savingCallbacks = new ArrayList ();
+			savingCallbacks = new ArrayList<SavingDialogCallback> ();
 		savingCallbacks.add ( callback );
 	}
 

@@ -26,7 +26,20 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class MovementsSummary extends FromServerTable {
 	public MovementsSummary ( boolean show_ref ) {
+		int index;
+
 		setEmptyWarning ( "Non ci sono movimenti registrati nell'intervallo di tempo selezionato." );
+
+		addColumn ( "Metodo", "method", new WidgetFactoryCallback () {
+			public Widget create () {
+				CyclicToggle ret;
+
+				ret = new CyclicToggle ( false );
+				ret.addState ( "images/by_bank.png" );
+				ret.addState ( "images/by_cash.png" );
+				return ret;
+			}
+		} );
 
 		addColumn ( "Causale", "movementtype", new WidgetFactoryCallback () {
 			public Widget create () {
@@ -45,7 +58,8 @@ public class MovementsSummary extends FromServerTable {
 			}
 		} );
 
-		addColumn ( "Descrizione", "notes", false );
+		index = addColumn ( "Descrizione", "notes", false );
+		setColumnStyle ( index, "leftalign" );
 
 		addColumn ( "Data", "date", new WidgetFactoryCallback () {
 			public Widget create () {
@@ -53,12 +67,24 @@ public class MovementsSummary extends FromServerTable {
 			}
 		} );
 
-		if ( show_ref == true )
-			addColumn ( "Riferimento", "payreference", false );
+		if ( show_ref == true ) {
+			index = addColumn ( "Riferimento", "payreference", false );
+			setColumnStyle ( index, "leftalign" );
+		}
 
-		addColumn ( "Valore", "amount", new WidgetFactoryCallback () {
+		index = addColumn ( "Valore", "amount", new WidgetFactoryCallback () {
 			public Widget create () {
 				return new PriceViewer ();
+			}
+		} );
+		setColumnStyle ( index, "rightalign" );
+
+		setSorting ( new FromServerSortCallback () {
+			public int compare ( FromServer first, FromServer second ) {
+				if ( first.getDate ( "date" ).before ( second.getDate ( "date" ) ) == true )
+					return -1;
+				else
+					return 1;
 			}
 		} );
 

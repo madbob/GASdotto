@@ -25,21 +25,21 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class SelectionDialog extends DialogBox implements FromServerArray, SavingDialog {
-	public static int		SELECTION_MODE_SINGLE	= 0;
-	public static int		SELECTION_MODE_MULTI	= 1;
-	public static int		SELECTION_MODE_ALL	= 2;
+	public static int			SELECTION_MODE_SINGLE	= 0;
+	public static int			SELECTION_MODE_MULTI	= 1;
+	public static int			SELECTION_MODE_ALL	= 2;
 
-	private ArrayList		savingCallbacks;
-	private ArrayList		extraCallbacks;
+	private ArrayList<SavingDialogCallback>	savingCallbacks;
+	private ArrayList			extraCallbacks;
 
-	private int			selectionMode;
-	private ArrayList		loadedObjects;
-	private ArrayList		selectedObjects;
+	private int				selectionMode;
+	private ArrayList			loadedObjects;
+	private ArrayList			selectedObjects;
 
-	private VerticalPanel		main;
-	private HorizontalPanel		selectionButtons;
-	private FlexTable		extraOptions;
-	private FlexTable		itemsTable;
+	private VerticalPanel			main;
+	private HorizontalPanel			selectionButtons;
+	private FlexTable			extraOptions;
+	private FlexTable			itemsTable;
 
 	public SelectionDialog ( int mode ) {
 		savingCallbacks = null;
@@ -482,13 +482,12 @@ public class SelectionDialog extends DialogBox implements FromServerArray, Savin
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( savingCallbacks == null )
-			savingCallbacks = new ArrayList ();
+			savingCallbacks = new ArrayList<SavingDialogCallback> ();
 		savingCallbacks.add ( callback );
 	}
 
 	public void removeCallback ( SavingDialogCallback callback ) {
-		if ( savingCallbacks == null )
-			return;
-		savingCallbacks.remove ( callback );
+		if ( savingCallbacks != null )
+			savingCallbacks.remove ( callback );
 	}
 }

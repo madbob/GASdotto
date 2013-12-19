@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
@@ -39,11 +40,11 @@ public class ImportButton extends FileUploadDialog {
 		/*
 			Per resettare il file appena caricato
 		*/
-		super.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		super.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				setValue ( null );
 			}
-		} );
+		}, ChangeEvent.getType () );
 	}
 
 	protected boolean manageUploadResponse ( JSONValue response ) {
@@ -132,7 +133,7 @@ public class ImportButton extends FileUploadDialog {
 		String id;
 		JSONObject contents;
 
-		if ( existingNo.isChecked () == true ) {
+		if ( existingNo.getValue () == true ) {
 			contents = originalResponse.isObject ();
 			id = suppliersList.getValue ( suppliersList.getSelectedIndex () );
 			contents.get ( "supplier" ).isObject ().put ( "id", new JSONString ( id ) );
@@ -166,7 +167,7 @@ public class ImportButton extends FileUploadDialog {
 		pan.add ( supplier_check );
 
 		existing = new RadioButton ( "supplier_exists", "Nuovo Fornitore" );
-		existing.setChecked ( true );
+		existing.setValue ( true );
 		supplier_check.setWidget ( 0, 0, existing );
 		existingNo = new RadioButton ( "supplier_exists", "Aggiornamento di un Fornitore Esistente" );
 		supplier_check.setWidget ( 1, 0, existingNo );
@@ -192,20 +193,20 @@ public class ImportButton extends FileUploadDialog {
 		}
 
 		if ( selected != -1 ) {
-			existingNo.setChecked ( true );
+			existingNo.setValue ( true );
 			suppliersList.setEnabled ( true );
 		}
 
 		existingNo.addClickHandler ( new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
-				if ( ( ( RadioButton ) event.getSource () ).isChecked () )
+				if ( ( ( RadioButton ) event.getSource () ).getValue () )
 					suppliersList.setEnabled ( true );
 			}
 		});
 
 		existing.addClickHandler ( new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
-				if ( ( ( RadioButton ) event.getSource () ).isChecked () )
+				if ( ( ( RadioButton ) event.getSource () ).getValue () )
 					suppliersList.setEnabled ( false );
 			}
 		});

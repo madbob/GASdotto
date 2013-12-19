@@ -21,12 +21,12 @@ import java.util.*;
 import com.google.gwt.user.client.ui.*;
 
 public class FromServerSavingDialog extends FromServerRappresentationFull implements SavingDialog {
-	private FromServer	reference;
+	private FromServer			reference;
 
-	private DialogBox	dialog;
-	private VerticalPanel	main;
+	private DialogBox			dialog;
+	private VerticalPanel			main;
 
-	private ArrayList	savingCallbacks;
+	private ArrayList<SavingDialogCallback>	savingCallbacks;
 
 	public FromServerSavingDialog ( FromServer ref, String title ) {
 		DialogButtons buttons;
@@ -101,7 +101,7 @@ public class FromServerSavingDialog extends FromServerRappresentationFull implem
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( savingCallbacks == null )
-			savingCallbacks = new ArrayList ();
+			savingCallbacks = new ArrayList<SavingDialogCallback> ();
 		savingCallbacks.add ( callback );
 	}
 

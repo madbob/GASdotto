@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
@@ -188,7 +189,6 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 	private DroppableOrders		ordersList;
 	private VerticalPanel		aggregationsList;
 	private PickupDragController	dragController;
-	private ArrayList		changeListeners;
 
 	public OrdersAggregator () {
 		HTML notice;
@@ -196,8 +196,6 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 		HorizontalPanel columns;
 		ButtonsBar buttons;
 		AddButton button;
-
-		changeListeners = null;
 
 		main = new AbsolutePanel ();
 		main.setStyleName ( "size-extended" );
@@ -343,13 +341,6 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 		return false;
 	}
 
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeListeners == null )
-			changeListeners = new ArrayList ();
-
-		changeListeners.add ( listener );
-	}
-
 	private int retrieveOrderInOrders ( FromServer element ) {
 		DraggableOrder ord;
 
@@ -397,12 +388,7 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 	}
 
 	private void emitClose () {
-		ChangeListener listener;
-
-		for ( int i = 0; i < changeListeners.size (); i++ ) {
-			listener = ( ChangeListener ) changeListeners.get ( i );
-			listener.onChange ( this );
-		}
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	/****************************************************************** FromServerArray */

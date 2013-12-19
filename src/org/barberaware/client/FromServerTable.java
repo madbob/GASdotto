@@ -33,6 +33,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 		public boolean			edit;
 		public WidgetFactoryCallback	customWid;
 		public int			action;
+		public String			extraStyle;
 
 		public FromServerTableColumn ( String header, String attribute, boolean editable, WidgetFactoryCallback custom, int act ) {
 			head = header;
@@ -40,6 +41,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			edit = editable;
 			customWid = custom;
 			action = act;
+			extraStyle = "";
 		}
 
 		public String getUneditable ( FromServer obj ) {
@@ -54,13 +56,14 @@ public class FromServerTable extends Composite implements FromServerArray {
 		}
 	}
 
-	private FlexTable		main;
-	private ArrayList		columns;
-	private ArrayList		rows;
-	private String			emptyWarning;
+	private FlexTable				main;
+	private ArrayList<FromServerTableColumn>	columns;
+	private ArrayList				rows;
+	private String					emptyWarning;
+	private FromServerSortCallback			sorting;
 
 	public FromServerTable () {
-		columns = new ArrayList ();
+		columns = new ArrayList<FromServerTableColumn> ();
 		rows = new ArrayList ();
 		emptyWarning = null;
 
@@ -70,6 +73,12 @@ public class FromServerTable extends Composite implements FromServerArray {
 		main.setWidth ( "100%" );
 		initWidget ( main );
 
+		sorting = new FromServerSortCallback () {
+			public int compare ( FromServer first, FromServer second ) {
+				return first.getString ( "name" ).compareTo ( second.getString ( "name" ) );
+			}
+		};
+
 		main.addTableListener ( new TableListener () {
 			public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
 				FromServer obj;
@@ -77,7 +86,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 				SavingDialog dialog;
 				DialogBox true_dialog;
 
-				col = ( FromServerTableColumn ) columns.get ( cell );
+				col = columns.get ( cell );
 
 				if ( col.action != -1 ) {
 					obj = ( FromServer ) rows.get ( row - 1 );
@@ -128,12 +137,14 @@ public class FromServerTable extends Composite implements FromServerArray {
 		clean ( true );
 	}
 
-	public void addColumn ( String header, String attribute, boolean editable ) {
+	public int addColumn ( String header, String attribute, boolean editable ) {
 		columns.add ( new FromServerTableColumn ( header, attribute, editable, null, -1 ) );
+		return columns.size () - 1;
 	}
 
-	public void addColumn ( String header, String attribute, WidgetFactoryCallback custom ) {
+	public int addColumn ( String header, String attribute, WidgetFactoryCallback custom ) {
 		columns.add ( new FromServerTableColumn ( header, attribute, true, custom, -1 ) );
+		return columns.size () - 1;
 	}
 
 	/*
@@ -143,8 +154,19 @@ public class FromServerTable extends Composite implements FromServerArray {
 		Se action == TABLE_EDIT la callback deve ritornare sempre un SavingDialog che
 			implementi ObjectWidget
 	*/
-	public void addColumn ( String header, int action, WidgetFactoryCallback custom ) {
+	public int addColumn ( String header, int action, WidgetFactoryCallback custom ) {
 		columns.add ( new FromServerTableColumn ( header, null, false, custom, action ) );
+		return columns.size () - 1;
+	}
+
+	public void setColumnStyle ( int index, String style ) {
+		FromServerTableColumn col;
+
+		if ( index >= columns.size () )
+			return;
+
+		col = columns.get ( index );
+		col.extraStyle = style;
 	}
 
 	public void setEmptyWarning ( String warning ) {
@@ -170,6 +192,10 @@ public class FromServerTable extends Composite implements FromServerArray {
 		}
 	}
 
+	public void setSorting ( FromServerSortCallback callback ) {
+		this.sorting = callback;
+	}
+
 	private void doHeader () {
 		int cols;
 		FromServerTableColumn c;
@@ -177,7 +203,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 		cols = columns.size ();
 
 		for ( int i = 0; i < cols; i++ ) {
-			c = ( FromServerTableColumn ) columns.get ( i );
+			c = columns.get ( i );
 			main.setWidget ( 0, i, new Label ( c.head ) );
 		}
 
@@ -202,7 +228,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			obj = ( FromServer ) rows.get ( i );
 
 			for ( int a = 0; a < cols; a++ ) {
-				c = ( FromServerTableColumn ) columns.get ( a );
+				c = columns.get ( a );
 
 				if ( c.edit == true ) {
 					wid = ( FromServerWidget ) main.getWidget ( i + 1, a );
@@ -249,7 +275,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			obj = ( FromServer ) rows.get ( i );
 
 			for ( int a = 0; a < cols; a++ ) {
-				c = ( FromServerTableColumn ) columns.get ( a );
+				c = columns.get ( a );
 
 				if ( c.edit == true ) {
 					wid = ( FromServerWidget ) main.getWidget ( i + 1, a );
@@ -286,12 +312,10 @@ public class FromServerTable extends Composite implements FromServerArray {
 			row = 1;
 		}
 		else {
-			element_name = element.getString ( "name" );
-
 			for ( int i = 0; i < rows.size (); i++ ) {
 				cmp = ( FromServer ) rows.get ( i );
 
-				if ( cmp.getString ( "name" ).compareTo ( element_name ) > 0 ) {
+				if ( this.sorting.compare ( cmp, element ) > 0 ) {
 					main.insertRow ( i + 1 );
 					row = i + 1;
 					break;
@@ -300,7 +324,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 		}
 
 		for ( int i = 0; i < cols; i++ ) {
-			c = ( FromServerTableColumn ) columns.get ( i );
+			c = columns.get ( i );
 
 			if ( c.action != -1 ) {
 				if ( c.action == TABLE_REMOVE )
@@ -319,6 +343,9 @@ public class FromServerTable extends Composite implements FromServerArray {
 			else {
 				wid = new Label ( c.getUneditable ( element ) );
 			}
+
+			if ( c.extraStyle != "" )
+				wid.addStyleName ( c.extraStyle );
 
 			main.setWidget ( row, i, wid );
 		}
@@ -379,7 +406,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 			return;
 
 		for ( int i = 0; i < cols; i++ ) {
-			c = ( FromServerTableColumn ) columns.get ( i );
+			c = columns.get ( i );
 
 			if ( c.action != -1 ) {
 				continue;

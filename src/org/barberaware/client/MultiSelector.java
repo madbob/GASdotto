@@ -25,15 +25,15 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class MultiSelector extends Composite implements FromServerArray, SavingDialog {
-	private VerticalPanel		main;
+	private VerticalPanel			main;
 
-	private boolean			callbacksInited;
-	private FilterCallback		filterCallback;
-	private ArrayList		savingCallbacks;
-	private ArrayList		extraElements;
+	private boolean				callbacksInited;
+	private FilterCallback			filterCallback;
+	private ArrayList<SavingDialogCallback>	savingCallbacks;
+	private ArrayList			extraElements;
 
-	private SelectionDialog		dialog;
-	private String			objectType;
+	private SelectionDialog			dialog;
+	private String				objectType;
 
 	/*
 		Il parametro "mode" si riferisce ai valori in SelectionDialog
@@ -184,14 +184,13 @@ public class MultiSelector extends Composite implements FromServerArray, SavingD
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( savingCallbacks == null )
-			savingCallbacks = new ArrayList ();
+			savingCallbacks = new ArrayList<SavingDialogCallback> ();
 		savingCallbacks.add ( callback );
 	}
 
 	public void removeCallback ( SavingDialogCallback callback ) {
-		if ( savingCallbacks == null )
-			return;
-		savingCallbacks.remove ( callback );
+		if ( savingCallbacks != null )
+			savingCallbacks.remove ( callback );
 	}
 
 	/****************************************************************** FromServerArray */

@@ -26,10 +26,10 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class BankRemoveDialog extends DialogBox implements SavingDialog, ObjectWidget {
-	private FromServer		object;
-	private BankMovementViewer	info;
-	private PasswordTextBox		password;
-	private ArrayList		savingCallbacks;
+	private FromServer			object;
+	private BankMovementViewer		info;
+	private PasswordTextBox			password;
+	private ArrayList<SavingDialogCallback>	savingCallbacks;
 
 	public BankRemoveDialog () {
 		final VerticalPanel pan;
@@ -127,14 +127,13 @@ public class BankRemoveDialog extends DialogBox implements SavingDialog, ObjectW
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( savingCallbacks == null )
-			savingCallbacks = new ArrayList ();
+			savingCallbacks = new ArrayList<SavingDialogCallback> ();
 		savingCallbacks.add ( callback );
 	}
 
 	public void removeCallback ( SavingDialogCallback callback ) {
-		if ( savingCallbacks == null )
-			return;
-		savingCallbacks.remove ( callback );
+		if ( savingCallbacks != null )
+			savingCallbacks.remove ( callback );
 	}
 }
 

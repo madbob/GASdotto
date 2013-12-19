@@ -23,8 +23,15 @@ class BankMovement extends FromServer {
 	public function __construct () {
 		parent::__construct ( "BankMovement" );
 
+		/*
+			Questi due sono ID numerici anziche' riferimenti ad
+			oggetti in quanto possono e devono poter assumere valore
+			-1, dunque non rispettono alcuna constraint imposta sul
+			DB
+		*/
 		$this->addAttribute ( "payuser", "INTEGER" );
 		$this->addAttribute ( "paysupplier", "INTEGER" );
+
 		$this->addAttribute ( "date", "DATE" );
 		$this->addAttribute ( "registrationdate", "DATE" );
 		$this->addAttribute ( "registrationperson", "OBJECT::User" );
@@ -50,10 +57,10 @@ class BankMovement extends FromServer {
 	|                 |                                      |                   |                   |
 	+-----------------+--------------------------------------+-------------------+-------------------+
 	| Gestione Utenti | Versamento Cauzione                  | GAS / Saldo Cassa |                   |
-	|                 |                                      |                   |                   |
+	|                 |                                      | Socio / Saldo     |                   |
 	+-----------------+--------------------------------------+-------------------+-------------------+
 	| Gestione Utenti | Restituzione Cauzione                |                   | GAS / Saldo Cassa |
-	|                 |                                      |                   |                   |
+	|                 |                                      |                   | Socio / Saldo     |
 	+-----------------+--------------------------------------+-------------------+-------------------+
 	| Gestione Utenti | Versamento Quota Annuale in Contanti | GAS / Saldo Cassa |                   |
 	|                 |                                      | GAS / Saldo       |                   |
@@ -104,10 +111,12 @@ class BankMovement extends FromServer {
 				switch ( $type ) {
 					case 0:
 						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
+						$add [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 1:
 						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
+						$sub [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 2:
@@ -150,10 +159,12 @@ class BankMovement extends FromServer {
 				switch ( $type ) {
 					case 0:
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						$add [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 1:
 						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						$sub [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 2:
@@ -229,6 +240,35 @@ class BankMovement extends FromServer {
 		unset ( $rows );
 	}
 
+	private function assignMovement ( $type, $payuser, $id ) {
+		switch ( $type ) {
+			case 0:
+				$tmp = new User ();
+				$tmp->readFromDB ( $payuser );
+
+				if ( $tmp->getAttribute ( 'deposit' )->value != $id ) {
+					$tmp->getAttribute ( 'deposit' )->value = $id;
+					$tmp->save ( $tmp->exportable () );
+				}
+
+				break;
+
+			case 2:
+				$tmp = new User ();
+				$tmp->readFromDB ( $payuser );
+
+				if ( $tmp->getAttribute ( 'paying' )->value != $id ) {
+					$tmp->getAttribute ( 'paying' )->value = $id;
+					$tmp->save ( $tmp->exportable () );
+				}
+
+				break;
+
+			default:
+				break;
+		}
+	}
+
 	public function save ( $obj ) {
 		if ( $obj instanceof FromServer )
 			$this->dupBy ( $obj );
@@ -248,12 +288,19 @@ class BankMovement extends FromServer {
 			$this->manageSums ( $obj->movementtype, $obj->method, $obj->amount, $obj->payuser, $obj->paysupplier, false );
 		}
 
+		$this->assignMovement ( $obj->movementtype, $obj->payuser, $id );
+
 		return $id;
 	}
 
+	/*
+		I movimenti non vengono mai eliminati, ma solo messi a 0.
+		Questo per non rompere le numerose ed eterogenee relazioni nel
+		database
+	*/
 	public function destroy ( $obj ) {
-		$this->revertById ( $obj->id );
-		return parent::destroy ( $obj );
+		$obj->amount = 0;
+		return $this->save ( $obj );
 	}
 
 	public function get ( $request, $compress ) {

@@ -24,7 +24,7 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class DialogButtons extends HorizontalPanel implements SavingDialog {
-	private ArrayList	callbacks;
+	private ArrayList<SavingDialogCallback>	callbacks;
 
 	public DialogButtons () {
 		Button but;
@@ -55,7 +55,7 @@ public class DialogButtons extends HorizontalPanel implements SavingDialog {
 
 	public void addCallback ( SavingDialogCallback listener ) {
 		if ( callbacks == null )
-			callbacks = new ArrayList ();
+			callbacks = new ArrayList<SavingDialogCallback> ();
 		callbacks.add ( listener );
 	}
 

@@ -223,15 +223,15 @@ public class UsersPanel extends GenericPanel {
 
 					photo.setDestination ( "upload_image.php" );
 
-					photo.addChangeListener ( new ChangeListener () {
-						public void onChange ( Widget sender ) {
+					photo.addDomHandler ( new ChangeHandler () {
+						public void onChange ( ChangeEvent event ) {
 							FileUploadDialog photo;
 
-							photo = ( FileUploadDialog ) sender;
+							photo = ( FileUploadDialog ) event.getSource ();
 							image.setVisible ( true );
 							image.setUrl ( Utils.getServer ().getDomain () + photo.getValue () );
 						}
-					} );
+					}, ChangeEvent.getType () );
 				}
 
 				/* seconda colonna */

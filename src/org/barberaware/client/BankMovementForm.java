@@ -25,7 +25,7 @@ import com.google.gwt.event.logical.shared.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class BankMovementForm extends FromServerRappresentation {
-	private FlexTable		main;
+	private CustomFormTable		main;
 	private CyclicToggle		method;
 	private Date			defaultDate;
 	private float			defaultAmount;
@@ -46,8 +46,7 @@ public class BankMovementForm extends FromServerRappresentation {
 		justDate = false;
 		editable = true;
 
-		main = new FlexTable ();
-		main.setWidth ( "100%" );
+		main = new CustomFormTable ();
 		initWidget ( main );
 	}
 
@@ -56,23 +55,19 @@ public class BankMovementForm extends FromServerRappresentation {
 
 		if ( main.getRowCount () == 0 ) {
 			if ( justDate == false ) {
-				main.setWidget ( 0, 0, new Label ( "Data" ) );
-				if ( editable == true )
-					main.setWidget ( 0, 1, getWidget ( "date" ) );
-				else
-					main.setWidget ( 0, 1, getPersonalizedWidget ( "date", new DateViewer () ) );
+				if ( editable == true ) {
+					main.addPair ( "Data", getWidget ( "date" ) );
+					main.addPair ( "Importo", getWidget ( "amount" ) );
+				}
+				else {
+					main.addPair ( "Data", getPersonalizedWidget ( "date", new DateViewer () ) );
+					main.addPair ( "Importo", getPersonalizedWidget ( "amount", new PriceViewer () ) );
+				}
 
-				main.setWidget ( 1, 0, new Label ( "Importo" ) );
-				if ( editable == true )
-					main.setWidget ( 1, 1, getWidget ( "amount" ) );
-				else
-					main.setWidget ( 1, 1, getPersonalizedWidget ( "amount", new PriceViewer () ) );
-
-				main.setWidget ( 2, 0, new Label ( "Metodo" ) );
 				method = new CyclicToggle ( true );
 				method.addState ( "images/by_bank.png" );
 				method.addState ( "images/by_cash.png" );
-				main.setWidget ( 2, 1, getPersonalizedWidget ( "method", method ) );
+				main.addPair ( "Metodo", getPersonalizedWidget ( "method", method ) );
 
 				method.addValueChangeHandler ( new ValueChangeHandler<Integer> () {
 					public void onValueChange ( ValueChangeEvent<Integer> event ) {
@@ -80,18 +75,18 @@ public class BankMovementForm extends FromServerRappresentation {
 					}
 				} );
 
-				main.setWidget ( 3, 0, new Label ( "CRO" ) );
-				main.setWidget ( 3, 1, getWidget ( "cro" ) );
+				main.addPair ( "CRO", getWidget ( "cro" ) );
 
-				main.setWidget ( 4, 0, new Label ( "Descrizione" ) );
-				main.setWidget ( 4, 1, getWidget ( "notes" ) );
+				if ( editable == true )
+					main.addPair ( "Descrizione", getWidget ( "notes" ) );
+				else
+					main.addPair ( "Descrizione", getPersonalizedWidget ( "notes", new StringLabel () ) );
 			}
 			else {
 				custom_date = new DateSelector ();
 				custom_date.yearSelectable ( true );
 
-				main.setWidget ( 0, 0, new Label ( "Data" ) );
-				main.setWidget ( 0, 1, getPersonalizedWidget ( "date", custom_date ) );
+				main.addPair ( "Data", getPersonalizedWidget ( "date", custom_date ) );
 			}
 		}
 	}
@@ -172,18 +167,10 @@ public class BankMovementForm extends FromServerRappresentation {
 	}
 
 	public void showMethod ( boolean show ) {
-		HTMLTable.RowFormatter format;
-
-		format = main.getRowFormatter ();
-
-		if ( show == true )
-			format.removeStyleName ( 2, "hidden" );
-		else
-			format.addStyleName ( 2, "hidden" );
+		main.showByLabel ( "Metodo", show );
 	}
 
 	private void renderCro () {
-		HTMLTable.RowFormatter format;
 		StringWidget cro;
 
 		/*
@@ -194,16 +181,14 @@ public class BankMovementForm extends FromServerRappresentation {
 		if ( justDate == true )
 			return;
 
-		format = main.getRowFormatter ();
-
 		if ( method.getVal () == BankMovement.BY_BANK && displayCro == true ) {
-			format.removeStyleName ( 3, "hidden" );
+			main.showByLabel ( "CRO", true );
 
 			cro = ( StringWidget ) retriveInternalWidget ( "cro" );
 			cro.setValue ( "" );
 		}
 		else {
-			format.addStyleName ( 3, "hidden" );
+			main.showByLabel ( "CRO", false );
 		}
 	}
 

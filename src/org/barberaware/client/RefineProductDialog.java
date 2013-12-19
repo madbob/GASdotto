@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
@@ -31,19 +32,17 @@ import com.allen_sauer.gwt.log.client.Log;
 		bisogna
 */
 
-public class RefineProductDialog extends Composite implements SourcesChangeEvents {
+public class RefineProductDialog extends Composite {
 	private FromServer			targetProduct;
 	private ArrayList			userOrders;
 	private FlexTable			optionsTable;
 	private DialogBox			dialog;
-	private ChangeListenerCollection	listeners;
 
 	public RefineProductDialog ( ArrayList orders, FromServer prod ) {
 		Image main;
 
 		targetProduct = prod;
 		userOrders = orders;
-		listeners = null;
 
 		doDialog ();
 
@@ -56,17 +55,6 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		} );
 
 		initWidget ( main );
-	}
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( listeners == null )
-			listeners = new ChangeListenerCollection ();
-		listeners.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( listeners != null )
-			listeners.remove ( listener );
 	}
 
 	private Widget doButtons () {
@@ -182,8 +170,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 	}
 
 	private void fireChanges () {
-		if ( listeners != null )
-			listeners.fireChange ( this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	private void alignQuantities ( FloatBox q, FromServer order ) {
@@ -192,11 +179,11 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 		float user_selected;
 		float difference;
 		ArrayList products;
-		ArrayList products_user;
+		ArrayList<ProductUser> products_user;
 		ProductUser pu;
 
 		tot = 0;
-		products_user = new ArrayList ();
+		products_user = new ArrayList<ProductUser> ();
 
 		products = order.getArray ( "allproducts" );
 		num = products.size ();
@@ -218,7 +205,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 
 		if ( user_selected != tot ) {
 			if ( user_selected > tot ) {
-				pu = ( ProductUser ) products_user.get ( 0 );
+				pu = products_user.get ( 0 );
 				pu.setFloat ( "quantity", pu.getFloat ( "quantity" ) + ( user_selected - tot ) );
 				pu.setCurrentUser ();
 			}
@@ -227,7 +214,7 @@ public class RefineProductDialog extends Composite implements SourcesChangeEvent
 				num = products_user.size ();
 
 				for ( int i = 0; i < num; i++ ) {
-					pu = ( ProductUser ) products_user.get ( i );
+					pu = products_user.get ( i );
 					user_selected = pu.getFloat ( "quantity" );
 
 					if ( user_selected >= difference ) {

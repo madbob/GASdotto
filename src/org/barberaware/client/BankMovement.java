@@ -23,6 +23,10 @@ import com.google.gwt.json.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class BankMovement extends FromServer {
+	/*
+		Le spiegazioni letterali di questi indici sono nella classe
+		BankMovementType definita server-side
+	*/
 	public static int	DEPOSIT_PAYMENT		= 0;
 	public static int	DEPOSIT_RETURN		= 1;
 	public static int	ANNUAL_PAYMENT		= 2;

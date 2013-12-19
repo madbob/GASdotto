@@ -149,13 +149,13 @@ public class CalendarWidget extends DialogBox implements ClickHandler, SavingDia
 		}
 	}
 
-	private NavBar		navbar;
-	private DockPanel	outer;
-	private Grid		grid;
+	private NavBar				navbar;
+	private DockPanel			outer;
+	private Grid				grid;
 
-	private Date		date = new Date();
-	private Date		originalDate;
-	private ArrayList	callbacks;
+	private Date				date = new Date();
+	private Date				originalDate;
+	private ArrayList<SavingDialogCallback>	callbacks;
 
 	public CalendarWidget () {
 		Button exit;
@@ -348,13 +348,12 @@ public class CalendarWidget extends DialogBox implements ClickHandler, SavingDia
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( callbacks == null )
-			callbacks = new ArrayList ();
+			callbacks = new ArrayList<SavingDialogCallback> ();
 		callbacks.add ( callback );
 	}
 
 	public void removeCallback ( SavingDialogCallback callback ) {
-		if ( callbacks == null )
-			return;
-		callbacks.remove ( callback );
+		if ( callbacks != null )
+			callbacks.remove ( callback );
 	}
 }

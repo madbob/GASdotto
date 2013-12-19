@@ -18,8 +18,10 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -103,15 +105,15 @@ public class ProfilePanel extends GenericPanel {
 
 			photo.setDestination ( "upload_image.php" );
 
-			photo.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
+			photo.addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
 					FileUploadDialog photo;
 
-					photo = ( FileUploadDialog ) sender;
+					photo = ( FileUploadDialog ) event.getSource ();
 					image.setVisible ( true );
 					image.setUrl ( Utils.getServer ().getDomain () + photo.getValue () );
 				}
-			} );
+			}, ChangeEvent.getType () );
 		}
 
 		frame = new CustomCaptionPanel ( "Nel GAS" );

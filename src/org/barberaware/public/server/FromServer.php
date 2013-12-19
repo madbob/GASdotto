@@ -113,6 +113,9 @@ class FromServerAttribute {
 
 	public static function filter_object ( $object, &$filter, $compress ) {
 		if ( $object != null ) {
+			if ( is_numeric ( $object ) == true )
+				return $object . "";
+
 			if ( $filter == null )
 				$filter = new stdClass ();
 
@@ -121,7 +124,7 @@ class FromServerAttribute {
 
 			if ( isset ( $filter->$id_name ) ) {
 				if ( search_in_array ( $filter->$id_name, $id ) != -1 )
-					return $id . "";		
+					return $id . "";
 			}
 			else {
 				$filter->$id_name = array ();
@@ -526,12 +529,17 @@ abstract class FromServer {
 			}
 
 			else if ( strcmp ( $attr->type, "ADDRESS" ) == 0 ) {
-				$final = "";
-				$addr_fields = get_object_vars ( $val );
-				$addr_keys = array_keys ( $addr_fields );
+				if ( is_string ( $val ) == true ) {
+					$final = $val;
+				}
+				else {
+					$final = "";
+					$addr_fields = get_object_vars ( $val );
+					$addr_keys = array_keys ( $addr_fields );
 
-				for ( $a = 0; $a < count ( $addr_fields ); $a++ )
-					$final .= $addr_keys [ $a ] . ":" . $addr_fields [ $addr_keys [ $a ] ] . ";";
+					for ( $a = 0; $a < count ( $addr_fields ); $a++ )
+						$final .= $addr_keys [ $a ] . ":" . $addr_fields [ $addr_keys [ $a ] ] . ";";
+				}
 
 				$attr->value = $final;
 			}
@@ -950,6 +958,16 @@ abstract class FromServer {
 			$this->destroy_myself ();
 
 		return $id;
+	}
+
+	/*
+		Invocata all'atto della creazione della relativa tabella nel
+		database. La maggior parte delle classi non la usa
+	*/
+	public function install () {
+		/*
+			dummy
+		*/
 	}
 
 	protected function dupBy ( $obj ) {

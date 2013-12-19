@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
@@ -102,17 +103,17 @@ public class OrdersEditPanel extends GenericPanel {
 					frame = new CustomCaptionPanel ( "Attributi" );
 					hor.add ( frame );
 
-					suppliers.addChangeListener ( new ChangeListener () {
-						public void onChange ( Widget sender ) {
+					suppliers.addDomHandler ( new ChangeHandler () {
+						public void onChange ( ChangeEvent event ) {
 							FromServerSelector supps;
 							FromServer selected;
 
-							supps = ( FromServerSelector ) sender;
+							supps = ( FromServerSelector ) event.getSource ();
 							selected = supps.getValue ();
 							populateProductsPreview ( ver, selected );
 
 						}
-					} );
+					}, ChangeEvent.getType () );
 
 					frame.addPair ( "Fornitore", ver.getPersonalizedWidget ( "supplier", suppliers ) );
 					ver.setValidation ( "supplier", FromServerValidateCallback.defaultObjectValidationCallback () );
@@ -373,13 +374,13 @@ public class OrdersEditPanel extends GenericPanel {
 		container.add ( main );
 
 		aggregator = new OrdersAggregator ();
-		aggregator.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		aggregator.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				aggregateToggle.setChecked ( false );
 				container.showWidget ( 0 );
 				filter.setVisible ( true );
 			}
-		} );
+		}, ChangeEvent.getType () );
 		container.add ( aggregator );
 
 		container.showWidget ( 0 );
@@ -935,7 +936,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 				self = ( CheckBox ) event.getSource ();
 
-				if ( self.isChecked () == true ) {
+				if ( self.getValue () == true ) {
 					container.showWidget ( 1 );
 					filter.setVisible ( false );
 				}

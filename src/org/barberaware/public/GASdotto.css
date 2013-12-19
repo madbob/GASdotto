@@ -71,6 +71,14 @@ body {
 	height:			0px;
 }
 
+.leftalign {
+	text-align:		left;
+}
+
+.rightalign {
+	text-align:		right;
+}
+
 .collapsed {
 	visibility:		collapse;
 	width:			0%;
@@ -259,11 +267,11 @@ body {
 	width:			92%;
 }
 
-.custom-caption-panel table {
+.custom-form-table {
 	width:			100%;
 }
 
-.custom-caption-panel table tr {
+.custom-form-table tr {
 	min-height:		29px;
 }
 

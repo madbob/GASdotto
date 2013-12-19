@@ -160,7 +160,11 @@ public class FromServerSelector extends ListBox implements ObjectWidget, Lockabl
 			Comune implementazione di BinarySearch
 		*/
 
-		low = 0;
+		if ( noVoidArticat == false )
+			low = 1;
+		else
+			low = 0;
+
 		high = getItemCount () - 1;
 
 		while ( low <= high ) {
@@ -199,7 +203,7 @@ public class FromServerSelector extends ListBox implements ObjectWidget, Lockabl
 				TODO	Usare una ricerca binaria?
 			*/
 
-			for ( int i = 0; i < num_items; i++ ) {
+			for ( int i = ( noVoidArticat == false ? 1 : 0 ); i < num_items; i++ ) {
 				switch ( search_name.compareTo ( getItemText ( i ) ) ) {
 					case 0:
 						return i;
@@ -271,7 +275,7 @@ public class FromServerSelector extends ListBox implements ObjectWidget, Lockabl
 			return null;
 
 		selected = Integer.parseInt ( getValue ( index ) );
-		if ( selected == 0 || selected == -1 )
+		if ( selected < 1 )
 			return null;
 
 		return Utils.getServer ().getObjectFromCache ( type, selected );

@@ -211,6 +211,8 @@ function create_table_class ( $obj ) {
 
 	foreach ( $extras as $extra )
 		local_query_and_check ( $extra, "Impossibile eseguire query di supporto a creazione nuova tabella" );
+
+	$obj->install ();
 }
 
 function test_class ( $class ) {
@@ -339,22 +341,16 @@ function migrate_table ( $class ) {
 						foreach ( $rows as $row ) {
 							$userid = $row [ 'id' ];
 
-							$d = new stdClass ();
-							$d->id = -1;
-							$d->movementtype = 2;
-							$d->method = 1;
 							/*
-								Inizializzo con un ammontare a caso che non sia 0,
-								in quanto i BankMovement a 0 risultano non validi
-								e tutti gli utenti risulterebbero non paganti
-								(anche se la data e' corretta)
+								Usare la classica funzione FromServer::save() qui
+								comporta problemi, dunque la query viene forgiata
+								manualmente
 							*/
-							$d->amount = 1;
-							$d->payuser = $userid;
-							$d->paysupplier = -1;
-							$d->date = $row [ 'paying' ];
-							$id = $tmp->save ( $d );
-							unset ( $d );
+
+							$query = "INSERT INTO " . $tmp->tablename . " (movementtype, method, amount, payuser, paysupplier, date)
+									VALUES (2, 1, 0, $userid, -1, '" . $row [ 'paying' ] . "')";
+							$db->query ( $query );
+							$id = last_id ( 'BankMovement' );
 
 							$map [ $userid ] = $id;
 						}
@@ -503,6 +499,7 @@ function test_static_tables () {
 function check_db_schema () {
 	test_class ( 'GAS' );
 	test_class ( 'ShippingPlace' );
+	test_class ( 'BankMovementType' );
 	test_class ( 'BankMovement' );
 	migrate_table ( 'User' );
 	test_class ( 'User' );

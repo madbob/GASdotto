@@ -20,28 +20,59 @@ package org.barberaware.client;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class CustomCaptionPanel extends CaptionPanel {
-	private CustomFormTable			content;
+public class CustomFormTable extends FlexTable {
+	private HTMLTable.CellFormatter		formatter;
 
-	public CustomCaptionPanel ( String title ) {
-		super ( title );
-
-		content = new CustomFormTable ();
-		setContentWidget ( content );
-
-		setStyleName ( "custom-caption-panel" );
+	public CustomFormTable () {
+		formatter = getCellFormatter ();
+		setStyleName ( "custom-form-table" );
 	}
 
 	public void addPair ( String name, Widget element, int row ) {
-		content.addPair ( name, element, row );
+		Label lab;
+
+		lab = new Label ( name );
+		setWidget ( row, 0, lab );
+		setWidget ( row, 1, element );
+		formatter.addStyleName ( row, 0, "custom-label" );
 	}
 
 	public void addPair ( String name, Widget element ) {
-		content.addPair ( name, element );
+		addPair ( name, element, getRowCount () );
 	}
 
 	public void addRight ( Widget element ) {
-		content.addRight ( element );
+		int row;
+
+		row = getRowCount ();
+		setWidget ( row, 1, element );
+	}
+
+	public void showByLabel ( String label, boolean show ) {
+		int index;
+		HTMLTable.RowFormatter format;
+
+		format = getRowFormatter ();
+		index = getLabelIndex ( label );
+
+		if ( index != -1 ) {
+			if ( show == true )
+				format.removeStyleName ( index, "hidden" );
+			else
+				format.addStyleName ( index, "hidden" );
+		}
+	}
+
+	private int getLabelIndex ( String label ) {
+		Label l;
+
+		for ( int i = 0; i < getRowCount (); i++ ) {
+			l = ( Label ) getWidget ( i, 0 );
+			if ( l.getText () == label )
+				return i;
+		}
+
+		return -1;
 	}
 }
 

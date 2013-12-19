@@ -26,6 +26,7 @@ require_once ( "Session.php" );
 require_once ( "SystemConf.php" );
 require_once ( "ACL.php" );
 require_once ( "CustomFile.php" );
+require_once ( "BankMovementType.php" );
 require_once ( "BankMovement.php" );
 require_once ( "GAS.php" );
 require_once ( "ShippingPlace.php" );

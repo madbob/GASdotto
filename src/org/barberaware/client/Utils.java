@@ -365,18 +365,11 @@ public class Utils {
 		}
 	}
 
-	public static void triggerSaveCallbacks ( ArrayList callbacks, SavingDialog target, int mode ) {
-		int num;
-		SavingDialogCallback call;
-
+	public static void triggerSaveCallbacks ( ArrayList<SavingDialogCallback> callbacks, SavingDialog target, int mode ) {
 		if ( callbacks == null )
 			return;
 
-		num = callbacks.size ();
-
-		for ( int i = 0; i < callbacks.size (); i++ ) {
-			call = ( SavingDialogCallback ) callbacks.get ( i );
-
+		for ( SavingDialogCallback call : callbacks ) {
 			if ( mode == 0 )
 				call.onSave ( target );
 			else if ( mode == 1 )

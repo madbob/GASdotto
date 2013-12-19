@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
@@ -25,7 +26,7 @@ import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class FileUploadDialog extends Composite implements StringWidget, SourcesChangeEvents {
+public class FileUploadDialog extends Composite implements StringWidget {
 	private HorizontalPanel			main;
 
 	private Button				button;
@@ -33,8 +34,6 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 	private FormPanel			form;
 	private DialogBox			dialog;
 	private FileUpload			upload;
-
-	private ChangeListenerCollection	changeCallbacks;
 
 	private boolean				opened;
 	private String				customEmptyString;
@@ -44,7 +43,6 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 		opened = false;
 		customEmptyString = "Nessun file selezionato";
 		completeFile = "";
-		changeCallbacks = null;
 
 		dialog = new DialogBox ( false );
 		dialog.setText ( "Seleziona File" );
@@ -93,8 +91,7 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 	}
 
 	private void callCallbacks () {
-		if ( changeCallbacks != null )
-			changeCallbacks.fireChange ( this );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	private Panel doDialog () {
@@ -201,18 +198,5 @@ public class FileUploadDialog extends Composite implements StringWidget, Sources
 
 	public String getValue () {
 		return completeFile;
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ChangeListenerCollection ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }

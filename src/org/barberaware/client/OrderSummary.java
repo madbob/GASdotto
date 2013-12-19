@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
@@ -422,11 +423,11 @@ public class OrderSummary extends Composite implements Lockable {
 		RefineProductDialog cell;
 
 		cell = new RefineProductDialog ( ordersUsers, prod );
-		cell.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		cell.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				syncOrders ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		main.setWidget ( row, PRODUCT_NOTIFICATIONS_COLUMN, cell );
 	}

@@ -29,7 +29,7 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 
 	private FromServer			currentValue;
 
-	private ArrayList			callbacks;
+	private ArrayList<SavingDialogCallback>	callbacks;
 
 	public ProductVariantEditor ( boolean new_item ) {
 		VerticalPanel pan;
@@ -214,13 +214,12 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 
 	public void addCallback ( SavingDialogCallback callback ) {
 		if ( callbacks == null )
-			callbacks = new ArrayList ();
+			callbacks = new ArrayList<SavingDialogCallback> ();
 		callbacks.add ( callback );
 	}
 
 	public void removeCallback ( SavingDialogCallback callback ) {
-		if ( callbacks == null )
-			return;
-		callbacks.remove ( callback );
+		if ( callbacks != null )
+			callbacks.remove ( callback );
 	}
 }

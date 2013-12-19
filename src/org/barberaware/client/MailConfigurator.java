@@ -17,10 +17,12 @@
 
 package org.barberaware.client;
 
+import com.google.gwt.dom.client.*;
 import com.google.gwt.http.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.json.client.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -51,8 +53,8 @@ public class MailConfigurator extends Composite implements StringWidget {
 		container.add ( main );
 
 		address = new TextBox ();
-		address.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		address.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				Utils.getServer ().rawGet ( "mail_conf.php?address=" + address.getText (), new RequestCallback () {
 					public void onError ( Request request, Throwable exception ) {
 						if ( exception instanceof RequestTimeoutException )
@@ -86,7 +88,7 @@ public class MailConfigurator extends Composite implements StringWidget {
 					}
 				} );
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		main.setWidget ( 0, 0, new Label ( "Indirizzo Mail" ) );
 		main.setWidget ( 0, 1, address );

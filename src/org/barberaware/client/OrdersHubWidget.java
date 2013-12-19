@@ -110,11 +110,11 @@ public abstract class OrdersHubWidget extends Composite {
 			}
 		}, ChangeEvent.getType () );
 
-		supplier.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		supplier.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				triggerFilters ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		OrdersHub.syncCheckboxOnShippedOrders ( this );
 	}
