@@ -103,15 +103,7 @@ public class SystemPanel extends GenericPanel {
 			fixer = new Button ( "Revisiona" );
 			fixer.addClickHandler ( new ClickHandler () {
 				public void onClick ( ClickEvent event ) {
-					Utils.getServer ().rawGet ( "bank_op.php?type=fix", new RequestCallback () {
-						public void onError ( Request request, Throwable exception ) {
-							Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
-						}
-
-						public void onResponseReceived ( Request request, Response response ) {
-							Window.Location.reload ();
-						}
-					} );
+					runBankRevision ( 0 );
 				}
 			} );
 			fixer.addStyleName ( "top-spaced" );
@@ -140,6 +132,36 @@ public class SystemPanel extends GenericPanel {
 		ver.add ( doLoggerForm () );
 		sframe.add ( ver );
 		add ( sframe );
+	}
+
+	/*
+		Per evitare che lo script di revisione si protragga per piu'
+		tempo del limite imposto dall'interprete PHP sul server,
+		l'operazione viene spezzata in piu' fasi invocate
+		sequenzialmente. Una volta conclusa, l'applicazione viene
+		ricaricata
+	*/
+	private void runBankRevision ( int offset ) {
+		Utils.getServer ().rawGet ( "bank_op.php?type=fix&offset=" + offset, new RequestCallback () {
+			public void onError ( Request request, Throwable exception ) {
+				Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+			}
+
+			public void onResponseReceived ( Request request, Response response ) {
+				int offset;
+				String res;
+
+				res = response.getText ();
+
+				if ( res == "done" ) {
+					Window.Location.reload ();
+				}
+				else {
+					offset = Integer.parseInt ( res );
+					runBankRevision ( offset );
+				}
+			}
+		} );
 	}
 
 	private FromServerForm doGlobalConfForm () {

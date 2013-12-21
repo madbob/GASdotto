@@ -57,10 +57,10 @@ class BankMovement extends FromServer {
 	|                 |                                      |                   |                   |
 	+-----------------+--------------------------------------+-------------------+-------------------+
 	| Gestione Utenti | Versamento Cauzione                  | GAS / Saldo Cassa |                   |
-	|                 |                                      | Socio / Saldo     |                   |
+	|                 |                                      |                   |                   |
 	+-----------------+--------------------------------------+-------------------+-------------------+
 	| Gestione Utenti | Restituzione Cauzione                |                   | GAS / Saldo Cassa |
-	|                 |                                      |                   | Socio / Saldo     |
+	|                 |                                      |                   |                   |
 	+-----------------+--------------------------------------+-------------------+-------------------+
 	| Gestione Utenti | Versamento Quota Annuale in Contanti | GAS / Saldo Cassa |                   |
 	|                 |                                      | GAS / Saldo       |                   |
@@ -111,12 +111,10 @@ class BankMovement extends FromServer {
 				switch ( $type ) {
 					case 0:
 						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
-						$add [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 1:
 						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
-						$sub [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 2:
@@ -159,12 +157,10 @@ class BankMovement extends FromServer {
 				switch ( $type ) {
 					case 0:
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
-						$add [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 1:
 						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
-						$sub [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 2:
@@ -331,22 +327,41 @@ class BankMovement extends FromServer {
 		return parent::getByQuery ( $request, $compress, $query );
 	}
 
-	public function fix () {
-		$query = sprintf ( "UPDATE Users SET current_balance = 0" );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+	public function fix ( $offset ) {
+		if ( $offset == -1 ) {
+			$page = -1;
+			$query_limit = '';
+		}
+		else {
+			$slice = 1000;
+			$page = $offset * $slice;
+			$query_limit = " LIMIT $slice OFFSET $page";
+		}
 
-		$query = sprintf ( "UPDATE Supplier SET current_balance = 0" );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+		if ( $offset == 0 || $offset == -1 ) {
+			$query = sprintf ( "UPDATE Users SET current_balance = 0" );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0" );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+			$query = sprintf ( "UPDATE Supplier SET current_balance = 0" );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0", $this->tablename );
+			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0" );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+		}
+
+		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 ORDER BY date $query_limit", $this->tablename );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
-			$this->manageSums ( $row [ 'movementtype' ], $row [ 'method' ], $row [ 'amount' ], $row [ 'payuser' ], $row [ 'paysupplier' ], false );
-			unset ( $row );
+		if ( $returned->rowCount () == 0 ) {
+			return 'done';
+		}
+		else {
+			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
+				$this->manageSums ( $row [ 'movementtype' ], $row [ 'method' ], $row [ 'amount' ], $row [ 'payuser' ], $row [ 'paysupplier' ], false );
+				unset ( $row );
+			}
+
+			return $offset + 1;
 		}
 	}
 }

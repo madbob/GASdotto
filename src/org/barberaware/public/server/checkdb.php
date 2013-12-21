@@ -533,7 +533,7 @@ function check_db_schema () {
 		Nel dubbio in chiusura do anche una controllata ai conti...
 	*/
 	$tmp = new BankMovement ();
-	$tmp->fix ();
+	$tmp->fix ( -1 );
 }
 
 /*

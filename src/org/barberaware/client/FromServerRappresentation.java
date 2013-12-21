@@ -25,18 +25,18 @@ import com.google.gwt.json.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FromServerRappresentation extends Composite implements ObjectWidget {
-	private FromServer			object;
-	private HashMap				widgets;
-	private ArrayList			children;
-	private ArrayList			callbacks;
-	private FromServerRappresentation	parent;
-	private FromServerRappresentation	wrap;
-	private ArrayList			peers;
+	private FromServer					object;
+	private HashMap<String, FromServerWidget>		widgets;
+	private ArrayList<FromServerRappresentation>		children;
+	private ArrayList<FromServerRappresentationCallbacks>	callbacks;
+	private FromServerRappresentation			parent;
+	private FromServerRappresentation			wrap;
+	private ArrayList<ObjectWidget>				peers;
 
 	public FromServerRappresentation () {
-		widgets = new HashMap ();
-		children = new ArrayList ();
-		callbacks = new ArrayList ();
+		widgets = new HashMap<String, FromServerWidget> ();
+		children = new ArrayList<FromServerRappresentation> ();
+		callbacks = new ArrayList<FromServerRappresentationCallbacks> ();
 		parent = null;
 		wrap = null;
 	}
@@ -45,7 +45,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		Per recuperare il wrapper interno del widget assegnato ad un attributo
 	*/
 	protected FromServerWidget retriveWidgetFromList ( String attribute ) {
-		return ( FromServerWidget ) widgets.get ( attribute );
+		return widgets.get ( attribute );
 	}
 
 	public Widget getWidget ( String attribute ) {
@@ -140,22 +140,22 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 			return wrap;
 	}
 
+	public void unwrap () {
+		wrap = null;
+	}
+
 	public void addPeer ( ObjectWidget peer ) {
 		if ( peers == null )
-			peers = new ArrayList ();
+			peers = new ArrayList<ObjectWidget> ();
 
 		peers.add ( peer );
 		peer.setValue ( getValue () );
 	}
 
 	private void assignToPeers ( FromServer object ) {
-		ObjectWidget tmp;
-
 		if ( peers != null ) {
-			for ( int i = 0; i < peers.size (); i++ ) {
-				tmp = ( ObjectWidget ) peers.get ( i );
+			for ( ObjectWidget tmp : peers )
 				tmp.setValue ( object );
-			}
 		}
 	}
 
@@ -181,13 +181,9 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	}
 
 	public FromServerRappresentation getChild ( int id ) {
-		FromServerRappresentation child;
-
-		for ( int i = 0; i < children.size (); i++ ) {
-			child = ( FromServerRappresentation ) children.get ( i );
+		for ( FromServerRappresentation child : children )
 			if ( child.getValue ().getLocalID () == id )
 				return child;
-		}
 
 		return null;
 	}
@@ -196,21 +192,17 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		return getChild ( obj.getLocalID () );
 	}
 
-	public ArrayList getChildren () {
+	public ArrayList<FromServerRappresentation> getChildren () {
 		return children;
 	}
 
 	public void invalidate () {
-		FromServerRappresentation child;
-
 		if ( object != null )
 			object.delRelatedInfo ( this );
 
 		if ( children != null ) {
-			for ( int i = 0; i < children.size (); i++ ) {
-				child = ( FromServerRappresentation ) children.get ( i );
+			for ( FromServerRappresentation child : children )
 				child.invalidate ();
-			}
 
 			children = null;
 		}
@@ -246,7 +238,6 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		boolean found;
 		ArrayList objects;
 		FromServer subobj;
-		FromServerRappresentation child;
 
 		objects = obj.getObjects ();
 
@@ -257,8 +248,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		}
 
 		if ( children.size () != objects.size () ) {
-			for ( int a = 0; a < children.size (); a++ ) {
-				child = ( FromServerRappresentation ) children.get ( a );
+			for ( FromServerRappresentation child : children ) {
 				found = false;
 
 				for ( int i = 0; i < objects.size (); i++ ) {
@@ -304,10 +294,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	}
 
 	public void removeCallback ( String id ) {
-		FromServerFormCallbacks call;
-
-		for ( int i = 0; i < callbacks.size (); i++ ) {
-			call = ( FromServerFormCallbacks ) callbacks.get ( i );
+		for ( FromServerRappresentationCallbacks call : callbacks ) {
 			if ( call.getID () == id ) {
 				callbacks.remove ( call );
 				break;
@@ -319,7 +306,6 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		Object [] wids;
 		boolean ret;
 		FromServerWidget tmp;
-		FromServerRappresentation child;
 
 		ret = false;
 
@@ -337,8 +323,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 		}
 
 		if ( ret == false ) {
-			for ( int i = 0; i < children.size (); i++ ) {
-				child = ( FromServerRappresentation ) children.get ( i );
+			for ( FromServerRappresentation child : children ) {
 				if ( child.contentsChanged () == true ) {
 					ret = true;
 					break;
@@ -351,11 +336,10 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 	protected boolean rebuildObject () {
 		Object [] wids;
-		ArrayList subchildren;
+		ArrayList<FromServer> subchildren;
 		FromServer c;
 		FromServerAggregate myself_aggregate;
 		FromServerWidget tmp;
-		FromServerRappresentation child;
 
 		if ( wrap != null ) {
 			return wrap.rebuildObject ();
@@ -377,10 +361,9 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 			}
 
 			if ( children.size () != 0 ) {
-				subchildren = new ArrayList ();
+				subchildren = new ArrayList<FromServer> ();
 
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServerRappresentation ) children.get ( i );
+				for ( FromServerRappresentation child : children ) {
 					if ( child.rebuildObject () == false )
 						return false;
 
@@ -400,7 +383,6 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 	protected void resetObject () {
 		Object [] wids;
 		FromServerWidget tmp;
-		FromServerRappresentation child;
 
 		if ( object != null ) {
 			wids = widgets.values ().toArray ();
@@ -411,10 +393,8 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 			}
 		}
 
-		for ( int i = 0; i < children.size (); i++ ) {
-			child = ( FromServerRappresentation ) children.get ( i );
+		for ( FromServerRappresentation child : children )
 			child.resetObject ();
-		}
 	}
 
 	private void invalidateChild ( FromServerRappresentation child ) {
@@ -425,12 +405,10 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 	private void addChildCallback ( FromServer obj ) {
 		FromServerRappresentation child;
-		FromServerRappresentationCallbacks call;
 
 		child = null;
 
-		for ( int i = 0; i < callbacks.size (); i++ ) {
-			call = ( FromServerRappresentationCallbacks ) callbacks.get ( i );
+		for ( FromServerRappresentationCallbacks call : callbacks ) {
 			child = call.onAddChild ( this, obj );
 			if ( child != null )
 				break;
@@ -442,14 +420,11 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 	private void delChildCallback ( FromServerRappresentation child ) {
 		boolean remove;
-		FromServerRappresentationCallbacks call;
 
 		remove = true;
 
-		for ( int i = 0; i < callbacks.size (); i++ ) {
-			call = ( FromServerRappresentationCallbacks ) callbacks.get ( i );
+		for ( FromServerRappresentationCallbacks call : callbacks )
 			remove = ( call.onRemoveChild ( child ) && remove );
-		}
 
 		if ( remove == true )
 			removeChild ( child );

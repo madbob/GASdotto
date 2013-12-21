@@ -41,7 +41,10 @@ public class BankMovementSelector extends FromServerRappresentation {
 	private boolean			opened;
 	private boolean			saved;
 	private boolean			artificial;
+
 	private FromServer		originalValue;
+	private Date			originalDate;
+	private float			originalAmount;
 
 	public BankMovementSelector () {
 		opened = false;
@@ -66,6 +69,8 @@ public class BankMovementSelector extends FromServerRappresentation {
 
 					opened = true;
 					originalValue = getValue ();
+					originalDate = originalValue.getDate ( "date" );
+					originalAmount = originalValue.getFloat ( "amount" );
 
 					pan = new VerticalPanel ();
 
@@ -92,6 +97,11 @@ public class BankMovementSelector extends FromServerRappresentation {
 							opened = false;
 							dialog.hide ();
 							resetObject ();
+
+							unwrap ();
+
+							originalValue.setDate ( "date", originalDate );
+							originalValue.setFloat ( "amount", originalAmount );
 							setValue ( originalValue );
 						}
 					} );
@@ -169,6 +179,10 @@ public class BankMovementSelector extends FromServerRappresentation {
 			saved = true;
 			dialog.hide ();
 			showName ();
+
+			originalValue = getValue ();
+			unwrap ();
+			setValue ( originalValue );
 		}
 	}
 
@@ -196,16 +210,11 @@ public class BankMovementSelector extends FromServerRappresentation {
 	public FromServer getValue () {
 		FromServer ret;
 
-		if ( artificial == true && saved == false ) {
-			ret = null;
-		}
-		else {
-			rebuildObject ();
+		rebuildObject ();
 
-			ret = super.getValue ();
-			if ( ret != null )
-				ret.setInt ( "movementtype", defaultType );
-		}
+		ret = super.getValue ();
+		if ( ret != null )
+			ret.setInt ( "movementtype", defaultType );
 
 		return ret;
 	}
