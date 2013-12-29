@@ -203,7 +203,7 @@ class Order extends SharableFromServer {
 					Questo interviene quando aggiungo un prodotto all'interno
 					di un ordine, e dunque devo comunque duplicarlo
 				*/
-				if ( $product->archived != 'true' ) {
+				if ( is_numeric ( $product ) == false && $product->archived != 'true' ) {
 					$query = sprintf ( "FROM %s WHERE previous_description = %d", $ref->tablename, $product->id );
 					if ( db_row_count ( $query ) == 0 ) {
 						$p = new Product ();

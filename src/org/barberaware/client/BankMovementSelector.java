@@ -39,8 +39,6 @@ public class BankMovementSelector extends FromServerRappresentation {
 	private boolean			editable;
 	private boolean			justDate;
 	private boolean			opened;
-	private boolean			saved;
-	private boolean			artificial;
 
 	private FromServer		originalValue;
 	private Date			originalDate;
@@ -48,8 +46,6 @@ public class BankMovementSelector extends FromServerRappresentation {
 
 	public BankMovementSelector () {
 		opened = false;
-		saved = false;
-		artificial = false;
 
 		defaultDate = new Date ( System.currentTimeMillis () );
 		defaultAmount = 0;
@@ -176,11 +172,11 @@ public class BankMovementSelector extends FromServerRappresentation {
 
 		if ( movement.testAmounts () == true ) {
 			opened = false;
-			saved = true;
 			dialog.hide ();
 			showName ();
 
 			originalValue = getValue ();
+			originalValue.forceMod ( true );
 			unwrap ();
 			setValue ( originalValue );
 		}
@@ -200,9 +196,6 @@ public class BankMovementSelector extends FromServerRappresentation {
 	/****************************************************************** FromServerRappresentation */
 
 	public void setValue ( FromServer obj ) {
-		if ( obj == null )
-			artificial = true;
-
 		super.setValue ( obj );
 		showName ();
 	}

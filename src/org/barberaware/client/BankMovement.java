@@ -125,7 +125,10 @@ public class BankMovement extends FromServer {
 	}
 
 	public boolean equals ( Object second ) {
-		return ( this.compare ( this, second ) == 0 );
+		if ( second == null )
+			return false;
+		else
+			return ( this.compare ( this, second ) == 0 );
 	}
 
 	public boolean testAmounts () {

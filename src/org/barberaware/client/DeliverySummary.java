@@ -146,7 +146,7 @@ public class DeliverySummary extends Composite {
 		row.setExtraWidget ( "mobile", phone );
 		frame.addPair ( "Cellulare", phone );
 
-		if ( Session.getGAS ().getBool ( "payments" ) == true ) {
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
 			PriceViewer balance;
 
 			balance = new PriceViewer ();

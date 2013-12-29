@@ -256,6 +256,7 @@ public class FromServerWidget extends Composite {
 			previous = object.getObject ( name );
 			selected = ( ( ObjectWidget ) wid ).getValue ();
 
+			/*
 			if ( previous != null && selected != null ) {
 				ret = previous.equals ( selected );
 			}
@@ -264,6 +265,19 @@ public class FromServerWidget extends Composite {
 					ret = true;
 				else
 					ret = false;
+			}
+			*/
+
+			if ( selected != null && selected.isMod () ) {
+				ret = false;
+			}
+			else {
+				if ( previous != null )
+					ret = previous.equals ( selected );
+				else if ( selected != null )
+					ret = selected.equals ( previous );
+				else
+					ret = true;
 			}
 		}
 

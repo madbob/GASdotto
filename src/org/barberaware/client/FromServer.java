@@ -71,6 +71,8 @@ public abstract class FromServer implements Comparator {
 	*/
 	private ArrayList<ServerObjectReceive>	localCallbacks;
 
+	private boolean				forceModified;
+
 	/****************************************************************** init */
 
 	public FromServer () {
@@ -82,6 +84,7 @@ public abstract class FromServer implements Comparator {
 		forceReloadFromServer = false;
 		savingOperation = false;
 		localCallbacks = null;
+		forceModified = false;
 
 		addAttribute ( "unique_identifier", FromServer.STRING );
 		setString ( "unique_identifier", Utils.randomString () );
@@ -150,7 +153,6 @@ public abstract class FromServer implements Comparator {
 		if ( ret == null ) {
 			Utils.showNotification ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
 			Log.debug ( "Errore interno: impossibile reperire parametro '" + name + "' in oggetto '" + getType () + "'" );
-			// Utils.getServer ().getObjectsFromCache ( null );
 		}
 
 		return ret;
@@ -193,6 +195,14 @@ public abstract class FromServer implements Comparator {
 
 		obj.setString ( "unique_identifier", Utils.randomString () );
 		return obj;
+	}
+
+	public void forceMod ( boolean mod ) {
+		forceModified = mod;
+	}
+
+	public boolean isMod () {
+		return forceModified;
 	}
 
 	/*
@@ -474,6 +484,7 @@ public abstract class FromServer implements Comparator {
 				obj.put ( k, value );
 		}
 
+		forceMod ( false );
 		return obj;
 	}
 
