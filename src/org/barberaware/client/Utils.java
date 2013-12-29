@@ -146,8 +146,19 @@ public class Utils {
 		if ( Session.getGAS ().getBool ( "payments" ) == true )
 			info.addSymbol ( "paying", "images/notifications/user_not_paying.png", "L'Utente non ha Pagato l'Iscrizione" );
 
-		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
-			info.addSymbol ( "nocredit", "images/notifications/user_no_credit.png", "Credito Insufficiente" );
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			paths = new ArrayList ();
+			desc = new ArrayList ();
+			paths.add ( "" );
+			desc.add ( "" );
+			paths.add ( "images/notifications/user_yes_credit.png" );
+			desc.add ( "Credito Sufficiente" );
+			paths.add ( "images/notifications/user_half_credit.png" );
+			desc.add ( "Credito Insufficiente ma Caparra Disponibile" );
+			paths.add ( "images/notifications/user_no_credit.png" );
+			desc.add ( "Credito Insufficiente" );
+			info.addSymbol ( "credit", paths, desc );
+		}
 
 		emblemsCache.put ( "delivery", info );
 

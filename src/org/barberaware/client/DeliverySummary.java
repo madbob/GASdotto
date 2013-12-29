@@ -460,18 +460,33 @@ public class DeliverySummary extends Composite {
 		if ( Session.getGAS ().getBool ( "use_bank" ) == false )
 			return;
 
+		float balance;
+		float price;
 		EmblemsBar bar;
 		FromServer user;
 		FromServer order;
+		FromServer deposit;
 
 		bar = form.emblems ();
 		order = form.getValue ();
 		user = order.getObject ( "baseuser" );
+		price = ( ( OrderUserInterface ) order ).getTotalPriceWithFriends ();
+		balance = user.getFloat ( "current_balance" );
 
-		if ( user.getFloat ( "current_balance" ) < ( ( OrderUserInterface ) order ).getTotalPriceWithFriends () )
-			bar.activate ( "nocredit" );
-		else
-			bar.deactivate ( "nocredit" );
+		if ( order.getInt ( "status" ) == OrderUser.COMPLETE_DELIVERY ) {
+			bar.activate ( "credit", 0 );
+		}
+		else if ( balance >= price ) {
+			bar.activate ( "credit", 1 );
+		}
+		else {
+			deposit = user.getObject ( "deposit" );
+
+			if ( deposit != null && ( ( deposit.getFloat ( "amount" ) + balance ) >= price ) )
+				bar.activate ( "credit", 2 );
+			else
+				bar.activate ( "credit", 3 );
+		}
 	}
 
 	private int getSortedIndex ( FromServer order ) {
