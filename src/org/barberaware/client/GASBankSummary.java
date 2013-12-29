@@ -42,6 +42,9 @@ public class GASBankSummary extends FromServerRappresentationActive {
 
 		price = new PriceViewer ();
 		frame.addPair ( "Saldo Cassa", getPersonalizedWidget ( "current_cash_balance", price ) );
+
+		price = new PriceViewer ();
+		frame.addPair ( "Saldo Ordini", getPersonalizedWidget ( "current_orders_balance", price ) );
 	}
 }
 

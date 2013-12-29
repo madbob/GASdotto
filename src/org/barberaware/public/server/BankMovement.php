@@ -45,55 +45,6 @@ class BankMovement extends FromServer {
 		$this->noBackDestroy ();
 	}
 
-	/*
-
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| FUNZIONE        | TIPO                                 | AUMENTA           | DIMINUISCE        |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Consegne        | Pagamento Ordine in Contanti         | GAS / Saldo Cassa |                   |
-	|                 |                                      | Fornitore / Saldo |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Consegne        | Pagamento Ordine da Credito          | Fornitore / Saldo | Socio / Saldo     |
-	|                 |                                      |                   |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Utenti | Versamento Cauzione                  | GAS / Saldo Cassa |                   |
-	|                 |                                      |                   |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Utenti | Restituzione Cauzione                |                   | GAS / Saldo Cassa |
-	|                 |                                      |                   |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Utenti | Versamento Quota Annuale in Contanti | GAS / Saldo Cassa |                   |
-	|                 |                                      | GAS / Saldo       |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Utenti | Versamento Quota Annuale da Credito  | GAS / Saldo       | Socio / Saldo     |
-	|                 |                                      |                   |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Utenti | Bonifico da Socio                    | GAS / Saldo Conto |                   |
-	|                 |                                      | Socio / Saldo     |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Utenti | Versamento Socio in Contanti         | GAS / Saldo Cassa |                   |
-	|                 |                                      | Socio / Saldo     |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Fornitori       | Pagamento Fattura via Bonifico       |                   | GAS / Saldo Conto |
-	|                 |                                      |                   | Fornitore / Saldo |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Fornitori       | Pagamento Fattura in Contanti        |                   | GAS / Saldo Cassa |
-	|                 |                                      |                   | Fornitore / Saldo |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Cassa  | Acquisto con Bonifico                |                   | GAS / Saldo Conto |
-	|                 |                                      |                   | GAS / Saldo       |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Cassa  | Acquisto in Contanti                 |                   | GAS / Saldo Cassa |
-	|                 |                                      |                   | GAS / Saldo       |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Cassa  | Versamento Contanti                  | GAS / Saldo Conto | GAS / Saldo Cassa |
-	|                 |                                      |                   |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-	| Gestione Cassa  | Prelievo Contanti                    | GAS / Saldo Cassa | GAS / Saldo Conto |
-	|                 |                                      |                   |                   |
-	+-----------------+--------------------------------------+-------------------+-------------------+
-
-	*/
 	private function manageSums ( $type, $method, $amount, $user, $supplier, $revert = false ) {
 		global $current_gas;
 
@@ -110,36 +61,43 @@ class BankMovement extends FromServer {
 			case 0:
 				switch ( $type ) {
 					case 0:
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
 
 					case 1:
+						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
 
 					case 2:
 						$sub [] = array ( 'Users', 'current_balance', $user );
 						$add [] = array ( 'GAS', 'current_balance', $current_gas );
+						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
 
 					case 3:
 						$add [] = array ( 'Supplier', 'current_balance', $supplier );
 						$sub [] = array ( 'Users', 'current_balance', $user );
+						$add [] = array ( 'GAS', 'current_orders_balance', $current_gas );
 						break;
 
 					case 4:
+						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
+						$sub [] = array ( 'GAS', 'current_orders_balance', $current_gas );
 						$sub [] = array ( 'Supplier', 'current_balance', $supplier );
 						break;
 
 					case 5:
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						$add [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 6:
-						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
+						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
 
 					case 7:
@@ -156,36 +114,43 @@ class BankMovement extends FromServer {
 			case 1:
 				switch ( $type ) {
 					case 0:
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						break;
 
 					case 1:
+						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						break;
 
 					case 2:
-						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_balance', $current_gas );
+						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						break;
 
 					case 3:
 						$add [] = array ( 'Supplier', 'current_balance', $supplier );
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						$add [] = array ( 'GAS', 'current_orders_balance', $current_gas );
 						break;
 
 					case 4:
+						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						$sub [] = array ( 'GAS', 'current_orders_balance', $current_gas );
 						$sub [] = array ( 'Supplier', 'current_balance', $supplier );
 						break;
 
 					case 5:
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						$add [] = array ( 'Users', 'current_balance', $user );
 						break;
 
 					case 6:
-						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
+						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						break;
 
 					case 7:
@@ -345,7 +310,7 @@ class BankMovement extends FromServer {
 			$query = sprintf ( "UPDATE Supplier SET current_balance = 0" );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0" );
+			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0, current_orders_balance = 0" );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		}
 

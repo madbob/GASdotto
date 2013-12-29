@@ -41,6 +41,7 @@ class GAS extends FromServer {
 		$this->addAttribute ( "current_balance", "FLOAT" );
 		$this->addAttribute ( "current_bank_balance", "FLOAT" );
 		$this->addAttribute ( "current_cash_balance", "FLOAT" );
+		$this->addAttribute ( "current_orders_balance", "FLOAT" );
 	}
 
 	public function get ( $request, $compress ) {
