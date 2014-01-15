@@ -21,10 +21,10 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class LinksPanel extends GenericPanel {
+public class ContentsPanel extends GenericPanel {
 	private FormCluster		main;
 
-	public LinksPanel () {
+	public ContentsPanel () {
 		super ();
 
 		main = new FormCluster ( "Link", "Nuovo Link" ) {
@@ -61,11 +61,11 @@ public class LinksPanel extends GenericPanel {
 	/****************************************************************** GenericPanel */
 
 	public String getName () {
-		return "Gestione Links";
+		return "Contenuti";
 	}
 
 	public String getSystemID () {
-		return "links";
+		return "contents";
 	}
 
 	public String getCurrentInternalReference () {

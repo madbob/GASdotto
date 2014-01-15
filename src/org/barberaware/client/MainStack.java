@@ -70,7 +70,7 @@ public class MainStack extends Composite {
 
 				add ( new StatisticsPanel () );
 				add ( new NotificationPanel () );
-				add ( new LinksPanel () );
+				add ( new ContentsPanel () );
 				add ( new SystemPanel () );
 			}
 
@@ -84,7 +84,7 @@ public class MainStack extends Composite {
 				add ( new DeliveryPanel () );
 				add ( new StatisticsPanel () );
 				add ( new NotificationPanel () );
-				add ( new LinksPanel () );
+				add ( new ContentsPanel () );
 				add ( new SystemPanel () );
 			}
 
@@ -110,11 +110,11 @@ public class MainStack extends Composite {
 		main.add ( iter );
 	}
 
-	public ArrayList getPanels () {
+	public ArrayList<Widget> getPanels () {
 		int count;
-		ArrayList ret;
+		ArrayList<Widget> ret;
 
-		ret = new ArrayList ();
+		ret = new ArrayList<Widget> ();
 		count = main.getWidgetCount ();
 
 		for ( int i = 0; i < count; i++ )

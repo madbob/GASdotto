@@ -33,6 +33,8 @@ public class GAS extends FromServer {
 		addAttribute ( "mailinglist", FromServer.STRING );
 		addAttribute ( "payments", FromServer.BOOLEAN );
 		addAttribute ( "payment_date", FromServer.DATE );
+		addAttribute ( "default_fee", FromServer.FLOAT );
+		addAttribute ( "default_deposit", FromServer.FLOAT );
 		addAttribute ( "use_rid", FromServer.BOOLEAN );
 		addAttribute ( "rid_conf", FromServer.STRING );
 		addAttribute ( "use_shipping", FromServer.BOOLEAN );

@@ -73,6 +73,10 @@ usort ( $all_contents, "sort_orders_by_user_and_date" );
 
 $output = '';
 
+$gas = new GAS ();
+$gas->readFromDB ( $current_gas );
+$use_bank = $gas->getAttribute ( 'use_bank' )->value;
+
 for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$order_user = $all_contents [ $i ];
 
@@ -196,7 +200,13 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 		}
 	}
 
-	$output .= $head_begin . "Totale: " . ( format_price ( round ( $user_total, 2 ) ) ) . $head_end;
+	$credit_test = '';
+	if ( $use_bank == 1 ) {
+		if ( $user_total > $order_user->baseuser->current_balance )
+			$credit_test = ' (credito non sufficiente)';
+	}
+
+	$output .= $head_begin . "Totale: " . ( format_price ( round ( $user_total, 2 ) ) ) . $credit_test . $head_end;
 	$output .= $block_end;
 }
 

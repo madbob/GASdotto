@@ -31,6 +31,7 @@ public class SystemPanel extends GenericPanel {
 	private MailConfigurator	mailConf;
 	private DummyTextBox		mailList;
 	private RIDConfigurator		ridConf;
+	private FeeConfigurator		feeConf;
 
 	public SystemPanel () {
 		super ();
@@ -43,7 +44,10 @@ public class SystemPanel extends GenericPanel {
 		Button fixer;
 
 		sframe = new CaptionPanel ( "Configurazione GAS" );
-		sframe.add ( doGlobalConfForm () );
+		ver = new VerticalPanel ();
+		sframe.add ( ver );
+		ver.add ( doGlobalConfForm () );
+		ver.add ( doAdministrationConfForm () );
 		add ( sframe );
 
 		sframe = new CaptionPanel ( "Categorie" );
@@ -100,12 +104,18 @@ public class SystemPanel extends GenericPanel {
 			sframe = new CaptionPanel ( "Revisione Saldi" );
 			ver = new VerticalPanel ();
 			ver.add ( new HTML ( "Con questa funzione è possibile ricalcolare tutti i saldi salvati nell'applicazione. Da usare qualora i conti non tornassero o per operazioni di verifica periodica. Cliccando il pulsante sottostante la procedura verrà automaticamente avviata, nota che potrebbe richiedere un pò di tempo." ) );
+
 			fixer = new Button ( "Revisiona" );
 			fixer.addClickHandler ( new ClickHandler () {
 				public void onClick ( ClickEvent event ) {
-					runBankRevision ( 0 );
+					BankRevisionDialog dialog;
+
+					dialog = new BankRevisionDialog ();
+					dialog.center ();
+					dialog.show ();
 				}
 			} );
+
 			fixer.addStyleName ( "top-spaced" );
 			ver.add ( fixer );
 			sframe.add ( ver );
@@ -134,43 +144,11 @@ public class SystemPanel extends GenericPanel {
 		add ( sframe );
 	}
 
-	/*
-		Per evitare che lo script di revisione si protragga per piu'
-		tempo del limite imposto dall'interprete PHP sul server,
-		l'operazione viene spezzata in piu' fasi invocate
-		sequenzialmente. Una volta conclusa, l'applicazione viene
-		ricaricata
-	*/
-	private void runBankRevision ( int offset ) {
-		Utils.getServer ().rawGet ( "bank_op.php?type=fix&offset=" + offset, new RequestCallback () {
-			public void onError ( Request request, Throwable exception ) {
-				Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
-			}
-
-			public void onResponseReceived ( Request request, Response response ) {
-				int offset;
-				String res;
-
-				res = response.getText ();
-
-				if ( res == "done" ) {
-					Window.Location.reload ();
-				}
-				else {
-					offset = Integer.parseInt ( res );
-					runBankRevision ( offset );
-				}
-			}
-		} );
-	}
-
 	private FromServerForm doGlobalConfForm () {
 		FromServerForm ver;
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
 		BooleanSelector mail;
-		BooleanSelector rid;
-		DateSelector paydate;
 
 		ver = new FromServerForm ( Session.getGAS () );
 
@@ -199,12 +177,6 @@ public class SystemPanel extends GenericPanel {
 		if ( Session.getSystemConf ().getBool ( "has_file" ) == true )
 			frame.addPair ( "Logo Homepage", ver.getPersonalizedWidget ( "image", new FileUploadDialog () ) );
 
-		frame.addPair ( "Gestione Quote", ver.getWidget ( "payments" ) );
-
-		paydate = new DateSelector ();
-		paydate.ignoreYear ( true );
-		frame.addPair ( "Inizio Anno Sociale", ver.getPersonalizedWidget ( "payment_date", paydate ) );
-
 		mail = new BooleanSelector ();
 		mail.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
 			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
@@ -222,6 +194,58 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
+		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
+		frame.addPair ( "Elenco Utenti", ver.getWidget ( "use_fullusers" ) );
+
+		sframe = new CaptionPanel ( "Descrizione" );
+		sframe.add ( ver.getWidget ( "description" ) );
+		ver.add ( sframe );
+
+		return ver;
+	}
+	
+	private FromServerForm doAdministrationConfForm () {
+		FromServer gas;
+		FromServerForm ver;
+		CustomCaptionPanel frame;
+		CaptionPanel sframe;
+		BooleanSelector rid;
+
+		gas = Session.getGAS ();
+		ver = new FromServerForm ( gas );
+
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public void onSaved ( FromServerRappresentationFull form ) {
+				/*
+					Poiche' i settaggi sul GAS possono andare a toccare
+					numerosissimi aspetti dell'interfaccia, provvedere qui ad
+					un riavvio dell'applicazione quando i settaggi sono
+					modificati e salvati
+				*/
+				Window.Location.reload ();
+			}
+			
+			public String getName ( FromServerRappresentationFull form ) {
+				return "Configurazione Amministrativa";
+			}
+		} );
+
+		frame = new CustomCaptionPanel ( "Attributi" );
+		ver.add ( frame );
+
+		rid = new BooleanSelector ();
+		rid.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
+				feeConf.setEnabled ( event.getValue () );
+			}
+		} );
+		frame.addPair ( "Abilita Gestione Quote", ver.getPersonalizedWidget ( "payments", rid ) );
+		
+		feeConf = new FeeConfigurator ( gas );
+		frame.addPair ( "Configurazione Quote", feeConf );
+		ver.addChild ( feeConf );
+		feeConf.setEnabled ( Session.getGAS ().getBool ( "payments" ) );
+
 		rid = new BooleanSelector ();
 		rid.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
 			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
@@ -235,13 +259,6 @@ public class SystemPanel extends GenericPanel {
 		ridConf.setEnabled ( Session.getGAS ().getBool ( "use_rid" ) );
 
 		frame.addPair ( "Abilita Gestione Cassa", ver.getWidget ( "use_bank" ) );
-
-		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
-		frame.addPair ( "Elenco Utenti", ver.getWidget ( "use_fullusers" ) );
-
-		sframe = new CaptionPanel ( "Descrizione" );
-		sframe.add ( ver.getWidget ( "description" ) );
-		ver.add ( sframe );
 
 		return ver;
 	}

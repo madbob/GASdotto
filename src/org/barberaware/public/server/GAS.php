@@ -29,6 +29,8 @@ class GAS extends FromServer {
 		$this->addAttribute ( "image", "STRING" );
 		$this->addAttribute ( "payments", "BOOLEAN" );
 		$this->addAttribute ( "payment_date", "DATE" );
+		$this->addAttribute ( "default_fee", "FLOAT" );
+		$this->addAttribute ( "default_deposit", "FLOAT" );
 		$this->addAttribute ( "description", "STRING" );
 		$this->addAttribute ( "use_mail", "BOOLEAN" );
 		$this->addAttribute ( "mail_conf", "STRING" );
