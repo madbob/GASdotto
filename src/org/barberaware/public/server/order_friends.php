@@ -50,7 +50,7 @@ function format_order ( $order, $is_friend ) {
 	else
 		$row [] = sprintf ( "$string_begin%s %s$string_end", $order->baseuser->surname, $order->baseuser->firstname );
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+	for ( $a = 0, $e = 0; $a < count ( $products ) && $e < count ( $user_products ); $a++ ) {
 		if ( $existing_products [ $a ] == false )
 			continue;
 
@@ -76,7 +76,7 @@ function format_order ( $order, $is_friend ) {
 			if ( $unit <= 0.0 ) {
 				$q = $quantity;
 
-				if ( is_array ( $prod_user->variants ) ) {
+				if ( property_exists ( $prod_user, 'variants' ) && is_array ( $prod_user->variants ) ) {
 					list ( $variants, $quantities ) = aggregate_variants ( $prod_user->variants );
 
 					for ( $j = 0; $j < count ( $variants ); $j++ )
@@ -123,7 +123,7 @@ function search_existing ( $order ) {
 	else
 		$user_products = sort_products_on_products ( $products, $user_products );
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
+	for ( $a = 0, $e = 0; $a < count ( $products ) && $e < count ( $user_products ); $a++ ) {
 		$prod = $products [ $a ];
 
 		$prodid = $prod->getAttribute ( 'id' )->value;
@@ -186,10 +186,10 @@ $order_user = $all_contents [ 0 ];
 
 $data = array ();
 
-$products_sums = array_fill ( 0, $all_products, 0 );
-$quantities_sums = array_fill ( 0, $all_products, 0 );
-$shipping_price = array_fill ( 0, $all_products, 0 );
-$existing_products = array_fill ( 0, $all_products, false );
+$products_sums = array_fill ( 0, count ( $all_products ), 0 );
+$quantities_sums = array_fill ( 0, count ( $all_products ), 0 );
+$shipping_price = array_fill ( 0, count ( $all_products ), 0 );
+$existing_products = array_fill ( 0, count ( $all_products ), false );
 
 /*
 	Verifico quali prodotti sono contemplati tra tutti gli
