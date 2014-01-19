@@ -75,7 +75,7 @@ public class Session {
 	}
 
 	public static User getUser () {
-		return currentUser;
+		return ( User ) Utils.getServer ().getObjectFromCache ( "User", currentUser.getLocalID () );
 	}
 
 	public static int getPrivileges () {

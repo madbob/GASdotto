@@ -58,7 +58,7 @@ public class FromServerResponse extends ServerResponse {
 			Utils.showNotification ( "Errore nel salvataggio sul database" );
 
 			if ( callback != null )
-				callback.onError ();
+				callback.loopOnError ();
 		}
 
 		else {
@@ -97,7 +97,7 @@ public class FromServerResponse extends ServerResponse {
 			}
 
 			if ( callback != null )
-				callback.onComplete ( response );
+				callback.loopOnComplete ( response );
 		}
 	}
 }

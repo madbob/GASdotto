@@ -81,14 +81,14 @@ public abstract class ServerResponse implements RequestCallback {
 			myChild.overload ( child );
 	}
 
-	private void loopOnError () {
+	protected void loopOnError () {
 		onError ();
 
 		if ( myChild != null )
 			myChild.loopOnError ();
 	}
 
-	private void loopOnComplete ( JSONValue response ) {
+	protected void loopOnComplete ( JSONValue response ) {
 		onComplete ( response );
 
 		if ( myChild != null )

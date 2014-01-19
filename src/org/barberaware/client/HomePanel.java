@@ -82,6 +82,7 @@ public class HomePanel extends GenericPanel {
 	private NotificationsBox	notifications;
 	private PlainOrdersBox		openedOrders;
 	private PlainOrdersBox		closedOrders;
+	private CaptionPanel		creditBox			= null;
 
 	/****************************************************************** init */
 
@@ -291,16 +292,22 @@ public class HomePanel extends GenericPanel {
 			}
 		} );
 	}
-
-	private Widget doCreditBox () {
-		CaptionPanel ret;
+	
+	private void populateCreditBox () {
 		User user;
+		
+		if ( Session.getGAS ().getBool ( "use_bank" ) == false || creditBox == null )
+			return;
 
 		user = Session.getUser ();
+		creditBox.clear ();
+		creditBox.add ( new HTML ( "Il tuo credito disponibile ammonta a <span class=\"big-text\">" + Utils.priceToString ( user.getFloat ( "current_balance" ) ) + "</span>" ) );
+	}
 
-		ret = new CaptionPanel ( "Credito" );
-		ret.add ( new HTML ( "Il tuo credito disponibile ammonta a <span class=\"big-text\">" + Utils.priceToString ( user.getFloat ( "current_balance" ) ) + "</span>" ) );
-		return ret;
+	private Widget doCreditBox () {
+		creditBox = new CaptionPanel ( "Credito" );
+		populateCreditBox ();		
+		return creditBox;
 	}
 
 	private PlainOrdersBox doOrdersSummary ( String title, String empty, int expiry ) {
@@ -384,5 +391,7 @@ public class HomePanel extends GenericPanel {
 		params = new ObjectRequest ( "OrderUser" );
 		params.add ( "baseuser", Session.getUser ().getLocalID () );
 		Utils.getServer ().testObjectReceive ( params );
+
+		populateCreditBox ();
 	}
 }

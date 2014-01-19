@@ -147,9 +147,35 @@ public class BankMovement extends FromServer {
 	}
 
 	public void save ( ServerResponse callback ) {
+		ServerResponse mine;
+		
+		mine = new ServerResponse () {
+			public void onComplete ( JSONValue response ) {
+				/*
+					Quando ho salvato il BankMovement aggiorno anche i relativi
+					User e Supplier, per tenere allineati i rispettivi saldi in
+					locale
+				*/
+				fetchDep ( "User", "payuser" );
+				fetchDep ( "Supplier", "paysupplier" );
+			}
+		};
+		
+		if ( callback == null )
+			callback = mine;
+		else
+			callback.overload ( mine );
+
 		setDate ( "registrationdate", new Date ( System.currentTimeMillis () ) );
 		setObject ( "registrationperson", Session.getUser () );
 		super.save ( callback );
 	}
+	
+	private void fetchDep ( String classname, String attribute ) {
+		int ref;
+		
+		ref = getInt ( attribute );
+		if ( ref != 0 )
+			Utils.getServer ().forceObjectReload ( classname, ref );
+	}
 }
-
