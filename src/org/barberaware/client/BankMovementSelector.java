@@ -169,6 +169,11 @@ public class BankMovementSelector extends FromServerRappresentation {
 
 		rebuildObject ();
 		movement = ( BankMovement ) super.getValue ();
+		
+		if ( movement.getFloat ( "amount" ) == 0 ) {
+			Utils.showNotification ( "Importo a 0 non valido" );
+			return;
+		}
 
 		if ( movement.testAmounts () == true ) {
 			opened = false;

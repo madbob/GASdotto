@@ -140,6 +140,12 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 					FromServer movement;
 
 					movement = getValue ();
+					
+					if ( movement.getFloat ( "amount" ) == 0 ) {
+						Utils.showNotification ( "Importo a 0 non valido" );
+						return;
+					}
+					
 					movement.save ( new ServerResponse () {
 						protected void onComplete ( JSONValue response ) {
 							executeCallbacks ( 0 );
