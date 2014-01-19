@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.user.client.*;
 import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -133,14 +134,15 @@ public class BankMovement extends FromServer {
 
 	public boolean testAmounts () {
 		FromServer user;
+		
+		if ( getInt ( "method" ) == BY_CASH )
+			return true;
 
 		user = Utils.getServer ().getObjectFromCache ( "User", getInt ( "payuser" ) );
 
 		if ( user != null ) {
-			if ( user.getFloat ( "current_balance" ) < getFloat ( "amount" ) && getInt ( "method" ) == BY_BANK ) {
-				Utils.infoDialog ( "Credito non Sufficiente", "Il credito disponibile per questo utente non è sufficiente! Si accettano solo pagamenti in contanti." );
-				return false;
-			}
+			if ( user.getFloat ( "current_balance" ) < getFloat ( "amount" ) && getInt ( "method" ) == BY_BANK )
+				return ( Window.confirm ( "Credito non sufficiente: vuoi comunque accettare il pagamento?" ) );
 		}
 
 		return true;
