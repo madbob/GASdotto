@@ -117,13 +117,6 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
-		row.addBottomButton ( "images/part.png", "Consegna<br/>Parziale", new ClickHandler () {
-			public void onClick ( ClickEvent event ) {
-				row.getValue ().setInt ( "status", OrderUser.PARTIAL_DELIVERY );
-				commonActionsOnEdit ( row );
-			}
-		} );
-
 		informations = new HorizontalPanel ();
 		informations.setWidth ( "100%" );
 		row.add ( informations );
