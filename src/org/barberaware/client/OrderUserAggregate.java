@@ -77,6 +77,27 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
+		addFakeAttribute ( "allproducts", FromServer.ARRAY, new ValueFromObjectClosure () {
+			public ArrayList retriveArray ( FromServer obj ) {
+				ArrayList ret;
+				ArrayList orders;
+				FromServer order;
+
+				ret = new ArrayList ();
+
+				orders = obj.getArray ( "orders" );
+				if ( orders == null )
+					return ret;
+
+				for ( int i = 0; i < orders.size (); i++ ) {
+					order = ( FromServer ) orders.get ( i );
+					ret.addAll ( order.getArray ( "allproducts" ) );
+				}
+
+				return ret;
+			}
+		} );
+
 		addWritebackFakeAttribute ( "deliverydate", FromServer.DATE, new ValueFromObjectClosure () {
 			public Date retriveDate ( FromServer obj ) {
 				int i;

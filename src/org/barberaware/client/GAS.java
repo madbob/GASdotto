@@ -44,6 +44,7 @@ public class GAS extends FromServer {
 		addAttribute ( "current_bank_balance", FromServer.FLOAT );
 		addAttribute ( "current_cash_balance", FromServer.FLOAT );
 		addAttribute ( "current_orders_balance", FromServer.FLOAT );
+		addAttribute ( "current_deposit_balance", FromServer.FLOAT );
 
 		setString ( "name", "Senza Nome" );
 	}
