@@ -29,7 +29,6 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 	private FromServer		object;
 	private VerticalPanel		main;
 	private PriceViewer		totalLabel;
-	private BankMovementSelector	payment;
 
 	public ProductsDeliveryTable () {
 		Label header;
@@ -63,7 +62,6 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		hor.setCellWidth ( header, "20%" );
 
 		totalLabel = null;
-		payment = null;
 	}
 
 	public float getTotal () {
@@ -117,9 +115,6 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 
 	private void setTotal ( float total_sum ) {
 		totalLabel.setVal ( total_sum );
-
-		if ( payment != null )
-			payment.setDefaultAmount ( total_sum );
 	}
 
 	private void upgradeTotal () {
@@ -172,32 +167,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 		}
 
 		totalLabel.setVal ( price_total );
-
-		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-			VerticalPanel totbox;
-
-			totbox = new VerticalPanel ();
-			totbox.add ( totalLabel );
-
-			if ( payment == null ) {
-				payment = new BankMovementSelector ();
-				payment.showCro ( false );
-				payment.setDefaultTargetUser ( object.getObject ( "baseuser" ) );
-				payment.setDefaultTargetSupplier ( object.getObject ( "baseorder" ).getObject ( "supplier" ) );
-				payment.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );
-				payment.setDefaultNote ( "Pagamento ordine a " + object.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" ) );
-				payment.setEditable ( false );
-			}
-
-			payment.setDefaultAmount ( price_total );
-			payment.setValue ( object.getObject ( "payment_event" ) );
-			totbox.add ( payment );
-
-			totalcell = totbox;
-		}
-		else {
-			totalcell = totalLabel;
-		}
+		totalcell = totalLabel;
 
 		bottom.add ( totalcell );
 		bottom.setCellVerticalAlignment ( totalcell, HasVerticalAlignment.ALIGN_MIDDLE );
@@ -296,7 +266,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 					(funzione "Aggiungi Prodotto")
 				*/
 				FromServer prod;
-				ArrayList products;
+				ArrayList<FromServer> products;
 
 				prod = row.getDynamicValue ();
 				products = object.getArray ( "products" );
@@ -304,9 +274,6 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 				object.setArray ( "products", products );
 			}
 		}
-
-		if ( payment != null )
-			object.setObject ( "payment_event", payment.getValue () );
 
 		return object;
 	}

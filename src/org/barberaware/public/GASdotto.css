@@ -217,6 +217,7 @@ body {
 
 .element-details .gwt-TextBox {
 	font-size:		12px;
+	border:			1px solid #DDD;
 }
 
 .element-details .gwt-TextArea {
@@ -368,6 +369,7 @@ body {
 	margin:			1px;
 	background:		#FFFFFF url('images/date_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
+	border:			1px solid #DDD;
 }
 
 .address-selector {
@@ -375,6 +377,7 @@ body {
 	margin:			1px;
 	background:		#FFFFFF url('images/address_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
+	border:			1px solid #DDD;
 }
 
 .bankmovement-selector {
@@ -382,6 +385,7 @@ body {
 	margin:			1px;
 	background:		#FFFFFF url('images/bankmovement_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
+	border:			1px solid #DDD;
 }
 
 .password-selector {
@@ -389,6 +393,7 @@ body {
 	margin:			1px;
 	background:		#FFFFFF url('images/password_selector.png') no-repeat scroll 0pt 50%;
         padding-left:		18px;
+	border:			1px solid #DDD;
 }
 
 .cycle-selector {
@@ -679,6 +684,7 @@ textarea {
 	margin:			1px;
 	padding:		2px;
 	float:			left;
+	border:			1px solid #DDD;
 }
 
 br {

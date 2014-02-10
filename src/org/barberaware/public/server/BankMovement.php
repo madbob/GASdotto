@@ -46,10 +46,10 @@ class BankMovement extends FromServer {
 	}
 
 	private function manageSums ( $type, $method, $amount, $user, $supplier, $revert = false ) {
-		global $current_gas;
-
 		if ( $amount == 0 )
 			return;
+			
+		global $current_gas;
 
 		$add = array ();
 		$sub = array ();

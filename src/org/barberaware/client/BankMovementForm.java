@@ -24,28 +24,11 @@ import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class BankMovementForm extends FromServerRappresentation {
+public class BankMovementForm extends BankMovementComponent {
 	private CustomFormTable		main;
 	private CyclicToggle		method;
-	private Date			defaultDate;
-	private float			defaultAmount;
-	private int			defaultMethod;
-	private String			defaultNote;
-	private FromServer		targetUser;
-	private FromServer		targetSupplier;
-	private boolean			displayCro;
-	private boolean			justDate;
-	private boolean			editable;
 
 	public BankMovementForm () {
-		targetUser = null;
-		targetSupplier = null;
-		defaultAmount = 0;
-		defaultDate = new Date ( System.currentTimeMillis () );
-		displayCro = true;
-		justDate = false;
-		editable = true;
-
 		main = new CustomFormTable ();
 		initWidget ( main );
 	}
@@ -132,14 +115,6 @@ public class BankMovementForm extends FromServerRappresentation {
 		}
 	}
 
-	public void setDefaultTargetUser ( FromServer t ) {
-		targetUser = t;
-	}
-
-	public void setDefaultTargetSupplier ( FromServer t ) {
-		targetSupplier = t;
-	}
-
 	public void setDefaultMethod ( int method ) {
 		FromServer movement;
 
@@ -154,16 +129,8 @@ public class BankMovementForm extends FromServerRappresentation {
 	}
 
 	public void showCro ( boolean show ) {
-		displayCro = show;
+		defaultCro = show;
 		renderCro ();
-	}
-
-	public void showJustDate ( boolean just ) {
-		justDate = just;
-	}
-
-	public void setEditable ( boolean edit ) {
-		editable = edit;
 	}
 
 	public void showMethod ( boolean show ) {
@@ -181,7 +148,7 @@ public class BankMovementForm extends FromServerRappresentation {
 		if ( justDate == true )
 			return;
 
-		if ( method.getVal () == BankMovement.BY_BANK && displayCro == true ) {
+		if ( method.getVal () == BankMovement.BY_BANK && defaultCro == true ) {
 			main.showByLabel ( "CRO", true );
 
 			cro = ( StringWidget ) retriveInternalWidget ( "cro" );
@@ -209,10 +176,10 @@ public class BankMovementForm extends FromServerRappresentation {
 		ret = super.getValue ();
 
 		if ( ret != null ) {
-			if ( targetUser != null )
-				ret.setInt ( "payuser", targetUser.getLocalID () );
-			if ( targetSupplier != null )
-				ret.setInt ( "paysupplier", targetSupplier.getLocalID () );
+			if ( defaultTargetUser != null )
+				ret.setInt ( "payuser", defaultTargetUser.getLocalID () );
+			if ( defaultTargetSupplier != null )
+				ret.setInt ( "paysupplier", defaultTargetSupplier.getLocalID () );
 		}
 
 		return ret;

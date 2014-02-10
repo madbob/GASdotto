@@ -21,6 +21,8 @@ import com.google.gwt.json.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class Session {
 	private static boolean		isInstalled	= false;
 	private static GAS		currentGAS	= null;

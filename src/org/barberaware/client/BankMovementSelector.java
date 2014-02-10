@@ -24,25 +24,11 @@ import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class BankMovementSelector extends FromServerRappresentation {
+public class BankMovementSelector extends BankMovementComponent {
 	private TextBox			main;
 
 	private DialogBox		dialog;
-	private float			defaultAmount;
-	private Date			defaultDate;
-	private FromServer		defaultTargetUser;
-	private FromServer		defaultTargetSupplier;
-	private boolean			defaultCro;
-	private int			defaultType;
-	private String			defaultNote;
-
-	private boolean			editable;
-	private boolean			justDate;
 	private boolean			opened;
-
-	private FromServer		originalValue;
-	private Date			originalDate;
-	private float			originalAmount;
 
 	public BankMovementSelector () {
 		opened = false;
@@ -64,22 +50,13 @@ public class BankMovementSelector extends FromServerRappresentation {
 					BankMovementForm form;
 
 					opened = true;
-					originalValue = getValue ();
-					originalDate = originalValue.getDate ( "date" );
-					originalAmount = originalValue.getFloat ( "amount" );
+					saveOriginal ();
 
 					pan = new VerticalPanel ();
 
 					form = new BankMovementForm ();
-					form.setEditable ( editable );
-					form.showJustDate ( justDate );
 					setWrap ( form );
-					form.setDefaultDate ( defaultDate );
-					form.setDefaultAmount ( defaultAmount );
-					form.setDefaultTargetUser ( defaultTargetUser );
-					form.setDefaultTargetSupplier ( defaultTargetSupplier );
-					form.setDefaultNote ( defaultNote );
-					form.showCro ( defaultCro );
+					transferBankAttributesTo ( form );
 					pan.add ( form );
 
 					buttons = new DialogButtons ();
@@ -93,12 +70,8 @@ public class BankMovementSelector extends FromServerRappresentation {
 							opened = false;
 							dialog.hide ();
 							resetObject ();
-
 							unwrap ();
-
-							originalValue.setDate ( "date", originalDate );
-							originalValue.setFloat ( "amount", originalAmount );
-							setValue ( originalValue );
+							restoreOriginal ();
 						}
 					} );
 
@@ -124,46 +97,6 @@ public class BankMovementSelector extends FromServerRappresentation {
 		main.setText ( "" );
 	}
 
-	public void setDefaultDate ( Date date ) {
-		defaultDate = date;
-	}
-
-	public void setDefaultAmount ( float amount ) {
-		defaultAmount = amount;
-	}
-
-	public float getDefaultAmount () {
-		return defaultAmount;
-	}
-
-	public void setDefaultTargetUser ( FromServer target ) {
-		defaultTargetUser = target;
-	}
-
-	public void setDefaultTargetSupplier ( FromServer target ) {
-		defaultTargetSupplier = target;
-	}
-
-	public void setDefaultType ( int type ) {
-		defaultType = type;
-	}
-
-	public void setDefaultNote ( String note ) {
-		defaultNote = note;
-	}
-
-	public void showCro ( boolean show ) {
-		defaultCro = show;
-	}
-
-	public void showJustDate ( boolean just ) {
-		justDate = just;
-	}
-
-	public void setEditable ( boolean edit ) {
-		editable = edit;
-	}
-
 	private void doSave () {
 		BankMovement movement;
 
@@ -180,8 +113,7 @@ public class BankMovementSelector extends FromServerRappresentation {
 			dialog.hide ();
 			showName ();
 
-			originalValue = getValue ();
-			originalValue.forceMod ( true );
+			newOriginal ();
 			unwrap ();
 			setValue ( originalValue );
 		}

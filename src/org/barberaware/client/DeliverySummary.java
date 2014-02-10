@@ -82,30 +82,32 @@ public class DeliverySummary extends Composite {
 		row.addBottomButton ( "images/confirm.png", "Consegna<br/>Completata", new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				boolean pass;
+				float payed;
+				float topay;
 				ArrayList products;
 				FromServer uorder;
+				FromServer supp;
 				FromServer payment;
 
 				pass = true;
+				payment = null;
+				topay = 0;
 
-				/*
-					Se sto gestendo i pagamenti
-						e quest'ordine non risulta essere pagato
-							ma ci sono dei prodotti consegnati
-								blocca tutto
-				*/
-				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-					uorder = row.getValue ();
-					payment = uorder.getObject ( "payment_event" );
+				uorder = row.getCurrentValue ();
+				products = uorder.getArray ( "allproducts" );
+				payment = uorder.getObject ( "payment_event" );
 
-					if ( payment == null || payment.getFloat ( "amount" ) == 0 ) {
-						products = uorder.getArray ( "allproducts" );
+				if ( products != null ) {
+					topay = ProductUser.sumProductUserArray ( products, "delivered" );
 
-						if ( products != null ) {
-							if ( ProductUser.sumProductUserArray ( products, "delivered" ) != 0 ) {
-								Utils.infoDialog ( "Ordine non Pagato", "Questo ordine non risulta essere pagato!" );
+					if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+						if ( payment == null ) {
+							pass = false;
+						}
+						else {
+							payed = payment.getFloat ( "amount" );
+							if ( payed == 0 || payed < topay )
 								pass = false;
-							}
 						}
 					}
 				}
@@ -113,6 +115,32 @@ public class DeliverySummary extends Composite {
 				if ( pass == true ) {
 					row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
 					commonActionsOnEdit ( row );
+				}
+				else {
+					BankMovementDialog dialog;
+
+					dialog = new BankMovementDialog ();
+
+					supp = uorder.getObject ( "baseorder" ).getObject ( "supplier" );
+
+					dialog.setDefaultAmount ( topay );
+					dialog.showCro ( false );
+					dialog.setDefaultTargetUser ( uorder.getObject ( "baseuser" ) );
+					dialog.setDefaultTargetSupplier ( supp );
+					dialog.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );
+					dialog.setDefaultDate ( new Date ( System.currentTimeMillis () ) );
+					dialog.setDefaultNote ( "Pagamento ordine a " + supp.getString ( "name" ) );
+					dialog.setEditable ( false );
+
+					dialog.addCallback ( new SavingDialogCallback () {
+						public void onSave ( SavingDialog dialog ) {
+							row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+							commonActionsOnEdit ( row );
+						}
+					} );
+
+					dialog.setValue ( payment );
+					dialog.show ();
 				}
 			}
 		} );
@@ -156,6 +184,9 @@ public class DeliverySummary extends Composite {
 
 		frame.addPair ( "Ultima modifica", row.getPersonalizedWidget ( "deliverydate", new DateViewer () ) );
 		frame.addPair ( "Effettuata da", row.getPersonalizedWidget ( "deliveryperson", new NameLabelWidget () ) );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+			frame.addPair ( "Pagamento", row.getPersonalizedWidget ( "payment_event", new BankMovementCellViewer () ) );
 
 		/* prodotti */
 

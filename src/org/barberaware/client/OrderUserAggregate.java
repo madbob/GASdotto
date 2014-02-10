@@ -123,6 +123,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 					return null;
 
 				i = 0;
+				ret = null;
 				greater = null;
 
 				do {
@@ -175,6 +176,43 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 					if ( note.equals ( prev_note ) == false && note != null && note != "" ) {
 						ret = ret + "\n" + note;
 						prev_note = note;
+					}
+				}
+
+				return ret;
+			}
+		} );
+
+		addWritebackFakeAttribute ( "payment_event", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
+			public FromServer retriveObject ( FromServer obj ) {
+				int i;
+				Date greater;
+				Date check;
+				ArrayList orders;
+				FromServer order;
+				FromServer ret;
+
+				orders = obj.getArray ( "orders" );
+				if ( orders == null )
+					return null;
+
+				i = 0;
+				ret = null;
+				greater = null;
+
+				do {
+					order = ( FromServer ) orders.get ( i );
+					ret = order.getObject ( "payment_event" );
+					greater = order.getDate ( "deliverydate" );
+					i++;
+				} while ( greater == null && i < orders.size () );
+
+				for ( ; i < orders.size (); i++ ) {
+					order = ( FromServer ) orders.get ( i );
+					check = order.getDate ( "deliverydate" );
+					if ( check != null && check.after ( greater ) ) {
+						greater = check;
+						ret = order.getObject ( "payment_event" );
 					}
 				}
 

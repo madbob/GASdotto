@@ -95,10 +95,14 @@ public class FromServerAttribute {
 				duplicati in giro e salterebbero tutte le
 				referenze
 			*/
-			if ( value.getLocalID () == -1 )
+			if ( value.getLocalID () == -1 ) {
 				realObject = value;
-			else
+				objectId = -1;
+			}
+			else {
+				realObject = null;
 				objectId = value.getLocalID ();
+			}
 		}
 		else {
 			realObject = null;

@@ -430,6 +430,11 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 			removeChild ( child );
 	}
 
+	public FromServer getCurrentValue () {
+		rebuildObject ();
+		return getValue ();
+	}
+
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer obj ) {

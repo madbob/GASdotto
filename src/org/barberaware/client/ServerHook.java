@@ -595,10 +595,12 @@ public class ServerHook {
 	}
 
 	public FromServer getObjectFromCache ( String type, String id ) {
+		FromServer ret;
 		ServerMonitor monitor;
 
 		monitor = getMonitor ( type );
-		return ( FromServer ) monitor.objects.get ( id );
+		ret = ( FromServer ) monitor.objects.get ( id );
+		return ret;
 	}
 
 	public ArrayList getObjectsFromCache ( String type ) {
