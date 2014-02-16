@@ -38,10 +38,7 @@ public class DisasterNotify extends Composite {
 		main.clear ();
 		main.add ( new HTML ( "<p>Si è verificato un errore irreversibile!</p>" ) );
 		main.add ( new HTML ( "<p>Non si tratta di nulla di grave, ma è consigliato ricaricare questa pagina web onde evitare di perdere i dati su cui si sta lavorando.</p>" ) );
-		main.add ( new HTML ( "<hr>" ) );
-		main.add ( new HTML ( "<p>Se l'errore dovesse ripetersi, si raccomanda di segnalare il problema al team GASdotto.</p>" ) );
-		main.add ( new HTML ( "<p>Puoi inviare una mail all'indirizzo <a href=\"info@gasdotto.net\">info@gasdotto.net</a> indicando cosa stavi facendo al momento dell'errore, e copiare ed incollare il seguente messaggio:</p>" ) );
-		main.add ( new HTML ( "<p>" + message + "</p>" ) );
+		main.add ( new HTML ( "<p>Se l'errore dovesse ripetersi, si raccomanda di segnalare il problema al proprio amministratore di sistema e al team GASdotto.</p>" ) );
 		main.add ( new HTML ( "<hr>" ) );
 		main.add ( new HTML ( "<p><a href=\"GASdotto.html\">Clicca qui per ricaricare la pagina.</a></p>" ) );
 	}

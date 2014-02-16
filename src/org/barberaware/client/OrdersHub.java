@@ -32,7 +32,7 @@ public class OrdersHub {
 
 		if ( st == true ) {
 			params = new ObjectRequest ( "Order" );
-			params.add ( "status", Order.SHIPPED );
+			params.add ( "status", "any" );
 			params.add ( "startdate", Utils.encodeDate ( startdate ) );
 			params.add ( "enddate", Utils.encodeDate ( enddate ) );
 
