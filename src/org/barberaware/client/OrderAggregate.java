@@ -168,7 +168,7 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 			}
 		} );
 
-		addWritebackFakeAttribute ( "mail_summary_sent", FromServer.DATE, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "mail_summary_sent", FromServer.DATE, new WritebackInOutClosure () {
 			public Date retriveDate ( FromServer obj ) {
 				int i;
 				Date ret;

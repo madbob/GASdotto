@@ -39,7 +39,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
-		addWritebackFakeAttribute ( "baseuser", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "baseuser", FromServer.OBJECT, User.class, new WritebackInOutClosure () {
 			public FromServer retriveObject ( FromServer obj ) {
 				ArrayList orders;
 				FromServer order;
@@ -53,7 +53,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
-		addWritebackFakeAttribute ( "status", FromServer.INTEGER, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "status", FromServer.INTEGER, new WritebackInOutClosure () {
 			public int retriveInteger ( FromServer obj ) {
 				int ret;
 				int check;
@@ -98,7 +98,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
-		addWritebackFakeAttribute ( "deliverydate", FromServer.DATE, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "deliverydate", FromServer.DATE, new WritebackInOutClosure () {
 			public Date retriveDate ( FromServer obj ) {
 				int i;
 				Date ret;
@@ -130,7 +130,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
-		addWritebackFakeAttribute ( "deliveryperson", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "deliveryperson", FromServer.OBJECT, User.class, new WritebackInOutClosure () {
 			public FromServer retriveObject ( FromServer obj ) {
 				int i;
 				Date greater;
@@ -167,7 +167,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
-		addWritebackFakeAttribute ( "notes", FromServer.STRING, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "notes", FromServer.STRING, new WritebackInOutClosure () {
 			public String retrieveString ( FromServer obj ) {
 				String prev_note;
 				String ret;
@@ -204,13 +204,15 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 		} );
 
-		addWritebackFakeAttribute ( "payment_event", FromServer.OBJECT, User.class, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "payment_event", FromServer.OBJECT, User.class, new WritebackInOutClosure () {
 			public FromServer retriveObject ( FromServer obj ) {
 				int i;
+				float tot_amount;
 				Date greater;
 				Date check;
 				ArrayList orders;
 				FromServer order;
+				FromServer greater_bm;
 				FromServer ret;
 
 				orders = obj.getArray ( "orders" );
@@ -218,13 +220,18 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 					return null;
 
 				i = 0;
-				ret = null;
+				tot_amount = 0;
 				greater = null;
 
 				do {
 					order = ( FromServer ) orders.get ( i );
-					ret = order.getObject ( "payment_event" );
-					greater = order.getDate ( "deliverydate" );
+
+					greater_bm = order.getObject ( "payment_event" );
+					if ( greater_bm != null ) {
+						greater = greater_bm.getDate ( "date" );
+						tot_amount += greater_bm.getFloat ( "amount" );
+					}
+
 					i++;
 				} while ( greater == null && i < orders.size () );
 
@@ -233,11 +240,63 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 					check = order.getDate ( "deliverydate" );
 					if ( check != null && check.after ( greater ) ) {
 						greater = check;
-						ret = order.getObject ( "payment_event" );
+						greater_bm = order.getObject ( "payment_event" );
 					}
+
+					tot_amount += order.getObject ( "payment_event" ).getFloat ( "amount" );
+				}
+
+				ret = new BankMovement ();
+
+				if ( tot_amount > 0 ) {
+					ret.setFloat ( "amount", tot_amount );
+					ret.setDate ( "date", greater_bm.getDate ( "date" ) );
+					ret.setDate ( "registrationdate", greater_bm.getDate ( "registrationdate" ) );
+					ret.setObject ( "registrationperson", greater_bm.getObject ( "registrationperson" ) );
+					ret.setInt ( "movementtype", greater_bm.getInt ( "movementtype" ) );
+					ret.setInt ( "method", greater_bm.getInt ( "method" ) );
 				}
 
 				return ret;
+			}
+
+			public void setAttribute ( FromServerAggregate parent, String name, Object value ) {
+				ArrayList children;
+				FromServer child;
+				FromServer bm;
+				FromServer subbm;
+
+				bm = ( FromServer ) value;
+
+				children = parent.getObjects ();
+
+				if ( children != null ) {
+					for ( int i = 0; i < children.size (); i++ ) {
+						child = ( FromServer ) children.get ( i );
+
+						subbm = child.getObject ( "payment_event" );
+						if ( subbm == null )
+							subbm = new BankMovement ();
+
+						subbm.setInt ( "payuser", child.getObject ( "baseuser" ).getLocalID () );
+						subbm.setInt ( "paysupplier", child.getObject ( "baseorder" ).getObject ( "supplier" ).getLocalID () );
+						subbm.setDate ( "date", bm.getDate ( "date" ) );
+						subbm.setDate ( "registrationdate", bm.getDate ( "registrationdate" ) );
+						subbm.setObject ( "registrationperson", bm.getObject ( "registrationperson" ) );
+
+						/*
+							Qui si assume che tutti i prodotti consegnati siano stati pagati
+						*/
+						subbm.setFloat ( "amount", ProductUser.sumProductUserArray ( child.getArray ( "allproducts" ), "delivered" ) );
+
+						subbm.setInt ( "movementtype", bm.getInt ( "movementtype" ) );
+						subbm.setInt ( "method", bm.getInt ( "method" ) );
+						subbm.setString ( "cro", "" );
+						subbm.setString ( "notes", bm.getString ( "notes" ) );
+
+						child.setObject ( "payment_event", subbm );
+					}
+				}
 			}
 		} );
 

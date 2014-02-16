@@ -116,10 +116,6 @@ public abstract class BankMovementComponent extends FromServerRappresentation {
 
 	/****************************************************************** FromServerRappresentation */
 
-	public void setValue ( FromServer obj ) {
-		super.setValue ( obj );
-	}
-
 	public FromServer getValue () {
 		FromServer ret;
 

@@ -143,13 +143,15 @@ public class ProductUser extends FromServer {
 
 		total = 0;
 
-		for ( int i = 0; i < products.size (); i++ ) {
-			prod = ( ProductUser ) products.get ( i );
+		if ( products != null ) {
+			for ( int i = 0; i < products.size (); i++ ) {
+				prod = ( ProductUser ) products.get ( i );
 
-			if ( prod.getObject ( "product" ).getBool ( "available" ) == false )
-				continue;
+				if ( prod.getObject ( "product" ).getBool ( "available" ) == false )
+					continue;
 
-			total += prod.getTotalPrice ( prod.getFloat ( param ) );
+				total += prod.getTotalPrice ( prod.getFloat ( param ) );
+			}
 		}
 
 		return total;

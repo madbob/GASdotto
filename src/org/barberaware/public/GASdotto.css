@@ -209,6 +209,7 @@ body {
 
 .icons-bar img {
 	border:			0px;
+	min-width:		22px;
 }
 
 .element-details .gwt-Label {

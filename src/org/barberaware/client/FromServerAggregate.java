@@ -23,13 +23,13 @@ import java.util.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FromServerAggregate extends FromServer {
-	private String		indexAttribute;
-	private HashMap		writeBacks;
+	private String					indexAttribute;
+	private HashMap<String, WritebackInOutClosure>	writeBacks;
 
 	public FromServerAggregate ( String attribute ) {
 		super ();
 		indexAttribute = attribute;
-		writeBacks = new HashMap ();
+		writeBacks = new HashMap<String, WritebackInOutClosure> ();
 	}
 
 	public void setObjects ( ArrayList objects ) {
@@ -65,14 +65,24 @@ public abstract class FromServerAggregate extends FromServer {
 		return false;
 	}
 
-	protected void addWritebackFakeAttribute ( String name, int type, ValueFromObjectClosure value ) {
-		writeBacks.put ( name, new Boolean ( true ) );
+	protected void addWritebackFakeAttribute ( String name, int type, WritebackInOutClosure value ) {
+		writeBacks.put ( name, value );
 		super.addFakeAttribute ( name, type, value );
 	}
 
-	protected void addWritebackFakeAttribute ( String name, int type, Class object, ValueFromObjectClosure value ) {
-		writeBacks.put ( name, new Boolean ( true ) );
+	protected void addWritebackFakeAttribute ( String name, int type, Class object, WritebackInOutClosure value ) {
+		writeBacks.put ( name, value );
 		super.addFakeAttribute ( name, type, object, value );
+	}
+
+	private void testFake ( String name, Object value ) {
+		WritebackInOutClosure writeback;
+
+		if ( isAttributeFake ( name ) == true ) {
+			writeback = writeBacks.get ( name );
+			if ( writeback != null )
+				writeback.setAttribute ( this, name, value );
+		}
 	}
 
 	/*
@@ -82,82 +92,22 @@ public abstract class FromServerAggregate extends FromServer {
 	*/
 
 	public void setString ( String name, String value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setString ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, value );
 		super.setString ( name, value );
 	}
 
 	public void setInt ( String name, int value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setInt ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, new Integer ( value ) );
 		super.setInt ( name, value );
 	}
 
 	public void setFloat ( String name, float value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setFloat ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, new Float ( value ) );
 		super.setFloat ( name, value );
 	}
 
 	public void setArray ( String name, ArrayList value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setArray ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, value );
 		super.setArray ( name, value );
 	}
 
@@ -170,84 +120,22 @@ public abstract class FromServerAggregate extends FromServer {
 	}
 
 	public void setObject ( String name, FromServer value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				if ( children != null ) {
-					for ( int i = 0; i < children.size (); i++ ) {
-						child = ( FromServer ) children.get ( i );
-						child.setObject ( name, value );
-					}
-				}
-			}
-		}
-
+		testFake ( name, value );
 		super.setObject ( name, value );
 	}
 
 	public void setDate ( String name, Date value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setDate ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, value );
 		super.setDate ( name, value );
 	}
 
 	public void setBool ( String name, boolean value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setBool ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, new Boolean ( value ) );
 		super.setBool ( name, value );
 	}
 
 	public void setAddress ( String name, Address value ) {
-		Boolean writeback;
-		ArrayList children;
-		FromServer child;
-
-		if ( isAttributeFake ( name ) == true ) {
-			writeback = ( Boolean ) writeBacks.get ( name );
-			if ( writeback != null ) {
-				children = getObjects ();
-
-				for ( int i = 0; i < children.size (); i++ ) {
-					child = ( FromServer ) children.get ( i );
-					child.setAddress ( name, value );
-				}
-			}
-		}
-
+		testFake ( name, value );
 		super.setAddress ( name, value );
 	}
 

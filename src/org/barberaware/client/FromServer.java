@@ -39,10 +39,10 @@ public abstract class FromServer implements Comparator {
 	public static int			ADDRESS		= 9;
 	public static int			PRICE		= 10;
 
-	private int				localID;
-	private String				type;
-	private HashMap				attributes;
-	private HashMap				relatedInfo;
+	private int					localID;
+	private String					type;
+	private HashMap<String, FromServerAttribute>	attributes;
+	private HashMap<String, Object>			relatedInfo;
 
 	private boolean				sharable;
 	private int				sharingPrivileges;
@@ -77,7 +77,7 @@ public abstract class FromServer implements Comparator {
 
 	public FromServer () {
 		localID = -1;
-		attributes = new HashMap ();
+		attributes = new HashMap<String, FromServerAttribute> ();
 		type = Utils.classFinalName ( this.getClass ().getName () );
 		sharable = false;
 		sharingPrivileges = ACL.ACL_OWNER;
@@ -246,6 +246,69 @@ public abstract class FromServer implements Comparator {
 
 	public void setAddress ( String name, Address value ) {
 		getInternalAttribute ( name ).setAddress ( value );
+	}
+
+	public void setAttributeValue ( String name, String value ) {
+		setString ( name, value );
+	}
+
+	public void setAttributeValue ( String name, int value ) {
+		setInt ( name, value );
+	}
+
+	public void setAttributeValue ( String name, Integer value ) {
+		setInt ( name, value.intValue () );
+	}
+
+	public void setAttributeValue ( String name, float value ) {
+		setFloat ( name, value );
+	}
+
+	public void setAttributeValue ( String name, Float value ) {
+		setFloat ( name, value.floatValue () );
+	}
+
+	public void setAttributeValue ( String name, ArrayList value ) {
+		setArray ( name, value );
+	}
+
+	public void setAttributeValue ( String name, FromServer value ) {
+		setObject ( name, value );
+	}
+
+	public void setAttributeValue ( String name, Date value ) {
+		setDate ( name, value );
+	}
+
+	public void setAttributeValue ( String name, boolean value ) {
+		setBool ( name, value );
+	}
+
+	public void setAttributeValue ( String name, Boolean value ) {
+		setBool ( name, value.booleanValue () );
+	}
+
+	public void setAttributeValue ( String name, Address value ) {
+		setAddress ( name, value );
+	}
+
+	public void setAttributeValue ( String name, Object value ) {
+		if ( value instanceof String )
+			setString ( name, ( String ) value );
+		else if ( value instanceof Integer )
+			setInt ( name, ( ( Integer ) value ).intValue () );
+		else if ( value instanceof Float )
+			setFloat ( name, ( ( Float ) value ).floatValue () );
+		else if ( value instanceof ArrayList )
+			setArray ( name, ( ArrayList ) value );
+		else if ( value instanceof FromServer )
+			setObject ( name, ( FromServer ) value );
+		else if ( value instanceof Date )
+			setDate ( name, ( Date ) value );
+		else if ( value instanceof Boolean )
+			setBool ( name, ( ( Boolean ) value ).booleanValue () );
+		else if ( value instanceof Address )
+			setAddress ( name, ( Address ) value );
 	}
 
 	/****************************************************************** get */
@@ -417,10 +480,10 @@ public abstract class FromServer implements Comparator {
 	public ArrayList getContainedObjectsClasses () {
 		String k;
 		Object [] keys;
-		ArrayList ret;
+		ArrayList<String> ret;
 		FromServerAttribute attr;
 
-		ret = new ArrayList ();
+		ret = new ArrayList<String> ();
 		keys = attributes.keySet ().toArray ();
 
 		for ( int i = 0; i < keys.length; i++ ) {
@@ -440,7 +503,7 @@ public abstract class FromServer implements Comparator {
 		ArrayList<String> ret;
 		FromServerAttribute attr;
 
-		ret = new ArrayList ();
+		ret = new ArrayList<String> ();
 		keys = attributes.keySet ().toArray ();
 
 		for ( int i = 0; i < keys.length; i++ ) {
@@ -598,10 +661,10 @@ public abstract class FromServer implements Comparator {
 				}
 
 				else if ( attr.type == FromServer.ARRAY ) {
-					ArrayList arr;
+					ArrayList<FromServer> arr;
 					JSONArray array;
 
-					arr = new ArrayList ();
+					arr = new ArrayList<FromServer> ();
 					array = value.isArray ();
 
 					for ( int a = 0; a < array.size (); a++ ) {
@@ -666,7 +729,7 @@ public abstract class FromServer implements Comparator {
 
 	public void addRelatedInfo ( String identifier, Object object ) {
 		if ( relatedInfo == null )
-			relatedInfo = new HashMap ();
+			relatedInfo = new HashMap<String, Object> ();
 		relatedInfo.put ( identifier, object );
 	}
 

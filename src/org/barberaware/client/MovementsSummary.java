@@ -82,9 +82,9 @@ public class MovementsSummary extends FromServerTable {
 		setSorting ( new FromServerSortCallback () {
 			public int compare ( FromServer first, FromServer second ) {
 				if ( first.getDate ( "date" ).before ( second.getDate ( "date" ) ) == true )
-					return -1;
-				else
 					return 1;
+				else
+					return -1;
 			}
 		} );
 

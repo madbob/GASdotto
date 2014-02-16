@@ -72,8 +72,8 @@ public class BankMovementDialog extends BankMovementComponent implements SavingD
 
 	public void show () {
 		saveOriginal ();
-		setWrap ( form );
 		transferBankAttributesTo ( form );
+		setWrap ( form );
 
 		dialog.center ();
 		dialog.show ();
@@ -119,10 +119,6 @@ public class BankMovementDialog extends BankMovementComponent implements SavingD
 	}
 
 	/****************************************************************** FromServerRappresentation */
-
-	public void setValue ( FromServer obj ) {
-		super.setValue ( obj );
-	}
 
 	public FromServer getValue () {
 		FromServer ret;

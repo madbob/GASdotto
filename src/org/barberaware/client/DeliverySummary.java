@@ -95,20 +95,18 @@ public class DeliverySummary extends Composite {
 
 				uorder = row.getCurrentValue ();
 				products = uorder.getArray ( "allproducts" );
-				payment = uorder.getObject ( "payment_event" );
 
-				if ( products != null ) {
+				if ( products != null && Session.getGAS ().getBool ( "use_bank" ) == true ) {
 					topay = ProductUser.sumProductUserArray ( products, "delivered" );
+					payment = uorder.getObject ( "payment_event" );
 
-					if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-						if ( payment == null ) {
+					if ( payment == null ) {
+						pass = false;
+					}
+					else {
+						payed = payment.getFloat ( "amount" );
+						if ( payed == 0 || payed != topay )
 							pass = false;
-						}
-						else {
-							payed = payment.getFloat ( "amount" );
-							if ( payed == 0 || payed < topay )
-								pass = false;
-						}
 					}
 				}
 
@@ -121,19 +119,32 @@ public class DeliverySummary extends Composite {
 
 					dialog = new BankMovementDialog ();
 
-					supp = uorder.getObject ( "baseorder" ).getObject ( "supplier" );
+					if ( uorder instanceof OrderUser ) {
+						supp = uorder.getObject ( "baseorder" ).getObject ( "supplier" );
+						dialog.setDefaultTargetUser ( uorder.getObject ( "baseuser" ) );
+						dialog.setDefaultTargetSupplier ( supp );
+						dialog.setDefaultNote ( "Pagamento ordine a " + supp.getString ( "name" ) );
+					}
 
 					dialog.setDefaultAmount ( topay );
 					dialog.showCro ( false );
-					dialog.setDefaultTargetUser ( uorder.getObject ( "baseuser" ) );
-					dialog.setDefaultTargetSupplier ( supp );
 					dialog.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );
 					dialog.setDefaultDate ( new Date ( System.currentTimeMillis () ) );
-					dialog.setDefaultNote ( "Pagamento ordine a " + supp.getString ( "name" ) );
 					dialog.setEditable ( false );
 
 					dialog.addCallback ( new SavingDialogCallback () {
 						public void onSave ( SavingDialog dialog ) {
+							BankMovementCellViewer payment;
+
+							/*
+								Assegno il BankMovement appena creato al widget che, nel form,
+								rappresenta il movimento dell'ordine in oggetto. Verra' poi
+								assegnato all'ordine effettivo in fase di ricostruzione dello
+								stesso per il salvataggio
+							*/
+							payment = ( BankMovementCellViewer ) row.retriveInternalWidget ( "payment_event" );
+							payment.setValue ( ( ( BankMovementComponent ) dialog ).getValue () );
+
 							row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
 							commonActionsOnEdit ( row );
 						}

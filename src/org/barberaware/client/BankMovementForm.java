@@ -58,7 +58,8 @@ public class BankMovementForm extends BankMovementComponent {
 					}
 				} );
 
-				main.addPair ( "CRO", getWidget ( "cro" ) );
+				if ( defaultCro == true )
+					main.addPair ( "CRO", getWidget ( "cro" ) );
 
 				if ( editable == true )
 					main.addPair ( "Descrizione", getWidget ( "notes" ) );
@@ -148,14 +149,16 @@ public class BankMovementForm extends BankMovementComponent {
 		if ( justDate == true )
 			return;
 
-		if ( method.getVal () == BankMovement.BY_BANK && defaultCro == true ) {
-			main.showByLabel ( "CRO", true );
+		if ( main.getRowCount () != 0 ) {
+			if ( method.getVal () == BankMovement.BY_BANK && defaultCro == true ) {
+				main.showByLabel ( "CRO", true );
 
-			cro = ( StringWidget ) retriveInternalWidget ( "cro" );
-			cro.setValue ( "" );
-		}
-		else {
-			main.showByLabel ( "CRO", false );
+				cro = ( StringWidget ) retriveInternalWidget ( "cro" );
+				cro.setValue ( "" );
+			}
+			else {
+				main.showByLabel ( "CRO", false );
+			}
 		}
 	}
 

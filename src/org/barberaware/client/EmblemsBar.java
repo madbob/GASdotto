@@ -41,7 +41,7 @@ public class EmblemsBar extends Composite {
 			placeholder = new Image ();
 			main.add ( placeholder );
 			main.setCellWidth ( placeholder, "22px" );
-			placeholder.setVisible ( false );
+			// placeholder.setVisible ( false );
 		}
 	}
 
