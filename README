@@ -1,110 +1,121 @@
--------------------------------------------------------------------------------------------[Readme]
+------------------------------------------------------------------------[Readme]
 
-GASdotto 3.2
+GASdotto 4.0
 Roberto -MadBob- Guido
-Aprile 2013
+Febbraio 2014
 
---------------------------------------------------------------------------------------------[Intro]
+-------------------------------------------------------------------------[Intro]
 
-GASdotto e' una applicazione web dedicata ai Gruppi di Acquisto Solidale, utile per gestire
-fornitori, prodotti ed ordini in maniera condivisa.
-Lo scopo primario e' quello di automatizzare e formalizzare la procedura di raccolta degli ordini
-presso i membri del gruppo, i quali potranno svolgere le proprie ordinazioni su un unico canale e
-semplificare la vita dei responsabili.
+GASdotto e' una applicazione web dedicata ai Gruppi di Acquisto Solidale, utile
+per gestire fornitori, prodotti ed ordini in maniera condivisa.
+Lo scopo primario e' quello di automatizzare e formalizzare la procedura di
+raccolta degli ordini presso i membri del gruppo, i quali potranno svolgere le
+proprie ordinazioni su un unico canale e semplificare la vita dei responsabili.
 Per maggiori informazioni si consulti il sito http://gasdotto.net
 
-----------------------------------------------------------------------------------------[Requisiti]
+---------------------------------------------------------------------[Requisiti]
 
-GASdotto e' strutturato come programma client/server: il client e' implementato in Java e
-destinato ad essere compilato in Javascript per mezzo del Google Web Toolkit, il server e' in PHP.
+GASdotto e' strutturato come programma client/server: il client e' implementato
+in Java e destinato ad essere compilato in Javascript per mezzo del Google Web
+Toolkit, il server e' in PHP.
 
 Per compilare il tutto e' necessario:
-- Google Web Toolkit	http://code.google.com/intl/it/webtoolkit/			v2.5.1
+- Google Web Toolkit    http://code.google.com/intl/it/webtoolkit/         2.5.1
 
 Sia che tu compili da sorgente che installi da pacchetto binario, hai bisogno di:
-- Apache		http://apache.org/				testato su versione 2.2.22
-- PHP			http://php.net/					testato su versione 5.4.4
-- PDO			http://php.net/manual/en/book.pdo.php		testato con pdo_pgsql 9.1.1
+- Apache                http://apache.org/                                 2.4.7
+- PHP                   http://php.net/                                    5.5.9
+- PDO                   http://php.net/manual/en/book.pdo.php    pdo_pgsql 9.1.1
 
-I seguenti pacchetti PHP sono utilizzati da GASdotto per vari compiti, ma e' presente un sistema
-di risoluzione automatica delle dipendenze percui anche se non vengono reperiti localmente vengono
-scaricati dal repository del progetto. E' comunque sempre preferibile, laddove possibile,
-provvedere ad una installazione di sistema.
-- TCPDF			http://www.tcpdf.org/				testato su versione 4.8.007
-- Pear-Mail		http://pear.php.net/package/Mail/		testato su versione 1.2.0-4
-- Pear-Mail_Mime	http://pear.php.net/package/Mail_Mime/		testato su versione 1.8.4-1
-- Archive_Tar		http://pear.php.net/package/Archive_Tar/	testato su versione 1.3.8
+I seguenti pacchetti PHP sono utilizzati da GASdotto per vari compiti, ma e'
+presente un sistema di risoluzione automatica delle dipendenze percui anche se
+non vengono reperiti localmente vengono scaricati dal repository del progetto.
+E' comunque sempre preferibile, laddove possibile, provvedere ad una
+installazione di sistema.
+- TCPDF                 http://www.tcpdf.org/                            4.8.007
+- Pear-Mail             http://pear.php.net/package/Mail/                1.2.0-4
+- Pear-Mail_Mime        http://pear.php.net/package/Mail_Mime/           1.8.4-1
+- Archive_Tar           http://pear.php.net/package/Archive_Tar/           1.3.8
 
 Il database in cui verranno messi i dati puo' essere:
-- PostgreSQL		http://www.postgresql.org/			testato su versione 9.1
-- MySQL			http://www.mysql.com/				testato su versione 5.5.30
+- PostgreSQL            http://www.postgresql.org/                           9.1
+- MySQL                 http://www.mysql.com/                             5.5.30
 E' comunque fortemente consigliato l'utilizzo di PostgreSQL.
 
-Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard web. Sono stati
-verificati:
-- Firefox		http://www.mozilla-europe.org/it/firefox/	testato su versione 18.0.2
-- Chromium		http://www.google.com/chrome			testato su versione 22.0
-- Epiphany		http://projects.gnome.org/epiphany/		testato su versione 3.2.1
-E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer, in qualsiasi sua
-versione.
+Per l'utente finale e' consigliato l'uso di un browser rispettoso degli standard
+web. Sono stati verificati:
+- Firefox               http://www.mozilla-europe.org/it/firefox/         18.0.2
+- Chromium              http://www.google.com/chrome                        31.0
+- Epiphany              http://projects.gnome.org/epiphany/                3.2.1
+E' invece fortemente sconsigliato l'utilizzo di Microsoft Internet Explorer, in
+qualsiasi sua versione.
 
--------------------------------------------------------------------------------------[Compilazione]
+------------------------------------------------------------------[Compilazione]
 
-I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili sul repository GIT
-raggiungibile con il comando
+I seguenti passaggi sono richiesti per la compilazione dei sorgenti reperibili
+sul repository GIT raggiungibile con il comando
 git clone git://github.com/madbob/GASdotto.git
 
 - correggere il file build.xml con il path dei files .jar inclusi in GWT 2.5.1
 - eseguire `ant build`
-- il prodotto della compilazione si trovera' nella cartella war/org.barberaware.GASdotto/
+- il prodotto della compilazione si trovera' nella cartella
+  war/org.barberaware.GASdotto/
 
-------------------------------------------------------------------------------------[Installazione]
+-----------------------------------------------------------------[Installazione]
 
-- esporre la cartella war/org.barberaware.GASdotto/ prodotta al termine della compilazione,
-oppure la cartella gasdotto/ rinvenuta nel pacchetto binario, sul server web
-- accertarsi che il file server/config.php abbia permessi di scrittura per il server web, per
-permettere l'esecuzione della procedura guidata di installazione ed il salvataggio dei parametri
-- meglio ancora se tutta la cartella dell'applicativo ha permessi di scrittura: cio' permette di
-utilizzare correttamente tutte le funzionalita' che prevedono il caricamento di files, ad esempio
-le foto degli utenti o documenti relativi ai fornitori
-- creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente assegnandolo ad un
-nuovo utente creato ad-hoc
-- accedere via browser alla cartella che contiene l'applicazione per avviare la procedura guidata
-di installazione del DB
+- esporre la cartella war/org.barberaware.GASdotto/ prodotta al termine della
+  compilazione, oppure la cartella gasdotto/ rinvenuta nel pacchetto binario,
+  sul server web
+- accertarsi che il file server/config.php abbia permessi di scrittura per il
+  server web, per permettere l'esecuzione della procedura guidata di
+  installazione ed il salvataggio dei parametri
+- meglio ancora se tutta la cartella dell'applicativo ha permessi di scrittura:
+  cio' permette di utilizzare correttamente tutte le funzionalita' che prevedono
+  il caricamento di files, ad esempio le foto degli utenti o documenti relativi
+  ai fornitori
+- creare un database vuoto in PostgreSQL o MySQL, a scelta, eventualmente
+  assegnandolo ad un nuovo utente creato ad-hoc
+- accedere via browser alla cartella che contiene l'applicazione per avviare la
+  procedura guidata di installazione del DB
 
-------------------------------------------------------------------------------------[Aggiornamento]
+-----------------------------------------------------------------[Aggiornamento]
 
 Per procedere correttamente ed in modo sicuro si consiglia di:
 
-- spostare la cartella della vecchia versione in un luogo sicuro, ed effettuare una copia di
-backup del database
-- mettere la cartella della nuova versione al posto di quella vecchia, nello stesso path e con lo
-stesso nome
-- copiare il file server/config.php dalla cartella della vecchia versione a quella nuova
-- copiare tutto il contenuto della cartella uploads/ dalla vecchia cartella a quella nuova, per
-migrare gli eventuali files che sono stati caricati nel frattempo
+- spostare la cartella della vecchia versione in un luogo sicuro, ed effettuare
+  una copia di backup del database
+- mettere la cartella della nuova versione al posto di quella vecchia, nello
+  stesso path e con lo stesso nome
+- copiare il file server/config.php dalla cartella della vecchia versione a
+  quella nuova
+- copiare tutto il contenuto della cartella uploads/ dalla vecchia cartella a
+  quella nuova, per migrare gli eventuali files che sono stati caricati nel
+  frattempo
 - accedere a GASdotto come sempre
-- la prima volta che verra' salvato un dato non contemplato dal precedente schema del database,
-automaticamente scattera' la procedura di aggiornamento. Essa non riporta alcuna segnalazione, la
-si potrebbe notare per un leggero ritardo nella fase di salvataggio che ha innescato il meccanismo
-(ma che si verifica una volta sola)
+- la prima volta che verra' salvato un dato non contemplato dal precedente
+  schema del database, automaticamente scattera' la procedura di aggiornamento.
+  Essa non riporta alcuna segnalazione, la si potrebbe notare per un leggero
+  ritardo nella fase di salvataggio che ha innescato il meccanismo (ma che si
+  verifica una volta sola)
 
--------------------------------------------------------------------------------------[Avvertimenti]
+------------------------------------------------------------------[Avvertimenti]
 
-E' stato constatato che, per motivi tecnici, GASdotto non funziona se installato su taluni
-servizi che offrono spazio web gratuito o a basso costo. Se devi scegliere un tuo provider, opta
-per uno che non introduce banner pubblicitari in testa o al fondo delle pagine ospitate.
+E' stato constatato che, per motivi tecnici, GASdotto non funziona se installato
+su taluni servizi che offrono spazio web gratuito o a basso costo. Se devi
+scegliere un tuo provider, opta per uno che non introduce banner pubblicitari in
+testa o al fondo delle pagine ospitate.
 
 Providers gia' identificati come non adeguati:
 - coolpage.biz (banners pubblicitari iniettati nelle pagine)
 - altervista.org (mancano tutte le librerie PHP richieste a partire da PEAR)
 
-Sia che tu abbia problemi con questo genere di hosting, sia che la tua installazione venga
-conclusa con successo, faccelo sapere affinche' la lista condivisa venga aggiornata.
+Sia che tu abbia problemi con questo genere di hosting, sia che la tua
+installazione venga conclusa con successo, faccelo sapere affinche' la lista
+condivisa venga aggiornata.
 
------------------------------------------------------------------------------------------[Sviluppo]
+----------------------------------------------------------------------[Sviluppo]
 
 Il sito di riferimento del progetto e' http://gasdotto.net
-I trackers e le informazioni per coloro che vogliono manipolare il codice e contribuire allo
-sviluppo si trovano presso https://github.com/madbob/GASdotto
+I trackers e le informazioni per coloro che vogliono manipolare il codice e
+contribuire allo sviluppo si trovano presso https://github.com/madbob/GASdotto
 
