@@ -182,6 +182,9 @@ public abstract class FromServer implements Comparator {
 		FromServerAttribute my_attr;
 		FromServerAttribute cpy_attr;
 
+		if ( this == null )
+			Log.debug ( "Oggetto nullo!" );
+
 		obj = FromServerFactory.create ( type );
 		obj.localID = localID;
 		keys = attributes.keySet ().toArray ();

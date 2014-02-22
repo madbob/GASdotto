@@ -28,15 +28,15 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class ServerHook {
 	private class ServerMonitor {
-		public String		type;
-		public ArrayList	callbacks;
-		public HashMap		objects;
-		public JSONArray	comparingObjects;
+		public String				type;
+		public ArrayList			callbacks;
+		public HashMap<String, FromServer>	objects;
+		public JSONArray			comparingObjects;
 
 		public ServerMonitor ( String t ) {
 			type = t;
 			callbacks = new ArrayList ();
-			objects = new HashMap ();
+			objects = new HashMap<String, FromServer> ();
 			comparingObjects = new JSONArray ();
 		}
 
@@ -61,7 +61,7 @@ public class ServerHook {
 	private int		executingMonitor;
 	private ArrayList	monitorSchedulingQueue;
 	private RequestDesc	lastRequest		= null;
-	private HashMap		recursionStack;
+	private HashMap<String, ArrayList<FromServer>>	recursionStack;
 
 	/*
 		Si forza il numero massimo di richieste concorrenti verso il server a 2, onde
@@ -266,6 +266,7 @@ public class ServerHook {
 		JSONArray arr;
 		JSONObject obj;
 		FromServer tmp;
+		FromServer test;
 		FromServer mod;
 
 		initRecursionStack ();
@@ -295,22 +296,23 @@ public class ServerHook {
 					continue;
 				}
 
-				/*
-					Se l'oggetto esiste gia', la callback
-					triggerObjectModification viene invocata
-					da lookupObject()
-				*/
-				tmp = lookupObject ( obj );
-				if ( tmp == null )
-					continue;
+				test = getObjectFromCache ( obj.get ( "type" ).isString ().stringValue (), obj.get ( "id" ).isString ().stringValue () );
+				tmp = FromServer.instance ( obj );
 
-				if ( first_round == true ) {
-					mod = tmp;
-					triggerObjectBlockCreation ( tmp, true );
-					first_round = false;
+				if ( test != null ) {
+					test.transferRelatedInfo ( tmp );
+					triggerObjectModification ( tmp );
+				}
+				else {
+					if ( first_round == true ) {
+						mod = tmp;
+						triggerObjectBlockCreation ( tmp, true );
+						first_round = false;
+					}
+
+					triggerObjectCreation ( tmp );
 				}
 
-				triggerObjectCreation ( tmp );
 				ret.add ( tmp );
 			}
 
@@ -323,23 +325,6 @@ public class ServerHook {
 
 	public void responseToObjects ( JSONValue response ) {
 		responseToObjects ( response, null );
-	}
-
-	private FromServer lookupObject ( JSONObject obj ) {
-		FromServer existing;
-		FromServer updated;
-
-		existing = getObjectFromCache ( obj.get ( "type" ).isString ().stringValue (), obj.get ( "id" ).isString ().stringValue () );
-		updated = FromServer.instance ( obj );
-
-		if ( existing == null ) {
-			return updated;
-		}
-		else {
-			existing.transferRelatedInfo ( updated );
-			triggerObjectModification ( updated );
-			return null;
-		}
 	}
 
 	public void onObjectEvent ( String type, ServerObjectReceive callback ) {
@@ -535,14 +520,14 @@ public class ServerHook {
 	/****************************************************************** recursion stack */
 
 	private void initRecursionStack () {
-		recursionStack = new HashMap ();
+		recursionStack = new HashMap<String, ArrayList<FromServer>> ();
 	}
 
 	private boolean testRecursionStack ( FromServer object ) {
 		ArrayList<FromServer> elements;
 
 		if ( recursionStack != null ) {
-			elements = ( ArrayList<FromServer> ) recursionStack.get ( object.getType () );
+			elements = recursionStack.get ( object.getType () );
 			if ( elements == null )
 				return true;
 
@@ -562,7 +547,7 @@ public class ServerHook {
 		if ( recursionStack != null ) {
 			type = object.getType ();
 
-			elements = ( ArrayList<FromServer> ) recursionStack.get ( type );
+			elements = recursionStack.get ( type );
 			if ( elements == null ) {
 				elements = new ArrayList<FromServer> ();
 				recursionStack.put ( type, elements );
@@ -599,23 +584,23 @@ public class ServerHook {
 		ServerMonitor monitor;
 
 		monitor = getMonitor ( type );
-		ret = ( FromServer ) monitor.objects.get ( id );
+		ret = monitor.objects.get ( id );
 		return ret;
 	}
 
-	public ArrayList getObjectsFromCache ( String type ) {
+	public ArrayList<FromServer> getObjectsFromCache ( String type ) {
 		ServerMonitor monitor;
 
 		monitor = getMonitor ( type );
-		return new ArrayList ( monitor.objects.values () );
+		return new ArrayList<FromServer> ( monitor.objects.values () );
 	}
 
-	public ArrayList getObjectsFromCache ( String type, int [] ids ) {
-		ArrayList ret;
+	public ArrayList<FromServer> getObjectsFromCache ( String type, int [] ids ) {
+		ArrayList<FromServer> ret;
 		ServerMonitor monitor;
 
 		monitor = getMonitor ( type );
-		ret = new ArrayList ();
+		ret = new ArrayList<FromServer> ();
 
 		for ( int i = 0; i < ids.length; i++ )
 			ret.add ( monitor.objects.get ( ids [ i ] ) );
@@ -625,14 +610,14 @@ public class ServerHook {
 
 	public void invalidateCacheByCondition ( ObjectRequest req ) {
 		int len;
-		ArrayList objects;
+		ArrayList<FromServer> objects;
 		FromServer obj;
 
 		objects = getObjectsFromCache ( req.getType () );
 		len = objects.size ();
 
 		for ( int i = 0; i < len; i++ ) {
-			obj = ( FromServer ) objects.get ( i );
+			obj = objects.get ( i );
 			if ( req.matches ( obj ) )
 				triggerObjectDeletion ( obj );
 		}

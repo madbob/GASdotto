@@ -132,6 +132,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		*/
 		info.setDefaultMethod ( BankMovement.BY_CASH );
 
+		info.setDefaultDate ( new Date ( System.currentTimeMillis () ) );
+
 		buttons = new DialogButtons ();
 
 		buttons.addCallback (
