@@ -101,6 +101,12 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$output .= $row_begin . 'Prodotto' . $inrow_separator . 'Quantità' . $inrow_separator . 'Prezzo Totale' . $inrow_separator . 'Prezzo Trasporto' . $row_end;
 
 	/*
+		Salto gli ordini gia' consegnati
+	*/
+	if ( $order_user->status == 2 )
+		continue;
+
+	/*
 		Se l'ordine risulta gia' prezzato, riporto nel documento le
 		quantita' precedentemente assegnate in fase di prezzatura
 	*/
