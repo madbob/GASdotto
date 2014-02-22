@@ -198,6 +198,8 @@ public class UsersPanel extends GenericPanel {
 				custom_date.yearSelectable ( true );
 				frame.addPair ( "Data di Nascita", form.getPersonalizedWidget ( "birthday", custom_date ) );
 
+				frame.addPair ( "Codice Fiscale", form.getWidget ( "codfisc" ) );
+
 				frame.addPair ( "Persone in Famiglia", form.getWidget ( "family" ) );
 
 				/*
