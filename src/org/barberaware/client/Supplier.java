@@ -59,8 +59,7 @@ public class Supplier extends FromServer {
 	public boolean iAmReference () {
 		User myself;
 		int privileges;
-		ArrayList references;
-		FromServer ref;
+		ArrayList<FromServer> references;
 
 		myself = Session.getUser ();
 		privileges = myself.getInt ( "privileges" );
@@ -70,11 +69,9 @@ public class Supplier extends FromServer {
 			if ( references == null )
 				return false;
 
-			for ( int i = 0; i < references.size (); i++ ) {
-				ref = ( FromServer ) references.get ( i );
+			for ( FromServer ref : references )
 				if ( ref.equals ( myself ) )
 					return true;
-			}
 		}
 
 		return false;
@@ -83,8 +80,7 @@ public class Supplier extends FromServer {
 	public boolean iAmCarrier () {
 		User myself;
 		int privileges;
-		ArrayList references;
-		FromServer ref;
+		ArrayList<FromServer> references;
 
 		myself = Session.getUser ();
 		privileges = myself.getInt ( "privileges" );
@@ -94,11 +90,9 @@ public class Supplier extends FromServer {
 			if ( references == null )
 				return false;
 
-			for ( int i = 0; i < references.size (); i++ ) {
-				ref = ( FromServer ) references.get ( i );
+			for ( FromServer ref : references )
 				if ( ref.equals ( myself ) )
 					return true;
-			}
 		}
 
 		return false;
@@ -115,8 +109,7 @@ public class Supplier extends FromServer {
 	}
 
 	public BooleanSelector doSupplierNotificationsSelector ( final User for_user ) {
-		ArrayList preferred_suppliers;
-		FromServer preferred_supplier;
+		ArrayList<FromServer> preferred_suppliers;
 		final Supplier supplier;
 		BooleanSelector notify;
 
@@ -126,8 +119,7 @@ public class Supplier extends FromServer {
 		notify.setVal ( false );
 
 		preferred_suppliers = for_user.getArray ( "suppliers_notification" );
-		for ( int i = 0; i < preferred_suppliers.size (); i++ ) {
-			preferred_supplier = ( FromServer ) preferred_suppliers.get ( i );
+		for ( FromServer preferred_supplier : preferred_suppliers ) {
 			if ( preferred_supplier.equals ( this ) == true ) {
 				notify.setVal ( true );
 				break;

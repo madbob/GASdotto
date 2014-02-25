@@ -39,7 +39,7 @@ public class FromServerAttribute {
 	/*
 		Questi due sono sempre condizionati da objectType
 	*/
-	private ArrayList		array		= null;
+	private ArrayList<FromServer>	array		= null;
 	private int			objectId	= -1;
 	private FromServer		realObject	= null;
 
@@ -82,7 +82,7 @@ public class FromServerAttribute {
 		floating = value;
 	}
 
-	public void setArray ( ArrayList value ) {
+	public void setArray ( ArrayList<FromServer> value ) {
 		array = value;
 	}
 
@@ -169,8 +169,8 @@ public class FromServerAttribute {
 		return floating;
 	}
 
-	public ArrayList getArray ( FromServer obj ) {
-		ArrayList ret;
+	public ArrayList<FromServer> getArray ( FromServer obj ) {
+		ArrayList<FromServer> ret;
 
 		ret = null;
 

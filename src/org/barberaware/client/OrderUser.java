@@ -47,12 +47,11 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 			marcare quelli consegnati) ma non per modificare le liste stesse
 		*/
 		addFakeAttribute ( "allproducts", FromServer.ARRAY, new ValueFromObjectClosure () {
-			public ArrayList retriveArray ( FromServer obj ) {
-				ArrayList ret;
-				ArrayList friends;
-				FromServer friend;
+			public ArrayList<FromServer> retriveArray ( FromServer obj ) {
+				ArrayList<FromServer> ret;
+				ArrayList<FromServer> friends;
 
-				ret = new ArrayList ();
+				ret = new ArrayList<FromServer> ();
 
 				friends = obj.getArray ( "products" );
 				if ( friends != null )
@@ -60,10 +59,8 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 
 				friends = obj.getArray ( "friends" );
 				if ( friends != null ) {
-					for ( int i = 0; i < friends.size (); i++ ) {
-						friend = ( FromServer ) friends.get ( i );
+					for ( FromServer friend : friends )
 						ret.addAll ( friend.getArray ( "products" ) );
-					}
 				}
 
 				return ret;

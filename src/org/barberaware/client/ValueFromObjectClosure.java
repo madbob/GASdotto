@@ -40,8 +40,8 @@ public abstract class ValueFromObjectClosure {
 		return null;
 	}
 
-	public ArrayList retriveArray ( FromServer obj ) {
+	public ArrayList<FromServer> retriveArray ( FromServer obj ) {
 		/* dummy */
-		return new ArrayList ();
+		return new ArrayList<FromServer> ();
 	}
 }

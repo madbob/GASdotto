@@ -199,6 +199,25 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 			}
 		} );
 
+		addWritebackFakeAttribute ( "mail_summary_text", FromServer.STRING, new WritebackInOutClosure () {
+			public String retriveString ( FromServer obj ) {
+				String ret;
+				ArrayList<FromServer> orders;
+
+				orders = obj.getArray ( "orders" );
+				if ( orders == null )
+					return "";
+
+				for ( FromServer order : orders ) {
+					ret = order.getString ( "mail_summary_text" );
+					if ( ret != null && ret != "" )
+						return ret;
+				}
+
+				return "";
+			}
+		} );
+
 		addAttribute ( "orders", FromServer.ARRAY, Order.class );
 
 		isSharable ( true );

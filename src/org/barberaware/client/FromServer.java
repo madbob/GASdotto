@@ -232,7 +232,7 @@ public abstract class FromServer implements Comparator {
 		getInternalAttribute ( name ).setFloat ( value );
 	}
 
-	public void setArray ( String name, ArrayList value ) {
+	public void setArray ( String name, ArrayList<FromServer> value ) {
 		getInternalAttribute ( name ).setArray ( value );
 	}
 
@@ -272,7 +272,7 @@ public abstract class FromServer implements Comparator {
 		setFloat ( name, value.floatValue () );
 	}
 
-	public void setAttributeValue ( String name, ArrayList value ) {
+	public void setAttributeValue ( String name, ArrayList<FromServer> value ) {
 		setArray ( name, value );
 	}
 
@@ -304,7 +304,7 @@ public abstract class FromServer implements Comparator {
 		else if ( value instanceof Float )
 			setFloat ( name, ( ( Float ) value ).floatValue () );
 		else if ( value instanceof ArrayList )
-			setArray ( name, ( ArrayList ) value );
+			setArray ( name, ( ArrayList<FromServer> ) value );
 		else if ( value instanceof FromServer )
 			setObject ( name, ( FromServer ) value );
 		else if ( value instanceof Date )
@@ -353,7 +353,7 @@ public abstract class FromServer implements Comparator {
 		return getInternalAttribute ( name ).getFloat ();
 	}
 
-	public ArrayList getArray ( String name ) {
+	public ArrayList<FromServer> getArray ( String name ) {
 		return getInternalAttribute ( name ).getArray ( this );
 	}
 
@@ -380,7 +380,7 @@ public abstract class FromServer implements Comparator {
 	/****************************************************************** utility sugli array */
 
 	public void addToArray ( String array_name, FromServer to_add ) {
-		ArrayList array;
+		ArrayList<FromServer> array;
 		FromServer tmp;
 
 		array = getArray ( array_name );
@@ -396,7 +396,7 @@ public abstract class FromServer implements Comparator {
 	}
 
 	public boolean removeFromArray ( String array_name, FromServer to_remove ) {
-		ArrayList array;
+		ArrayList<FromServer> array;
 		FromServer tmp;
 
 		array = getArray ( array_name );
@@ -636,7 +636,7 @@ public abstract class FromServer implements Comparator {
 					attr.setFloat ( 0 );
 
 				else if ( attr.type == FromServer.ARRAY )
-					attr.setArray ( new ArrayList () );
+					attr.setArray ( new ArrayList<FromServer> () );
 
 				else if ( attr.type == FromServer.OBJECT )
 					attr.setObject ( FromServerFactory.create ( attr.objectType.getName () ) );
