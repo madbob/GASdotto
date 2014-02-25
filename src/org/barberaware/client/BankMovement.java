@@ -156,11 +156,11 @@ public class BankMovement extends FromServer {
 				/*
 					Quando ho salvato il BankMovement aggiorno anche i relativi
 					User e Supplier, per tenere allineati i rispettivi saldi in
-					locale. Idem per l'istanza del GAS
+					locale.
+					L'istanza GAS viene massivamente aggiornata in GASBankSummary
 				*/
 				fetchDep ( "User", "payuser" );
 				fetchDep ( "Supplier", "paysupplier" );
-				Utils.getServer ().forceObjectReload ( "GAS", Session.getGAS ().getLocalID () );
 			}
 		};
 		

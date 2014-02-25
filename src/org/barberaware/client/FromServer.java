@@ -111,8 +111,9 @@ public abstract class FromServer implements Comparator {
 		return forceReloadFromServer;
 	}
 
-	protected void alwaysReload ( boolean reload ) {
+	protected boolean alwaysReload ( boolean reload ) {
 		forceReloadFromServer = reload;
+		return forceReloadFromServer;
 	}
 
 	public boolean isSharable () {
@@ -680,6 +681,7 @@ public abstract class FromServer implements Comparator {
 
 				else if ( attr.type == FromServer.OBJECT ) {
 					tmp = JSONValueToObject ( attr, value );
+					Utils.getServer ().updateObjectInMonitorCache ( tmp );
 					attr.setObject ( tmp );
 				}
 
@@ -713,9 +715,14 @@ public abstract class FromServer implements Comparator {
 		localCallbacks.add ( callback );
 	}
 
-	public void executeLocalObjectEvent ( int type ) {
-		if ( localCallbacks == null )
-			return;
+	public boolean hasLocalObjectEvent () {
+		return ( localCallbacks != null );
+	}
+
+	public boolean executeLocalObjectEvent ( int type ) {
+		if ( localCallbacks == null ) {
+			return false;
+		}
 
 		for ( ServerObjectReceive c : localCallbacks ) {
 			/*
@@ -728,6 +735,8 @@ public abstract class FromServer implements Comparator {
 			else if ( type == FromServerResponse.ACTION_DELETE )
 				c.onDestroy ( this );
 		}
+
+		return true;
 	}
 
 	public void addRelatedInfo ( String identifier, Object object ) {

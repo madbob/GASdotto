@@ -24,29 +24,20 @@ import com.google.gwt.json.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public abstract class FromServerRappresentationActive extends FromServerRappresentation {
-	public void setValue ( FromServer obj ) {
-		if ( obj != null ) {
-			obj.addLocalObjectEvent ( new ServerObjectReceive () {
-				protected void onModify ( FromServer object ) {
-					refreshContents ( object );
-				}
+public class UserDetailsInOrder extends FromServerRappresentationActive {
+	public UserDetailsInOrder ( FromServer user ) {
+		CustomCaptionPanel frame;
 
-				protected void onReceive ( FromServer object ) {
-					/* dummy */
-				}
+		frame = new CustomCaptionPanel ( "Informazioni Utente" );
+		initWidget ( frame );
 
-				protected void onDestroy ( FromServer object ) {
-					/* dummy */
-				}
+		setValue ( user );
 
-				protected String debugName () {
-					return "FromServerRappresentationActive";
-				}
-			} );
-		}
+		frame.addPair ( "Telefono", getPersonalizedWidget ( "phone", new StringLabel () ) );
+		frame.addPair ( "Cellulare", getPersonalizedWidget ( "mobile", new StringLabel () ) );
 
-		super.setValue ( obj );
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
+			frame.addPair ( "Credito Disponibile", getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
 	}
 }
 

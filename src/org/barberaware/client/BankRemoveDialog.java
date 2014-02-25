@@ -51,8 +51,6 @@ public class BankRemoveDialog extends PasswordValidateDialog implements ObjectWi
 					hook.forceObjectReload ( "User", object.getInt ( "payuser" ) );
 				if ( type == BankMovement.ORDER_USER_PAYMENT || type == BankMovement.ORDER_PAYMENT )
 					hook.forceObjectReload ( "Supplier", object.getInt ( "paysupplier" ) );
-
-				hook.forceObjectReload ( "GAS", Session.getGAS ().getLocalID () );
 			}
 		} );
 	}

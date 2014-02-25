@@ -99,7 +99,7 @@ public class DeliveryPanel extends GenericPanel {
 			public void onReceive ( FromServer object ) {
 				Supplier supp;
 
-				if ( object.getBool ( "parent_aggregate" ) == true )
+				if ( object.getBool ( "parent_aggregate" ) == true && filter.isVisible () == false )
 					return;
 
 				supp = ( Supplier ) object.getObject ( "supplier" );
@@ -228,17 +228,7 @@ public class DeliveryPanel extends GenericPanel {
 			}
 
 			public void onModify ( FromServer object ) {
-				ArrayList forms;
-				FromServerForm form;
-				DeliverySummary summary;
-
-				forms = main.collectForms ();
-
-				for ( int i = 0; i < forms.size (); i++ ) {
-					form = ( FromServerForm ) forms.get ( i );
-					summary = ( DeliverySummary ) form.retriveInternalWidget ( "list" );
-					summary.modUser ( object );
-				}
+				/* dummy */
 			}
 
 			public void onDestroy ( FromServer object ) {

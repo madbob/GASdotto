@@ -29,13 +29,13 @@ import com.allen_sauer.gwt.log.client.Log;
 public class ServerHook {
 	private class ServerMonitor {
 		public String				type;
-		public ArrayList			callbacks;
+		public ArrayList<ServerObjectReceive>	callbacks;
 		public HashMap<String, FromServer>	objects;
 		public JSONArray			comparingObjects;
 
 		public ServerMonitor ( String t ) {
 			type = t;
-			callbacks = new ArrayList ();
+			callbacks = new ArrayList<ServerObjectReceive> ();
 			objects = new HashMap<String, FromServer> ();
 			comparingObjects = new JSONArray ();
 		}
@@ -55,12 +55,12 @@ public class ServerHook {
 		}
 	}
 
-	private int		CurrentRequests		= 0;
-	private DialogBox	loadingDialog		= null;
-	private HashMap		monitors		= null;
-	private int		executingMonitor;
-	private ArrayList	monitorSchedulingQueue;
-	private RequestDesc	lastRequest		= null;
+	private int					CurrentRequests		= 0;
+	private DialogBox				loadingDialog		= null;
+	private HashMap<String, ServerMonitor>		monitors		= null;
+	private int					executingMonitor;
+	private ArrayList<ObjectRequest>		monitorSchedulingQueue;
+	private RequestDesc				lastRequest		= null;
 	private HashMap<String, ArrayList<FromServer>>	recursionStack;
 
 	/*
@@ -76,7 +76,7 @@ public class ServerHook {
 		String type;
 		ArrayList classes;
 
-		monitors = new HashMap ();
+		monitors = new HashMap<String, ServerMonitor> ();
 		classes = FromServerFactory.getClasses ();
 
 		for ( int i = 0; i < classes.size (); i++ ) {
@@ -88,7 +88,7 @@ public class ServerHook {
 	public ServerHook () {
 		initMonitors ();
 		executingMonitor = 0;
-		monitorSchedulingQueue = new ArrayList ();
+		monitorSchedulingQueue = new ArrayList<ObjectRequest> ();
 		lastRequest = new RequestDesc ();
 	}
 
@@ -173,19 +173,21 @@ public class ServerHook {
 			monitor.rebuildComparisons ();
 	}
 
-	/*
-		In linea di massima questa si comporta come
-
-		deleteObjectFromMonitorCache(monitor, obj);
-		addObjectIntoMonitorCache(monitor, obj);
-
-		ma si salta il controllo dei duplicati in addObjectIntoMonitorCache() e si evita
-		di ricostruire piu' volte l'elenco in monitor.comparingObjects
-	*/
-	private void updateObjectInMonitorCache ( ServerMonitor monitor, FromServer obj ) {
+	public void updateObjectInMonitorCache ( FromServer obj ) {
 		String id;
+		FromServer old;
+		ServerMonitor monitor;
 
+		if ( obj == null )
+			return;
+
+		monitor = getMonitor ( obj.getType () );
 		id = Integer.toString ( obj.getLocalID () );
+
+		old = monitor.objects.get ( id );
+		if ( old != null )
+			old.transferRelatedInfo ( obj );
+
 		monitor.objects.remove ( id );
 		monitor.objects.put ( id, obj );
 	}
@@ -194,7 +196,7 @@ public class ServerHook {
 		ObjectRequest next;
 
 		if ( monitorSchedulingQueue.size () != 0 ) {
-			next = ( ObjectRequest ) monitorSchedulingQueue.remove ( 0 );
+			next = monitorSchedulingQueue.remove ( 0 );
 			testObjectReceiveImpl ( next );
 		}
 	}
@@ -229,7 +231,7 @@ public class ServerHook {
 	private ServerMonitor getMonitor ( String type ) {
 		ServerMonitor ret;
 
-		ret = ( ServerMonitor ) monitors.get ( type );
+		ret = monitors.get ( type );
 		if ( ret == null )
 			Window.alert ( "Pare che la classe " + type + " non sia stata gestita in FromServerFactory..." );
 
@@ -248,12 +250,12 @@ public class ServerHook {
 		*/
 
 		for ( int i = 0; i < num; i++ ) {
-			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
+			callback = monitor.callbacks.get ( i );
 			callback.onReceivePreemptive ( object );
 		}
 
 		for ( int i = 0; i < num; i++ ) {
-			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
+			callback = monitor.callbacks.get ( i );
 			callback.onReceive ( object );
 		}
 	}
@@ -313,10 +315,17 @@ public class ServerHook {
 					triggerObjectCreation ( tmp );
 				}
 
+				/*
+					Le funzioni di trigger provvedono gia' ad
+					immettere il nuovo oggetto (o aggiornare
+					l'oggetto esistente) nelle cache
+				*/
+
 				ret.add ( tmp );
 			}
 
-			triggerObjectBlockCreation ( mod, false );
+			if ( first_round == false )
+				triggerObjectBlockCreation ( mod, false );
 		}
 
 		closeRecursionStack ();
@@ -351,7 +360,7 @@ public class ServerHook {
 		monitor = getMonitor ( type );
 
 		for ( int i = 0; i < monitor.callbacks.size (); i++ ) {
-			callback = ( ServerObjectReceive ) monitor.callbacks.get ( i );
+			callback = monitor.callbacks.get ( i );
 
 			if ( callback.handleId () == identifier ) {
 				monitor.callbacks.remove ( callback );
@@ -444,7 +453,7 @@ public class ServerHook {
 		num = tmp.callbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+			callback = tmp.callbacks.get ( i );
 
 			if ( mode == true )
 				callback.onBlockBegin ();
@@ -463,11 +472,11 @@ public class ServerHook {
 		addToRecursionStack ( object );
 
 		tmp = getMonitor ( object.getType () );
-		updateObjectInMonitorCache ( tmp, object );
+		updateObjectInMonitorCache ( object );
 		num = tmp.callbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+			callback = tmp.callbacks.get ( i );
 			callback.onModify ( object );
 		}
 
@@ -478,8 +487,9 @@ public class ServerHook {
 			subnames = object.getContainedObjectsName ();
 			for ( String attribute : subnames ) {
 				child = object.getObject ( attribute );
-				if ( child != null && child.isValid () )
+				if ( child != null && child.isValid () ) {
 					triggerObjectModification ( child, true );
+				}
 			}
 		}
 
@@ -501,7 +511,7 @@ public class ServerHook {
 		num = tmp.callbacks.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			callback = ( ServerObjectReceive ) tmp.callbacks.get ( i );
+			callback = tmp.callbacks.get ( i );
 			callback.onDestroy ( object );
 		}
 
@@ -515,6 +525,10 @@ public class ServerHook {
 		params.add ( "id", id );
 		params.setUseCache ( false );
 		testObjectReceive ( params );
+	}
+
+	public void forceObjectReload ( FromServer obj ) {
+		forceObjectReload ( obj.getType (), obj.getLocalID () );
 	}
 
 	/****************************************************************** recursion stack */

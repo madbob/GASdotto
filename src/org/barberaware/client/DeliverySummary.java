@@ -50,7 +50,7 @@ public class DeliverySummary extends Composite {
 		OrderUserAggregate aggregate;
 		HorizontalPanel informations;
 		CustomCaptionPanel frame;
-		StringLabel phone;
+		UserDetailsInOrder user_frame;
 		ProductsDeliveryTable products;
 
 		if ( numOrders == 0 && main.getWidgetCount () > 0 )
@@ -164,28 +164,9 @@ public class DeliverySummary extends Composite {
 
 		user = uord.getObject ( "baseuser" );
 
-		frame = new CustomCaptionPanel ( "Informazioni Utente" );
-		informations.add ( frame );
-		informations.setCellWidth ( frame, "50%" );
-
-		phone = new StringLabel ();
-		phone.setValue ( user.getString ( "phone" ) );
-		row.setExtraWidget ( "phone", phone );
-		frame.addPair ( "Telefono", phone );
-
-		phone = new StringLabel ();
-		phone.setValue ( user.getString ( "mobile" ) );
-		row.setExtraWidget ( "mobile", phone );
-		frame.addPair ( "Cellulare", phone );
-
-		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-			PriceViewer balance;
-
-			balance = new PriceViewer ();
-			balance.setVal ( user.getFloat ( "current_balance" ) );
-			row.setExtraWidget ( "current_balance", balance );
-			frame.addPair ( "Credito Disponibile", balance );
-		}
+		user_frame = new UserDetailsInOrder ( user );
+		informations.add ( user_frame );
+		informations.setCellWidth ( user_frame, "50%" );
 
 		/* ordine */
 
@@ -288,24 +269,6 @@ public class DeliverySummary extends Composite {
 
 			form.invalidate ();
 			uord.delRelatedInfo ( "DeliverySummary" );
-		}
-	}
-
-	public void modUser ( FromServer user ) {
-		int index;
-		FromServerForm form;
-		StringLabel phone;
-
-		form = ( FromServerForm ) user.getRelatedInfo ( "DeliverySummary" + identifier );
-
-		if ( form != null ) {
-			checkPay ( user, form );
-
-			phone = ( StringLabel ) form.retriveInternalWidget ( "phone" );
-			phone.setValue ( user.getString ( "phone" ) );
-
-			phone = ( StringLabel ) form.retriveInternalWidget ( "mobile" );
-			phone.setValue ( user.getString ( "mobile" ) );
 		}
 	}
 

@@ -339,6 +339,8 @@ public class FromServerForm extends FromServerRappresentationFull {
 	}
 
 	public EmblemsBar emblems () {
+		if ( this == null )
+			Log.debug ( "Form nullo!" );
 		return icons;
 	}
 

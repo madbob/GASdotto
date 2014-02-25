@@ -48,6 +48,24 @@ public class GASBankSummary extends FromServerRappresentationActive {
 
 		price = new PriceViewer ();
 		frame.addPair ( "Saldo Cauzioni", getPersonalizedWidget ( "current_deposit_balance", price ) );
+
+		/*
+			Per ogni aggiornamento che avviene ad un BankMovement
+			ricarico tutta l'istanza del GAS con i saldi corretti
+		*/
+		Utils.getServer ().onObjectEvent ( "BankMovement", new ServerObjectReceive () {
+			public void onReceive ( FromServer object ) {
+				/* dummy */
+			}
+
+			public void onModify ( FromServer object ) {
+				Utils.getServer ().forceObjectReload ( Session.getGAS () );
+			}
+
+			public void onDestroy ( FromServer object ) {
+				Utils.getServer ().forceObjectReload ( Session.getGAS () );
+			}
+		} );
 	}
 }
 
