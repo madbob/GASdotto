@@ -76,12 +76,21 @@ public class User extends FromServer {
 		addAttribute ( "leaving_date", FromServer.DATE );
 
 		/*
-			"bank_account" fa riferimento alle coordinate bancarie da usare nei RID (quando attivati)
-			"current_balance" fa riferimento al "conto" gestito dalla cassa interna
+			"bank_account" fa riferimento alle coordinate bancarie
+			da usare nei RID (quando attivati)
+			"current_balance" fa riferimento al "conto" gestito
+			dalla cassa interna
 		*/
 		addAttribute ( "bank_account", FromServer.STRING );
 		addAttribute ( "current_balance", FromServer.FLOAT );
 		addAttribute ( "deposit", FromServer.OBJECT, BankMovement.class );
+
+		/*
+			Data di autorizzazione per l'addebito sul conto corrente
+			e data del primo addebito (se i RID sono attivi)
+		*/
+		addAttribute ( "sepa_subscribe", FromServer.DATE );
+		addAttribute ( "first_sepa", FromServer.DATE );
 
 		addAttribute ( "shipping", FromServer.OBJECT, ShippingPlace.class );
 		addAttribute ( "suppliers_notification", FromServer.ARRAY, Supplier.class );

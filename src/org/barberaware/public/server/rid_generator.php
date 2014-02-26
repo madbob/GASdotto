@@ -43,7 +43,7 @@ $products = $order->getAttribute ( "products" )->value;
 usort ( $products, "sort_product_by_name" );
 
 $contents = get_orderuser_by_order ( $order );
-usort ( $contents, "sort_orders_by_user" );
+// usort ( $contents, "sort_orders_by_user" );
 
 $gas = current_gas ();
 $ridconf = $gas->getAttribute ( 'rid_conf' )->value;
@@ -66,11 +66,34 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$order_user = $contents [ $i ];
 
 	$user = $order_user->baseuser;
-	if ( property_exists ( $user, 'bank_account' ) == false || $user->bank_account == '' )
+
+	/*
+		Dal 22/02/2014 viene generate il RID in formato SEPA, che
+		richiede l'IBAN completo degli utenti. Se nel database non
+		vengono trovate tutte le informazioni, il record viene saltato
+	*/
+	if ( property_exists ( $user, 'bank_account' ) == false || $user->bank_account == '' || strlen ( $user->bank_account ) < 32 )
 		continue;
 
+	if ( property_exists ( $user, 'first_sepa' ) == false || $user->first_sepa == null || $user->first_sepa == '' ) {
+		$seq_id = 'FRST';
+		$user->first_sepa = date ( 'Y-m-d' );
+
+		$useless_user = new User ();
+		$useless_user->save ( $user );
+		unset ( $useless_user );
+	}
+	else {
+		$seq_id = "RCUR";
+	}
+
+	list ( $y, $m, $d ) = explode ( '-', $user->sepa_subscribe );
+	$subscribe_date = $d . $m . ( $y - 2000 );
+
 	$bank_account = $user->bank_account;
-	list ( $user_abi, $user_cab, $user_account ) = explode ( ' ', $bank_account );
+	list ( $user_country, $user_checkdigit, $user_cin, $user_abi, $user_cab, $user_account ) = explode ( ' ', $bank_account );
+	$user_iban = $user_country . $user_checkdigit . $user_cin . $user_abi . $user_cab . $user_account;
+
 	$user_name = $user->surname . ' ' . $user->firstname;
 	$user_address = $user->address;
 
@@ -83,13 +106,16 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 		$prod = $products [ $a ];
-		$prod_user = $user_products [ $e ];
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$quantity = 0;
 
-		if ( $prodid == $prod_user->product ) {
-			$quantity = $prod_user->delivered;
-			$e++;
+		if ( $e < count ( $user_products ) ) {
+			$prod_user = $user_products [ $e ];
+
+			if ( $prodid == $prod_user->product ) {
+				$quantity = $prod_user->delivered;
+				$e++;
+			}
 		}
 
 		if ( property_exists ( $order_user, 'friends' ) && count ( $order_user->friends ) != 0 ) {
@@ -117,6 +143,7 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	$block++;
 
 	$output .= ' 10' . sprintf ( '%07d', $block ) . filler ( 12 ) . $expiry . '50000' . sprintf ( '%013d', $user_total * 100 ) . '-' . $abi . $cab . $account . $user_abi . $user_cab . filler ( 12 ) . $code . '4' . str_pad ( $user->id, 16, '0', STR_PAD_LEFT ) . filler ( 6 ) . 'E' . "\n";
+	$output .= ' 17' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_iban ), 27 ) . $seq_id . $subscribe_date . filler ( 73 ) . "\n";
 	$output .= ' 20' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $name ), 110 ) . "\n";
 	$output .= ' 30' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_name ), 110 ) . "\n";
 	$output .= ' 40' . sprintf ( '%07d', $block ) . str_pad ( strtoupper ( $user_address->street ), 30 ) . str_pad ( strtoupper ( $user_address->cap ), 5 ) . str_pad ( strtoupper ( $user_address->city ), 25 ) . filler ( 50 ) . "\n";

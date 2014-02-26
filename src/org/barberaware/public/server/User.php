@@ -44,6 +44,8 @@ class User extends FromServer {
 		$this->addAttribute ( "bank_account", "STRING" );
 		$this->addAttribute ( "current_balance", "FLOAT" );
 		$this->addAttribute ( "deposit", "OBJECT::BankMovement" );
+		$this->addAttribute ( "sepa_subscribe", "DATE" );
+		$this->addAttribute ( "first_sepa", "DATE" );
 		$this->addAttribute ( "shipping", "OBJECT::ShippingPlace", ShippingPlace::getDefault () );
 		$this->addAttribute ( "suppliers_notification", "ARRAY::Supplier" );
 

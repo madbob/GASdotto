@@ -23,6 +23,9 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class BankAccountBox extends Composite implements StringWidget {
+	private TextBox			country;
+	private TextBox			check;
+	private TextBox			cin;
 	private TextBox			abi;
 	private TextBox			cab;
 	private TextBox			account;
@@ -33,6 +36,9 @@ public class BankAccountBox extends Composite implements StringWidget {
 		container = new HorizontalPanel ();
 		initWidget ( container );
 
+		country = doCell ( container, "Paese", 2 );
+		check = doCell ( container, "Check", 1 );
+		cin = doCell ( container, "CIN", 2 );
 		abi = doCell ( container, "ABI", 5 );
 		cab = doCell ( container, "CAB", 5 );
 		account = doCell ( container, "Conto", 12 );
@@ -65,12 +71,23 @@ public class BankAccountBox extends Composite implements StringWidget {
 		String [] tokens;
 
 		tokens = value.split ( " " );
-		abi.setText ( tokens [ 0 ] );
-		cab.setText ( tokens [ 1 ] );
-		account.setText ( tokens [ 2 ] );
+
+		if ( value.length () < 32 ) {
+			abi.setText ( tokens [ 0 ] );
+			cab.setText ( tokens [ 1 ] );
+			account.setText ( tokens [ 2 ] );
+		}
+		else {
+			country.setText ( tokens [ 0 ] );
+			check.setText ( tokens [ 1 ] );
+			cin.setText ( tokens [ 2 ] );
+			abi.setText ( tokens [ 3 ] );
+			cab.setText ( tokens [ 4 ] );
+			account.setText ( tokens [ 5 ] );
+		}
 	}
 
 	public String getValue () {
-		return abi.getText () + " " + cab.getText () + " " + account.getText ();
+		return country.getText () + " " + check.getText () + " " + cin.getText () + " " + abi.getText () + " " + cab.getText () + " " + account.getText ();
 	}
 }
