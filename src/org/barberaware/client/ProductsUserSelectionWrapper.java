@@ -28,7 +28,7 @@ import com.allen_sauer.gwt.log.client.Log;
 	FromServerRappresentation, di fatto rappresenta un OrderUser
 */
 
-public class ProductsUserSelectionWrapper extends FromServerRappresentation implements SourcesChangeEvents {
+public class ProductsUserSelectionWrapper extends FromServerRappresentation {
 	private boolean				inited;
 	private VerticalPanel			main;
 	private ProductsUserSelection		selection;
@@ -70,15 +70,5 @@ public class ProductsUserSelectionWrapper extends FromServerRappresentation impl
 		super.rebuildObject ();
 		ret = super.getValue ();
 		return ret;
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		selection.addChangeListener ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		selection.removeChangeListener ( listener );
 	}
 }

@@ -21,7 +21,7 @@ import java.util.*;
 
 import com.google.gwt.user.client.ui.*;
 
-public abstract class OrderUserManagerMode extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents, Lockable {
+public abstract class OrderUserManagerMode extends FromServerRappresentation implements ObjectWidget, Lockable {
 	private ArrayList		ordersCallbacks		= null;
 
 	protected void triggerOrderChange ( FromServer object ) {

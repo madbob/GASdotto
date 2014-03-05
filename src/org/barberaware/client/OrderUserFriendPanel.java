@@ -37,8 +37,6 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 	private boolean			fullEditable;
 	private FromServer		currentValue;
 
-	private ArrayList		changeCallbacks			= null;
-
 	public OrderUserFriendPanel ( FromServer order, boolean edit, boolean freedit, boolean full ) {
 		VerticalPanel main;
 		CaptionPanel frame;
@@ -59,11 +57,11 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 		single = new ProductsUserSelection ( baseOrder.getArray ( "products" ), editable, freeEditable );
 		friends.add ( single, "Il Mio Ordine" );
 
-		single.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		single.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				updateTotal ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		if ( editable == true && fullEditable == true ) {
 			friends.add ( new Label (), "Aggiungi Nuovo Ordine" );
@@ -144,14 +142,14 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 			name = new TextBox ();
 			name.setText ( n );
 
-			name.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
+			name.addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
 					TextBox t;
 
-					t = ( TextBox ) sender;
+					t = ( TextBox ) event.getSource ();
 					friends.getTabBar ().setTabText ( friends.getWidgetIndex ( t.getParent ().getParent () ), t.getText () );
 				}
-			} );
+			}, ChangeEvent.getType () );
 
 			pan.setStyleName ( "highlight-part" );
 
@@ -165,20 +163,11 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 		products = new ProductsUserSelection ( baseOrder.getArray ( "products" ), editable, freeEditable );
 		data.add ( products );
 
-		products.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		products.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				updateTotal ();
 			}
-		} );
-
-		if ( changeCallbacks != null ) {
-			ChangeListener listener;
-
-			for ( int i = 0; i < changeCallbacks.size (); i++ ) {
-				listener = ( ChangeListener ) changeCallbacks.get ( i );
-				products.addChangeListener ( listener );
-			}
-		}
+		}, ChangeEvent.getType () );
 
 		if ( order_friend != null )
 			products.setElements ( order_friend.getArray ( "products" ) );
@@ -354,42 +343,5 @@ public class OrderUserFriendPanel extends OrderUserManagerMode {
 
 	public void unlock () {
 		/* dummy */
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		VerticalPanel cell;
-		ProductsUserSelection prod_sel;
-
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-
-		single.addChangeListener ( listener );
-
-		for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
-			cell = ( VerticalPanel ) friends.getWidget ( i );
-
-			prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
-			prod_sel.addChangeListener ( listener );
-		}
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		VerticalPanel cell;
-		ProductsUserSelection prod_sel;
-
-		if ( changeCallbacks != null ) {
-			changeCallbacks.remove ( listener );
-			single.removeChangeListener ( listener );
-
-			for ( int i = 1; i < friends.getWidgetCount () - 1; i++ ) {
-				cell = ( VerticalPanel ) friends.getWidget ( i );
-
-				prod_sel = ( ProductsUserSelection ) cell.getWidget ( 1 );
-				prod_sel.removeChangeListener ( listener );
-			}
-		}
 	}
 }

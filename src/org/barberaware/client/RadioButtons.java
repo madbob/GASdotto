@@ -18,13 +18,14 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class RadioButtons extends ButtonsBar implements SourcesChangeEvents {
+public class RadioButtons extends ButtonsBar {
 	private int			selected		= -1;
 	private ArrayList		callbacks		= null;
 
@@ -109,19 +110,6 @@ public class RadioButtons extends ButtonsBar implements SourcesChangeEvents {
 	}
 
 	private void triggerChange () {
-		Utils.triggerChangesCallbacks ( callbacks, this );
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( callbacks == null )
-			callbacks = new ArrayList ();
-		callbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( callbacks != null )
-			callbacks.remove ( listener );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 }

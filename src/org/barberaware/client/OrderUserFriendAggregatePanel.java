@@ -38,8 +38,6 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 	private boolean			fullEditable;
 	private FromServer		currentValue;
 
-	private ArrayList		changeCallbacks			= null;
-
 	public OrderUserFriendAggregatePanel ( FromServer order, boolean edit, boolean freedit, boolean full ) {
 		baseOrder = order;
 		editable = edit;
@@ -116,14 +114,14 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			name = new TextBox ();
 			name.setText ( n );
 
-			name.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
+			name.addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
 					TextBox t;
 
-					t = ( TextBox ) sender;
+					t = ( TextBox ) event.getSource ();
 					friends.getTabBar ().setTabText ( friends.getWidgetIndex ( t.getParent ().getParent () ), t.getText () );
 				}
-			} );
+			}, ChangeEvent.getType () );
 
 			pan.add ( name );
 		}
@@ -388,20 +386,11 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 				addChild ( selector );
 			}
 
-			selector.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
+			selector.addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
 					updateTotal ();
 				}
-			} );
-
-			if ( changeCallbacks != null ) {
-				ChangeListener listener;
-
-				for ( int a = 0; a < changeCallbacks.size (); a++ ) {
-					listener = ( ChangeListener ) changeCallbacks.get ( a );
-					selector.addChangeListener ( listener );
-				}
-			}
+			}, ChangeEvent.getType () );
 
 			if ( uorder != null )
 				assignOrderToSelection ( selector, uorder.getArray ( "orders" ), ord, maintab );
@@ -626,57 +615,5 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 	public void unlock () {
 		/* dummy */
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		int tabs;
-		VerticalPanel cell;
-		ProductsUserSelectionWrapper selection;
-
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-
-		for ( int i = 0; i < singles.size (); i++ ) {
-			selection = ( ProductsUserSelectionWrapper ) singles.get ( i );
-			selection.addChangeListener ( listener );
-		}
-
-		tabs = activeTabs ();
-
-		for ( int a = 1; a < tabs; a++ ) {
-			cell = ( VerticalPanel ) friends.getWidget ( a );
-
-			for ( int i = 1; i < cell.getWidgetCount () - 2; i++ ) {
-				selection = getInnerSelection ( cell, i );
-				selection.addChangeListener ( listener );
-			}
-		}
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		int tabs;
-		VerticalPanel cell;
-		ProductsUserSelectionWrapper selection;
-
-		if ( changeCallbacks != null ) {
-			for ( int i = 0; i < singles.size (); i++ ) {
-				selection = ( ProductsUserSelectionWrapper ) singles.get ( i );
-				selection.addChangeListener ( listener );
-			}
-
-			tabs = activeTabs ();
-
-			for ( int a = 1; a < tabs; a++ ) {
-				cell = ( VerticalPanel ) friends.getWidget ( a );
-
-				for ( int i = 1; i < cell.getWidgetCount () - 2; i++ ) {
-					selection = getInnerSelection ( cell, i );
-					selection.addChangeListener ( listener );
-				}
-			}
-		}
 	}
 }

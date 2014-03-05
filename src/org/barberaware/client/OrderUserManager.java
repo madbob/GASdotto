@@ -20,10 +20,11 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class OrderUserManager extends FromServerRappresentation implements ObjectWidget, SourcesChangeEvents {
+public class OrderUserManager extends FromServerRappresentation implements ObjectWidget {
 	private DeckPanel		deck;
 	private RadioButtons		buttons		= null;
 	private ObjectLinksDialog	exportFiles;
@@ -65,8 +66,8 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 				buttons.add ( new Image ( "images/friends_order.png" ), "e gli amici" );
 			}
 
-			buttons.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
+			buttons.addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
 					int index;
 					FromServer order;
 					ObjectWidget current;
@@ -84,7 +85,7 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 					next.unlock ();
 					deck.showWidget ( index );
 				}
-			} );
+			}, ChangeEvent.getType () );
 
 			buttons.setToggled ( 0 );
 		}
@@ -238,21 +239,5 @@ public class OrderUserManager extends FromServerRappresentation implements Objec
 		index = deck.getVisibleWidget ();
 		panel = ( ObjectWidget ) deck.getWidget ( index );
 		return panel.getValue ();
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		plain.addChangeListener ( listener );
-		friends.addChangeListener ( listener );
-		if ( multi != null )
-			multi.addChangeListener ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		plain.removeChangeListener ( listener );
-		friends.removeChangeListener ( listener );
-		if ( multi != null )
-			multi.removeChangeListener ( listener );
 	}
 }

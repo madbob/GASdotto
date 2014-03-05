@@ -18,13 +18,14 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class ProductsUserSelection extends Composite implements FromServerArray, SourcesChangeEvents {
+public class ProductsUserSelection extends Composite implements FromServerArray {
 	private FlexTable		main;
 	private boolean			editable;
 	private boolean			freeEditable;
@@ -40,8 +41,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 	private float			total;
 	private PriceViewer		totalLabel;
-
-	private ArrayList		changeCallbacks			= null;
 
 	public void buildCommon ( ArrayList products, boolean edit, boolean freeedit, boolean showTotal ) {
 		int num_products;
@@ -358,11 +357,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		formatter.setVerticalAlignment ( row, 1, HasVerticalAlignment.ALIGN_TOP );
 
 		if ( editable == true ) {
-			sel.addChangeListener ( new ChangeListener () {
-				public void onChange ( Widget sender ) {
+			sel.addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
 					updateTotal ();
 				}
-			} );
+			}, ChangeEvent.getType () );
 		}
 
 		/*
@@ -427,10 +426,6 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		lab.setText ( info_str );
 	}
 
-	private void triggerChange () {
-		Utils.triggerChangesCallbacks ( changeCallbacks, this );
-	}
-
 	private void updateTotal () {
 		int rows;
 		ProductUserSelector selector;
@@ -446,7 +441,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		if ( totalLabel != null )
 			totalLabel.setVal ( total );
 
-		triggerChange ();
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	private int numRows () {
@@ -617,18 +612,5 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		a = retrieveRowByProduct ( prod );
 		if ( a != -1 )
 			modProductRow ( a, prod );
-	}
-
-	/****************************************************************** SourcesChangeEvents */
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks == null )
-			changeCallbacks = new ArrayList ();
-		changeCallbacks.add ( listener );
-	}
-
-	public void removeChangeListener ( ChangeListener listener ) {
-		if ( changeCallbacks != null )
-			changeCallbacks.remove ( listener );
 	}
 }

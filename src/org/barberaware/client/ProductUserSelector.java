@@ -23,6 +23,7 @@ package org.barberaware.client;
 
 import java.util.*;
 import java.lang.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.http.client.*;
@@ -53,8 +54,6 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private Label					constraints;
 	private String					constraintsValue;
 	private ProductUser				currentValue;
-
-	private DelegatingChangeListenerCollection	changeListeners;
 
 	public ProductUserSelector ( Product prod, boolean edit, boolean freeedit ) {
 		FloatBox qb;
@@ -270,7 +269,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 	private void undoChange () {
 		if ( editable == true ) {
 			quantity.setVal ( 0 );
-			changeListeners.fireChange ( ( FloatBox ) quantity );
+			DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), ( FloatBox ) quantity );
 		}
 	}
 
@@ -407,8 +406,8 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			variants = prod.getArray ( "variants" );
 
 			if ( variants != null && variants.size () != 0 ) {
-				( ( FloatBox ) quantity ).addChangeListener ( new ChangeListener () {
-					public void onChange ( Widget sender ) {
+				( ( FloatBox ) quantity ).addDomHandler ( new ChangeHandler () {
+					public void onChange ( ChangeEvent event ) {
 						int num;
 						float q;
 						double qt;
@@ -425,7 +424,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 						alignVariants ( currentValue, num, null );
 					}
-				} );
+				}, ChangeEvent.getType () );
 			}
 			else {
 				hideVariants ();
@@ -529,14 +528,6 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 		current = ( ProductUser ) getValue ();
 		return current.getTotalPrice ();
-	}
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( editable == true ) {
-			if ( changeListeners == null )
-				changeListeners = new DelegatingChangeListenerCollection ( this, ( FloatBox ) quantity );
-			changeListeners.add ( listener );
-		}
 	}
 
 	private ArrayList<FromServer> retrieveVariants () {
