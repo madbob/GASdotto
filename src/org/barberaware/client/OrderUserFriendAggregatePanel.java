@@ -189,18 +189,15 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		FromServer uorder;
 		FromServer parent;
 
-		if ( orders == null ) {
-			emptySubOrder ( selection, maintab, order );
-			return;
-		}
+		if ( orders != null ) {
+			for ( int i = 0; i < orders.size (); i++ ) {
+				uorder = ( FromServer ) orders.get ( i );
+				parent = uorder.getObject ( "parent" );
 
-		for ( int i = 0; i < orders.size (); i++ ) {
-			uorder = ( FromServer ) orders.get ( i );
-			parent = uorder.getObject ( "parent" );
-
-			if ( parent != null && parent.getObject ( "baseorder" ).equals ( order ) ) {
-				selection.setValue ( uorder );
-				return;
+				if ( parent != null && parent.getObject ( "baseorder" ).equals ( order ) ) {
+					selection.setValue ( uorder );
+					return;
+				}
 			}
 		}
 
@@ -275,27 +272,41 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		friends.selectTab ( 0 );
 	}
 
+	private ProductsUserSelectionWrapper getInnerSelection ( VerticalPanel panel, int index ) {
+		CaptionPanel frame;
+		Iterator<Widget> it;
+
+		frame = ( CaptionPanel ) panel.getWidget ( index );
+		it = frame.iterator ();
+		return ( ProductsUserSelectionWrapper ) it.next ();
+	}
+
 	/*
 		Questa funzione e' da invocare solo se il pannello e' editabile
 	*/
-	private ArrayList retrieveFriendsOrders ( int index, FromServer parent ) {
+	private ArrayList<FromServer> retrieveFriendsOrders ( int index, FromServer parent ) {
 		int tabs;
-		ArrayList ret;
+		ArrayList<FromServer> ret;
 		Hidden id;
 		VerticalPanel cell;
 		ProductsUserSelectionWrapper prod_sel;
 		HorizontalPanel name_container;
 		TextBox name;
 		FromServer order;
-		ArrayList products;
 
-		ret = new ArrayList ();
+		ret = new ArrayList<FromServer> ();
 		tabs = activeTabs ();
 
+		/*
+			In posizione 0 c'e' l'ordine dell'utente corrente
+		*/
 		for ( int i = 1; i < tabs; i++ ) {
 			cell = ( VerticalPanel ) friends.getWidget ( i );
 
-			prod_sel = ( ProductsUserSelectionWrapper ) cell.getWidget ( 1 + index );
+			/*
+				In posizione 0 c'e' la casella di testo col nome dell'amico
+			*/
+			prod_sel = getInnerSelection ( cell, 1 + index );
 			order = prod_sel.getValue ();
 			if ( order.getArray ( "products" ) == null )
 				continue;
@@ -335,7 +346,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			local_tot = 0;
 
 			for ( int e = 1; e < cell.getWidgetCount () - 2; e++ ) {
-				prod_sel = ( ProductsUserSelectionWrapper ) cell.getWidget ( e );
+				prod_sel = getInnerSelection ( cell, e );
 				local_tot += prod_sel.getTotalPrice ();
 			}
 
@@ -354,15 +365,23 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 		totalWithFriends.setVal ( total );
 	}
 
+	/*
+		orders = gli ordini aggregati nell'OrdersAggregate
+		uorder = l'ordine utente aggregato
+	*/
 	private void createSelectors ( VerticalPanel panel, ArrayList orders, FromServer uorder, boolean maintab ) {
+		CaptionPanel frame;
 		FromServer ord;
 		OrderUser uord;
 		ProductsUserSelectionWrapper selector;
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			ord = ( FromServer ) orders.get ( i );
+			frame = new CaptionPanel ( ord.getObject ( "supplier" ).getString ( "name" ) );
+			panel.insert ( frame, panel.getWidgetCount () - 1 );
+
 			selector = new ProductsUserSelectionWrapper ( ord, editable, freeEditable );
-			panel.insert ( selector, panel.getWidgetCount () - 1 );
+			frame.add ( selector );
 
 			if ( maintab == true ) {
 				singles.add ( selector );
@@ -486,7 +505,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 				for ( int a = 1; a < tabs; a++ ) {
 					cell = ( VerticalPanel ) friends.getWidget ( a );
-					selection = ( ProductsUserSelectionWrapper ) cell.getWidget ( 1 + i );
+					selection = getInnerSelection ( cell, 1 + i );
 					selection.removeFromParent ();
 				}
 
@@ -530,11 +549,11 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 	/****************************************************************** ObjectWidget */
 
-	public void setValue ( FromServer element ) {
-		if ( element == null )
-			element = fakeOrderUserAggregate ();
+	public void setValue ( FromServer uorder_aggregate ) {
+		if ( uorder_aggregate == null )
+			uorder_aggregate = fakeOrderUserAggregate ();
 
-		currentValue = element;
+		currentValue = uorder_aggregate;
 		super.setValue ( currentValue );
 
 		if ( friends == null )
@@ -595,7 +614,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 
 					for ( int a = 1; a < tabs; a++ ) {
 						cell = ( VerticalPanel ) friends.getWidget ( a );
-						selection = ( ProductsUserSelectionWrapper ) cell.getWidget ( 1 + i );
+						selection = getInnerSelection ( cell, 1 + i );
 						selection.upgradeProductsList ( order.getArray ( "products" ) );
 					}
 
@@ -631,7 +650,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 			cell = ( VerticalPanel ) friends.getWidget ( a );
 
 			for ( int i = 1; i < cell.getWidgetCount () - 2; i++ ) {
-				selection = ( ProductsUserSelectionWrapper ) cell.getWidget ( i );
+				selection = getInnerSelection ( cell, i );
 				selection.addChangeListener ( listener );
 			}
 		}
@@ -654,7 +673,7 @@ public class OrderUserFriendAggregatePanel extends OrderUserManagerMode {
 				cell = ( VerticalPanel ) friends.getWidget ( a );
 
 				for ( int i = 1; i < cell.getWidgetCount () - 2; i++ ) {
-					selection = ( ProductsUserSelectionWrapper ) cell.getWidget ( i );
+					selection = getInnerSelection ( cell, i );
 					selection.addChangeListener ( listener );
 				}
 			}

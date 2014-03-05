@@ -3,10 +3,11 @@ body {
 	margin:			0px;
 	vertical-align:		top;
 	font-size:		12px;
+	font-family:		arial, serif;
 }
 
 .main {
-	width:			100%;
+	width:			99%;
 	height:			100%;
 	text-align:		left;
 	vertical-align:		top;
@@ -265,10 +266,6 @@ body {
 	font-size:		12px;
 }
 
-.custom-caption-panel {
-	width:			92%;
-}
-
 .custom-form-table {
 	width:			100%;
 }
@@ -420,8 +417,8 @@ body {
 
 .multi-selector {
 	margin:			1px;
-	padding:		1px;
-	border:			1px solid #000000;
+	padding-left:		10px;
+	border-left:		3px solid #BBB;
 }
 
 .search-bar {
@@ -483,6 +480,10 @@ body {
 .products-selection .product-name {
 	cursor:			pointer;
 	cursor:			hand;
+}
+
+.products-selection .product-quantity {
+	width:			160px;
 }
 
 .big-text {
@@ -610,6 +611,12 @@ body {
 	max-width:		80%;
 }
 
+.aggregate-order-header {
+	font-size:		20px;
+	width:			100%;
+	border-bottom:		3px solid #4EDFCE;
+}
+
 .drop-engage {
 	border:			5px solid #FF0000;
 }
@@ -648,7 +655,6 @@ fieldset {
 	border:			1px #BBBBBB solid;
 	padding:		7px;
 	margin:			10px;
-	width:			92%;
 }
 
 fieldset legend {
@@ -683,7 +689,7 @@ input, select {
 
 textarea {
 	margin:			1px;
-	padding:		2px;
+	padding:		5px;
 	float:			left;
 	border:			1px solid #DDD;
 }
@@ -717,7 +723,7 @@ br {
 	cursor:			pointer;
 	cursor:			hand;
 	position:		relative;
-	top:			4px;
+	top:			1px;
 	z-index:		50;
 }
 

@@ -345,7 +345,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		pname = new Label ( product.getString ( "name" ) );
 		pname.setStyleName ( "product-name" );
 		main.setWidget ( row, 0, pname );
-		formatter.setWidth ( row, 0, "30%" );
+		formatter.setWidth ( row, 0, "40%" );
 		/*
 			Forzo l'allineamento in cima affinche' tutto rimanga in ordine quando (eventualmente) si
 			aprono le righe per definire le varianti dei prodotti (in ProductUserSelector)
@@ -354,7 +354,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 		sel = new ProductUserSelector ( product, editable, freeEditable );
 		main.setWidget ( row, 1, sel );
-		formatter.setWidth ( row, 1, "40%" );
+		formatter.setWidth ( row, 1, "30%" );
 		formatter.setVerticalAlignment ( row, 1, HasVerticalAlignment.ALIGN_TOP );
 
 		if ( editable == true ) {
@@ -364,6 +364,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 				}
 			} );
 		}
+
+		/*
+			Le ultime due colonne non hanno una larghezza fissata in modo che, nascondendo la prima, la
+			seconda possa allargarsi liberamente
+		*/
 
 		/*
 			Prezzo
@@ -567,9 +572,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 		/* dummy */
 	}
 
-	public ArrayList getElements () {
+	public ArrayList<FromServer> getElements () {
 		int num_rows;
-		ArrayList list;
+		ArrayList<FromServer> list;
 		ProductUserSelector selector;
 		Float quant;
 		FromServer prod;
@@ -584,7 +589,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray,
 
 			if ( prod.getFloat ( "quantity" ) > 0 ) {
 				if ( list == null )
-					list = new ArrayList ();
+					list = new ArrayList<FromServer> ();
 
 				/*
 					Onde evitare di impazzire troppo in OrderPrivilegedPanel,

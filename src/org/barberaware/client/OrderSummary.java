@@ -754,8 +754,7 @@ public class OrderSummary extends Composite implements Lockable {
 				main.setWidget ( e, ORDER_ID_COLUMN, new Hidden ( Integer.toString ( order.getLocalID () ) ) );
 
 				head = new Label ( order.getObject ( "supplier" ).getString ( "name" ) );
-				head.setStyleName ( "static-value" );
-				head.addStyleName ( "top-spaced" );
+				head.setStyleName ( "aggregate-order-header" );
 				main.setWidget ( e, PRODUCT_NAME_COLUMN, head );
 				formatter.setColSpan ( e, PRODUCT_NAME_COLUMN, PRODUCT_NOTIFICATIONS_COLUMN - PRODUCT_NAME_COLUMN + 1 );
 				formatter.setHorizontalAlignment ( e, PRODUCT_NAME_COLUMN, HasHorizontalAlignment.ALIGN_LEFT );

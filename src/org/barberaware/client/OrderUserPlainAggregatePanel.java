@@ -24,15 +24,15 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
-	private VerticalPanel		main;
-	private TotalRow		totalLabel;
+	private VerticalPanel				main;
+	private TotalRow				totalLabel;
 
-	private ArrayList		selections;
-	private FromServer		baseOrder;
-	private FromServer		currentValue;
+	private ArrayList<ProductsUserSelectionWrapper>	selections;
+	private FromServer				baseOrder;
+	private FromServer				currentValue;
 
-	private boolean			editable;
-	private boolean			freeEditable;
+	private boolean					editable;
+	private boolean					freeEditable;
 
 	public OrderUserPlainAggregatePanel ( FromServer order, boolean edit, boolean freedit ) {
 		main = new VerticalPanel ();
@@ -113,7 +113,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		orders = baseOrder.getArray ( "orders" );
 
 		if ( selections == null ) {
-			selections = new ArrayList ();
+			selections = new ArrayList<ProductsUserSelectionWrapper> ();
 			createSelectors ( orders, element );
 			main.add ( getPersonalizedWidget ( "notes", new DummyTextArea () ) );
 		}
@@ -121,7 +121,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 			has_friends = ( ( OrderUserInterface ) element ).hasFriends ();
 
 			for ( int i = 0; i < orders.size (); i++ ) {
-				selection = ( ProductsUserSelectionWrapper ) selections.get ( i );
+				selection = selections.get ( i );
 				selection.setEditable ( !has_friends );
 				assignOrderToSelection ( element, selection, ( FromServer ) orders.get ( i ) );
 			}
@@ -139,20 +139,18 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 
 	private void updateTotal () {
 		float total;
-		ProductsUserSelectionWrapper iter;
 
 		total = 0;
 
-		for ( int i = 0; i < selections.size (); i++ ) {
-			iter = ( ProductsUserSelectionWrapper ) selections.get ( i );
+		for ( ProductsUserSelectionWrapper iter : selections )
 			total += iter.getTotalPrice ();
-		}
 
 		totalLabel.setVal ( total );
 	}
 
 	private void createSelectors ( ArrayList orders, FromServer uorder ) {
 		boolean has_friends;
+		CaptionPanel frame;
 		FromServer ord;
 		ProductsUserSelectionWrapper selection;
 
@@ -160,8 +158,12 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 
 		for ( int i = 0; i < orders.size (); i++ ) {
 			ord = ( FromServer ) orders.get ( i );
+
+			frame = new CaptionPanel ( ord.getObject ( "supplier" ).getString ( "name" ) );
+			main.insert ( frame, main.getWidgetCount () - 1 );
+
 			selection = new ProductsUserSelectionWrapper ( ord, editable, freeEditable );
-			main.insert ( selection, main.getWidgetCount () - 1 );
+			frame.add ( selection );
 			addChild ( selection );
 			selection.setEditable ( !has_friends );
 
@@ -200,7 +202,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 		to_add = new ArrayList ();
 
 		for ( int i = 0; i < selections.size (); ) {
-			selection = ( ProductsUserSelectionWrapper ) selections.get ( i );
+			selection = selections.get ( i );
 			cmp_ord = selection.getValue ().getObject ( "baseorder" );
 			found = false;
 
@@ -266,7 +268,7 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 			for ( int i = 0; i < orders.size (); i++ ) {
 				ord = ( FromServer ) orders.get ( i );
 				if ( ord.equals ( order ) ) {
-					selection = ( ProductsUserSelectionWrapper ) selections.get ( i );
+					selection = selections.get ( i );
 					selection.upgradeProductsList ( order.getArray ( "products" ) );
 					break;
 				}
@@ -281,20 +283,12 @@ public class OrderUserPlainAggregatePanel extends OrderUserManagerMode {
 	/****************************************************************** SourcesChangeEvents */
 
 	public void addChangeListener ( ChangeListener listener ) {
-		ProductsUserSelection selection;
-
-		for ( int i = 0; i < selections.size (); i++ ) {
-			selection = ( ProductsUserSelection ) selections.get ( i );
+		for ( ProductsUserSelectionWrapper selection : selections )
 			selection.addChangeListener ( listener );
-		}
 	}
 
 	public void removeChangeListener ( ChangeListener listener ) {
-		ProductsUserSelection selection;
-
-		for ( int i = 0; i < selections.size (); i++ ) {
-			selection = ( ProductsUserSelection ) selections.get ( i );
+		for ( ProductsUserSelectionWrapper selection : selections )
 			selection.removeChangeListener ( listener );
-		}
 	}
 }

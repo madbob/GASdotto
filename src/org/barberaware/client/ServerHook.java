@@ -540,6 +540,16 @@ public class ServerHook {
 	private boolean testRecursionStack ( FromServer object ) {
 		ArrayList<FromServer> elements;
 
+		/*
+			Un OrderUserAggregate viene creato leggendo gli ordini arrivati in blocco, dunque viene messo
+			in stack di ricorsione subito. Questo ovviamente impedisce di intervenire nuovamente sullo
+			stesso elemento, cosa invece voluta.
+			In generale, e' difficile che un FromServerAggregateVirtual sia coinvolto in una ricorsione
+			ciclica non essendo mai contenuto in altri elementi
+		*/
+		if ( object instanceof FromServerAggregateVirtual )
+			return true;
+
 		if ( recursionStack != null ) {
 			elements = recursionStack.get ( object.getType () );
 			if ( elements == null )

@@ -79,6 +79,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 		if ( edit == true ) {
 			qb = new FloatBox ();
+			qb.addStyleName ( "product-quantity" );
 
 			qb.addFocusHandler ( new FocusHandler () {
 				public void onFocus ( FocusEvent event ) {
@@ -208,6 +209,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		}
 		else {
 			qv = new FloatViewer ();
+			qv.addStyleName ( "product-quantity" );
 			firstRow.add ( qv );
 			quantity = qv;
 		}
@@ -537,12 +539,12 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		}
 	}
 
-	private ArrayList retrieveVariants () {
+	private ArrayList<FromServer> retrieveVariants () {
 		int variant_id;
-		ArrayList final_array;
-		ArrayList existing_variants;
-		ArrayList existing_components;
-		ArrayList final_components;
+		ArrayList<FromServer> final_array;
+		ArrayList<FromServer> existing_variants;
+		ArrayList<FromServer> existing_components;
+		ArrayList<FromServer> final_components;
 		HorizontalPanel row;
 		ListBox selector;
 		ProductUserVariant existing_var;
@@ -551,7 +553,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 		ProductUserVariantComponent component;
 		FromServer value;
 
-		final_array = new ArrayList ();
+		final_array = new ArrayList<FromServer> ();
 		existing_variants = currentValue.getArray ( "variants" );
 
 		for ( int i = 0; i < variantsBoxes.getWidgetCount (); i++ ) {
@@ -575,7 +577,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 			if ( variant == null )
 				variant = new ProductUserVariant ();
 
-			final_components = new ArrayList ();
+			final_components = new ArrayList<FromServer> ();
 
 			for ( int a = 1; a < row.getWidgetCount (); a += 3 ) {
 				variant_id = Integer.parseInt ( ( ( Hidden ) row.getWidget ( a ) ).getName () );
