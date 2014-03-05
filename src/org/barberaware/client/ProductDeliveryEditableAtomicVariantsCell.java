@@ -52,11 +52,11 @@ public class ProductDeliveryEditableAtomicVariantsCell extends Composite impleme
 		if ( delivered == true )
 			box.setVal ( value );
 
-		box.addChangeHandler ( new ChangeHandler () {
+		box.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
 				triggerChange ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		main.setWidget ( rows_num, 1, box );
 		return rows_num + 1;

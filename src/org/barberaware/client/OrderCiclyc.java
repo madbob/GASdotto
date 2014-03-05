@@ -82,14 +82,14 @@ public class OrderCiclyc extends Composite implements StringWidget {
 		selector.addItem ( "Ogni anno", Integer.toString ( ORDER_REPEATS_EACH_YEAR ) );
 		selector.addItem ( "Specifica manuale", Integer.toString ( ORDER_REPEATS_DEFINED ) );
 		pan.add ( selector );
-		selector.addChangeHandler ( new ChangeHandler () {
+		selector.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
 				if ( selector.getSelectedIndex () == ORDER_REPEATS_DEFINED )
 					dateSelector.setVisible ( true );
 				else
 					dateSelector.setVisible ( false );
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		dateSelector = new DateSelector ();
 		pan.add ( dateSelector );

@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
@@ -65,11 +66,11 @@ public class OrderUserMultiPanel extends OrderUserManagerMode implements Lockabl
 			}
 		} );
 
-		user.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		user.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				retrieveCurrentOrderByUser ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		selection = new OrderUserPlainPanel ( baseOrder, edit, freedit );
 		selection.setWidth ( "100%" );

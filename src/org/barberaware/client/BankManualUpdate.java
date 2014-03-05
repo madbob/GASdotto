@@ -98,7 +98,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		user = new FromServerSelector ( "User", true, true, false );
 		header.addPair ( "Socio", user );
 
-		reason.addChangeHandler ( new ChangeHandler () {
+		reason.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
 				int selected;
 
@@ -120,7 +120,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 					header.showByLabel ( "Socio", false );
 				}
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		info = new BankMovementForm ();
 		pan.add ( info );

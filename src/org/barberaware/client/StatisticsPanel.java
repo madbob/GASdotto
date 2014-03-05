@@ -59,7 +59,6 @@ public class StatisticsPanel extends GenericPanel {
 
 		Date now;
 		Date past;
-		ChangeListener listener;
 		HorizontalPanel hor;
 		FlexTable layout;
 		FlexTable.FlexCellFormatter formatter;
@@ -117,7 +116,7 @@ public class StatisticsPanel extends GenericPanel {
 		graphByPrices.addSelectHandler ( new SelectHandler () {
 			public void onSelect ( SelectHandler.SelectEvent event ) {
 				Selection sel;
-				JsArray arr;
+				JsArray<Selection> arr;
 
 				arr = graphByPrices.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
@@ -129,7 +128,7 @@ public class StatisticsPanel extends GenericPanel {
 		graphByOrders.addSelectHandler ( new SelectHandler () {
 			public void onSelect ( SelectHandler.SelectEvent event ) {
 				Selection sel;
-				JsArray arr;
+				JsArray<Selection> arr;
 
 				arr = graphByOrders.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
@@ -152,11 +151,11 @@ public class StatisticsPanel extends GenericPanel {
 		formatter.setColSpan ( 0, 0, 2 );
 
 		supplier = new FromServerSelector ( "Supplier", true, true, false );
-		supplier.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		supplier.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				performProductsUpdate ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 		hor.add ( new Label ( "Fornitore" ) );
 		hor.add ( supplier );
 
@@ -201,7 +200,7 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProduct.addSelectHandler ( new SelectHandler () {
 			public void onSelect ( SelectHandler.SelectEvent event ) {
 				Selection sel;
-				JsArray arr;
+				JsArray<Selection> arr;
 
 				arr = graphByProduct.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
@@ -213,7 +212,7 @@ public class StatisticsPanel extends GenericPanel {
 		graphByProductValue.addSelectHandler ( new SelectHandler () {
 			public void onSelect ( SelectHandler.SelectEvent event ) {
 				Selection sel;
-				JsArray arr;
+				JsArray<Selection> arr;
 
 				arr = graphByProductValue.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );

@@ -19,6 +19,7 @@ package org.barberaware.client;
 
 import java.util.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.event.dom.client.*;
 
 public class ProductVariantValuesList extends FlexTable implements FromServerArray {
 	public ProductVariantValuesList () {
@@ -83,11 +84,11 @@ public class ProductVariantValuesList extends FlexTable implements FromServerArr
 
 		text = new TextBox ();
 
-		text.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		text.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				checkAddRow ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		setWidget ( row, 1, text );
 

@@ -102,20 +102,20 @@ public class BankPanel extends GenericPanel {
 
 		userFilter = new FromServerSelector ( "User", true, true, true );
 		userFilter.addAllSelector ();
-		userFilter.addChangeHandler ( new ChangeHandler () {
+		userFilter.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
 				loadData ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 		frame.addPair ( "Filtra Utente", userFilter );
 
 		supplierFilter = new FromServerSelector ( "Supplier", true, true, true );
 		supplierFilter.addAllSelector ();
-		supplierFilter.addChangeHandler ( new ChangeHandler () {
+		supplierFilter.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
 				loadData ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 		frame.addPair ( "Filtra Fornitore", supplierFilter );
 
 		/*

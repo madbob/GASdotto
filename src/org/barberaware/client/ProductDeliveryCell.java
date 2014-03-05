@@ -243,13 +243,13 @@ public class ProductDeliveryCell extends Composite {
 			}
 		} );
 
-		dynamicProductSelect.addChangeListener ( new ChangeListener () {
-			public void onChange ( Widget sender ) {
+		dynamicProductSelect.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
 				referenceProd.setObject ( "product", dynamicProductSelect.getValue () );
 				newInputToCheck ();
 				triggerChange ();
 			}
-		} );
+		}, ChangeEvent.getType () );
 
 		dynamicProductSelect.unlock ();
 		main.add ( dynamicProductSelect );

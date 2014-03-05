@@ -18,13 +18,13 @@
 package org.barberaware.client;
 
 import java.util.*;
+import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
 public class UserSelector extends DeckPanel implements ObjectWidget, Lockable {
 	private FromServerSelector			select;
-	private DelegatingChangeListenerCollection	changeListeners		= null;
 
 	public UserSelector () {
 		User user;
@@ -50,13 +50,7 @@ public class UserSelector extends DeckPanel implements ObjectWidget, Lockable {
 	}
 
 	private void fire () {
-	    changeListeners.fireChange ( this );
-	}
-
-	public void addChangeListener ( ChangeListener listener ) {
-		if ( changeListeners == null )
-			changeListeners = new DelegatingChangeListenerCollection ( this, select );
-		changeListeners.add ( listener );
+		DomEvent.fireNativeEvent ( Document.get ().createChangeEvent (), this );
 	}
 
 	public void addFilter ( FromServerValidateCallback filter ) {
