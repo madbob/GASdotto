@@ -402,7 +402,8 @@ public class SuppliersEditPanel extends GenericPanel {
 		tabs.add ( files_pan, "Files" );
 
 		productslist = new LinksDialog ( "Listino Prodotti" );
-		productslist.addLink ( "CSV", "suppliers_products.php?supplier=" + supplier.getLocalID () );
+		productslist.addLink ( "CSV", "suppliers_products.php?format=csv&supplier=" + supplier.getLocalID () );
+		productslist.addLink ( "PDF", "suppliers_products.php?format=pdf&supplier=" + supplier.getLocalID () );
 		files_pan.add ( productslist );
 
 		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {

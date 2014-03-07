@@ -159,8 +159,13 @@ public class SupplierUneditableForm extends FromServerForm {
 		frame.add ( getPersonalizedWidget ( "files", files ) );
 
 		products_fake_file = new CustomFile ();
-		products_fake_file.setString ( "name", "Listino Prodotti" );
-		products_fake_file.setString ( "server_path", "suppliers_products.php?supplier=" + supplier.getLocalID () );
+		products_fake_file.setString ( "name", "Listino Prodotti CSV" );
+		products_fake_file.setString ( "server_path", "server/suppliers_products.php?format=csv&supplier=" + supplier.getLocalID () );
+		files.addElement ( products_fake_file );
+
+		products_fake_file = new CustomFile ();
+		products_fake_file.setString ( "name", "Listino Prodotti PDF" );
+		products_fake_file.setString ( "server_path", "server/suppliers_products.php?format=pdf&supplier=" + supplier.getLocalID () );
 		files.addElement ( products_fake_file );
 
 		/*
