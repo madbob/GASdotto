@@ -29,55 +29,55 @@ class BankMovementType extends FromServer {
 	public function __construct () {
 		parent::__construct ( "BankMovementType" );
 
-		$this->addAttribute ( "index", "INTEGER" );
+		$this->addAttribute ( "identifier", "INTEGER" );
 		$this->addAttribute ( "name", "STRING" );
 	}
 
 	public function install () {
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 0;
+		$a->getAttribute ( 'identifier' )->value = 0;
 		$a->getAttribute ( 'name' )->value = "Deposito cauzione socio del GAS";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 1;
+		$a->getAttribute ( 'identifier' )->value = 1;
 		$a->getAttribute ( 'name' )->value = "Restituzione cauzione socio del GAS";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 2;
+		$a->getAttribute ( 'identifier' )->value = 2;
 		$a->getAttribute ( 'name' )->value = "Versamento della quota annuale da parte di un socio";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 3;
+		$a->getAttribute ( 'identifier' )->value = 3;
 		$a->getAttribute ( 'name' )->value = "Pagamento di un ordine da parte di un socio";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 4;
+		$a->getAttribute ( 'identifier' )->value = 4;
 		$a->getAttribute ( 'name' )->value = "Pagamento dell'ordine presso il fornitore";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 5;
+		$a->getAttribute ( 'identifier' )->value = 5;
 		$a->getAttribute ( 'name' )->value = "Deposito di credito da parte di un socio";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 6;
+		$a->getAttribute ( 'identifier' )->value = 6;
 		$a->getAttribute ( 'name' )->value = "Acquisto o spesa generica da parte del GAS";
 		$a->save ( $a->exportable () );
 		unset ( $a );
 
 		$a = new BankMovementType ();
-		$a->getAttribute ( 'index' )->value = 7;
+		$a->getAttribute ( 'identifier' )->value = 7;
 		$a->getAttribute ( 'name' )->value = "Trasferimento interno al GAS, dalla cassa al conto o viceversa";
 		$a->save ( $a->exportable () );
 		unset ( $a );
