@@ -206,6 +206,15 @@ class BankMovement extends FromServer {
 	}
 
 	private function assignMovement ( $type, $payuser, $id ) {
+		/*
+			Questo e' per evitare che vengano creati nuovi utenti a
+			vuoto, soprattutto quando non sono abilitate le quote
+			per i soci ma comunque transitano dei BankMovement di
+			tal fatta (ovviamente senza alcun payuser settato)
+		*/
+		if ( $payuser == 0 )
+			return;
+
 		switch ( $type ) {
 			case 0:
 				$tmp = new User ();
