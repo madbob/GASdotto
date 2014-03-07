@@ -80,7 +80,7 @@ public class SuppliersEditPanel extends GenericPanel {
 				if ( ( supp.iAmReference () == true && form instanceof SupplierUneditableForm ) ||
 						( supp.iAmReference () == false && ( ( form instanceof SupplierUneditableForm ) == false ) ) ) {
 					main.deleteElement ( object );
-					main.addElement ( object );
+					main.putElement ( object );
 				}
 
 				if ( supp.getBool ( "hidden" ) == true ) {

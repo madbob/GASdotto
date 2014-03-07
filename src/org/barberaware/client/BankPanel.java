@@ -39,6 +39,7 @@ public class BankPanel extends GenericPanel {
 		PriceViewer price;
 		AddButton button;
 		CustomCaptionPanel frame;
+		ChangeHandler handler;
 
 		/*
 			Tabella principale
@@ -91,31 +92,25 @@ public class BankPanel extends GenericPanel {
 		hor.add ( frame );
 		hor.setCellWidth ( frame, "50%" );
 
-		dates = new DateRange ();
-		dates.addDomHandler ( new ChangeHandler () {
+		handler = new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
 				loadData ();
 			}
-		}, ChangeEvent.getType () );
+		};
+
+		dates = new DateRange ();
+		dates.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Dal", dates.getStartDateWidget () );
 		frame.addPair ( "Al", dates.getEndDateWidget () );
 
 		userFilter = new FromServerSelector ( "User", true, true, true );
 		userFilter.addAllSelector ();
-		userFilter.addDomHandler ( new ChangeHandler () {
-			public void onChange ( ChangeEvent event ) {
-				loadData ();
-			}
-		}, ChangeEvent.getType () );
+		userFilter.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Filtra Utente", userFilter );
 
 		supplierFilter = new FromServerSelector ( "Supplier", true, true, true );
 		supplierFilter.addAllSelector ();
-		supplierFilter.addDomHandler ( new ChangeHandler () {
-			public void onChange ( ChangeEvent event ) {
-				loadData ();
-			}
-		}, ChangeEvent.getType () );
+		supplierFilter.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Filtra Fornitore", supplierFilter );
 
 		/*

@@ -103,6 +103,8 @@ public class HomePanel extends GenericPanel {
 
 		add ( new HTML ( "<hr />" ) );
 		add ( new LinksBox () );
+		if ( Session.getSystemConf ().getBool ( "has_file" ) == true )
+			add ( new FilesBox () );
 
 		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {

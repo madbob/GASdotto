@@ -232,7 +232,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 					else if ( form == null ) {
 						if ( obj.getBool ( "parent_aggregate" ) == false )
-							main.addElement ( obj );
+							main.putElement ( obj );
 					}
 				}
 
@@ -268,12 +268,12 @@ public class OrdersEditPanel extends GenericPanel {
 					main.deleteElement ( tmp );
 				}
 
-				main.addElement ( object );
+				main.putElement ( object );
 				aggregator.addElement ( object );
 			}
 
 			public void onModify ( FromServer object ) {
-				main.refreshElement ( object );
+				main.updateElement ( object );
 				aggregator.refreshElement ( object );
 			}
 

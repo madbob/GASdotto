@@ -192,7 +192,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 					ver.setCallback ( new FromServerFormCallbacks () {
 						public void onSaved ( FromServerRappresentationFull form ) {
-							list.addElement ( form.getValue () );
+							list.putElement ( form.getValue () );
 						}
 					} );
 
@@ -393,7 +393,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 				*/
 				prod.setArray ( "variants", null );
 
-				list.addElement ( prod );
+				list.putElement ( prod );
 			}
 
 			public void onCancel ( SavingDialog dialog ) {
@@ -463,7 +463,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
-		list.addElement ( element );
+		list.putElement ( element );
 		table.addElement ( element );
 	}
 
@@ -482,7 +482,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 	}
 
 	public void refreshElement ( FromServer element ) {
-		list.refreshElement ( element );
+		list.updateElement ( element );
 		table.refreshElement ( element );
 	}
 }

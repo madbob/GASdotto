@@ -66,13 +66,13 @@ public class NotificationsBox extends Composite {
 
 				tmp = ( Notification ) object;
 				if ( tmp.isForMe () ) {
-					main.addElement ( object );
+					main.putElement ( object );
 					ubermain.setVisible ( true );
 				}
 			}
 
 			public void onModify ( FromServer object ) {
-				main.refreshElement ( object );
+				main.updateElement ( object );
 			}
 
 			public void onDestroy ( FromServer object ) {

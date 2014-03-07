@@ -29,13 +29,17 @@ public class DownloadButton extends HTML implements StringWidget {
 		setHTML ( "Nessun File da Scaricare" );
 	}
 
-	public void setValue ( String value ) {
+	public void setValue ( String title, String value ) {
 		url = value;
 
 		if ( url == null || url == "" )
 			setHTML ( "Nessun File da Scaricare" );
 		else
-			setHTML ( "<a href=\"" + Utils.getServer ().getURL () + "downloader.php?path=" + url + "\">Scarica File</a>" );
+			setHTML ( "<a href=\"" + Utils.getServer ().getURL () + "downloader.php?path=" + url + "\">" + title + "</a>" );
+	}
+
+	public void setValue ( String value ) {
+		setValue ( "Scarica File", value );
 	}
 
 	public String getValue () {

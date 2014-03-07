@@ -21,13 +21,41 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class ContentsPanel extends GenericPanel {
-	private FormCluster		main;
+	private FormCluster		links;
+	private FilesGroup		files;
 
 	public ContentsPanel () {
 		super ();
 
-		main = new FormCluster ( "Link", "Nuovo Link" ) {
+		if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
+			files = new FilesGroup ();
+			files.addExtraCallback ( new FromServerFormCallbacks () {
+				public void onSaved ( FromServerRappresentationFull form ) {
+					FromServer gas;
+					FromServer new_file;
+					ArrayList<FromServer> existing;
+
+					gas = Session.getGAS ();
+					new_file = form.getValue ();
+					existing = gas.getArray ( "files" );
+
+					for ( FromServer test : existing )
+						if ( test.equals ( new_file ) == true )
+							return;
+
+					gas.addToArray ( "files", new_file );
+					gas.save ( null );
+				}
+			} );
+
+			files.setElements ( Session.getGAS ().getArray ( "files" ) );
+			addTop ( files );
+		}
+
+		links = new FormCluster ( "Link", "Nuovo Link" ) {
 			protected FromServerForm doEditableRow ( FromServer n ) {
 				FromServerForm ver;
 				DateSelector date;
@@ -55,7 +83,7 @@ public class ContentsPanel extends GenericPanel {
 			}
 		};
 
-		addTop ( main );
+		addTop ( links );
 	}
 
 	/****************************************************************** GenericPanel */
@@ -69,7 +97,7 @@ public class ContentsPanel extends GenericPanel {
 	}
 
 	public String getCurrentInternalReference () {
-		return Integer.toString ( main.getCurrentlyOpened () );
+		return Integer.toString ( links.getCurrentlyOpened () );
 	}
 
 	public Image getIcon () {

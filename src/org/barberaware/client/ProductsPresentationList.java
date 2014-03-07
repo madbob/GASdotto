@@ -141,7 +141,7 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
-		list.addElement ( element );
+		list.putElement ( element );
 	}
 
 	public void setElements ( ArrayList elements ) {
@@ -158,6 +158,6 @@ public class ProductsPresentationList extends Composite implements FromServerArr
 	}
 
 	public void refreshElement ( FromServer element ) {
-		list.refreshElement ( element );
+		list.updateElement ( element );
 	}
 }

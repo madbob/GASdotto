@@ -21,37 +21,33 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
-public class FilesGroup extends Composite implements FromServerArray {
-	private FormGroup		main;
-
+public class FilesGroup extends FormGroup implements FromServerArray {
 	public FilesGroup () {
-		main = new FormGroup ( "Nuovo File" ) {
-			protected FromServerForm doEditableRow ( FromServer n ) {
-				FlexTable fields;
-				FromServerForm form;
-				FileUploadDialog uploader;
+		super ( "Nuovo File" );
+	}
 
-				form = new FromServerForm ( n );
+	protected FromServerForm doEditableRow ( FromServer n ) {
+		FlexTable fields;
+		FromServerForm form;
+		FileUploadDialog uploader;
 
-				fields = new FlexTable ();
-				form.add ( fields );
+		form = new FromServerForm ( n );
 
-				fields.setWidget ( 0, 0, new Label ( "Nome" ) );
-				fields.setWidget ( 0, 1, form.getWidget ( "name" ) );
+		fields = new FlexTable ();
+		form.add ( fields );
 
-				fields.setWidget ( 1, 0, new Label ( "File" ) );
-				uploader = new FileUploadDialog ();
-				fields.setWidget ( 1, 1, form.getPersonalizedWidget ( "server_path", uploader ) );
+		fields.setWidget ( 0, 0, new Label ( "Nome" ) );
+		fields.setWidget ( 0, 1, form.getWidget ( "name" ) );
 
-				return form;
-			}
+		fields.setWidget ( 1, 0, new Label ( "File" ) );
+		uploader = new FileUploadDialog ();
+		fields.setWidget ( 1, 1, form.getPersonalizedWidget ( "server_path", uploader ) );
 
-			protected FromServerForm doNewEditableRow () {
-				return doEditableRow ( new CustomFile () );
-			}
-		};
+		return form;
+	}
 
-		initWidget ( main );
+	protected FromServerForm doNewEditableRow () {
+		return doEditableRow ( new CustomFile () );
 	}
 
 	/****************************************************************** FromServerArray */
@@ -59,7 +55,7 @@ public class FilesGroup extends Composite implements FromServerArray {
 	public void addElement ( FromServer element ) {
 		if ( element == null )
 			return;
-		main.addElement ( element );
+		super.putElement ( element );
 	}
 
 	public void setElements ( ArrayList elements ) {
@@ -70,20 +66,20 @@ public class FilesGroup extends Composite implements FromServerArray {
 
 		tot = elements.size ();
 		for ( int i = 0; i < tot; i++ )
-			main.addElement ( ( FromServer ) elements.get ( i ) );
+			super.putElement ( ( FromServer ) elements.get ( i ) );
 	}
 
 	public void removeElement ( FromServer element ) {
 		if ( element == null )
 			return;
-		main.deleteElement ( element );
+		super.deleteElement ( element );
 	}
 
 	public ArrayList getElements () {
-		return main.collectContents ();
+		return super.collectContents ();
 	}
 
 	public void refreshElement ( FromServer element ) {
-		main.refreshElement ( element );
+		super.updateElement ( element );
 	}
 }

@@ -50,7 +50,7 @@ public abstract class OrdersList extends FormGroup {
 		if ( tot >= 10 && sorting ( retrieveForm ( latestIterableIndex () - 1 ).getValue (), order ) < 0 )
 			return;
 
-		added = addElement ( order );
+		added = putElement ( order );
 
 		/*
 			Se prima dell'inserimento "tot" era 10 adesso si suppone sia 11...
@@ -67,7 +67,7 @@ public abstract class OrdersList extends FormGroup {
 	}
 
 	public void modOrder ( FromServer order ) {
-		refreshElement ( order );
+		updateElement ( order );
 	}
 
 	public void delOrder ( FromServer order ) {

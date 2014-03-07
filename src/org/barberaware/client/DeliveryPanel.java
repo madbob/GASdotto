@@ -71,7 +71,7 @@ public class DeliveryPanel extends GenericPanel {
 			}
 
 			public void onModify ( FromServer object ) {
-				main.refreshElement ( object );
+				main.updateElement ( object );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -126,7 +126,7 @@ public class DeliveryPanel extends GenericPanel {
 					form = ( FromServerForm ) main.retrieveForm ( object );
 
 					if ( form == null ) {
-						main.addElement ( object );
+						main.putElement ( object );
 						form = ( FromServerForm ) main.retrieveForm ( object );
 					}
 
@@ -264,7 +264,7 @@ public class DeliveryPanel extends GenericPanel {
 
 		form = main.retrieveForm ( object );
 		if ( form == null ) {
-			if ( main.addElement ( object ) == 1 ) {
+			if ( main.putElement ( object ) == 1 ) {
 				if ( object.getInt ( "status" ) == Order.SHIPPED && OrdersHub.checkShippedOrdersStatus () == false ) {
 					form = main.retrieveForm ( object );
 					form.setVisible ( false );

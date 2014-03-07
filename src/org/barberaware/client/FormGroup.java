@@ -26,11 +26,12 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public abstract class FormGroup extends Composite {
-	private VerticalPanel			main			= null;
-	private String				identifier		= "";
-	private Panel				addButtons		= null;
-	private boolean				addable			= false;
-	private ArrayList			aggregates		= null;
+	private VerticalPanel				main		= null;
+	private String					identifier	= "";
+	private Panel					addButtons	= null;
+	private boolean					addable		= false;
+	private ArrayList				aggregates	= null;
+	private ArrayList<FromServerFormCallbacks>	extraCallbacks	= null;
 
 	public FormGroup ( String adding_text ) {
 		main = new VerticalPanel ();
@@ -119,7 +120,7 @@ public abstract class FormGroup extends Composite {
 		2 - se non e' possibile creare il nuovo form per il nuovo elemento, cioe' se
 			doEditableRow() torna null
 	*/
-	public int addElement ( FromServer object ) {
+	public int putElement ( FromServer object ) {
 		int ret;
 		int pos;
 		FromServerForm iter;
@@ -148,6 +149,7 @@ public abstract class FormGroup extends Composite {
 					}
 				} );
 
+				assignExtraCallbacks ( iter );
 				main.insert ( iter, pos );
 				object.addRelatedInfo ( identifier, iter );
 
@@ -182,7 +184,7 @@ public abstract class FormGroup extends Composite {
 		}
 	}
 
-	public FromServerRappresentation refreshElement ( FromServer object ) {
+	public FromServerRappresentation updateElement ( FromServer object ) {
 		FromServerRappresentation iter;
 
 		iter = retrieveForm ( object );
@@ -303,6 +305,13 @@ public abstract class FormGroup extends Composite {
 		return identifier;
 	}
 
+	private void assignExtraCallbacks ( FromServerForm target ) {
+		if ( extraCallbacks != null ) {
+			for ( FromServerFormCallbacks c : extraCallbacks )
+				target.setCallback ( c );
+		}
+	}
+
 	private void closeOtherForms ( FromServerForm target ) {
 		int tot;
 		FromServerForm iter;
@@ -359,6 +368,7 @@ public abstract class FormGroup extends Composite {
 					}
 				} );
 
+				assignExtraCallbacks ( new_form );
 				new_form.getValue ().addRelatedInfo ( identifier, new_form );
 				new_form.open ( true );
 				main.insert ( new_form, firstIterableIndex () );
@@ -446,6 +456,13 @@ public abstract class FormGroup extends Composite {
 	*/
 	protected void asyncLoad ( FromServerForm form ) {
 		/* dummy */
+	}
+
+	public void addExtraCallback ( FromServerFormCallbacks callback ) {
+		if ( extraCallbacks == null )
+			extraCallbacks = new ArrayList<FromServerFormCallbacks> ();
+
+		extraCallbacks.add ( callback );
 	}
 
 	protected abstract FromServerForm doNewEditableRow ();

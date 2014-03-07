@@ -41,7 +41,7 @@ public abstract class FormCluster extends FormGroup implements Lockable {
 				add = 0;
 
 				if ( automatic == true ) {
-					add = addElement ( object );
+					add = putElement ( object );
 					if ( add == 2 )
 						return;
 				}
@@ -52,7 +52,7 @@ public abstract class FormCluster extends FormGroup implements Lockable {
 			public void onModify ( FromServer object ) {
 				FromServerRappresentation iter;
 
-				iter = refreshElement ( object );
+				iter = updateElement ( object );
 				customModify ( object, iter );
 			}
 
@@ -96,7 +96,7 @@ public abstract class FormCluster extends FormGroup implements Lockable {
 		Il parametro "auto" permette di definire l'automatismo di popolamento del
 		FormCluster: se == true esso viene automaticamente caricato con tutti gli oggetti
 		del tipo specificato in arrivo, altrimenti e' necessario invocare manualmente
-		addElement per ogni elemento da mostrare e gestire
+		putElement per ogni elemento da mostrare e gestire
 	*/
 	public FormCluster ( String type, String adding_text, boolean auto ) {
 		super ( adding_text );
