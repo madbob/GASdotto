@@ -271,10 +271,10 @@ public class SuppliersEditPanel extends GenericPanel {
 		frame.addPair ( "Partita IVA", ver.getWidget ( "vat_number" ) );
 		frame.addPair ( "Inattivo", ver.getWidget ( "hidden" ) );
 
-		frame = new CustomCaptionPanel ( "Configurazioni" );
-		column.add ( frame );
-
 		if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+			frame = new CustomCaptionPanel ( "Configurazioni" );
+			column.add ( frame );
+
 			notifies = supp.doSupplierNotificationsSelector ( Session.getUser () );
 			ver.setExtraWidget ( "send_notifies", notifies );
 			frame.addPair ( "Invia Notifiche", notifies );

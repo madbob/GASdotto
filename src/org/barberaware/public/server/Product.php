@@ -28,6 +28,7 @@ class Product extends SharableFromServer {
 		$this->addAttribute ( "category", "OBJECT::Category" );
 		$this->addAttribute ( "supplier", "OBJECT::Supplier" );
 		$this->addAttribute ( "description", "STRING" );
+		$this->addAttribute ( "photo", "STRING" );
 		$this->addAttribute ( "shipping_price", "FLOAT" );
 		$this->addAttribute ( "unit_price", "FLOAT" );
 		$this->addAttribute ( "surplus", "PERCENTAGE" );

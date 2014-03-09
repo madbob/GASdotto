@@ -28,6 +28,7 @@ public class Product extends FromServer {
 		addAttribute ( "category", FromServer.OBJECT, Category.class );
 		addAttribute ( "supplier", FromServer.OBJECT, Supplier.class );
 		addAttribute ( "description", FromServer.LONGSTRING );
+		addAttribute ( "photo", FromServer.STRING );
 		addAttribute ( "unit_price", FromServer.PRICE );
 		addAttribute ( "surplus", FromServer.PERCENTAGE );
 		addAttribute ( "shipping_price", FromServer.PRICE );

@@ -27,29 +27,36 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class FileUploadDialog extends Composite implements StringWidget {
-	private HorizontalPanel			main;
+	private VerticalPanel			main;
 
 	private Button				button;
 	private DownloadButton			link;
 	private FormPanel			form;
 	private DialogBox			dialog;
 	private FileUpload			upload;
+	private Image				image;
 
 	private boolean				opened;
 	private String				customEmptyString;
 	private String				completeFile;
 
 	public FileUploadDialog () {
+		HorizontalPanel top;
+
 		opened = false;
 		customEmptyString = "Nessun file selezionato";
 		completeFile = "";
+		image = null;
 
 		dialog = new DialogBox ( false );
 		dialog.setText ( "Seleziona File" );
 		dialog.setWidget ( doDialog () );
 
-		main = new HorizontalPanel ();
+		main = new VerticalPanel ();
 		main.setSpacing ( 5 );
+
+		top = new HorizontalPanel ();
+		main.add ( top );
 
 		button = new Button ();
 		button.addClickHandler ( new ClickHandler () {
@@ -61,10 +68,10 @@ public class FileUploadDialog extends Composite implements StringWidget {
 				}
 			}
 		} );
-		main.add ( button );
+		top.add ( button );
 
 		link = new DownloadButton ();
-		main.add ( link );
+		top.add ( link );
 
 		initWidget ( main );
 		showFileName ();
@@ -74,12 +81,35 @@ public class FileUploadDialog extends Composite implements StringWidget {
 		form.setAction ( Utils.getServer ().getURL () + destination );
 	}
 
+	public void isImageUpload ( boolean do_image ) {
+		if ( do_image == true ) {
+			image = new Image ();
+			main.add ( image );
+			setDestination ( "upload_image.php" );
+
+			showFileName ();
+
+			addDomHandler ( new ChangeHandler () {
+				public void onChange ( ChangeEvent event ) {
+					image.setVisible ( true );
+					image.setUrl ( Utils.getServer ().getDomain () + getValue () );
+				}
+			}, ChangeEvent.getType () );
+		}
+		else {
+			/* dummy */
+		}
+	}
+
 	private void showFileName () {
 		String [] path;
 
 		if ( completeFile == null || completeFile.equals ( "" ) ) {
 			button.setText ( customEmptyString );
 			link.setVisible ( false );
+
+			if ( image != null )
+				image.setVisible ( false );
 		}
 		else {
 			path = completeFile.split ( "/" );
@@ -87,6 +117,11 @@ public class FileUploadDialog extends Composite implements StringWidget {
 
 			link.setVisible ( true );
 			link.setValue ( completeFile );
+
+			if ( image != null ) {
+				image.setVisible ( true );
+				image.setUrl ( Utils.getServer ().getDomain () + "/" + path );
+			}
 		}
 	}
 

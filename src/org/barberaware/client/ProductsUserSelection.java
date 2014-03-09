@@ -37,6 +37,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		prima volta che viene richiesto
 	*/
 	private DialogBox		descDialog			= null;
+	private Image			descDialogPhoto;
 	private Label			descDialogText;
 
 	private float			total;
@@ -183,6 +184,9 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		pan.setWidth ( "400px" );
 		descDialog.setWidget ( pan );
 
+		descDialogPhoto = new Image ();
+		pan.add ( descDialogPhoto );
+
 		descDialogText = new Label ();
 		pan.add ( descDialogText );
 
@@ -201,6 +205,16 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 			initDescriptionDialog ();
 
 		descDialog.setText ( product.getString ( "name" ) );
+
+		desc = product.getString ( "photo" );
+		if ( desc == null || desc == "" ) {
+			descDialogPhoto.setVisible ( false );
+		}
+		else {
+			descDialogPhoto.setVisible ( true );
+			descDialogPhoto.setUrl ( Utils.getServer ().getDomain () + "/" + desc );
+		}
+
 		desc = product.getString ( "description" );
 		descDialogText.setText ( desc != "" ? desc : "Nessuna descrizione" );
 

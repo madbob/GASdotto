@@ -61,10 +61,10 @@ public class SupplierUneditableForm extends FromServerForm {
 		if ( Session.getGAS ().getBool ( "use_shipping" ) == true )
 			cframe.addPair ( "Luogo Consegna", getPersonalizedWidget ( "shipping_manage", Supplier.doSupplierShippingSelector ( false ) ) );
 
-		cframe = new CustomCaptionPanel ( "Configurazioni" );
-		column.add ( cframe );
-
 		if ( Session.getGAS ().getBool ( "use_mail" ) == true ) {
+			cframe = new CustomCaptionPanel ( "Configurazioni" );
+			column.add ( cframe );
+
 			notifies = supplier.doSupplierNotificationsSelector ( Session.getUser () );
 			setExtraWidget ( "send_notifies", notifies );
 			cframe.addPair ( "Invia Notifiche", notifies );

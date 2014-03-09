@@ -42,7 +42,7 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 			but = new Button ( "Si, aggiungilo", new ClickHandler () {
 				public void onClick ( ClickEvent event ) {
-					ArrayList products;
+					ArrayList<FromServer> products;
 
 					products = order.getArray ( "products" );
 					products.add ( product );
@@ -251,6 +251,15 @@ public class ProductsEditPanel extends Composite implements FromServerArray, Loc
 
 					frame.addPair ( "Pezzatura", ver.getWidget ( "unit_size" ) );
 					frame.addPair ( "Ordinabile", ver.getWidget ( "available" ) );
+
+					if ( Session.getSystemConf ().getBool ( "has_file" ) == true ) {
+						FileUploadDialog photo;
+
+						photo = new FileUploadDialog ();
+						photo.isImageUpload ( true );
+
+						frame.addPair ( "Foto", ver.getPersonalizedWidget ( "photo", photo ) );
+					}
 
 					/* seconda colonna */
 
