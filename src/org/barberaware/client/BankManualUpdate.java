@@ -35,7 +35,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		alcuni non sempre sono presenti (e.g. quelli per il pagamento
 		delle quote di iscrizione)
 	*/
-	private int				USER_CREDIT		= 100;
+	private int				USER_CREDIT_CASH	= 100;
+	private int				USER_CREDIT_BANK	= 100;
 	private int				GAS_BANK_TO_CASH	= 100;
 	private int				GAS_CASH_TO_BANK	= 100;
 	private int				GAS_BUY_BY_BANK		= 100;
@@ -71,8 +72,10 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		item_index = 0;
 
 		reason = new ListBox ();
-		reason.addItem ( "Versamento Credito Utente" );
-		USER_CREDIT = item_index++;
+		reason.addItem ( "Versamento Credito Utente in Contanti" );
+		USER_CREDIT_CASH = item_index++;
+		reason.addItem ( "Versamento Credito Utente via Bonifico" );
+		USER_CREDIT_BANK = item_index++;
 		reason.addItem ( "Trasferimento Conto / Cassa" );
 		GAS_BANK_TO_CASH = item_index++;
 		reason.addItem ( "Trasferimento Cassa / Conto" );
@@ -104,7 +107,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 				selected = reason.getSelectedIndex ();
 
-				if ( selected == USER_CREDIT ||
+				if ( selected == USER_CREDIT_CASH ||
+				     selected == USER_CREDIT_BANK ||
 				     selected == USER_ANNUAL_CASH ||
 				     selected == USER_ANNUAL_BANK ||
 				     selected == USER_DEPOSIT_PAY ||
@@ -189,9 +193,14 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		movement = info.getValue ();
 		selected = reason.getSelectedIndex ();
 
-		if ( selected == USER_CREDIT ) {
+		if ( selected == USER_CREDIT_CASH ) {
 			movement.setInt ( "movementtype", BankMovement.USER_CREDIT );
 			movement.setInt ( "method", BankMovement.BY_CASH );
+			movement.setInt ( "payuser", user.getValue ().getLocalID () );
+		}
+		else if ( selected == USER_CREDIT_BANK ) {
+			movement.setInt ( "movementtype", BankMovement.USER_CREDIT );
+			movement.setInt ( "method", BankMovement.BY_BANK );
 			movement.setInt ( "payuser", user.getValue ().getLocalID () );
 		}
 		else if ( selected == GAS_BANK_TO_CASH ) {
