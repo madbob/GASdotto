@@ -1071,10 +1071,17 @@ function check_session () {
 	global $current_gas;
 	global $db;
 	global $cache;
+	global $stack_filters;
 
 	$current_user = -1;
 	$current_gas = -1;
 	$cache = array ();
+
+	/*
+		Testato in FromServer::filter_object(), se messo a FALSE i filtri basati sulla cache dichiarata dal
+		client non vengono a loro volta estesi leggendo valori dal database eseguendo il comando
+	*/
+	$stack_filters = true;
 
 	if ( connect_to_the_database () == false )
 		error_exit ( "Impossibile connettersi al database" );

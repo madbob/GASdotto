@@ -80,6 +80,8 @@ public class ProfilePanel extends GenericPanel {
 		birth.yearSelectable ( true );
 		frame.addPair ( "Data di Nascita", form.getPersonalizedWidget ( "birthday", birth ) );
 
+		frame.addPair ( "Codice Fiscale", form.getWidget ( "codfisc" ) );
+
 		frame.addPair ( "Persone in Famiglia", form.getWidget ( "family" ) );
 
 		/*

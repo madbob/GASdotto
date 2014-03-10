@@ -54,6 +54,14 @@ formatting_entities ( $format );
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
+/*
+	Se questo non viene settato, il filtro in FromServer::filter_object() mette in cache anche gli utenti man mano
+	prelevati dalla query (cfr. i referenti del fornitore dell'ordine in esame) e si spaccano i riferimenti a
+	$orderuser->baseorder (che dunque viene gestito come ID numerico anziche' come oggetto completo)
+*/
+global $stack_filters;
+$stack_filters = false;
+
 list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
 $all_products = array ();
@@ -80,6 +88,12 @@ $use_bank = $gas->getAttribute ( 'use_bank' )->value;
 for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$order_user = $all_contents [ $i ];
 
+	/*
+		Salto gli ordini gia' consegnati
+	*/
+	if ( $order_user->status == 2 )
+		continue;
+
 	$user_products = $order_user->products;
 	if ( is_array ( $user_products ) == false )
 		continue;
@@ -99,12 +113,6 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$output .= $head_end;
 
 	$output .= $row_begin . 'Prodotto' . $inrow_separator . 'Quantità' . $inrow_separator . 'Prezzo Totale' . $inrow_separator . 'Prezzo Trasporto' . $row_end;
-
-	/*
-		Salto gli ordini gia' consegnati
-	*/
-	if ( $order_user->status == 2 )
-		continue;
 
 	/*
 		Se l'ordine risulta gia' prezzato, riporto nel documento le
