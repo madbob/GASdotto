@@ -440,11 +440,25 @@ function sort_products_on_products ( $products, $user_products ) {
 	return $proxy;
 }
 
+function get_actual_user ( $obj ) {
+	if ( is_object ( $obj ) ) {
+		return $obj;
+	}
+	else {
+		$u = new User ();
+		$u->readFromDB ( $obj );
+		return $u->exportable ();
+	}
+}
+
 function merge_order_users ( $all_orders, $orders, $also_friends = false ) {
 	foreach ( $orders as $order ) {
 		$found = false;
 
 		foreach ( $all_orders as $main_order ) {
+			$order->baseuser = get_actual_user ( $order->baseuser );
+			$main_order->baseuser = get_actual_user ( $main_order->baseuser );
+
 			if ( $order->baseuser->id == $main_order->baseuser->id ) {
 				$main_order->products = array_merge ( $main_order->products, $order->products );
 
@@ -1071,17 +1085,10 @@ function check_session () {
 	global $current_gas;
 	global $db;
 	global $cache;
-	global $stack_filters;
 
 	$current_user = -1;
 	$current_gas = -1;
 	$cache = array ();
-
-	/*
-		Testato in FromServer::filter_object(), se messo a FALSE i filtri basati sulla cache dichiarata dal
-		client non vengono a loro volta estesi leggendo valori dal database eseguendo il comando
-	*/
-	$stack_filters = true;
 
 	if ( connect_to_the_database () == false )
 		error_exit ( "Impossibile connettersi al database" );

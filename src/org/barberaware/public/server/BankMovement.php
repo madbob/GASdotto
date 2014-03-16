@@ -212,7 +212,7 @@ class BankMovement extends FromServer {
 			per i soci ma comunque transitano dei BankMovement di
 			tal fatta (ovviamente senza alcun payuser settato)
 		*/
-		if ( $payuser == 0 )
+		if ( $payuser <= 0 )
 			return;
 
 		switch ( $type ) {
@@ -244,10 +244,19 @@ class BankMovement extends FromServer {
 	}
 
 	public function save ( $obj ) {
+		global $current_user;
+
 		if ( $obj instanceof FromServer )
 			$this->dupBy ( $obj );
 		else
 			$this->from_object_to_internal ( $obj );
+
+		/*
+			Per scaramanzia...
+		*/
+		$registrationperson = $this->getAttribute ( "registrationperson" )->value;
+		if ( $registrationperson <= 0 )
+			$this->getAttribute ( "registrationperson" )->value = $current_user;
 
 		$id = $this->getAttribute ( "id" )->value;
 		if ( $id != -1 )

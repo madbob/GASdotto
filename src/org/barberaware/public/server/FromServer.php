@@ -113,8 +113,6 @@ class FromServerAttribute {
 
 	public static function filter_object ( $object, &$filter, $compress ) {
 		if ( $object != null ) {
-			global $stack_filters;
-
 			if ( is_numeric ( $object ) == true )
 				return $object . "";
 
@@ -132,9 +130,7 @@ class FromServerAttribute {
 				$filter->$id_name = array ();
 			}
 
-			if ( $stack_filters == true )
-				array_push ( $filter->$id_name, $id );
-
+			array_push ( $filter->$id_name, $id );
 			return $object->exportable ( $filter, $compress );
 		}
 		else {

@@ -54,14 +54,6 @@ formatting_entities ( $format );
 if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
-/*
-	Se questo non viene settato, il filtro in FromServer::filter_object() mette in cache anche gli utenti man mano
-	prelevati dalla query (cfr. i referenti del fornitore dell'ordine in esame) e si spaccano i riferimenti a
-	$orderuser->baseorder (che dunque viene gestito come ID numerico anziche' come oggetto completo)
-*/
-global $stack_filters;
-$stack_filters = false;
-
 list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
 $all_products = array ();
@@ -87,6 +79,7 @@ $use_bank = $gas->getAttribute ( 'use_bank' )->value;
 
 for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$order_user = $all_contents [ $i ];
+	$user = $order_user->baseuser;
 
 	/*
 		Salto gli ordini gia' consegnati
@@ -99,7 +92,7 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 		continue;
 
 	if ( $location != -1 ) {
-		$u_location = $order_user->baseuser->shipping->id;
+		$u_location = $user->shipping->id;
 		if ( $u_location != $location )
 			continue;
 	}
@@ -109,7 +102,7 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 
 	$output .= $block_begin;
 	$output .= $head_begin;
-	$output .= sprintf ( "%s%s %s%s", $string_begin, $order_user->baseuser->surname, $order_user->baseuser->firstname, $string_end );
+	$output .= sprintf ( "%s%s %s%s", $string_begin, $user->surname, $user->firstname, $string_end );
 	$output .= $head_end;
 
 	$output .= $row_begin . 'Prodotto' . $inrow_separator . 'Quantità' . $inrow_separator . 'Prezzo Totale' . $inrow_separator . 'Prezzo Trasporto' . $row_end;
@@ -216,7 +209,7 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 
 	$credit_test = '';
 	if ( $use_bank == 1 ) {
-		if ( $user_total > $order_user->baseuser->current_balance )
+		if ( $user_total > $user->current_balance )
 			$credit_test = ' (credito non sufficiente)';
 	}
 

@@ -32,18 +32,24 @@ if ( check_session () == false )
 	error_exit ( "Sessione non autenticata" );
 
 $id = require_param ( 'id' );
+$is_aggregate = get_param ( 'aggregate', false );
 
-$order = new Order ();
-$order->readFromDB ( $id );
+list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_about_order ( $id, $is_aggregate );
 
-$supplier = $order->getAttribute ( 'supplier' )->value;
-$supplier_name = $supplier->getAttribute ( 'name' )->value;
+$all_products = array ();
+$all_contents = array ();
 
-$products = $order->getAttribute ( "products" )->value;
-usort ( $products, "sort_product_by_name" );
+foreach ( $orders as $order ) {
+	$products = $order->getAttribute ( "products" )->value;
+	usort ( $products, "sort_product_by_name" );
 
-$contents = get_orderuser_by_order ( $order );
-// usort ( $contents, "sort_orders_by_user" );
+	$contents = get_orderuser_by_order ( $order );
+
+	$all_products = array_merge ( $all_products, $products );
+	$all_contents = merge_order_users ( $all_contents, $contents );
+}
+
+usort ( $all_contents, "sort_orders_by_user_and_date" );
 
 $gas = current_gas ();
 $ridconf = $gas->getAttribute ( 'rid_conf' )->value;
@@ -62,9 +68,8 @@ $gran_total = 0;
 $rows = 1;
 $block = 0;
 
-for ( $i = 0; $i < count ( $contents ); $i++ ) {
-	$order_user = $contents [ $i ];
-
+for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
+	$order_user = $all_contents [ $i ];
 	$user = $order_user->baseuser;
 
 	/*
@@ -73,6 +78,9 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 		vengono trovate tutte le informazioni, il record viene saltato
 	*/
 	if ( property_exists ( $user, 'bank_account' ) == false || $user->bank_account == '' || strlen ( $user->bank_account ) < 32 )
+		continue;
+
+	if ( property_exists ( $user, 'sepa_subscribe' ) == false )
 		continue;
 
 	if ( property_exists ( $user, 'first_sepa' ) == false || $user->first_sepa == null || $user->first_sepa == '' ) {
@@ -101,11 +109,11 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 	if ( is_array ( $user_products ) == false )
 		continue;
 
-	$user_products = sort_products_on_products ( $products, $user_products );
+	$user_products = sort_products_on_products ( $all_products, $user_products );
 	$user_total = 0;
 
-	for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
-		$prod = $products [ $a ];
+	for ( $a = 0, $e = 0; $a < count ( $all_products ); $a++ ) {
+		$prod = $all_products [ $a ];
 		$prodid = $prod->getAttribute ( 'id' )->value;
 		$quantity = 0;
 
