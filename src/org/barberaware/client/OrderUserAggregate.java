@@ -258,6 +258,7 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 			}
 
 			public void setAttribute ( FromServerAggregate parent, String name, Object value ) {
+				String notes;
 				ArrayList children;
 				FromServer child;
 				FromServer bm;
@@ -289,7 +290,12 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 						subbm.setInt ( "movementtype", bm.getInt ( "movementtype" ) );
 						subbm.setInt ( "method", bm.getInt ( "method" ) );
 						subbm.setString ( "cro", "" );
-						subbm.setString ( "notes", bm.getString ( "notes" ) );
+
+						notes = bm.getString ( "notes" );
+						if ( notes == "" )
+							notes = "Pagamento ordine a " + child.getObject ( "baseorder" ).getObject ( "supplier" ).getString ( "name" );
+
+						subbm.setString ( "notes", notes );
 
 						child.setObject ( "payment_event", subbm );
 					}

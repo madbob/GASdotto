@@ -239,7 +239,7 @@ for ( $i = 0; $i < count ( $all_products ); $i++ ) {
 		continue;
 
 	$prod = $all_products [ $i ];
-	$name = sprintf ( "$string_begin%s$string_end", $prod->getAttribute ( "name" )->value );
+	$name = sprintf ( "%s", $prod->getAttribute ( "name" )->value );
 
 	$measure = $prod->getAttribute ( "measure" )->value;
 	if ( $measure != null )
@@ -248,7 +248,7 @@ for ( $i = 0; $i < count ( $all_products ); $i++ ) {
 		$symbol = "";
 
 	$price = ( format_price ( $prod->getAttribute ( "unit_price" )->value, false ) ) . $symbol;
-	$headers [] = sprintf ( "%s%s%s", $name, $content_sep, $price );
+	$headers [] = sprintf ( "$string_begin%s%s%s$string_end", $name, $content_sep, $price );
 }
 
 $headers [] = "Totale Prezzo Prodotti";
