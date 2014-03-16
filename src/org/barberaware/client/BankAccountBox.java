@@ -37,8 +37,8 @@ public class BankAccountBox extends Composite implements StringWidget {
 		initWidget ( container );
 
 		country = doCell ( container, "Paese", 2 );
-		check = doCell ( container, "Check", 1 );
-		cin = doCell ( container, "CIN", 2 );
+		check = doCell ( container, "Check", 2 );
+		cin = doCell ( container, "CIN", 1 );
 		abi = doCell ( container, "ABI", 5 );
 		cab = doCell ( container, "CAB", 5 );
 		account = doCell ( container, "Conto", 12 );
