@@ -105,6 +105,17 @@ function format_order ( $order, $is_friend ) {
 		}
 	}
 
+	/*
+		Questo e' per garantire l'allineamento delle colonne in
+		presenza di prodotti esistenti in un ordine ma non in un
+		altro
+	*/
+	for ( ; $a < count ( $products ); $a++ ) {
+		if ( $existing_products [ $a ] == false )
+			continue;
+		$row [] = $emptycell;
+	}
+
 	$row [] = format_price ( round ( $user_total, 2 ), false ) . $onelinepadding;
 	$row [] = format_price ( round ( $user_total_ship, 2 ), false ) . $onelinepadding;
 	$row [] = format_price ( round ( $user_total + $user_total_ship, 2 ), false ) . $onelinepadding;
@@ -178,7 +189,7 @@ foreach ( $orders as $order ) {
 
 /*
 	n.b.: in search_existing() si assume che la variabile $products contenga
-	tutti i prodotti da contemplate
+	tutti i prodotti da contemplare
 */
 $products = $all_products;
 

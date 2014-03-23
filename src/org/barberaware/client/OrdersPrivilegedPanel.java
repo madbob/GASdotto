@@ -348,13 +348,12 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 	private void closedOrderAlert ( FromServerForm form, boolean doit ) {
 		InfoCell alert;
 
+		form.removeWidget ( "alert" );
+
 		if ( doit == true ) {
 			alert = new InfoCell ( "Quest'ordine è stato chiuso, ma puoi comunque modificare le quantità ordinate dagli utenti." );
 			form.setExtraWidget ( "alert", alert );
 			form.insert ( alert, 0 );
-		}
-		else {
-			form.removeWidget ( "alert" );
 		}
 	}
 
