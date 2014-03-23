@@ -473,7 +473,7 @@ class Order extends SharableFromServer {
 			$text = "E' stato aperto un nuovo ordine presso il fornitore " . $supplier->getAttribute ( 'name' )->value . "\n\n";
 			$html .= '<p>' . $text . '</p>';
 			$text .= "Prodotti ordinabili:\n";
-			$html .= '<p>' . $text . '</p>';
+			$html .= '<p>Prodotti ordinabili:</p>';
 
 			$html .= '<ul>';
 

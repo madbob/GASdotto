@@ -97,10 +97,16 @@ class Notification extends FromServer {
 		$dests = array ();
 
 		foreach ( $obj->recipent as $destination ) {
-			if ( isset ( $destination->mail ) && $destination->mail != '' )
-				$dests [] = $destination->mail;
-			if ( isset ( $destination->mail2 ) && $destination->mail2 != '' )
-				$dests [] = $destination->mail2;
+			$destination_user = new User ();
+			$destination_user->readFromDB ( $destination );
+
+			$mail = $destination_user->getAttribute ( "mail" )->value;
+			$mail2 = $destination_user->getAttribute ( "mail2" )->value;
+
+			if ( isset ( $mail ) && $mail != '' )
+				$dests [] = $mail;
+			if ( isset ( $mail2 ) && $mail2 != '' )
+				$dests [] = $mail2;
 		}
 
 		if ( $obj->send_mailinglist == true ) {
