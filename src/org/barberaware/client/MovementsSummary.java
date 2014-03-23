@@ -54,6 +54,8 @@ public class MovementsSummary extends FromServerTable {
 				ret.addStateText ( "Versamento Credito Utente" );
 				ret.addStateText ( "Acquisto GAS" );
 				ret.addStateText ( "Trasferimento Interno" );
+				ret.addStateText ( "Prelievo Generico" );
+				ret.addStateText ( "Versamento Generico" );
 				return ret;
 			}
 		} );

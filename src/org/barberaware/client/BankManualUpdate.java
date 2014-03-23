@@ -41,6 +41,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 	private int				GAS_CASH_TO_BANK	= 100;
 	private int				GAS_BUY_BY_BANK		= 100;
 	private int				GAS_BUY_BY_CASH		= 100;
+	private int				GENERIC_PUT_CASH	= 100;
+	private int				GENERIC_GET_CASH	= 100;
 	private int				USER_ANNUAL_BANK	= 100;
 	private int				USER_ANNUAL_CASH	= 100;
 	private int				USER_DEPOSIT_PAY	= 100;
@@ -84,6 +86,10 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		GAS_BUY_BY_BANK = item_index++;
 		reason.addItem ( "Acquisto del GAS in Contanti" );
 		GAS_BUY_BY_CASH = item_index++;
+		reason.addItem ( "Versamento in Cassa" );
+		GENERIC_PUT_CASH = item_index++;
+		reason.addItem ( "Prelievo da Cassa" );
+		GENERIC_GET_CASH = item_index++;
 
 		if ( Session.getGAS ().getBool ( "payments" ) == true ) {
 			reason.addItem ( "Quota Annuale da Conto" );
@@ -119,7 +125,9 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				else if ( selected == GAS_BANK_TO_CASH ||
 				          selected == GAS_BUY_BY_BANK ||
 				          selected == GAS_CASH_TO_BANK ||
-				          selected == GAS_BUY_BY_CASH ) {
+				          selected == GAS_BUY_BY_CASH ||
+				          selected == GENERIC_PUT_CASH ||
+				          selected == GENERIC_GET_CASH) {
 
 					header.showByLabel ( "Socio", false );
 				}
@@ -217,6 +225,14 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		}
 		else if ( selected == GAS_BUY_BY_CASH ) {
 			movement.setInt ( "movementtype", BankMovement.GAS_BUYING );
+			movement.setInt ( "method", BankMovement.BY_CASH );
+		}
+		else if ( selected == GENERIC_PUT_CASH ) {
+			movement.setInt ( "movementtype", BankMovement.GENERIC_PUT );
+			movement.setInt ( "method", BankMovement.BY_CASH );
+		}
+		else if ( selected == GENERIC_GET_CASH ) {
+			movement.setInt ( "movementtype", BankMovement.GENERIC_GET );
 			movement.setInt ( "method", BankMovement.BY_CASH );
 		}
 		else if ( selected == USER_ANNUAL_BANK ) {

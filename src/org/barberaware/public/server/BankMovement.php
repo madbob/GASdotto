@@ -54,6 +54,11 @@ class BankMovement extends FromServer {
 		$add = array ();
 		$sub = array ();
 
+		/*
+			Il significato degli indici numerici si trova
+			in BankMovement.java
+		*/
+
 		switch ( $method ) {
 			/*
 				Dal conto
@@ -105,6 +110,16 @@ class BankMovement extends FromServer {
 					case 7:
 						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						break;
+
+					case 8:
+						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
+						$sub [] = array ( 'GAS', 'current_bank_balance', $current_gas );
+						break;
+
+					case 9:
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
+						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
 				}
 
@@ -160,6 +175,16 @@ class BankMovement extends FromServer {
 					case 7:
 						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						break;
+
+					case 8:
+						$sub [] = array ( 'GAS', 'current_balance', $current_gas );
+						$sub [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						break;
+
+					case 9:
+						$add [] = array ( 'GAS', 'current_balance', $current_gas );
+						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
 						break;
 				}
 
