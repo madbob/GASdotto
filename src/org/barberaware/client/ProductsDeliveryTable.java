@@ -209,13 +209,17 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 			distribuire la quantita' ordinata specificata tra i diversi ProductUsers.
 		*/
 
-		object = element;
-		elements = element.getArray ( "allproducts" );
-		price_total = 0;
-
 		rows = main.getWidgetCount () - 1;
 		for ( int i = 0; i < rows; i++ )
 			main.remove ( 1 );
+
+		object = element;
+		price_total = 0;
+
+		if ( element == null )
+			return;
+
+		elements = element.getArray ( "allproducts" );
 
 		for ( int i = 0; i < elements.size (); i++ ) {
 			prod_user = ( ProductUser ) elements.get ( i );

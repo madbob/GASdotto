@@ -205,6 +205,11 @@ public class DeliverySummary extends Composite {
 			}
 		} );
 
+		/*
+			Queste callback servono nel caso un sotto-ordine venga aggiunto o rimosso successivamente
+			dall'aggregato corrente. Quelli che gia' esistono all'atto della creazione del pannello sono
+			gestiti in addAllSubOrders()
+		*/
 		row.setCallback ( new FromServerRappresentationCallbacks () {
 			public FromServerRappresentation onAddChild ( FromServerRappresentation form, FromServer child ) {
 				float tot;
@@ -214,6 +219,7 @@ public class DeliverySummary extends Composite {
 
 				details = new ProductsDeliveryTable ();
 				details.setValue ( child );
+				child.addRelatedInfo ( "DeliverySummary", details );
 
 				f = ( FromServerForm ) form;
 
@@ -249,33 +255,49 @@ public class DeliverySummary extends Composite {
 
 	public void modOrder ( OrderUserInterface uorder ) {
 		FromServer uord;
+		FromServerRappresentation widget;
 		FromServerForm form;
 
 		uord = ( FromServer ) uorder;
 
-		form = ( FromServerForm ) uord.getRelatedInfo ( "DeliverySummary" );
-		if ( form != null ) {
-			form.setValue ( uord );
-			main.insert ( form, getSortedIndex ( uord ) );
-			setStatusIcon ( form );
+		widget = ( FromServerRappresentation ) uord.getRelatedInfo ( "DeliverySummary" );
+		if ( widget != null ) {
+			widget.setValue ( uord );
+
+			if ( widget instanceof FromServerForm ) {
+				form = ( FromServerForm ) widget;
+				main.insert ( form, getSortedIndex ( uord ) );
+				setStatusIcon ( form );
+			}
 		}
 	}
 
 	public void delOrder ( OrderUserInterface uorder ) {
 		FromServer uord;
+		FromServerRappresentation widget;
 		FromServerRappresentation form;
 
 		uord = ( FromServer ) uorder;
+		form = null;
 
-		form = ( FromServerRappresentation ) uord.getRelatedInfo ( "DeliverySummary" );
-		if ( form != null ) {
-			if ( form instanceof FromServerForm ) {
+		widget = ( FromServerRappresentation ) uord.getRelatedInfo ( "DeliverySummary" );
+		if ( widget != null ) {
+			if ( widget instanceof FromServerForm ) {
 				numOrders -= 1;
 				cleanUp ();
 			}
+			else {
+				form = widget.getRappresentationParent ();
+			}
 
-			form.invalidate ();
+			widget.invalidate ();
 			uord.delRelatedInfo ( "DeliverySummary" );
+
+			if ( form != null && form.getChildren ().size () == 0 ) {
+				form.invalidate ();
+				numOrders -= 1;
+				cleanUp ();
+			}
 		}
 	}
 
@@ -327,6 +349,7 @@ public class DeliverySummary extends Composite {
 			row.addChild ( table );
 
 			attachPrivateTotalCallback ( table );
+			uord.addRelatedInfo ( "DeliverySummary", table );
 		}
 
 		if ( uorders.size () > 1 )
