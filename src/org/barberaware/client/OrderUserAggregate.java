@@ -316,17 +316,21 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 	}
 
 	public void save ( ServerResponse callback ) {
-		ArrayList orders;
-		FromServer order;
+		ArrayList<FromServer> orders;
+		ArrayList products;
 		FromServer user;
 
 		orders = getArray ( "orders" );
 		user = getObject ( "baseuser" );
 
-		for ( int i = 0; i < orders.size (); i++ ) {
-			order = ( FromServer ) orders.get ( i );
+		for ( FromServer order : orders ) {
 			order.setObject ( "baseuser", user );
-			order.save ( callback );
+			products = order.getArray ( "products" );
+
+			if ( products != null && products.size () > 0 )
+				order.save ( callback );
+			else
+				order.destroy ( callback );
 		}
 	}
 
@@ -351,7 +355,13 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 		ArrayList products;
 
 		products = child.getArray ( "products" );
-		return ( products != null && products.size () > 0 );
+
+		/*
+			Il sotto-ordine non e' valido solo se nuovo e vuoto.
+			Se e' esistente e vuoto deve comunque essere inviato
+			al backend, per essere eliminato
+		*/
+		return ( child.getLocalID () != -1 || ( products != null && products.size () > 0 ) );
 	}
 
 	/****************************************************************** OrderUserInterface */
