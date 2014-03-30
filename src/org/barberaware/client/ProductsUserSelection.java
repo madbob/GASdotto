@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.http.client.*;
+import com.google.gwt.json.client.*;
 import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -38,6 +40,7 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 	*/
 	private DialogBox		descDialog			= null;
 	private Image			descDialogPhoto;
+	private Label			descDialogQuantity;
 	private Label			descDialogText;
 
 	private float			total;
@@ -190,6 +193,11 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 		descDialogText = new Label ();
 		pan.add ( descDialogText );
 
+		pan.add ( new HTML ( "<hr>" ) );
+
+		descDialogQuantity = new Label ();
+		pan.add ( descDialogQuantity );
+
 		but = new Button ( "OK", new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				descDialog.hide ();
@@ -203,6 +211,34 @@ public class ProductsUserSelection extends Composite implements FromServerArray 
 
 		if ( descDialog == null )
 			initDescriptionDialog ();
+
+		/*
+			TODO	Attenzione: questo funziona finche' ogni Product e' univocamente assegnato ad un
+				singolo Order, sara' da rivedere quando i prodotti saranno deduplicati nel database
+		*/
+		Utils.getServer ().rawGet ( "data_shortcuts.php?type=ordered_quantity&product=" + product.getLocalID (), new RequestCallback () {
+			public void onError ( Request request, Throwable exception ) {
+				Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
+			}
+
+			public void onResponseReceived ( Request request, Response response ) {
+				float quantity;
+				JSONValue jsonObject;
+				JSONObject data;
+
+				try {
+					jsonObject = JSONParser.parseStrict ( response.getText () );
+					data = jsonObject.isObject ();
+					quantity = Float.parseFloat ( data.get ( "quantity" ).isString ().stringValue () );
+					descDialogQuantity.setText ( "Quantità ordinata: " + quantity );
+				}
+				catch ( com.google.gwt.json.client.JSONException e ) {
+					Utils.showNotification ( "Ricevuti dati invalidi dal server" );
+				}
+
+				Utils.getServer ().dataArrived ();
+			}
+		} );
 
 		descDialog.setText ( product.getString ( "name" ) );
 

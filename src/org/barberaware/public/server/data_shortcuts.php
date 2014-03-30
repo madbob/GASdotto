@@ -47,6 +47,25 @@ function missing_products ( $order ) {
 	return $ret;
 }
 
+function get_product_quantity ( $product ) {
+	$prod = new Product ();
+	$prod->readFromDB ( $product );
+
+	$query = sprintf ( "SELECT SUM(quantity)
+				FROM ProductUser
+				WHERE product = %d AND
+					id IN (SELECT target FROM OrderUser_products)", $product );
+	$result = query_and_check ( $query, "Impossibile recuperare quantità sinora ordinata" );
+	$row = $result->fetchAll ( PDO::FETCH_NUM );
+	unset ( $result );
+
+	$ret = $row [ 0 ] [ 0 ];
+	if ( $ret == '' )
+		$ret = 0;
+
+	return $ret;
+}
+
 $type = require_param ( 'type' );
 
 if ( check_session () == false )
@@ -89,20 +108,21 @@ switch ( $type ) {
 			$ret->quantity = "-1";
 		}
 		else {
-			$query = sprintf ( "SELECT SUM(quantity)
-						FROM ProductUser
-						WHERE product = %d AND
-							id IN (SELECT target FROM OrderUser_products)", $product );
-			$result = query_and_check ( $query, "Impossibile recuperare quantità sinora ordinata" );
-			$row = $result->fetchAll ( PDO::FETCH_NUM );
-			unset ( $result );
-			$quantity = $row [ 0 ] [ 0 ];
+			$quantity = get_product_quantity ( $product );
 
 			if ( $quantity > $max_quantity )
 				$ret->quantity = "0";
 			else
 				$ret->quantity = ( string ) ( $max_quantity - $quantity );
 		}
+
+		break;
+
+	case 'ordered_quantity':
+		$product = require_param ( 'product' );
+
+		$ret = new stdClass ();
+		$ret->quantity = get_product_quantity ( $product );
 
 		break;
 

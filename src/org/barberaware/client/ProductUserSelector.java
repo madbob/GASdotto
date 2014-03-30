@@ -90,6 +90,12 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 						prod = currentValue.getObject ( "product" );
 
 						if ( hasMaxAvailable == true ) {
+							/*
+								TODO	Attenzione: questo funziona finche' ogni
+									Product e' univocamente assegnato ad un
+									singolo Order, sara' da rivedere quando i
+									prodotti saranno deduplicati nel database
+							*/
 							Utils.getServer ().rawGet ( "data_shortcuts.php?type=available_quantity_yet&product=" + prod.getLocalID () + "&index=" + index, new RequestCallback () {
 								public void onError ( Request request, Throwable exception ) {
 									Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
