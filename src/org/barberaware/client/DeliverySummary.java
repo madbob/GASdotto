@@ -133,7 +133,13 @@ public class DeliverySummary extends Composite {
 						dialog.setDefaultNote ( "Pagamento ordine a " + supp.getString ( "name" ) );
 					}
 
+					/*
+						Questo viene forzato per limitare casini nella prima fase di
+						introduzione della funzione di Gestione Cassa, sara' prossimamente da
+						eliminare
+					*/
 					dialog.setDefaultMethod ( BankMovement.BY_CASH );
+
 					dialog.setDefaultAmount ( topay );
 					dialog.showCro ( false );
 					dialog.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );

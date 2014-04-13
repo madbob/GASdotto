@@ -169,6 +169,7 @@ public class BankMovementForm extends BankMovementComponent {
 		setDefaultDate ( defaultDate );
 		setDefaultAmount ( defaultAmount );
 		setDefaultNote ( defaultNote );
+		setDefaultMethod ( defaultMethod );
 		populateWidgets ();
 	}
 
