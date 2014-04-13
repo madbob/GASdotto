@@ -357,7 +357,7 @@ class BankMovement extends FromServer {
 			$query = sprintf ( "UPDATE Supplier SET current_balance = 0" );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0, current_orders_balance = 0" );
+			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0, current_orders_balance = 0, current_deposit_balance = 0" );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		}
 
