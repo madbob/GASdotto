@@ -65,21 +65,35 @@ public class Address implements Comparator {
 
 	public void fromJSON ( JSONObject obj ) {
 		JSONValue value;
+		JSONString tmp;
 
 		if ( obj == null )
 			return;
 
+		street = "";
+		cap = "";
+		city = "";
+
 		value = obj.get ( "street" );
-		if ( value != null )
-			street = value.isString ().stringValue ();
+		if ( value != null ) {
+			tmp = value.isString ();
+			if ( tmp != null )
+				street = tmp.stringValue ();
+		}
 
 		value = obj.get ( "cap" );
-		if ( value != null )
-			cap = value.isString ().stringValue ();
+		if ( value != null ) {
+			tmp = value.isString ();
+			if ( tmp != null )
+				cap = tmp.stringValue ();
+		}
 
 		value = obj.get ( "city" );
-		if ( value != null )
-			city = value.isString ().stringValue ();
+		if ( value != null ) {
+			tmp = value.isString ();
+			if ( tmp != null )
+				city = tmp.stringValue ();
+		}
 	}
 
 	/****************************************************************** Object */

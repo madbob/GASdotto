@@ -61,7 +61,7 @@ function get_product_quantity ( $product ) {
 
 	$ret = $row [ 0 ] [ 0 ];
 	if ( $ret == '' )
-		$ret = 0;
+		$ret = "0";
 
 	return $ret;
 }

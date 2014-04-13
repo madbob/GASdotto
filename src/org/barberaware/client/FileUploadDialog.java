@@ -103,6 +103,7 @@ public class FileUploadDialog extends Composite implements StringWidget {
 
 	private void showFileName () {
 		String [] path;
+		String p;
 
 		if ( completeFile == null || completeFile.equals ( "" ) ) {
 			button.setText ( customEmptyString );
@@ -113,14 +114,15 @@ public class FileUploadDialog extends Composite implements StringWidget {
 		}
 		else {
 			path = completeFile.split ( "/" );
-			button.setText ( path [ path.length - 1 ] );
+			p = path [ path.length - 1 ];
+			button.setText ( p );
 
 			link.setVisible ( true );
 			link.setValue ( completeFile );
 
 			if ( image != null ) {
 				image.setVisible ( true );
-				image.setUrl ( Utils.getServer ().getDomain () + "/" + path );
+				image.setUrl ( Utils.getServer ().getDomain () + "uploads/" + p );
 			}
 		}
 	}

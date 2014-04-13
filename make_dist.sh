@@ -6,7 +6,8 @@ rm -rf war/WEB-INF/deploy/
 rm -rf war/WEB-INF/classes/
 rm -rf war/org.barberaware.GASdotto/
 
-ant -f build.xml.prod
+# ant -f build.xml.prod
+ant build
 
 cp -r war/org.barberaware.GASdotto /tmp/gasdotto-${version}
 cd /tmp/gasdotto-${version}
