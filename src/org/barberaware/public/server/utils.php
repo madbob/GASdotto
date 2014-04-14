@@ -936,13 +936,10 @@ function acl_filter_hierarchy_asc ( $obj, $parent_class, $attribute ) {
 	$p = new $parent_class ();
 	$p_filter = $p->filter_by_current_gas ( -1 );
 
-	if ( $p_filter == "" ) {
+	if ( $p_filter == "" )
 		$ret = "";
-	}
-	else {
-		global $current_gas;
+	else
 		$ret = sprintf ( " ( SELECT target FROM %s_%s WHERE parent IN %s ) ", $p->tablename, $attribute, $p_filter );
-	}
 
 	unset ( $p );
 	return $ret;
@@ -952,13 +949,10 @@ function acl_filter_hierarchy_desc ( $obj, $child_class, $attribute ) {
 	$c = new $child_class ();
 	$c_filter = $c->filter_by_current_gas ( -1 );
 
-	if ( $c_filter == "" ) {
+	if ( $c_filter == "" )
 		$ret = "";
-	}
-	else {
-		global $current_gas;
+	else
 		$ret = sprintf ( " ( SELECT id FROM %s WHERE %s IN %s ) ", $obj->tablename, $attribute, $c_filter );
-	}
 
 	unset ( $c );
 	return $ret;

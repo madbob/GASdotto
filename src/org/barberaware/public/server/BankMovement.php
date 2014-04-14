@@ -340,6 +340,8 @@ class BankMovement extends FromServer {
 	}
 
 	public function fix ( $offset ) {
+		global $current_gas;
+
 		if ( $offset == -1 ) {
 			$page = -1;
 			$query_limit = '';
@@ -351,15 +353,20 @@ class BankMovement extends FromServer {
 		}
 
 		if ( $offset == 0 || $offset == -1 ) {
-			$query = sprintf ( "UPDATE Users SET current_balance = 0" );
+			$query = sprintf ( "UPDATE Users SET current_balance = 0 WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-			$query = sprintf ( "UPDATE Supplier SET current_balance = 0" );
+			$query = sprintf ( "UPDATE Supplier SET current_balance = 0 WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0, current_orders_balance = 0, current_deposit_balance = 0" );
+			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0, current_orders_balance = 0, current_deposit_balance = 0 WHERE id = $current_gas" );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		}
+
+		/*
+			TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
+				esplicitando nell'oggetto a quale gruppo fa riferimento
+		*/
 
 		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 ORDER BY date $query_limit", $this->tablename );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );

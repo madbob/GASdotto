@@ -342,20 +342,23 @@ class Order extends SharableFromServer {
 				for ( $a = 0, $e = 0; $a < count ( $products ); $a++ ) {
 					$prod = $products [ $a ];
 					$prodid = $prod->getAttribute ( "id" )->value;
-					$prod_user = $user_products [ $e ];
 					$quantity = 0;
 
 					$variants = array ();
 
-					if ( $prodid == $prod_user->product ) {
-						$quantity = $prod_user->$param;
-						$e++;
+					if ( $e < count ( $user_products ) ) {
+						$prod_user = $user_products [ $e ];
 
-						if ( is_array ( $prod_user->variants ) )
-							$variants = $prod_user->variants;
+						if ( $prodid == $prod_user->product ) {
+							$quantity = $prod_user->$param;
+							$e++;
+
+							if ( is_array ( $prod_user->variants ) )
+								$variants = $prod_user->variants;
+						}
 					}
 
-					if ( count ( $ou->friends ) != 0 ) {
+					if ( property_exists ( $ou, 'friends' ) && count ( $ou->friends ) != 0 ) {
 						foreach ( $ou->friends as $friend ) {
 							foreach ( $friend->products as $fprod ) {
 								if ( $fprod->product == $prodid ) {

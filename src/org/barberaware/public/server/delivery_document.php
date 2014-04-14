@@ -73,8 +73,7 @@ usort ( $all_contents, "sort_orders_by_user_and_date" );
 
 $output = '';
 
-$gas = new GAS ();
-$gas->readFromDB ( $current_gas );
+$gas = current_gas ();
 $use_bank = $gas->getAttribute ( 'use_bank' )->value;
 
 for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
