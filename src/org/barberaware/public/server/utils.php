@@ -1156,8 +1156,11 @@ function perform_authentication ( $userid, $permanent ) {
 		$expiry = 0;
 	}
 	else {
-		$now = date ( "Y-m-d", PHP_INT_MAX );
-		$expiry = PHP_INT_MAX;
+		/*
+			Data attuale + 5 anni
+		*/
+		$now = date ( "Y-m-d", $t + 157680000 );
+		$expiry = $t + 157680000;
 	}
 
 	$query = sprintf ( "INSERT INTO current_sessions ( session_id, init, username, gas )

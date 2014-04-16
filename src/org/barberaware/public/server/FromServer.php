@@ -116,7 +116,7 @@ class FromServerAttribute {
 			if ( is_numeric ( $object ) == true )
 				return $object . "";
 
-			if ( $filter == null )
+			if ( $filter === null )
 				$filter = new stdClass ();
 
 			$id = $object->getAttribute ( "id" )->value;
@@ -507,7 +507,7 @@ abstract class FromServer {
 
 		for ( $i = 0; $i < count ( $fields ); $i++ ) {
 			$attr = $this->getAttribute ( $keys [ $i ] );
-			if ( $attr == null )
+			if ( $attr === null )
 				continue;
 
 			$val = $fields [ $keys [ $i ] ];
@@ -786,7 +786,7 @@ abstract class FromServer {
 					continue;
 
 				$value = $this->attr_to_db ( $attr );
-				if ( $value == null )
+				if ( $value === null )
 					continue;
 
 				array_push ( $names, $attr->name );
@@ -835,7 +835,7 @@ abstract class FromServer {
 						continue;
 
 					$value = $this->attr_to_db ( $attr );
-					if ( $value == null )
+					if ( $value === null )
 						continue;
 
 					array_push ( $values, ( $attr->name . " = " . $value ) );
