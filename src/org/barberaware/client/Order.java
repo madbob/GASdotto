@@ -92,6 +92,7 @@ public class Order extends FromServer implements OrderInterface {
 		alwaysReload ( true );
 		isSharable ( true );
 
+		alwaysSendObject ( "products", true );
 		alwaysSendObject ( "payment_event", true );
 	}
 
