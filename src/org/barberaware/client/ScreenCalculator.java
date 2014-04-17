@@ -25,7 +25,7 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ScreenCalculator extends DialogBox implements SavingDialog {
-	private ArrayList			boxes;
+	private ArrayList<FloatBox>		boxes;
 	private FlexTable			table;
 	private FloatBox			completeSum;
 	private FloatBox			finalTarget;
@@ -36,7 +36,7 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 	private ArrayList<SavingDialogCallback>	savingCallbacks;
 
 	public ScreenCalculator () {
-		boxes = new ArrayList ();
+		boxes = new ArrayList<FloatBox> ();
 
 		running = false;
 		wasUsed = false;
@@ -57,7 +57,7 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 		running = true;
 
 		super.show ();
-		box = ( FloatBox ) boxes.get ( 0 );
+		box = boxes.get ( 0 );
 		box.setFocus ( true );
 	}
 
@@ -92,12 +92,8 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 	}
 
 	public void setValue ( float value ) {
-		FloatBox box;
-
-		for ( int i = 0; i < boxes.size (); i++ ) {
-			box = ( FloatBox ) boxes.get ( i );
+		for ( FloatBox box : boxes )
 			box.setVal ( value );
-		}
 
 		wasUsed = true;
 	}
@@ -117,12 +113,8 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 	}
 
 	public void clear () {
-		FloatBox box;
-
-		for ( int i = 0; i < boxes.size (); i++ ) {
-			box = ( FloatBox ) boxes.get ( i );
+		for ( FloatBox box : boxes )
 			box.setVal ( 0 );
-		}
 	}
 
 	public boolean hasBeenUsed () {
@@ -135,14 +127,11 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 
 	private void updateSum () {
 		float sum;
-		FloatBox box;
 
 		sum = 0;
 
-		for ( int i = 0; i < boxes.size (); i++ ) {
-			box = ( FloatBox ) boxes.get ( i );
+		for ( FloatBox box : boxes )
 			sum += box.getVal ();
-		}
 
 		completeSum.setVal ( sum );
 	}
@@ -173,11 +162,11 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 			public void onSave ( SavingDialog dialog ) {
 				saveOnTarget ();
 				wasUsed = true;
-				closeCallbacks ( 1 );
+				closeCallbacks ( 0 );
 			}
 
 			public void onCancel ( SavingDialog dialog ) {
-				closeCallbacks ( 0 );
+				closeCallbacks ( 1 );
 			}
 		} );
 
