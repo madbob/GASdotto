@@ -25,6 +25,8 @@ public class ProductUserVariant extends FromServer {
 
 		addAttribute ( "delivered", FromServer.BOOLEAN );
 		addAttribute ( "components", FromServer.ARRAY, ProductUserVariantComponent.class );
+
+		alwaysSendObject ( "components", true );
 	}
 
 	public int compare ( Object first, Object second ) {

@@ -25,6 +25,8 @@ public class ProductUserVariantComponent extends FromServer {
 
 		addAttribute ( "variant", FromServer.OBJECT, ProductVariant.class );
 		addAttribute ( "value", FromServer.OBJECT, ProductVariantValue.class );
+
+		alwaysSendObject ( "value", true );
 	}
 
 	public int compare ( Object first, Object second ) {

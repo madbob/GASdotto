@@ -581,6 +581,10 @@ abstract class FromServer {
 					if ( $ret == -1 )
 						$ret = null;
 				}
+				else {
+					if ( is_numeric ( $ret ) && $ret == -1 )
+						$ret = null;
+				}
 
 				break;
 

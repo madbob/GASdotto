@@ -54,6 +54,8 @@ public class ProductUser extends FromServer {
 		addAttribute ( "delivered", FromServer.FLOAT );
 		addAttribute ( "orderdate", FromServer.DATE );
 		addAttribute ( "orderperson", FromServer.OBJECT, User.class );
+
+		alwaysSendObject ( "variants", true );
 	}
 
 	public void setCurrentUser () {

@@ -533,11 +533,16 @@ public class ServerHook {
 
 	/****************************************************************** recursion stack */
 
-	private void initRecursionStack () {
+	public void initRecursionStack () {
 		recursionStack = new HashMap<String, ArrayList<FromServer>> ();
 	}
 
-	private boolean testRecursionStack ( FromServer object ) {
+	/*
+		Ritorna
+		- false se l'oggetto e' nello stack di ricorsione
+		- true se non c'e'
+	*/
+	public boolean testRecursionStack ( FromServer object ) {
 		ArrayList<FromServer> elements;
 
 		/*
@@ -564,7 +569,7 @@ public class ServerHook {
 		return true;
 	}
 
-	private void addToRecursionStack ( FromServer object ) {
+	public void addToRecursionStack ( FromServer object ) {
 		String type;
 		ArrayList<FromServer> elements;
 
@@ -581,7 +586,7 @@ public class ServerHook {
 		}
 	}
 
-	private void closeRecursionStack () {
+	public void closeRecursionStack () {
 		recursionStack = null;
 	}
 
