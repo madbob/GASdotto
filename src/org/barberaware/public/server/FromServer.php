@@ -560,7 +560,8 @@ abstract class FromServer {
 			case "STRING":
 			case "ADDRESS":
 			case "PERCENTAGE":
-				$ret = "'" . ( addslashes ( $attr->value ) ) . "'";
+				global $db;
+				$ret = $db->quote ( $attr->value );
 				break;
 
 			case "INTEGER":
@@ -581,9 +582,12 @@ abstract class FromServer {
 					if ( $ret == -1 )
 						$ret = null;
 				}
-				else {
-					if ( is_numeric ( $ret ) && $ret == -1 )
+				else if ( is_numeric ( $ret ) ) {
+					if ( $ret == -1 )
 						$ret = null;
+				}
+				else {
+					$ret = null;
 				}
 
 				break;
@@ -761,6 +765,7 @@ abstract class FromServer {
 	public function save ( $obj ) {
 		global $dbdriver;
 		global $current_user;
+		global $saved_cache;
 
 		if ( $obj instanceof FromServer )
 			$this->dupBy ( $obj );
@@ -829,32 +834,46 @@ abstract class FromServer {
 				save_acl ( $this, 0 );
 		}
 		else {
-			if ( $this->is_public == true || ( $this->is_public == false && check_acl ( $this, 1 ) == true ) ) {
-				$values = array ();
+			/*
+				Qui verifico se l'oggetto e' gia' stato salvato all'interno di questa sessione. Puo'
+				capitare infatti che per effetto della gerarchia ricorsiva di qualche elemento
+				particolarmente complesso uno stesso oggetto venga inutilmente salvato piu' e piu'
+				volte all'interno della stessa sessione
+			*/
+			$token = $this->tablename . "::" . $id;
 
-				for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
-					$attr = $this->attributes [ $i ];
-
-					if ( $attr->name == "id" )
-						continue;
-
-					$value = $this->attr_to_db ( $attr );
-					if ( $value === null )
-						continue;
-
-					array_push ( $values, ( $attr->name . " = " . $value ) );
-				}
-
-				if ( count ( $values ) > 0 ) {
-					$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
-								$this->tablename, join ( ", ", $values ), $id );
-					query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
-				}
+			if ( isset ( $saved_cache [ $token ] ) ) {
+				$ret = $id;
 			}
+			else {
+				if ( $this->is_public == true || ( $this->is_public == false && check_acl ( $this, 1 ) == true ) ) {
+					$values = array ();
 
-			$ret = $id;
-			$this->save_arrays ( false, $obj, $ret );
-			$this->save_objects ( $obj, $ret );
+					for ( $i = 0; $i < count ( $this->attributes ); $i++ ) {
+						$attr = $this->attributes [ $i ];
+
+						if ( $attr->name == "id" )
+							continue;
+
+						$value = $this->attr_to_db ( $attr );
+						if ( $value === null )
+							continue;
+
+						array_push ( $values, ( $attr->name . " = " . $value ) );
+					}
+
+					if ( count ( $values ) > 0 ) {
+						$query = sprintf ( "UPDATE %s SET %s WHERE id = %d",
+									$this->tablename, join ( ", ", $values ), $id );
+						query_and_check ( $query, "Impossibile aggiornare oggetto " . $this->classname );
+					}
+				}
+
+				$ret = $id;
+				$saved_cache [ $token ] = true;
+				$this->save_arrays ( false, $obj, $ret );
+				$this->save_objects ( $obj, $ret );
+			}
 		}
 
 		return $ret;

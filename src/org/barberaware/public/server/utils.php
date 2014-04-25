@@ -986,16 +986,60 @@ function get_acl_easy ( $type, $id ) {
 		$row = $result->fetchAll ( PDO::FETCH_NUM );
 
 		if ( count ( $row ) > 0 )
-			return $row [ 0 ] [ 0 ];
+			$ret = $row [ 0 ] [ 0 ];
 		else
-			return 10;
+			$ret = 10;
+
+		return $ret;
 	}
 }
 
 function get_acl ( $obj ) {
+	global $acl_cache;
+
 	$type = $obj->classname;
 	$id = $obj->getAttribute ( 'id' )->value;
-	return get_acl_easy ( $type, $id );
+	$ptype = null;
+	$pid = null;
+
+	if ( isset ( $acl_cache [ $type ] ) == false )
+		$acl_cache [ $type ] = array ();
+	else if ( isset ( $acl_cache [ $type ] [ $id ] ) )
+		return $acl_cache [ $type ] [ $id ];
+
+	switch ( $obj->public_mode [ 'mode' ] ) {
+		case 'desc':
+			$ptype = $obj->public_mode [ 'class' ];
+			$pid = $obj->getAttribute ( $obj->public_mode [ 'attribute' ] )->value;
+			if ( is_object ( $pid ) )
+				$pid = $pid->getAttribute ( 'id' )->value;
+
+			if ( isset ( $acl_cache [ $ptype ] [ $pid ] ) )
+				return $acl_cache [ $ptype ] [ $pid ];
+
+			break;
+
+		/*
+			Il caso "plain" e' gia' gestito dall'if() in cima alla funzione
+		*/
+		case 'plain':
+
+		/*
+			Il caso "asc" e' per ora troppo complesso da cachare ma sara' da fare
+		*/
+		case 'asc':
+
+		default:
+			break;
+	}
+
+	$ret = get_acl_easy ( $type, $id );
+	$acl_cache [ $type ] [ $id ] = $ret;
+
+	if ( $ptype != null )
+		$acl_cache [ $ptype ] [ $pid ] = $ret;
+
+	return $ret;
 }
 
 function save_acl ( $obj, $priv ) {
@@ -1079,10 +1123,14 @@ function check_session () {
 	global $current_gas;
 	global $db;
 	global $cache;
+	global $acl_cache;
+	global $saved_cache;
 
 	$current_user = -1;
 	$current_gas = -1;
 	$cache = array ();
+	$acl_cache = array ();
+	$saved_cache = array ();
 
 	if ( connect_to_the_database () == false )
 		error_exit ( "Impossibile connettersi al database" );
