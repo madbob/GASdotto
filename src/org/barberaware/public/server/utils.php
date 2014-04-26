@@ -144,17 +144,45 @@ function last_id ( $class ) {
 		return $db->lastInsertId ();
 }
 
+function update_config_version ( $data ) {
+	if ( strstr ( $data, 'dbversion' ) ) {
+		$system = new SystemConf ();
+		$ret = sprintf ( "\$dbversion = \"%s\";\n", $system->getAttribute ( "gasdotto_main_version" )->value );
+		unset ( $system );
+		return $ret;
+	}
+
+	return $data;
+}
+
 function adjustDB () {
 	global $dbversion;
 
+	$ret = 0;
 	$system = new SystemConf ();
 
 	if ( ( isset ( $dbversion ) == false ) || ( $dbversion != $system->getAttribute ( "gasdotto_main_version" )->value ) ) {
 		require_once ( "checkdb.php" );
 		check_db_schema ();
+
+		$dbversion = $system->getAttribute ( "gasdotto_main_version" )->value;
+
+		if ( posix_access ( "config.php", POSIX_W_OK ) == true ) {
+			/*
+				Trick preso da
+				http://stackoverflow.com/questions/3004041/how-to-replace-a-particular-line-in-a-text-file-using-php
+			*/
+			$data = file ( 'config.php' );
+			$data = array_map ( 'update_config_version', $data );
+			file_put_contents ( 'config.php', implode ('', $data ) );
+		}
+		else {
+			$ret = $dbversion;
+		}
 	}
 
 	unset ( $system );
+	return $ret;
 }
 
 function connect_to_the_database () {
@@ -183,7 +211,13 @@ function connect_to_the_database () {
 		if ( $db->query ( $query ) == false )
 			throw new PDOException ();
 
-		adjustDB ();
+		$version = adjustDB ();
+		if ( $version !== 0 ) {
+			$output = json_encode ( "update " . $version );
+			print ( $output );
+			exit;
+		}
+
 		return true;
 	}
 	catch ( PDOException $e ) {

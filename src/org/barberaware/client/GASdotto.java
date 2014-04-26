@@ -44,6 +44,8 @@ public class GASdotto implements EntryPoint {
 
 				if ( Session.platformCheck () == false )
 					main = new InstallForm ();
+				else if ( Session.platformUpdate () != null )
+					main = new UpdateNotice ();
 				else if ( Session.isLoggedIn () )
 					main = new MainApp ();
 				else

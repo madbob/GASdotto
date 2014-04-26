@@ -97,6 +97,10 @@ class Probe extends FromServer {
 		fwrite ( $f, sprintf ( "\$dbname = \"%s\";\n", $obj->dbname ) );
 		fwrite ( $f, sprintf ( "\$dbhost = \"%s\";\n", $obj->dbhost ) );
 		fwrite ( $f, sprintf ( "\$session_key = \"%s\";\n", random_string ( 20 ) ) );
+
+		$system = new SystemConf ();
+		fwrite ( $f, sprintf ( "\$dbversion = \"%s\";\n", $system->getAttribute ( "gasdotto_main_version" )->value ) );
+
 		fwrite ( $f, "?>" );
 
 		fclose ( $f );

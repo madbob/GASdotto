@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class Session {
 	private static boolean		isInstalled	= false;
+	private static String		updatedTo	= null;
 	private static GAS		currentGAS	= null;
 	private static User		currentUser	= null;
 	private static SystemConf	currentSystem	= null;
@@ -36,14 +37,24 @@ public class Session {
 
 		Utils.getServer ().serverGet ( params, new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
+				String error_str;
 				JSONObject obj;
 				JSONString error;
 
 				error = response.isString ();
 
 				if ( error != null ) {
-					if ( error.stringValue () == "no_db" )
+					error_str = error.stringValue ();
+
+					if ( error_str == "no_db" ) {
 						isInstalled = false;
+					}
+					else if ( error_str.startsWith ( "update" ) ) {
+						String [] tokens;
+						tokens = error_str.split ( " " );
+						updatedTo = tokens [ 1 ];
+						isInstalled = true;
+					}
 				}
 				else {
 					isInstalled = true;
@@ -70,6 +81,10 @@ public class Session {
 
 	public static boolean platformCheck () {
 		return isInstalled;
+	}
+
+	public static String platformUpdate () {
+		return updatedTo;
 	}
 
 	public static boolean isLoggedIn () {
