@@ -275,7 +275,11 @@ body {
 }
 
 .custom-label {
-	width:			130px;
+	width:			160px;
+}
+
+.large-custom-label {
+	white-space:		nowrap;
 }
 
 .bankmovement-viewer {

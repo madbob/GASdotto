@@ -338,13 +338,11 @@ public class UsersPanel extends GenericPanel {
 	}
 
 	private void doFilterOptions () {
-		HorizontalPanel pan;
+		CustomFormTable pan;
 		FormClusterFilter filter;
+		Label link;
 
-		pan = new HorizontalPanel ();
-		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
-		pan.setStyleName ( "panel-up" );
+		pan = new CustomFormTable ();
 		addTop ( pan );
 
 		filter = new FormClusterFilter ( main, new FilterCallback () {
@@ -365,9 +363,9 @@ public class UsersPanel extends GenericPanel {
 				return false;
 			}
 		} );
-		pan.add ( filter );
+		pan.addPair ( "Ricerca in Lista", filter );
 
-		toggleLeavedView = new CheckBox ( "Mostra Utenti Cessati" );
+		toggleLeavedView = new CheckBox ();
 		toggleLeavedView.addClickHandler ( new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				boolean show;
@@ -393,7 +391,20 @@ public class UsersPanel extends GenericPanel {
 				}
 			}
 		} );
-		pan.add ( toggleLeavedView );
+		pan.addPair ( "Mostra Utenti Cessati", toggleLeavedView );
+
+		link = new Label ( "Report Utenti" );
+		link.setStyleName ( "file-link" );
+		link.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				PrintUsersReport dialog;
+
+				dialog = new PrintUsersReport ();
+				dialog.center ();
+				dialog.show ();
+			}
+		} );
+		pan.addPair ( "Esporta", link );
 	}
 
 	private void setRoleIcon ( FromServerForm form, FromServer user ) {

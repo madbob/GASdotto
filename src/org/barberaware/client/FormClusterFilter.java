@@ -21,24 +21,14 @@ import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 import com.google.gwt.event.dom.client.*;
 
-public class FormClusterFilter extends Composite {
+public class FormClusterFilter extends TextBox {
 	private FormCluster	reference;
 	private TextBox		searchBar;
 	private FilterCallback	callback;
 
 	public FormClusterFilter ( FormCluster ref, FilterCallback call ) {
-		HorizontalPanel main;
-
-		main = new HorizontalPanel ();
-		main.setStyleName ( "search-bar-wrap" );
-		main.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		initWidget ( main );
-
-		main.add ( new Label ( "Ricerca in Lista" ) );
-
-		searchBar = new TextBox ();
+		searchBar = this;
 		searchBar.setStyleName ( "search-bar" );
-		main.add ( searchBar );
 
 		searchBar.addKeyUpHandler ( new KeyUpHandler () {
 			public void onKeyUp ( KeyUpEvent event ) {
@@ -71,7 +61,7 @@ public class FormClusterFilter extends Composite {
 		String text;
 		FromServerForm iter;
 
-		text = searchBar.getText ();
+		text = this.getText ();
 
 		for ( int i = reference.firstIterableIndex (); i < reference.latestIterableIndex (); i++ ) {
 			iter = reference.retrieveForm ( i );

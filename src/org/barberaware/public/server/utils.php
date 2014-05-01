@@ -485,6 +485,13 @@ function get_actual_user ( $obj ) {
 	}
 }
 
+function get_actual_id ( $obj ) {
+	if ( is_numeric ( $obj ) )
+		return $obj;
+	else
+		return $obj->id;
+}
+
 function merge_order_users ( $all_orders, $orders, $also_friends = false ) {
 	foreach ( $orders as $order ) {
 		$found = false;
