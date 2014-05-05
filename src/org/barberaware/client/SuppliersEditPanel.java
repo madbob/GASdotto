@@ -124,7 +124,8 @@ public class SuppliersEditPanel extends GenericPanel {
 
 				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
 					movements = ( FilteredMovementsSummary ) form.retriveInternalWidget ( "movements" );
-					movements.refresh ();
+					if ( movements != null )
+						movements.refresh ();
 				}
 			}
 		};
