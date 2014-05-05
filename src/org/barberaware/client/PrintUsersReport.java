@@ -79,6 +79,11 @@ public class PrintUsersReport extends DialogBox {
 		setCheckBox ( frame, "Data di Cessazione", "leaving_date", false );
 		setCheckBox ( frame, "Ultimo Login", "lastlogin", false );
 
+		if ( Session.getGAS ().getBool ( "use_rid" ) ) {
+			setCheckBox ( frame, "Conto Corrente", "bank_account", false );
+			setCheckBox ( frame, "Sottoscrizione SEPA", "sepa_subscribe", false );
+		}
+
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
 			setCheckBox ( frame, "Credito Disponibile", "current_balance", false );
 

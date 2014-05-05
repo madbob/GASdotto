@@ -85,7 +85,7 @@ foreach ( $users as $u ) {
 				else
 					$a = '';
 			}
-			else if ( $attr == 'birthday' || $attr == 'leaving_date' || $attr == 'login' ) {
+			else if ( $attr == 'birthday' || $attr == 'leaving_date' || $attr == 'lastlogin' || $attr == 'sepa_subscribe' ) {
 				$a = format_date ( $a );
 			}
 			else if ( $attr == 'address' ) {
