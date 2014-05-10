@@ -27,6 +27,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class PrintUsersReport extends DialogBox {
 	private FromServerSelector	filterOrder;
+	private ListBox			creditSelect;
 	private ArrayList<CheckBox>	boxes;
 
 	public PrintUsersReport () {
@@ -94,12 +95,20 @@ public class PrintUsersReport extends DialogBox {
 		filterOrder = new FromServerSelector ( "Order", false, true, false );
 		reports.addPair ( "Hanno partecipato all'ordine", filterOrder );
 
+		creditSelect = new ListBox ();
+		creditSelect.addItem ( "Indifferente", "none" );
+		creditSelect.addItem ( "Uguale a 0", "zero" );
+		creditSelect.addItem ( "Maggiore di 0", "pluszero" );
+		creditSelect.addItem ( "Minore di 0", "minuszero" );
+		reports.addPair ( "Credito", creditSelect );
+
 		buttons = new DialogButtons ();
 
 		buttons.addCallback (
 			new SavingDialogCallback () {
 				public void onSave ( SavingDialog d ) {
 					String attributes;
+					String credit;
 					String filters;
 					String sep;
 					String url;
@@ -115,11 +124,15 @@ public class PrintUsersReport extends DialogBox {
 						}
 					}
 
-					filters = "";
+					filters = "l";
 
 					obj = filterOrder.getValue ();
 					if ( obj != null )
-						filters = "order:" + obj.getLocalID ();
+						filters += ",order:" + obj.getLocalID ();
+
+					credit = creditSelect.getValue ( creditSelect.getSelectedIndex () );
+					if ( credit != "none" )
+						filters += ",credit:" + credit;
 
 					url = Utils.getServer ().getURL () + "/user_reports.php?attributes=" + attributes + "&filter=" + filters;
 

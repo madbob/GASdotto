@@ -40,36 +40,82 @@ formatting_entities ( 'csv' );
 $attributes = explode ( ',', $attributes );
 $filters = explode ( ',', $filters );
 
-$ids = array ();
+/*
+	Qui prendo tutti gli utenti disponibili, e sottraggo via via gli
+	elementi in funzione dei filtri
+*/
+
+$u = new User ();
+$users = $u->get ( null, false );
 
 foreach ( $filters as $filter ) {
-	if ( strncmp ( $filter, 'order', 5 ) == 0 ) {
+	if ( strcmp ( $filter, 'l' ) == 0 ) {
+		continue;
+	}
+	else if ( strncmp ( $filter, 'order', 5 ) == 0 ) {
 		list ( $useless, $orderid ) = explode ( ':', $filter );
 
 		$o = new Order ();
 		$o->readFromDB ( $orderid );
 		$orders = get_orderuser_by_order ( $o );
 
-		foreach ( $orders as $order )
-			$ids [] = get_actual_id ( $order->baseuser );
+		for ( $i = 0; $i < count ( $users ); $i++ ) {
+			if ( $users [ $i ] == null )
+				continue;
+
+			$keep = false;
+			$u = $users [ $i ];
+
+			foreach ( $orders as $order ) {
+				$a = get_actual_id ( $order->baseuser );
+				if ( $a == $u->id ) {
+					$keep = true;
+					break;
+				}
+			}
+
+			if ( $keep == false )
+				$users [ $i ] = null;
+		}
 
 		unset ( $orders );
 	}
-}
+	else if ( strncmp ( $filter, 'credit', 6 ) == 0 ) {
+		list ( $useless, $type ) = explode ( ':', $filter );
 
-if ( count ( $ids ) == 0 ) {
-	$u = new User ();
-	$users = $u->get ( null, false );
-}
-else {
-	$users = array ();
-	foreach ( $ids as $id )
-		$users [] = get_actual_user ( $id );
+		for ( $i = 0; $i < count ( $users ); $i++ ) {
+			if ( $users [ $i ] == null )
+				continue;
+
+			$keep = true;
+			$u = get_actual_user ( $users [ $i ] );
+			$credit = floatval ( $u->current_balance );
+
+			switch ( $type ) {
+				case 'zero':
+					$keep = ( $credit == 0 );
+					break;
+				case 'pluszero':
+					$keep = ( $credit > 0 );
+					break;
+				case 'minuszero':
+					$keep = ( $credit < 0 );
+					break;
+			}
+
+			if ( $keep == false ) {
+				$users [ $i ] = null;
+			}
+		}
+	}
 }
 
 $output = "";
 
 foreach ( $users as $u ) {
+	if ( $u == null )
+		continue;
+
 	$data = array ();
 
 	foreach ( $attributes as $attr ) {
@@ -108,4 +154,3 @@ header ( 'Content-Disposition: inline; filename="Utenti.csv' . '";' );
 echo $output;
 
 ?>
-
