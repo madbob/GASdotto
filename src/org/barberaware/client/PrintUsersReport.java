@@ -28,6 +28,7 @@ import com.allen_sauer.gwt.log.client.Log;
 public class PrintUsersReport extends DialogBox {
 	private FromServerSelector	filterOrder;
 	private ListBox			creditSelect;
+	private CheckBox		showLeaved;
 	private ArrayList<CheckBox>	boxes;
 
 	public PrintUsersReport () {
@@ -102,6 +103,9 @@ public class PrintUsersReport extends DialogBox {
 		creditSelect.addItem ( "Minore di 0", "minuszero" );
 		reports.addPair ( "Credito", creditSelect );
 
+		showLeaved = new CheckBox ();
+		reports.addPair ( "Includi Utenti Cessati", showLeaved );
+
 		buttons = new DialogButtons ();
 
 		buttons.addCallback (
@@ -133,6 +137,9 @@ public class PrintUsersReport extends DialogBox {
 					credit = creditSelect.getValue ( creditSelect.getSelectedIndex () );
 					if ( credit != "none" )
 						filters += ",credit:" + credit;
+
+					if ( showLeaved.getValue () == true )
+						filters += ",leaved:1";
 
 					url = Utils.getServer ().getURL () + "/user_reports.php?attributes=" + attributes + "&filter=" + filters;
 

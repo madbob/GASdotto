@@ -40,13 +40,22 @@ formatting_entities ( 'csv' );
 $attributes = explode ( ',', $attributes );
 $filters = explode ( ',', $filters );
 
+$user_request = null;
+
+foreach ( $filters as $filter ) {
+	if ( strncmp ( $filter, 'leaved', 6 ) == 0 ) {
+		$user_request = new stdClass ();
+		$user_request->privileges = -1;
+	}
+}
+
 /*
 	Qui prendo tutti gli utenti disponibili, e sottraggo via via gli
 	elementi in funzione dei filtri
 */
 
 $u = new User ();
-$users = $u->get ( null, false );
+$users = $u->get ( $user_request, false );
 
 foreach ( $filters as $filter ) {
 	if ( strcmp ( $filter, 'l' ) == 0 ) {

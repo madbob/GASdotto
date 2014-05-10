@@ -66,10 +66,15 @@ class User extends FromServer {
 				return "NO";
 		}
 
-		if ( $request != null && property_exists ( $request, 'privileges' ) )
-			$query = sprintf ( "privileges = %d", $request->privileges );
-		else
+		$query = "id > 0";
+
+		if ( $request != null && property_exists ( $request, 'privileges' ) ) {
+			if ( $request->privileges != -1 )
+				$query = sprintf ( "privileges = %d", $request->privileges );
+		}
+		else {
 			$query = sprintf ( "privileges != 3" );
+		}
 
 		return parent::getByQuery ( $request, $compress, $query );
 	}
