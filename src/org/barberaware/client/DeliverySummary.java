@@ -96,13 +96,6 @@ public class DeliverySummary extends Composite {
 				uorder = row.getCurrentValue ();
 				products = uorder.getArray ( "allproducts" );
 
-				/*
-					TODO	In caso di ordini aggregati, se si apre il dialog per forzare il
-						pagamento ma si clicca su Annulla, i BankMovement dei sotto-ordini
-						vengono comunque settati e ricliccando su "Salva" risultano essere
-						gia' pagati per la somma precedentemente settata come default
-				*/
-
 				if ( products != null && Session.getGAS ().getBool ( "use_bank" ) == true ) {
 					topay = ProductUser.sumProductUserArray ( products, "delivered" );
 					payment = uorder.getObject ( "payment_event" );

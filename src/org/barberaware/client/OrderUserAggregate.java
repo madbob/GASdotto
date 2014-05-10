@@ -282,10 +282,17 @@ public class OrderUserAggregate extends FromServerAggregateVirtual implements Or
 						subbm.setDate ( "registrationdate", bm.getDate ( "registrationdate" ) );
 						subbm.setObject ( "registrationperson", bm.getObject ( "registrationperson" ) );
 
-						/*
-							Qui si assume che tutti i prodotti consegnati siano stati pagati
-						*/
-						subbm.setFloat ( "amount", ProductUser.sumProductUserArray ( child.getArray ( "allproducts" ), "delivered" ) );
+						if ( bm.getFloat ( "amount" ) == 0 ) {
+							subbm.setFloat ( "amount", 0 );
+						}
+						else {
+							/*
+								TODO	qui sarebbe meglio gestire meglio l'ammontare
+									pagato rispetto all'effettivo valore del
+									sotto-ordine
+							*/
+							subbm.setFloat ( "amount", ProductUser.sumProductUserArray ( child.getArray ( "allproducts" ), "delivered" ) );
+						}
 
 						subbm.setInt ( "movementtype", bm.getInt ( "movementtype" ) );
 						subbm.setInt ( "method", bm.getInt ( "method" ) );
