@@ -52,8 +52,11 @@ class Supplier extends SharableFromServer {
 	}
 
 	public function get ( $request, $compress ) {
+		$query = 'id > 0';
+
 		if ( $request != null && property_exists ( $request, 'hidden') ) {
-			$query = sprintf ( 'hidden = %s', $request->hidden );
+			if ( $request->hidden != -1 )
+				$query = sprintf ( 'hidden = %s', $request->hidden );
 		}
 		else {
 			/*

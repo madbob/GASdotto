@@ -391,7 +391,7 @@ public class UsersPanel extends GenericPanel {
 				}
 			}
 		} );
-		pan.addPair ( "Mostra Utenti Cessati", toggleLeavedView );
+		pan.addPair ( "Utenti Cessati", toggleLeavedView );
 
 		link = new Label ( "Report Utenti" );
 		link.setStyleName ( "file-link" );

@@ -474,15 +474,19 @@ function sort_products_on_products ( $products, $user_products ) {
 	return $proxy;
 }
 
-function get_actual_user ( $obj ) {
+function get_actual_object ( $obj, $class ) {
 	if ( is_object ( $obj ) ) {
 		return $obj;
 	}
 	else {
-		$u = new User ();
+		$u = new $class ();
 		$u->readFromDB ( $obj );
 		return $u->exportable ();
 	}
+}
+
+function get_actual_user ( $obj ) {
+	return get_actual_object ( $obj, User );
 }
 
 function get_actual_id ( $obj ) {

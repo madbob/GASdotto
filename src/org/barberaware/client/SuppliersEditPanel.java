@@ -175,15 +175,21 @@ public class SuppliersEditPanel extends GenericPanel {
 	}
 
 	private void doFilterOptions () {
-		HorizontalPanel pan;
+		CustomFormTable pan;
+		FormClusterFilter filter;
+		Label link;
 
-		pan = new HorizontalPanel ();
-		pan.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
-		pan.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_LEFT );
-		pan.setStyleName ( "panel-up" );
+		pan = new CustomFormTable ();
 		addTop ( pan );
 
-		toggleHiddenView = new CheckBox ( "Mostra Fornitori Disattivati" );
+		filter = new FormClusterFilter ( main, new FilterCallback () {
+			public boolean check ( FromServer obj, String text ) {
+				return ( obj.getString ( "name" ).toLowerCase ().contains ( text.toLowerCase () ) );
+			}
+		} );
+		pan.addPair ( "Ricerca in Lista", filter );
+
+		toggleHiddenView = new CheckBox ();
 		toggleHiddenView.addClickHandler ( new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				boolean show;
@@ -209,7 +215,20 @@ public class SuppliersEditPanel extends GenericPanel {
 				}
 			}
 		} );
-		pan.add ( toggleHiddenView );
+		pan.addPair ( "Fornitori Disattivati", toggleHiddenView );
+
+		link = new Label ( "Report Fornitori" );
+		link.setStyleName ( "file-link" );
+		link.addClickHandler ( new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				PrintSuppliersReport dialog;
+
+				dialog = new PrintSuppliersReport ();
+				dialog.center ();
+				dialog.show ();
+			}
+		} );
+		pan.addPair ( "Esporta", link );
 	}
 
 	private Widget attributesBuilder ( FromServerForm ver, Supplier supp ) {
