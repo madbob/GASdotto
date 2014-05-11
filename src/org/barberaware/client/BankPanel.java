@@ -99,6 +99,7 @@ public class BankPanel extends GenericPanel {
 		};
 
 		dates = new DateRange ();
+		dates.lastWeek ();
 		dates.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Dal", dates.getStartDateWidget () );
 		frame.addPair ( "Al", dates.getEndDateWidget () );

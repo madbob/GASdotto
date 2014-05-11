@@ -62,6 +62,16 @@ public class DateRange extends Composite {
 		main.setWidget ( 1, 1, endDate );
 	}
 
+	public void lastWeek () {
+		Date now;
+
+		now = new Date ( System.currentTimeMillis () );
+		endDate.setValue ( now );
+
+		now = new Date ( now.getTime () - ( 7 * 24 * 3600 * 1000 ) );
+		startDate.setValue ( now );
+	}
+
 	public Date getStartDate () {
 		return startDate.getValue ();
 	}
