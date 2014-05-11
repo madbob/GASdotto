@@ -99,8 +99,7 @@ public class PrintUsersReport extends DialogBox {
 		creditSelect = new ListBox ();
 		creditSelect.addItem ( "Indifferente", "none" );
 		creditSelect.addItem ( "Uguale a 0", "zero" );
-		creditSelect.addItem ( "Maggiore di 0", "pluszero" );
-		creditSelect.addItem ( "Minore di 0", "minuszero" );
+		creditSelect.addItem ( "Diverso da 0", "nonzero" );
 		reports.addPair ( "Credito", creditSelect );
 
 		showLeaved = new CheckBox ();

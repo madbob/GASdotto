@@ -69,7 +69,7 @@ foreach ( $filters as $filter ) {
 				continue;
 
 			$keep = true;
-			$u = get_actual_object ( $suppliers [ $i ], Supplier );
+			$u = get_actual_object ( $suppliers [ $i ], 'Supplier' );
 			$credit = floatval ( $u->current_balance );
 
 			switch ( $type ) {

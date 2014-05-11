@@ -56,6 +56,7 @@ foreach ( $filters as $filter ) {
 
 $u = new User ();
 $users = $u->get ( $user_request, false );
+unset ( $u );
 
 foreach ( $filters as $filter ) {
 	if ( strcmp ( $filter, 'l' ) == 0 ) {
@@ -77,7 +78,7 @@ foreach ( $filters as $filter ) {
 
 			foreach ( $orders as $order ) {
 				$a = get_actual_id ( $order->baseuser );
-				if ( $a == $u->id ) {
+				if ( $a == get_actual_id ( $u ) ) {
 					$keep = true;
 					break;
 				}
@@ -97,18 +98,15 @@ foreach ( $filters as $filter ) {
 				continue;
 
 			$keep = true;
-			$u = get_actual_user ( $users [ $i ] );
+			$u = get_actual_object ( $users [ $i ], 'User' );
 			$credit = floatval ( $u->current_balance );
 
 			switch ( $type ) {
 				case 'zero':
 					$keep = ( $credit == 0 );
 					break;
-				case 'pluszero':
-					$keep = ( $credit > 0 );
-					break;
-				case 'minuszero':
-					$keep = ( $credit < 0 );
+				case 'nonzero':
+					$keep = ( $credit != 0 );
 					break;
 			}
 
@@ -125,6 +123,7 @@ foreach ( $users as $u ) {
 	if ( $u == null )
 		continue;
 
+	$u = get_actual_object ( $u, 'User' );
 	$data = array ();
 
 	foreach ( $attributes as $attr ) {
@@ -147,7 +146,7 @@ foreach ( $users as $u ) {
 				$a = format_address ( $a );
 			}
 			else if ( $attr == 'current_balance' ) {
-				$a = format_price ( $a );
+				$a = format_price ( $a, false );
 			}
 		}
 

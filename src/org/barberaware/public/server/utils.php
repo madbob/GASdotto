@@ -485,10 +485,6 @@ function get_actual_object ( $obj, $class ) {
 	}
 }
 
-function get_actual_user ( $obj ) {
-	return get_actual_object ( $obj, User );
-}
-
 function get_actual_id ( $obj ) {
 	if ( is_numeric ( $obj ) )
 		return $obj;
@@ -501,8 +497,8 @@ function merge_order_users ( $all_orders, $orders, $also_friends = false ) {
 		$found = false;
 
 		foreach ( $all_orders as $main_order ) {
-			$order->baseuser = get_actual_user ( $order->baseuser );
-			$main_order->baseuser = get_actual_user ( $main_order->baseuser );
+			$order->baseuser = get_actual_object ( $order->baseuser, 'User' );
+			$main_order->baseuser = get_actual_object ( $main_order->baseuser, 'User' );
 
 			if ( $order->baseuser->id == $main_order->baseuser->id ) {
 				$main_order->products = array_merge ( $main_order->products, $order->products );
