@@ -75,11 +75,6 @@ public class BankMovementForm extends BankMovementComponent {
 		}
 	}
 
-	/*
-		Tutte le funzioni usate per settare dei valori di default
-		devono essere invocate dopo setValue()
-	*/
-
 	public void setDefaultAmount ( float amount ) {
 		FromServer movement;
 

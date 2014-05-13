@@ -42,6 +42,7 @@ public class DeliverySummary extends Composite {
 	}
 
 	public void addOrder ( OrderUserInterface uorder ) {
+		String notes;
 		final FromServerForm row;
 		FromServerForm existing;
 		FromServer uord;
@@ -49,6 +50,7 @@ public class DeliverySummary extends Composite {
 		FromServer prevmap;
 		OrderUserAggregate aggregate;
 		HorizontalPanel informations;
+		CaptionPanel notesframe;
 		CustomCaptionPanel frame;
 		UserDetailsInOrder user_frame;
 		ProductsDeliveryTable products;
@@ -186,6 +188,15 @@ public class DeliverySummary extends Composite {
 
 		if ( Session.getGAS ().getBool ( "use_bank" ) == true )
 			frame.addPair ( "Pagamento", row.getPersonalizedWidget ( "payment_event", new BankMovementCellViewer () ) );
+
+		/* note */
+
+		notes = uord.getString ( "notes" );
+		if ( notes != null && notes != "" ) {
+			notesframe = new CaptionPanel ( "Note" );
+			notesframe.add ( row.getPersonalizedWidget ( "notes", new StringLabel () ) );
+			row.add ( notesframe );
+		}
 
 		/* prodotti */
 
