@@ -42,7 +42,6 @@ public class StatisticsPanel extends GenericPanel {
 	private ColumnChart		graphByOrders;
 	private ColumnChart.Options	graphByOrdersOptions;
 	private DataTable		supplierData;
-	private VerticalPanel		supplierDetails;
 
 	private LinksDialog		productsFiles;
 	private DateRange		productsDate;
@@ -52,7 +51,6 @@ public class StatisticsPanel extends GenericPanel {
 	private PieChart		graphByProductValue;
 	private PieChart.Options	graphByProductValueOptions;
 	private DataTable		productData;
-	private VerticalPanel		productDetails;
 
 	public StatisticsPanel () {
 		super ();
@@ -66,12 +64,14 @@ public class StatisticsPanel extends GenericPanel {
 		DateRange input;
 
 		main = new VerticalPanel ();
+		main.setWidth ( "100%" );
 		addTop ( main );
 
 		frame = new CaptionPanel ( "Report per Utenti/Fornitori" );
 		main.add ( frame );
 
 		layout = new FlexTable ();
+		layout.setWidth ( "100%" );
 		formatter = layout.getFlexCellFormatter ();
 		frame.setContentWidget ( layout );
 
@@ -100,18 +100,10 @@ public class StatisticsPanel extends GenericPanel {
 		layout.setWidget ( 2, 0, graphByOrders );
 		formatter.setColSpan ( 2, 0, 2 );
 		graphByOrdersOptions = ColumnChart.Options.create ();
-		graphByOrdersOptions.setWidth ( 800 );
 		graphByOrdersOptions.setHeight ( 240 );
 		graphByOrdersOptions.set3D ( true );
 		graphByOrdersOptions.setLegend ( LegendPosition.NONE );
 		graphByOrdersOptions.setTitle ( "Numero Utenti con almeno un Ordine" );
-
-		supplierDetails = new VerticalPanel ();
-		supplierDetails.setStyleName ( "info-cell" );
-		layout.setWidget ( 0, 2, supplierDetails );
-		formatter.setRowSpan ( 0, 2, 2 );
-		formatter.setVerticalAlignment ( 0, 2, HasVerticalAlignment.ALIGN_MIDDLE );
-		supplierDetails.add ( new HTML ( "Clicca su un fornitore<br />per visualizzare qui i dettagli" ) );
 
 		graphByPrices.addSelectHandler ( new SelectHandler () {
 			public void onSelect ( SelectHandler.SelectEvent event ) {
@@ -121,7 +113,6 @@ public class StatisticsPanel extends GenericPanel {
 				arr = graphByPrices.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
 				graphByOrders.setSelections ( arr );
-				detailsSupplier ( sel.getRow () );
 			}
 		} );
 
@@ -133,22 +124,28 @@ public class StatisticsPanel extends GenericPanel {
 				arr = graphByOrders.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
 				graphByPrices.setSelections ( arr );
-				detailsSupplier ( sel.getRow () );
 			}
 		} );
 
 		///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+		main.add ( doProductsPanel () );
+	}
+
+	private Widget doProductsPanel () {
+		CaptionPanel frame;
+		VerticalPanel contents;
+		Button button;
+		CustomFormTable parameters;
+
 		frame = new CaptionPanel ( "Report per Prodotti/Fornitore" );
 		main.add ( frame );
 
-		layout = new FlexTable ();
-		formatter = layout.getFlexCellFormatter ();
-		frame.setContentWidget ( layout );
+		contents = new VerticalPanel ();
+		frame.setContentWidget ( contents );
 
-		hor = new HorizontalPanel ();
-		layout.setWidget ( 0, 0, hor );
-		formatter.setColSpan ( 0, 0, 2 );
+		parameters = new CustomFormTable ();
+		contents.add ( parameters );
 
 		supplier = new FromServerSelector ( "Supplier", true, true, false );
 		supplier.addDomHandler ( new ChangeHandler () {
@@ -156,46 +153,40 @@ public class StatisticsPanel extends GenericPanel {
 				performProductsUpdate ();
 			}
 		}, ChangeEvent.getType () );
-		hor.add ( new Label ( "Fornitore" ) );
-		hor.add ( supplier );
+
+		parameters.addPair ( "Fornitore", supplier );
 
 		productsDate = new DateRange ();
-		productsDate.addDomHandler ( new ChangeHandler () {
-			public void onChange ( ChangeEvent event ) {
+		parameters.addPair ( "Dal", productsDate.getStartDateWidget () );
+		parameters.addPair ( "Al", productsDate.getEndDateWidget () );
+
+		button = new Button ( "Cerca", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
 				performProductsUpdate ();
 			}
-		}, ChangeEvent.getType () );
-		layout.setWidget ( 1, 0, productsDate );
+		} );
+		parameters.addPair ( "", button );
 
 		productsFiles = new LinksDialog ( "Scarica Statistiche" );
-		layout.setWidget ( 2, 0, productsFiles );
+		parameters.addPair ( "", productsFiles );
 
 		graphByProductValue = new PieChart ();
-		layout.setWidget ( 1, 1, graphByProductValue );
-		formatter.setRowSpan ( 1, 1, 2 );
+		contents.add ( graphByProductValue );
 		graphByProductValueOptions = PieChart.Options.create ();
-		graphByProductValueOptions.setWidth ( 500 );
+		graphByProductValueOptions.setWidth ( 800 );
 		graphByProductValueOptions.setHeight ( 240 );
 		graphByProductValueOptions.set3D ( true );
 		graphByProductValueOptions.setLegend ( LegendPosition.NONE );
 		graphByProductValueOptions.setTitle ( "Valore dei Prodotti Ordinati (€)" );
 
 		graphByProduct = new ColumnChart ();
-		layout.setWidget ( 3, 0, graphByProduct );
-		formatter.setColSpan ( 3, 0, 2 );
+		contents.add ( graphByProduct );
 		graphByProductOptions = ColumnChart.Options.create ();
 		graphByProductOptions.setWidth ( 800 );
-		graphByProductOptions.setHeight ( 240 );
+		graphByProductOptions.setHeight ( 300 );
 		graphByProductOptions.set3D ( true );
 		graphByProductOptions.setLegend ( LegendPosition.NONE );
 		graphByProductOptions.setTitle ( "Numero di Utenti che hanno Ordinato i Prodotti" );
-
-		productDetails = new VerticalPanel ();
-		productDetails.setStyleName ( "info-cell" );
-		layout.setWidget ( 0, 2, productDetails );
-		formatter.setRowSpan ( 0, 2, 3 );
-		formatter.setVerticalAlignment ( 0, 2, HasVerticalAlignment.ALIGN_MIDDLE );
-		productDetails.add ( new HTML ( "Clicca su un prodotto<br />per visualizzare qui i dettagli" ) );
 
 		graphByProduct.addSelectHandler ( new SelectHandler () {
 			public void onSelect ( SelectHandler.SelectEvent event ) {
@@ -205,7 +196,6 @@ public class StatisticsPanel extends GenericPanel {
 				arr = graphByProduct.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
 				graphByProductValue.setSelections ( arr );
-				detailsProduct ( sel.getRow () );
 			}
 		} );
 
@@ -217,51 +207,10 @@ public class StatisticsPanel extends GenericPanel {
 				arr = graphByProductValue.getSelections ();
 				sel = ( Selection ) arr.get ( 0 );
 				graphByProduct.setSelections ( arr );
-				detailsProduct ( sel.getRow () );
 			}
 		} );
-	}
 
-	private void detailsSupplier ( int index ) {
-		Label lab;
-
-		if ( supplierDetails.getWidgetCount () == 1 ) {
-			supplierDetails.remove ( 0 );
-
-			for ( int i = 0; i < 3; i++ ) {
-				lab = new Label ();
-				supplierDetails.add ( lab );
-				lab.setWordWrap ( false );
-			}
-		}
-
-		lab = ( Label ) supplierDetails.getWidget ( 0 );
-		lab.setText ( "Fornitore: " + supplierData.getValueString ( index, 0 ) );
-		lab = ( Label ) supplierDetails.getWidget ( 1 );
-		lab.setText ( "Importo versato: " + Double.toString ( supplierData.getValueDouble ( index, 1 ) ) + " €" );
-		lab = ( Label ) supplierDetails.getWidget ( 2 );
-		lab.setText ( "Utenti con almeno un ordine: " + Double.toString ( supplierData.getValueDouble ( index, 2 ) ) );
-	}
-
-	private void detailsProduct ( int index ) {
-		Label lab;
-
-		if ( productDetails.getWidgetCount () == 1 ) {
-			productDetails.remove ( 0 );
-
-			for ( int i = 0; i < 3; i++ ) {
-				lab = new Label ();
-				productDetails.add ( lab );
-				lab.setWordWrap ( false );
-			}
-		}
-
-		lab = ( Label ) productDetails.getWidget ( 0 );
-		lab.setText ( "Prodotto: " + productData.getValueString ( index, 0 ) );
-		lab = ( Label ) productDetails.getWidget ( 1 );
-		lab.setText ( "Valore ordinato: " + Double.toString ( productData.getValueDouble ( index, 1 ) ) + " €" );
-		lab = ( Label ) productDetails.getWidget ( 2 );
-		lab.setText ( "Utenti con almeno un ordine: " + Double.toString ( productData.getValueDouble ( index, 2 ) ) );
+		return frame;
 	}
 
 	private void populateUsersGraph ( JSONArray array ) {
@@ -482,6 +431,6 @@ public class StatisticsPanel extends GenericPanel {
 
 	public void initView () {
 		performUsersUpdate ();
-		performProductsUpdate ();
+		// performProductsUpdate ();
 	}
 }
