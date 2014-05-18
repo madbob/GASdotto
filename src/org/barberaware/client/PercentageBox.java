@@ -31,29 +31,7 @@ public class PercentageBox extends TextBox implements PercentageWidget {
 
 		addBlurHandler ( new BlurHandler () {
 			public void onBlur ( BlurEvent event ) {
-				String text;
-
-				text = getText ();
-				valid = true;
-
-				if ( text.equals ( "" ) )
-					setText ( "0" );
-
-				else {
-					int len;
-
-					len = text.length ();
-
-					for ( int i = 0; i < len; i++ )
-						if ( text.charAt ( i ) == '%' ) {
-							if ( i != len - 1 ) {
-								Utils.showNotification ( "Valore non valido" );
-								valid = false;
-							}
-
-							break;
-						}
-				}
+				isValid ();
 			}
 		} );
 
@@ -83,6 +61,25 @@ public class PercentageBox extends TextBox implements PercentageWidget {
 		setVisibleLength ( 6 );
 	}
 
+	private boolean isValid () {
+		String text;
+
+		text = getText ();
+
+		if ( text.equals ( "" ) ) {
+			setText ( "0" );
+		}
+		else {
+			if ( text.matches ( "^\\d+$" ) == false && text.matches ( "^\\d+%$" ) == false ) {
+				Utils.showNotification ( "Valore non valido" );
+				setText ( "0" );
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	/****************************************************************** PercentageWidget */
 
 	public void setValue ( String value ) {
@@ -93,11 +90,10 @@ public class PercentageBox extends TextBox implements PercentageWidget {
 	}
 
 	public String getValue () {
-		if ( valid == true )
+		if ( isValid () == true )
 			return getText ();
 		else
 			return "0";
 	}
-
-
 }
+
