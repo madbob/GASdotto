@@ -160,6 +160,9 @@ public class BankMovementForm extends BankMovementComponent {
 	/****************************************************************** FromServerRappresentation */
 
 	public void setValue ( FromServer obj ) {
+		if ( obj == null )
+			obj = new BankMovement ();
+
 		super.setValue ( obj );
 		setDefaultDate ( defaultDate );
 		setDefaultAmount ( defaultAmount );

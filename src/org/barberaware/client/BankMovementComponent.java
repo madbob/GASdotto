@@ -99,8 +99,11 @@ public abstract class BankMovementComponent extends FromServerRappresentation {
 
 	protected void saveOriginal () {
 		originalValue = getValue ();
-		originalDate = originalValue.getDate ( "date" );
-		originalAmount = originalValue.getFloat ( "amount" );
+
+		if ( originalValue != null ) {
+			originalDate = originalValue.getDate ( "date" );
+			originalAmount = originalValue.getFloat ( "amount" );
+		}
 	}
 
 	protected void restoreOriginal () {
