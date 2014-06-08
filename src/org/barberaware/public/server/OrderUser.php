@@ -79,6 +79,14 @@ class OrderUser extends FromServer {
 
 	public function save ( $obj ) {
 		/*
+			Ovviamente chi consegna un ordine non puo' essere un nuovo utente, qui
+			filtro via l'eventuale informazione spuria qualora la trovassi settata
+			nell'oggetto da salvare
+		*/
+		if ( is_object ( $obj->deliveryperson ) == true && $obj->deliveryperson->id == -1 )
+			unset ( $obj->deliveryperson );
+
+		/*
 			Questo e' per evitare di salvare nel DB ordini vuoti, per cui non e'
 			stata settata alcuna quantita' di prodotti
 		*/
