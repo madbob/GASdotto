@@ -50,6 +50,7 @@ public class MainStack extends Composite {
 		Utils.getServer ().testObjectReceive ( "Category" );
 		Utils.getServer ().testObjectReceive ( "Measure" );
 		Utils.getServer ().testObjectReceive ( "ShippingPlace" );
+		Utils.getServer ().testObjectReceive ( "User" );
 
 		if ( privileges == User.USER_MASTER ) {
 			add ( new GASPanel () );

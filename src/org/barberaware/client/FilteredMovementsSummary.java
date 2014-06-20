@@ -50,7 +50,7 @@ public class FilteredMovementsSummary extends Composite {
 
 		main.add ( dates );
 
-		mainTable = new MovementsSummary ( false );
+		mainTable = new MovementsSummary ( true );
 		main.add ( mainTable );
 	}
 
