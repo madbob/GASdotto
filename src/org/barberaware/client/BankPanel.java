@@ -38,8 +38,8 @@ public class BankPanel extends GenericPanel {
 		GAS gas;
 		PriceViewer price;
 		AddButton button;
+		Button search;
 		CustomCaptionPanel frame;
-		ChangeHandler handler;
 
 		/*
 			Tabella principale
@@ -92,27 +92,25 @@ public class BankPanel extends GenericPanel {
 		hor.add ( frame );
 		hor.setCellWidth ( frame, "50%" );
 
-		handler = new ChangeHandler () {
-			public void onChange ( ChangeEvent event ) {
-				loadData ();
-			}
-		};
-
 		dates = new DateRange ();
 		dates.lastWeek ();
-		dates.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Dal", dates.getStartDateWidget () );
 		frame.addPair ( "Al", dates.getEndDateWidget () );
 
 		userFilter = new FromServerSelector ( "User", true, true, true );
 		userFilter.addAllSelector ();
-		userFilter.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Filtra Utente", userFilter );
 
 		supplierFilter = new FromServerSelector ( "Supplier", true, true, true );
 		supplierFilter.addAllSelector ();
-		supplierFilter.addDomHandler ( handler, ChangeEvent.getType () );
 		frame.addPair ( "Filtra Fornitore", supplierFilter );
+
+		search = new Button ( "Cerca", new ClickHandler () {
+			public void onClick ( ClickEvent event ) {
+				loadData ();
+			}
+		} );
+		frame.addPair ( "", search );
 
 		/*
 			Filtri
@@ -194,7 +192,6 @@ public class BankPanel extends GenericPanel {
 					public void onComplete ( JSONValue response ) {
 						supplierFilter.unlock ();
 						userFilter.unlock ();
-						loadData ();
 					}
 				} );
 			}
