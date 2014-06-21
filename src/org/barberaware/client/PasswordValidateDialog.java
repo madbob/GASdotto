@@ -28,11 +28,10 @@ import com.allen_sauer.gwt.log.client.Log;
 public abstract class PasswordValidateDialog extends DialogBox implements SavingDialog {
 	private VerticalPanel			main;
 	private PasswordTextBox			password;
+	private DialogButtons			buttons;
 	private ArrayList<SavingDialogCallback>	savingCallbacks;
 
 	public PasswordValidateDialog () {
-		DialogButtons buttons;
-
 		main = new VerticalPanel ();
 		this.setWidget ( main );
 
@@ -84,6 +83,10 @@ public abstract class PasswordValidateDialog extends DialogBox implements Saving
 
 	public void add ( Widget widget ) {
 		main.insert ( widget, main.getWidgetCount () - 3 );
+	}
+
+	public void customSaveLabel ( String label ) {
+		buttons.customSaveLabel ( label );
 	}
 
 	private void executeCallbacks ( int mode ) {

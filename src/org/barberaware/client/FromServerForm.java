@@ -251,6 +251,7 @@ public class FromServerForm extends FromServerRappresentationFull {
 					boolean ret;
 					String confirmation;
 					FromServer object;
+					GenericRemoveDialog dialog;
 
 					ret = deleteCallbacks ();
 					if ( ret == false )
@@ -262,16 +263,18 @@ public class FromServerForm extends FromServerRappresentationFull {
 						invalidate ();
 					}
 					else {
-						if ( object.hasAttribute ( "name" ) == true )
-							confirmation = "Sei sicuro di voler eliminare " + object.getString ( "name" ) + "?";
-						else
-							confirmation = "Sei sicuro di voler eliminare l'elemento?";
+						dialog = new GenericRemoveDialog ();
+						dialog.setValue ( object );
 
-						if ( Window.confirm ( confirmation ) == true ) {
-							object.destroy ( null );
-							invalidate ();
-							main.setOpen ( false );
-						}
+						dialog.addCallback ( new SavingDialogCallback () {
+							public void onSave ( SavingDialog d ) {
+								invalidate ();
+								main.setOpen ( false );
+							}
+						} );
+
+						dialog.center ();
+						dialog.show ();
 					}
 				}
 			} );

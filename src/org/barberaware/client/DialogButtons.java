@@ -25,6 +25,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class DialogButtons extends HorizontalPanel implements SavingDialog {
 	private ArrayList<SavingDialogCallback>	callbacks;
+	private Button				saveButt;
 
 	public DialogButtons () {
 		Button but;
@@ -32,12 +33,12 @@ public class DialogButtons extends HorizontalPanel implements SavingDialog {
 		this.setStyleName ( "dialog-buttons" );
 		this.setHorizontalAlignment ( HasHorizontalAlignment.ALIGN_CENTER );
 
-		but = new Button ( "Salva", new ClickHandler () {
+		saveButt = new Button ( "Salva", new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				fireClick ( 0 );
 			}
 		} );
-		this.add ( but );
+		this.add ( saveButt );
 
 		but = new Button ( "Annulla", new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
@@ -45,6 +46,10 @@ public class DialogButtons extends HorizontalPanel implements SavingDialog {
 			}
 		} );
 		this.add ( but );
+	}
+
+	public void customSaveLabel ( String label ) {
+		saveButt.setText ( label );
 	}
 
 	private void fireClick ( int mode ) {

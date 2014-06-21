@@ -46,13 +46,22 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		public String getUneditable ( FromServer obj ) {
 			int type;
+			FromServer child;
 
-			type = obj.getAttributeType ( attr );
+			if ( obj != null ) {
+				type = obj.getAttributeType ( attr );
 
-			if ( type == FromServer.OBJECT )
-				return obj.getObject ( attr ).getString ( "name" );
-			else
-				return obj.getString ( attr );
+				if ( type == FromServer.OBJECT ) {
+					child = obj.getObject ( attr );
+					if ( child != null )
+						return child.getString ( "name" );
+				}
+				else {
+					return obj.getString ( attr );
+				}
+			}
+
+			return "";
 		}
 	}
 
@@ -375,7 +384,8 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		for ( int i = 0; i < num; i++ ) {
 			obj = ( FromServer ) sorted_elements.get ( i );
-			addElement ( obj );
+			if ( obj != null )
+				addElement ( obj );
 		}
 	}
 
