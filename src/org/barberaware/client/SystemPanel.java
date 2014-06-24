@@ -187,7 +187,7 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Abilita Notifiche Mail", ver.getPersonalizedWidget ( "use_mail", mail ) );
 
 		mailConf = new MailConfigurator ();
-		frame.addPair ( "Configurazione Mail", ver.getPersonalizedWidget ( "mail_conf", mailConf ) );
+		frame.addPair ( "", ver.getPersonalizedWidget ( "mail_conf", mailConf ) );
 		mailConf.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
 		mailList = new DummyTextBox ();
@@ -195,7 +195,7 @@ public class SystemPanel extends GenericPanel {
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
 		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
-		frame.addPair ( "Elenco Utenti", ver.getWidget ( "use_fullusers" ) );
+		frame.addPair ( "Elenco Utenti", "Abilita il pannello dell'elenco utenti a tutti (in sola lettura) o solo agli amministratori", ver.getWidget ( "use_fullusers" ) );
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );
@@ -242,7 +242,7 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Abilita Gestione Quote", ver.getPersonalizedWidget ( "payments", rid ) );
 		
 		feeConf = new FeeConfigurator ( gas );
-		frame.addPair ( "Configurazione Quote", feeConf );
+		frame.addPair ( "", feeConf );
 		ver.addChild ( feeConf );
 		feeConf.setEnabled ( Session.getGAS ().getBool ( "payments" ) );
 
@@ -255,7 +255,7 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Abilita Pagamenti RID", ver.getPersonalizedWidget ( "use_rid", rid ) );
 
 		ridConf = new RIDConfigurator ();
-		frame.addPair ( "Configurazione RID", ver.getPersonalizedWidget ( "rid_conf", ridConf ) );
+		frame.addPair ( "", ver.getPersonalizedWidget ( "rid_conf", ridConf ) );
 		ridConf.setEnabled ( Session.getGAS ().getBool ( "use_rid" ) );
 
 		frame.addPair ( "Abilita Gestione Cassa", ver.getWidget ( "use_bank" ) );

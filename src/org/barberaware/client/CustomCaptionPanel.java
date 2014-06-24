@@ -33,11 +33,15 @@ public class CustomCaptionPanel extends CaptionPanel {
 	}
 
 	public void addPair ( String name, Widget element, int row ) {
-		content.addPair ( name, element, row, "custom-label" );
+		content.addPair ( name, null, element, row, "custom-label" );
 	}
 
 	public void addPair ( String name, Widget element ) {
 		content.addPair ( name, element );
+	}
+
+	public void addPair ( String name, String help, Widget element ) {
+		content.addPair ( name, help, element );
 	}
 
 	public void addRight ( Widget element ) {

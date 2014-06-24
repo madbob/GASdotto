@@ -42,8 +42,8 @@ public class MailConfigurator extends Composite implements StringWidget {
 		container = new DeckPanel ();
 		initWidget ( container );
 
-		message = new HTML ( "Se abiliti i messaggi di posta elettronica, qui dovrai immettere i dati dell'account<br />" +
-					"mail da usare per l'invio. Puoi usare un account esistente oppure crearne uno apposito,<br />" +
+		message = new HTML ( "Se abiliti i messaggi di posta elettronica, qui dovrai immettere i dati dell'account " +
+					"mail da usare per l'invio. Puoi usare un account esistente oppure crearne uno apposito, " +
 					"purché il tuo provider permetta di spedire messaggi via SMTP." );
 
 		message.setStyleName ( "smaller-text" );

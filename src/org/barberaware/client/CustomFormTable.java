@@ -28,25 +28,32 @@ public class CustomFormTable extends FlexTable {
 		setStyleName ( "custom-form-table" );
 	}
 
-	public void addPair ( String name, Widget element, int row, String css ) {
+	public void addPair ( String name, String help, Widget element, int row, String css ) {
 		Label lab;
 
 		lab = new Label ( name );
 		setWidget ( row, 0, lab );
 		setWidget ( row, 1, element );
 		formatter.addStyleName ( row, 0, css );
+
+		if ( help != null )
+			lab.setTitle ( help );
 	}
 
 	public void addPair ( String name, Widget element, int row ) {
-		addPair ( name, element, row, "custom-label" );
+		addPair ( name, null, element, row, "custom-label" );
 	}
 
 	public void addPair ( String name, Widget element ) {
-		addPair ( name, element, getRowCount () );
+		addPair ( name, null, element, getRowCount (), "custom-label" );
 	}
 
 	public void addPair ( String name, Widget element, String css ) {
-		addPair ( name, element, getRowCount (), css );
+		addPair ( name, null, element, getRowCount (), css );
+	}
+
+	public void addPair ( String name, String help, Widget element ) {
+		addPair ( name, help, element, getRowCount (), "custom-label" );
 	}
 
 	public void addRight ( Widget element ) {
