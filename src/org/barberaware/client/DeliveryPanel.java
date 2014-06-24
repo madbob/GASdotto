@@ -488,6 +488,7 @@ public class DeliveryPanel extends GenericPanel {
 				break;
 			case 1:
 				summary.modOrder ( uorder );
+				cash.modOrder ( uorder );
 				break;
 			case 2:
 				summary.delOrder ( uorder );

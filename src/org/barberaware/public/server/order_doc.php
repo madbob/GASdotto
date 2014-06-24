@@ -63,6 +63,9 @@ list ( $orders, $supplier_name, $supplier_ships, $shipping_date ) = details_abou
 
 $has_stocks = false;
 
+$gas = current_gas ();
+$use_bank = $gas->getAttribute ( 'use_bank' )->value;
+
 /*
 	Init headers
 */
@@ -101,10 +104,16 @@ array_push ( $headers, 'Totale Prezzo Prodotti' );
 array_push ( $headers, 'Totale Prezzo Trasporto' );
 array_push ( $headers, 'Totale' );
 
-if ( $_GET [ 'type' ] == 'saved' )
+if ( $_GET [ 'type' ] == 'saved' ) {
 	array_push ( $headers, 'Prezzato' );
-else
+}
+else if ( $use_bank == 0 ) {
 	array_push ( $headers, 'Totale Pagato' );
+}
+else {
+	array_push ( $headers, 'Totale Pagato in Contanti' );
+	array_push ( $headers, 'Totale Pagato da Credito' );
+}
 
 array_push ( $headers, 'Stato Consegna' );
 array_push ( $headers, 'Data' );
@@ -124,7 +133,15 @@ $data = array ();
 $products_sums = array_fill ( 0, $tot_prod_num, 0 );
 $quantities_sums = array_fill ( 0, $tot_prod_num, 0 );
 $delivery_sums = array_fill ( 0, $tot_prod_num, 0 );
-$shipped_sums = array_fill ( 0, $tot_prod_num, 0 );
+
+if ( $use_bank == 0 ) {
+	$shipped_sums = array_fill ( 0, $tot_prod_num, 0 );
+}
+else {
+	$shipped_sums_bank = array_fill ( 0, $tot_prod_num, 0 );
+	$shipped_sums_cash = array_fill ( 0, $tot_prod_num, 0 );
+}
+
 $shipping_price = array_fill ( 0, $tot_prod_num, 0 );
 $shipped_sums_by_date = array ();
 $all_contents = array ();
@@ -222,7 +239,17 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 			if ( ( $_GET [ 'type' ] == 'saved' && property_exists ( $order_user, 'status' ) && $order_user->status == 3 ) ||
 					( $_GET [ 'type' ] != 'saved' && ( property_exists ( $order_user, 'status' ) == false || $order_user->status != 3 ) ) ) {
 				$sum = ( $delivered * $uprice ) + ( $delivered * $sprice );
-				$shipped_sums [ $a ] += $sum;
+
+				if ( $use_bank == 0 ) {
+					$shipped_sums [ $a ] += $sum;
+				}
+				else {
+					if ( $order_user->payment_event->method == 0 )
+						$shipped_sums_bank [ $a ] += $sum;
+					else
+						$shipped_sums_cash [ $a ] += $sum;
+				}
+
 				$shipped_total += $sum;
 
 				if ( property_exists ( $order_user, 'deliverydate' ) ) {
@@ -248,7 +275,20 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 	$row [] = ( format_price ( round ( $user_total, 2 ), false ) ) . $double_line_end;
 	$row [] = ( format_price ( round ( $user_total_ship, 2 ), false ) ) . $double_line_end;
 	$row [] = ( format_price ( round ( $user_total + $user_total_ship, 2 ), false ) ) . $double_line_end;
-	$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . $double_line_end;
+
+	if ( $use_bank == 0 ) {
+		$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . $double_line_end;
+	}
+	else {
+		if ( $order_user->payment_event->method == 0 ) {
+			$row [] = ( format_price ( 0, false ) ) . $double_line_end;
+			$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . $double_line_end;
+		}
+		else {
+			$row [] = ( format_price ( round ( $shipped_total, 2 ), false ) ) . $double_line_end;
+			$row [] = ( format_price ( 0, false ) ) . $double_line_end;
+		}
+	}
 
 	if ( property_exists ( $order_user, 'status' ) ) {
 		if ( $order_user->status == 1 )
@@ -360,7 +400,13 @@ $row [] = $emptycell;
 $row [] = ( format_price ( round ( $gran_total, 2 ), false ) ) . $double_line_end;
 $data [] = $row;
 
-$data [] = total_row ( 'Totale Pagato', $shipped_sums, 3 );
+if ( $use_bank == 0 ) {
+	$data [] = total_row ( 'Totale Pagato in Contanti', $shipped_sums, 3 );
+}
+else {
+	$data [] = total_row ( 'Totale Pagato in Contanti', $shipped_sums_cash, 3 );
+	$data [] = total_row ( 'Totale Pagato da Credito', $shipped_sums_bank, 4 );
+}
 
 if ( count ( $shipped_sums_by_date ) > 1 ) {
 	foreach ( $shipped_sums_by_date as $date => $values ) {

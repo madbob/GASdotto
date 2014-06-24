@@ -83,7 +83,7 @@ class OrderUser extends FromServer {
 			filtro via l'eventuale informazione spuria qualora la trovassi settata
 			nell'oggetto da salvare
 		*/
-		if ( is_object ( $obj->deliveryperson ) == true && $obj->deliveryperson->id == -1 )
+		if ( property_exists ( $obj, 'deliveryperson' ) && is_object ( $obj->deliveryperson ) == true && $obj->deliveryperson->id == -1 )
 			unset ( $obj->deliveryperson );
 
 		/*
