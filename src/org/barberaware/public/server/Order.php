@@ -314,11 +314,12 @@ class Order extends SharableFromServer {
 					continue;
 
 				$dests = array ();
+				$baseuser = get_actual_object ( $ou->baseuser, 'User' );
 
-				if ( isset ( $ou->baseuser->mail ) && $ou->baseuser->mail != '' )
-					$dests [] = $ou->baseuser->mail;
-				if ( isset ( $ou->baseuser->mail2 ) && $ou->baseuser->mail2 != '' )
-					$dests [] = $ou->baseuser->mail2;
+				if ( isset ( $baseuser->mail ) && $baseuser->mail != '' )
+					$dests [] = $baseuser->mail;
+				if ( isset ( $baseuser->mail2 ) && $baseuser->mail2 != '' )
+					$dests [] = $baseuser->mail2;
 
 				if ( count ( $dests ) == 0 )
 					continue;
@@ -353,7 +354,7 @@ class Order extends SharableFromServer {
 							$quantity = $prod_user->$param;
 							$e++;
 
-							if ( is_array ( $prod_user->variants ) )
+							if ( property_exists ( $prod_user, 'variants' ) && is_array ( $prod_user->variants ) )
 								$variants = $prod_user->variants;
 						}
 					}
