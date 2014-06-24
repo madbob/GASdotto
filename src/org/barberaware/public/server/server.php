@@ -112,12 +112,13 @@ else {
 							$returned = query_and_check ( $query, "Impossibile recuperare utente" );
 							$row = $returned->fetchAll ( PDO::FETCH_ASSOC );
 							unset ( $returned );
+							$privileges = $row [ 0 ] [ 'privileges' ];
 
 							/*
 								Gli utenti con account marcato come "cessato" non
 								possono accedere
 							*/
-							if ( $row [ 0 ] [ 'privileges' ] != 3 ) {
+							if ( $privileges != 3 ) {
 								$query = sprintf ( "FROM accounts WHERE username = %d", $row [ 0 ] [ 'id' ] );
 								if ( db_row_count ( $query ) == 1 ) {
 									$login_ok = false;
@@ -140,10 +141,26 @@ else {
 									}
 
 									if ( $login_ok == true ) {
+										/*
+											Se era stato chiesto un reset della password,
+											rimetto le cose a posto
+										*/
 										if ( $row [ 0 ] [ 'reset' ] != '' ) {
 											$query = sprintf ( "UPDATE accounts SET reset = '' WHERE username = %d", $id );
 											query_and_check ( $query, "Impossibile resettare password temporanea" );
 										}
+
+										/*
+											Controllo se l'istanza è in modalità di
+											accesso limitato
+										*/
+										$query = "SELECT emergency_access FROM GAS WHERE id =
+												(SELECT gas FROM ACL
+													WHERE target_type = 'User' AND target_id = $id)";
+										$result = query_and_check ( $query, "Impossibile recuperare GAS" );
+										$row = $result->fetchAll ( PDO::FETCH_NUM );
+										if ( $row [ 0 ] [ 0 ] == true && $privileges != 2 )
+											error_exit ( "Modalità ad accesso limitato" );
 
 										$userid = $id;
 										perform_authentication ( $userid, $permanent );

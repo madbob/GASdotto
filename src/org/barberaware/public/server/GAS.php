@@ -46,6 +46,7 @@ class GAS extends FromServer {
 		$this->addAttribute ( "current_orders_balance", "FLOAT" );
 		$this->addAttribute ( "current_deposit_balance", "FLOAT" );
 		$this->addAttribute ( "files", "ARRAY::CustomFile" );
+		$this->addAttribute ( "emergency_access", "BOOLEAN" );
 	}
 
 	public function get ( $request, $compress ) {

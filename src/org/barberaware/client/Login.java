@@ -108,6 +108,11 @@ public class Login extends Composite {
 
 		container.add ( new HTML ( "<hr>" ) );
 
+		if ( gas.getBool ( "emergency_access" ) == true ) {
+			container.add ( new HTML ( "Istanza in modalità di accesso limitato: solo gli amministratori possono accedere" ) );
+			container.add ( new HTML ( "<hr>" ) );
+		}
+
 		return container;
 	}
 

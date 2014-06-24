@@ -196,6 +196,7 @@ public class SystemPanel extends GenericPanel {
 
 		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
 		frame.addPair ( "Elenco Utenti", "Abilita il pannello dell'elenco utenti a tutti (in sola lettura) o solo agli amministratori", ver.getWidget ( "use_fullusers" ) );
+		frame.addPair ( "Accesso Limitato", "Quando abilitato, solo gli amministratori possono accedere all'istanza", ver.getWidget ( "emergency_access" ) );
 
 		sframe = new CaptionPanel ( "Descrizione" );
 		sframe.add ( ver.getWidget ( "description" ) );
