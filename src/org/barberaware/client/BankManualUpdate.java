@@ -51,12 +51,14 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 	private int				USER_ANNUAL_CASH	= 100;
 	private int				USER_DEPOSIT_PAY	= 100;
 	private int				USER_DEPOSIT_RETURN	= 100;
+	private int				ROUNDING_DISCOUNT	= 100;
 
 	private CustomFormTable			header;
 	private ListBox				reason;
 	private int				originalReason;
 	private int				originalMethod;
 	private FromServerSelector		user;
+	private FromServerSelector		supplier;
 	private BankMovementForm		info;
 	private ArrayList<SavingDialogCallback>	savingCallbacks;
 
@@ -97,6 +99,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		GENERIC_PUT_CASH = item_index++;
 		reason.addItem ( "Prelievo da Cassa" );
 		GENERIC_GET_CASH = item_index++;
+		reason.addItem ( "Arrotondamento/Sconto Fornitore" );
+		ROUNDING_DISCOUNT = item_index++;
 
 		if ( Session.getGAS ().getBool ( "payments" ) == true ) {
 			reason.addItem ( "Quota Annuale da Conto" );
@@ -113,6 +117,10 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 		user = new FromServerSelector ( "User", true, true, false );
 		header.addPair ( "Socio", user );
+
+		supplier = new FromServerSelector ( "Supplier", true, true, false );
+		header.addPair ( "Fornitore", supplier );
+		header.showByLabel ( "Fornitore", false );
 
 		reason.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
@@ -134,10 +142,16 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				          selected == GAS_CASH_TO_BANK ||
 				          selected == GAS_BUY_BY_CASH ||
 				          selected == GENERIC_PUT_CASH ||
-				          selected == GENERIC_GET_CASH) {
+				          selected == GENERIC_GET_CASH ||
+				          selected == ROUNDING_DISCOUNT) {
 
 					header.showByLabel ( "Socio", false );
 				}
+
+				if ( selected == ROUNDING_DISCOUNT )
+					header.showByLabel ( "Fornitore", true );
+				else
+					header.showByLabel ( "Fornitore", false );
 			}
 		}, ChangeEvent.getType () );
 
@@ -161,12 +175,12 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 					FromServer movement;
 
 					movement = getValue ();
-					
+
 					if ( movement.getFloat ( "amount" ) == 0 ) {
 						Utils.showNotification ( "Importo a 0 non valido" );
 						return;
 					}
-					
+
 					movement.save ( new ServerResponse () {
 						protected void onComplete ( JSONValue response ) {
 							executeCallbacks ( 0 );
@@ -216,6 +230,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		*/
 		originalReason = type;
 		originalMethod = method;
+		header.showByLabel ( "Tipo", true );
 
 		if ( method == BankMovement.BY_CASH ) {
 			if ( type == BankMovement.USER_CREDIT )
@@ -235,7 +250,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			else if ( type == BankMovement.DEPOSIT_RETURN )
 				reason.setSelectedIndex ( USER_DEPOSIT_RETURN );
 			else
-				reason.setVisible ( false );
+				header.showByLabel ( "Tipo", false );
 		}
 		else if ( method == BankMovement.BY_BANK ) {
 			if ( type == BankMovement.USER_CREDIT )
@@ -246,8 +261,10 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				reason.setSelectedIndex ( GAS_BUY_BY_BANK );
 			else if ( type == BankMovement.ANNUAL_PAYMENT )
 				reason.setSelectedIndex ( USER_ANNUAL_BANK );
+			else if ( type == BankMovement.ROUND_SUPPLIER )
+				reason.setSelectedIndex ( ROUNDING_DISCOUNT );
 			else
-				reason.setVisible ( false );
+				header.showByLabel ( "Tipo", false );
 		}
 
 		reason.setEnabled ( false );
@@ -318,6 +335,11 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				movement.setInt ( "movementtype", BankMovement.DEPOSIT_RETURN );
 				movement.setInt ( "method", BankMovement.BY_CASH );
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
+			}
+			else if ( selected == ROUNDING_DISCOUNT ) {
+				movement.setInt ( "movementtype", BankMovement.ROUND_SUPPLIER );
+				movement.setInt ( "method", BankMovement.BY_BANK );
+				movement.setInt ( "paysupplier", supplier.getValue ().getLocalID () );
 			}
 		}
 		else {

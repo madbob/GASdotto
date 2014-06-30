@@ -93,6 +93,12 @@ class BankMovementType extends FromServer {
 		$a->getAttribute ( 'name' )->value = "Versamento generico";
 		$a->save ( $a->exportable () );
 		unset ( $a );
+
+		$a = new BankMovementType ();
+		$a->getAttribute ( 'identifier' )->value = 10;
+		$a->getAttribute ( 'name' )->value = "Arrotondamento/sconto fornitore";
+		$a->save ( $a->exportable () );
+		unset ( $a );
 	}
 }
 

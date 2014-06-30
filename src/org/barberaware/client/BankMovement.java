@@ -38,6 +38,7 @@ public class BankMovement extends FromServer {
 	public static int	INTERNAL_TRANSFER	= 7;
 	public static int	GENERIC_GET		= 8;
 	public static int	GENERIC_PUT		= 9;
+	public static int	ROUND_SUPPLIER		= 10;
 
 	public static int	BY_BANK			= 0;
 	public static int	BY_CASH			= 1;

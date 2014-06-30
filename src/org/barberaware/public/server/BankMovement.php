@@ -121,6 +121,11 @@ class BankMovement extends FromServer {
 						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
+
+					case 10:
+						$sub [] = array ( 'GAS', 'current_orders_balance', $current_gas );
+						$sub [] = array ( 'Supplier', 'current_balance', $supplier );
+						break;
 				}
 
 				break;
@@ -185,6 +190,11 @@ class BankMovement extends FromServer {
 					case 9:
 						$add [] = array ( 'GAS', 'current_balance', $current_gas );
 						$add [] = array ( 'GAS', 'current_cash_balance', $current_gas );
+						break;
+
+					case 10:
+						$sub [] = array ( 'GAS', 'current_orders_balance', $current_gas );
+						$sub [] = array ( 'Supplier', 'current_balance', $supplier );
 						break;
 				}
 
