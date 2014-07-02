@@ -109,7 +109,7 @@ foreach ( $suppliers as $u ) {
 				$a = format_address ( $a );
 			}
 			else if ( $attr == 'current_balance' ) {
-				$a = format_price ( $a );
+				$a = format_price ( $a, false );
 			}
 		}
 

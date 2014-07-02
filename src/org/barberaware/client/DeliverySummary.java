@@ -100,6 +100,13 @@ public class DeliverySummary extends Composite {
 
 				if ( products != null && Session.getGAS ().getBool ( "use_bank" ) == true ) {
 					topay = ProductUser.sumProductUserArray ( products, "delivered" );
+
+					if ( topay == 0 && Window.confirm ( "Non ci sono prodotti consegnati in questo ordine. Vuoi chiuderlo?" ) ) {
+						row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
+						commonActionsOnEdit ( row );
+						return;
+					}
+
 					payment = uorder.getObject ( "payment_event" );
 
 					if ( payment == null ) {

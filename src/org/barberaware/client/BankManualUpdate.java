@@ -56,7 +56,6 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 	private CustomFormTable			header;
 	private ListBox				reason;
 	private int				originalReason;
-	private int				originalMethod;
 	private FromServerSelector		user;
 	private FromServerSelector		supplier;
 	private BankMovementForm		info;
@@ -127,31 +126,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				int selected;
 
 				selected = reason.getSelectedIndex ();
-
-				if ( selected == USER_CREDIT_CASH ||
-				     selected == USER_CREDIT_BANK ||
-				     selected == USER_ANNUAL_CASH ||
-				     selected == USER_ANNUAL_BANK ||
-				     selected == USER_DEPOSIT_PAY ||
-				     selected == USER_DEPOSIT_RETURN ) {
-
-					header.showByLabel ( "Socio", true );
-				}
-				else if ( selected == GAS_BANK_TO_CASH ||
-				          selected == GAS_BUY_BY_BANK ||
-				          selected == GAS_CASH_TO_BANK ||
-				          selected == GAS_BUY_BY_CASH ||
-				          selected == GENERIC_PUT_CASH ||
-				          selected == GENERIC_GET_CASH ||
-				          selected == ROUNDING_DISCOUNT) {
-
-					header.showByLabel ( "Socio", false );
-				}
-
-				if ( selected == ROUNDING_DISCOUNT )
-					header.showByLabel ( "Fornitore", true );
-				else
-					header.showByLabel ( "Fornitore", false );
+				testSelectableHeaders ( reasonToType ( selected ) );
 			}
 		}, ChangeEvent.getType () );
 
@@ -200,6 +175,54 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		pan.add ( buttons );
 	}
 
+	private int reasonToType ( int selected ) {
+		if ( selected == USER_CREDIT_CASH )
+			return BankMovement.USER_CREDIT;
+		else if ( selected == USER_CREDIT_BANK )
+			return BankMovement.USER_CREDIT;
+		else if ( selected == GAS_BANK_TO_CASH )
+			return BankMovement.INTERNAL_TRANSFER;
+		else if ( selected == GAS_CASH_TO_BANK )
+			return BankMovement.INTERNAL_TRANSFER;
+		else if ( selected == GAS_BUY_BY_BANK )
+			return BankMovement.GAS_BUYING;
+		else if ( selected == GAS_BUY_BY_CASH )
+			return BankMovement.GAS_BUYING;
+		else if ( selected == GENERIC_PUT_CASH )
+			return BankMovement.GENERIC_PUT;
+		else if ( selected == GENERIC_GET_CASH )
+			return BankMovement.GENERIC_GET;
+		else if ( selected == USER_ANNUAL_BANK )
+			return BankMovement.ANNUAL_PAYMENT;
+		else if ( selected == USER_ANNUAL_CASH )
+			return BankMovement.ANNUAL_PAYMENT;
+		else if ( selected == USER_DEPOSIT_PAY )
+			return BankMovement.DEPOSIT_PAYMENT;
+		else if ( selected == USER_DEPOSIT_RETURN )
+			return BankMovement.DEPOSIT_RETURN;
+		else if ( selected == ROUNDING_DISCOUNT )
+			return BankMovement.ROUND_SUPPLIER;
+		else
+			return -1;
+	}
+
+	private void testSelectableHeaders ( int selected ) {
+		if ( selected == BankMovement.USER_CREDIT ||
+		     selected == BankMovement.ANNUAL_PAYMENT ||
+		     selected == BankMovement.DEPOSIT_PAYMENT ) {
+
+			header.showByLabel ( "Socio", true );
+		}
+		else {
+			header.showByLabel ( "Socio", false );
+		}
+
+		if ( selected == BankMovement.ROUND_SUPPLIER )
+			header.showByLabel ( "Fornitore", true );
+		else
+			header.showByLabel ( "Fornitore", false );
+	}
+
 	private void executeCallbacks ( int mode ) {
 		Utils.triggerSaveCallbacks ( savingCallbacks, this, mode );
 	}
@@ -229,8 +252,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			BankMovementForm - e riassegnate in fase di ripescaggio
 		*/
 		originalReason = type;
-		originalMethod = method;
 		header.showByLabel ( "Tipo", true );
+		info.showMethod ( true );
 
 		if ( method == BankMovement.BY_CASH ) {
 			if ( type == BankMovement.USER_CREDIT )
@@ -267,7 +290,9 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				header.showByLabel ( "Tipo", false );
 		}
 
+		info.setDefaultMethod ( method );
 		reason.setEnabled ( false );
+		testSelectableHeaders ( type );
 
 		user.setValue ( Utils.getServer ().getObjectFromCache ( "User", selected.getInt ( "payuser" ) ) );
 		info.setValue ( selected );
@@ -275,77 +300,36 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 	public FromServer getValue () {
 		int selected;
+		int method;
 		FromServer movement;
 
 		movement = info.getValue ();
+		method = movement.getInt ( "method" );
 
 		if ( originalReason == -1 ) {
 			selected = reason.getSelectedIndex ();
+			movement.setInt ( "movementtype", reasonToType ( selected ) );
 
-			if ( selected == USER_CREDIT_CASH ) {
-				movement.setInt ( "movementtype", BankMovement.USER_CREDIT );
-				movement.setInt ( "method", BankMovement.BY_CASH );
+			if ( selected == USER_CREDIT_CASH )
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			}
-			else if ( selected == USER_CREDIT_BANK ) {
-				movement.setInt ( "movementtype", BankMovement.USER_CREDIT );
-				movement.setInt ( "method", BankMovement.BY_BANK );
+			else if ( selected == USER_CREDIT_BANK )
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			}
-			else if ( selected == GAS_BANK_TO_CASH ) {
-				movement.setInt ( "movementtype", BankMovement.INTERNAL_TRANSFER );
-				movement.setInt ( "method", BankMovement.BY_BANK );
-			}
-			else if ( selected == GAS_CASH_TO_BANK ) {
-				movement.setInt ( "movementtype", BankMovement.INTERNAL_TRANSFER );
-				movement.setInt ( "method", BankMovement.BY_CASH );
-			}
-			else if ( selected == GAS_BUY_BY_BANK ) {
-				movement.setInt ( "movementtype", BankMovement.GAS_BUYING );
-				movement.setInt ( "method", BankMovement.BY_BANK );
-			}
-			else if ( selected == GAS_BUY_BY_CASH ) {
-				movement.setInt ( "movementtype", BankMovement.GAS_BUYING );
-				movement.setInt ( "method", BankMovement.BY_CASH );
-			}
-			else if ( selected == GENERIC_PUT_CASH ) {
-				movement.setInt ( "movementtype", BankMovement.GENERIC_PUT );
-				movement.setInt ( "method", BankMovement.BY_CASH );
-			}
-			else if ( selected == GENERIC_GET_CASH ) {
-				movement.setInt ( "movementtype", BankMovement.GENERIC_GET );
-				movement.setInt ( "method", BankMovement.BY_CASH );
-			}
-			else if ( selected == USER_ANNUAL_BANK ) {
-				movement.setInt ( "movementtype", BankMovement.ANNUAL_PAYMENT );
-				movement.setInt ( "method", BankMovement.BY_BANK );
+			else if ( selected == USER_ANNUAL_BANK )
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			}
-			else if ( selected == USER_ANNUAL_CASH ) {
-				movement.setInt ( "movementtype", BankMovement.ANNUAL_PAYMENT );
-				movement.setInt ( "method", BankMovement.BY_CASH );
+			else if ( selected == USER_ANNUAL_CASH )
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			}
-			else if ( selected == USER_DEPOSIT_PAY ) {
-				movement.setInt ( "movementtype", BankMovement.DEPOSIT_PAYMENT );
-				movement.setInt ( "method", BankMovement.BY_CASH );
+			else if ( selected == USER_DEPOSIT_PAY )
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			}
-			else if ( selected == USER_DEPOSIT_RETURN ) {
-				movement.setInt ( "movementtype", BankMovement.DEPOSIT_RETURN );
-				movement.setInt ( "method", BankMovement.BY_CASH );
+			else if ( selected == USER_DEPOSIT_RETURN )
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			}
-			else if ( selected == ROUNDING_DISCOUNT ) {
-				movement.setInt ( "movementtype", BankMovement.ROUND_SUPPLIER );
-				movement.setInt ( "method", BankMovement.BY_BANK );
+			else if ( selected == ROUNDING_DISCOUNT )
 				movement.setInt ( "paysupplier", supplier.getValue ().getLocalID () );
-			}
 		}
 		else {
 			movement.setInt ( "movementtype", originalReason );
-			movement.setInt ( "method", originalMethod );
 		}
+
+		movement.setInt ( "method", method );
 
 		if ( movement.getString ( "notes" ) == "" )
 			movement.setString ( "notes", reason.getItemText ( reason.getSelectedIndex () ) );
