@@ -276,7 +276,11 @@ public class UsersPanel extends GenericPanel {
 				frame.addPair ( "Ultimo Login", form.getPersonalizedWidget ( "lastlogin", new DateViewer () ) );
 
 				if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-					frame.addPair ( "Credito Disponibile", form.getPersonalizedWidget ( "current_balance", new PriceViewer () ) );
+					BankUserCredit editcredit;
+
+					editcredit = new BankUserCredit ();
+					editcredit.setUser ( user );
+					frame.addPair ( "Credito Disponibile", form.getPersonalizedWidget ( "current_balance", editcredit ) );
 
 					mframe = new CaptionPanel ( "Storico Movimenti Cassa" );
 					ver.add ( mframe );

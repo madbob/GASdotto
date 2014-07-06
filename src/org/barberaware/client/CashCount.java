@@ -50,6 +50,7 @@ public class CashCount extends Composite {
 				row = new HorizontalPanel ();
 				row.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 				main.add ( row );
+				main.setCellHorizontalAlignment ( row, HasHorizontalAlignment.ALIGN_LEFT );
 				row.add ( new Image ( "images/by_bank.png" ) );
 				totalBankLabel = new Label ();
 				row.add ( totalBankLabel );
@@ -57,6 +58,7 @@ public class CashCount extends Composite {
 				row = new HorizontalPanel ();
 				row.setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
 				main.add ( row );
+				main.setCellHorizontalAlignment ( row, HasHorizontalAlignment.ALIGN_LEFT );
 				row.add ( new Image ( "images/by_cash.png" ) );
 				totalCashLabel = new Label ();
 				row.add ( totalCashLabel );
