@@ -91,6 +91,10 @@ public class ScreenCalculator extends DialogBox implements SavingDialog {
 		}
 	}
 
+	public int numCells () {
+		return boxes.size ();
+	}
+
 	public void setValue ( float value ) {
 		for ( FloatBox box : boxes )
 			box.setVal ( value );

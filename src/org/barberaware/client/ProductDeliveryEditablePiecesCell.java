@@ -43,10 +43,18 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 
 		box.addFocusHandler ( new FocusHandler () {
 			public void onFocus ( FocusEvent event ) {
-				calculator.center ();
-				calculator.show ();
+				if ( calculator.numCells () > 1 ) {
+					calculator.center ();
+					calculator.show ();
+				}
 			}
 		} );
+
+		box.addDomHandler ( new ChangeHandler () {
+			public void onChange ( ChangeEvent event ) {
+				triggerChange ();
+			}
+		}, ChangeEvent.getType () );
 
 		calculator.addCallback ( new SavingDialogCallback () {
 			public void onSave ( SavingDialog dialog ) {
@@ -101,30 +109,39 @@ public class ProductDeliveryEditablePiecesCell extends Composite implements Prod
 		return total;
 	}
 
-	public void alignProducts () {
+	private void disposeDeliveredQuantity ( float [] delivered ) {
 		int pieces;
 		float del;
 		float unit;
-		float [] delivered;
 		FromServer prod;
+
+		prod = ( FromServer ) currentProducts.get ( 0 );
+		unit = prod.getObject ( "product" ).getFloat ( "unit_size" );
+
+		for ( int i = 0, e = 0; i < currentProducts.size (); i++ ) {
+			prod = ( FromServer ) currentProducts.get ( i );
+			pieces = Math.round ( prod.getFloat ( "quantity" ) / unit );
+
+			del = 0;
+
+			for ( int a = 0; a < pieces; a++, e++ )
+				del += delivered [ e ];
+
+			prod.setFloat ( "delivered", del );
+		}
+	}
+
+	public void alignProducts () {
+		float [] delivered;
 
 		if ( calculator.hasBeenUsed () == true ) {
 			delivered = calculator.getValues ();
-
-			prod = ( FromServer ) currentProducts.get ( 0 );
-			unit = prod.getObject ( "product" ).getFloat ( "unit_size" );
-
-			for ( int i = 0, e = 0; i < currentProducts.size (); i++ ) {
-				prod = ( FromServer ) currentProducts.get ( i );
-				pieces = Math.round ( prod.getFloat ( "quantity" ) / unit );
-
-				del = 0;
-
-				for ( int a = 0; a < pieces; a++, e++ )
-					del += delivered [ e ];
-
-				prod.setFloat ( "delivered", del );
-			}
+			disposeDeliveredQuantity ( delivered );
+		}
+		else if ( calculator.numCells () == 1 ) {
+			delivered = new float [ 1 ];
+			delivered [ 0 ] = box.getVal ();
+			disposeDeliveredQuantity ( delivered );
 		}
 	}
 }
