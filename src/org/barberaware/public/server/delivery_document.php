@@ -200,7 +200,13 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 			$qsprice = format_price ( round ( $qsprice, 2 ), false );
 
 			$output .= $row_begin;
-			$output .= ( sprintf ( "%s%s%s", $string_begin, $prod->getAttribute ( "name" )->value, $string_end ) );
+
+			$output .= $string_begin;
+			$output .= $prod->getAttribute ( "name" )->value;
+			if ( $is_aggregate )
+				$output .= sprintf ( "%s(%s)", $double_line_sep, $prod->getAttribute ( "supplier" )->value->getAttribute ( "name" )->value );
+			$output .= $string_end;
+
 			$output .= $inrow_separator . $q . $inrow_separator . $quprice . $inrow_separator . $qsprice;
 			$output .= $row_end;
 		}
