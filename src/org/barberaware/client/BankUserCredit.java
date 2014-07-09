@@ -65,7 +65,6 @@ public class BankUserCredit extends Composite implements FloatWidget {
 		info = new BankMovementForm ();
 		info.setValue ( new BankMovement () );
 		info.setDefaultDate ( new Date ( System.currentTimeMillis () ) );
-		info.showMethod ( false );
 		info.showCro ( false );
 		info.setDefaultMethod ( BankMovement.BY_CASH );
 		info.setDefaultTargetUser ( currentUser );
@@ -121,4 +120,3 @@ public class BankUserCredit extends Composite implements FloatWidget {
 		return credit.getVal ();
 	}
 }
-

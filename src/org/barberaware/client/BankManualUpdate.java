@@ -127,6 +127,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 				selected = reason.getSelectedIndex ();
 				testSelectableHeaders ( reasonToType ( selected ) );
+				info.setDefaultMethod ( reasonToMethod ( selected ) );
 			}
 		}, ChangeEvent.getType () );
 
@@ -176,25 +177,17 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 	}
 
 	private int reasonToType ( int selected ) {
-		if ( selected == USER_CREDIT_CASH )
+		if ( selected == USER_CREDIT_CASH || selected == USER_CREDIT_BANK )
 			return BankMovement.USER_CREDIT;
-		else if ( selected == USER_CREDIT_BANK )
-			return BankMovement.USER_CREDIT;
-		else if ( selected == GAS_BANK_TO_CASH )
+		else if ( selected == GAS_BANK_TO_CASH || selected == GAS_CASH_TO_BANK )
 			return BankMovement.INTERNAL_TRANSFER;
-		else if ( selected == GAS_CASH_TO_BANK )
-			return BankMovement.INTERNAL_TRANSFER;
-		else if ( selected == GAS_BUY_BY_BANK )
-			return BankMovement.GAS_BUYING;
-		else if ( selected == GAS_BUY_BY_CASH )
+		else if ( selected == GAS_BUY_BY_BANK || selected == GAS_BUY_BY_CASH )
 			return BankMovement.GAS_BUYING;
 		else if ( selected == GENERIC_PUT_CASH )
 			return BankMovement.GENERIC_PUT;
 		else if ( selected == GENERIC_GET_CASH )
 			return BankMovement.GENERIC_GET;
-		else if ( selected == USER_ANNUAL_BANK )
-			return BankMovement.ANNUAL_PAYMENT;
-		else if ( selected == USER_ANNUAL_CASH )
+		else if ( selected == USER_ANNUAL_BANK || selected == USER_ANNUAL_CASH )
 			return BankMovement.ANNUAL_PAYMENT;
 		else if ( selected == USER_DEPOSIT_PAY )
 			return BankMovement.DEPOSIT_PAYMENT;
@@ -204,6 +197,38 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			return BankMovement.ROUND_SUPPLIER;
 		else
 			return -1;
+	}
+
+	private int reasonToMethod ( int selected ) {
+		if ( selected == USER_CREDIT_CASH ||
+				selected == GAS_CASH_TO_BANK ||
+				selected == GAS_BUY_BY_CASH ||
+				selected == GENERIC_PUT_CASH ||
+				selected == GENERIC_GET_CASH ||
+				selected == USER_ANNUAL_CASH ||
+				selected == USER_DEPOSIT_PAY ||
+				selected == USER_DEPOSIT_RETURN ||
+
+				/*
+					L'arrotondamento e' una operazione che
+					avviene unicamente sul conto virtuale,
+					ma viene qui considerata in contanti per
+					impedire la visualizzazione della
+					casella per il CRO
+				*/
+				selected == ROUNDING_DISCOUNT ) {
+
+			return BankMovement.BY_CASH;
+		}
+		else if ( selected == USER_CREDIT_BANK ||
+				selected == GAS_BANK_TO_CASH ||
+				selected == GAS_BUY_BY_BANK ||
+				selected == USER_ANNUAL_BANK ) {
+
+			return BankMovement.BY_BANK;
+		}
+
+		return -1;
 	}
 
 	private void testSelectableHeaders ( int selected ) {
@@ -351,4 +376,3 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		savingCallbacks.remove ( callback );
 	}
 }
-
