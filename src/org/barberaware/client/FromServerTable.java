@@ -67,14 +67,16 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 	private FlexTable				main;
 	private ArrayList<FromServerTableColumn>	columns;
-	private ArrayList				rows;
+	private ArrayList<FromServer>			rows;
 	private String					emptyWarning;
 	private FromServerSortCallback			sorting;
+	private FromServerValidateCallback		testEditable;
 
 	public FromServerTable () {
 		columns = new ArrayList<FromServerTableColumn> ();
-		rows = new ArrayList ();
+		rows = new ArrayList<FromServer> ();
 		emptyWarning = null;
+		testEditable = null;
 
 		main = new FlexTable ();
 		main.setStyleName ( "elements-table" );
@@ -98,7 +100,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 				col = columns.get ( cell );
 
 				if ( col.action != -1 ) {
-					obj = ( FromServer ) rows.get ( row - 1 );
+					obj = rows.get ( row - 1 );
 
 					if ( col.action == TABLE_REMOVE ) {
 						if ( col.customWid == null ) {
@@ -123,6 +125,9 @@ public class FromServerTable extends Composite implements FromServerArray {
 						}
 					}
 					else if ( col.action == TABLE_EDIT ) {
+						if ( testEditable != null && testEditable.checkObject ( obj ) == false )
+							return;
+
 						dialog = ( SavingDialog ) col.customWid.create ();
 						( ( ObjectWidget ) dialog ).setValue ( obj );
 
@@ -166,6 +171,15 @@ public class FromServerTable extends Composite implements FromServerArray {
 	public int addColumn ( String header, int action, WidgetFactoryCallback custom ) {
 		columns.add ( new FromServerTableColumn ( header, null, false, custom, action ) );
 		return columns.size () - 1;
+	}
+
+	/*
+		Usata se viene definita una colonna action = TABLE_EDIT, se la funzione
+		checkObject() torna TRUE viene posizionata l'icona per l'editing altrimenti viene
+		ignorata
+	*/
+	public void setEditTest ( FromServerValidateCallback callback ) {
+		testEditable = callback;
 	}
 
 	public void setColumnStyle ( int index, String style ) {
@@ -219,22 +233,22 @@ public class FromServerTable extends Composite implements FromServerArray {
 		main.getRowFormatter ().setStyleName ( 0, "table-header" );
 	}
 
-	private ArrayList syncRowsContents () {
+	private ArrayList<FromServer> syncRowsContents () {
 		int num;
 		int cols;
 		boolean to_add;
-		ArrayList changed;
+		ArrayList<FromServer> changed;
 		FromServer obj;
 		FromServerTableColumn c;
 		FromServerWidget wid;
 
-		changed = new ArrayList ();
+		changed = new ArrayList<FromServer> ();
 		num = rows.size ();
 		cols = columns.size ();
 
 		for ( int i = 0; i < num; i++ ) {
 			to_add = false;
-			obj = ( FromServer ) rows.get ( i );
+			obj = rows.get ( i );
 
 			for ( int a = 0; a < cols; a++ ) {
 				c = columns.get ( a );
@@ -257,17 +271,12 @@ public class FromServerTable extends Composite implements FromServerArray {
 	}
 
 	public void saveChanges () {
-		int num;
-		ArrayList to_save;
-		FromServer obj;
+		ArrayList<FromServer> to_save;
 
 		to_save = syncRowsContents ();
-		num = to_save.size ();
 
-		for ( int i = 0; i < num; i++ ) {
-			obj = ( FromServer ) to_save.get ( i );
+		for ( FromServer obj : to_save )
 			obj.save ( null );
-		}
 	}
 
 	public void revertChanges () {
@@ -281,7 +290,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 		cols = columns.size ();
 
 		for ( int i = 0; i < num; i++ ) {
-			obj = ( FromServer ) rows.get ( i );
+			obj = rows.get ( i );
 
 			for ( int a = 0; a < cols; a++ ) {
 				c = columns.get ( a );
@@ -322,7 +331,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 		}
 		else {
 			for ( int i = 0; i < rows.size (); i++ ) {
-				cmp = ( FromServer ) rows.get ( i );
+				cmp = rows.get ( i );
 
 				if ( this.sorting.compare ( cmp, element ) > 0 ) {
 					main.insertRow ( i + 1 );
@@ -334,14 +343,16 @@ public class FromServerTable extends Composite implements FromServerArray {
 
 		for ( int i = 0; i < cols; i++ ) {
 			c = columns.get ( i );
+			wid = null;
 
 			if ( c.action != -1 ) {
-				if ( c.action == TABLE_REMOVE )
+				if ( c.action == TABLE_REMOVE ) {
 					wid = new Image ( "images/mini_delete.png" );
-				else if ( c.action == TABLE_EDIT )
-					wid = new Image ( "images/mini_edit.png" );
-				else
-					wid = null;
+				}
+				else if ( c.action == TABLE_EDIT ) {
+					if ( testEditable == null || testEditable.checkObject ( element ) )
+						wid = new Image ( "images/mini_edit.png" );
+				}
 			}
 			else if ( c.customWid != null ) {
 				wid = new FromServerWidget ( element, c.attr, c.customWid.create () );
@@ -353,10 +364,12 @@ public class FromServerTable extends Composite implements FromServerArray {
 				wid = new Label ( c.getUneditable ( element ) );
 			}
 
-			if ( c.extraStyle != "" )
-				wid.addStyleName ( c.extraStyle );
+			if ( wid != null ) {
+				if ( c.extraStyle != "" )
+					wid.addStyleName ( c.extraStyle );
 
-			main.setWidget ( row, i, wid );
+				main.setWidget ( row, i, wid );
+			}
 		}
 
 		rows.add ( row - 1, element );
@@ -446,7 +459,7 @@ public class FromServerTable extends Composite implements FromServerArray {
 		element_id = element.getLocalID ();
 
 		for ( int i = 0; i < num; i++ ) {
-			obj = ( FromServer ) rows.get ( i );
+			obj = rows.get ( i );
 
 			if ( obj.getLocalID () == element_id )
 				return i + 1;

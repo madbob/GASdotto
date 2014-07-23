@@ -45,6 +45,12 @@ public class GAS extends FromServer {
 		addAttribute ( "current_cash_balance", FromServer.FLOAT );
 		addAttribute ( "current_orders_balance", FromServer.FLOAT );
 		addAttribute ( "current_deposit_balance", FromServer.FLOAT );
+		addAttribute ( "last_balance_date", FromServer.DATE );
+		addAttribute ( "last_balance", FromServer.FLOAT );
+		addAttribute ( "last_bank_balance", FromServer.FLOAT );
+		addAttribute ( "last_cash_balance", FromServer.FLOAT );
+		addAttribute ( "last_orders_balance", FromServer.FLOAT );
+		addAttribute ( "last_deposit_balance", FromServer.FLOAT );
 		addAttribute ( "files", FromServer.ARRAY, CustomFile.class );
 		addAttribute ( "emergency_access", FromServer.BOOLEAN );
 

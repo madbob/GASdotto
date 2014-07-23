@@ -51,6 +51,7 @@ public class Supplier extends FromServer {
 		addAttribute ( "shipping_manage", FromServer.INTEGER );
 		addAttribute ( "hidden", FromServer.BOOLEAN );
 		addAttribute ( "current_balance", FromServer.FLOAT );
+		addAttribute ( "last_balance", FromServer.FLOAT );
 
 		setString ( "name", "Nuovo Fornitore" );
 		isSharable ( true );

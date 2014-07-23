@@ -42,6 +42,7 @@ class Supplier extends SharableFromServer {
 		$this->addAttribute ( "orders_months", "STRING" );
 		$this->addAttribute ( "shipping_manage", "INTEGER" );
 		$this->addAttribute ( "hidden", "BOOLEAN" );
+		$this->addAttribute ( "last_balance", "FLOAT" );
 		$this->addAttribute ( "current_balance", "FLOAT" );
 
 		$this->preserveAttribute ( "references" );

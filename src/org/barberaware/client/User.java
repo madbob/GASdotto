@@ -83,6 +83,7 @@ public class User extends FromServer {
 		*/
 		addAttribute ( "bank_account", FromServer.STRING );
 		addAttribute ( "current_balance", FromServer.FLOAT );
+		addAttribute ( "last_balance", FromServer.FLOAT );
 		addAttribute ( "deposit", FromServer.OBJECT, BankMovement.class );
 
 		/*

@@ -87,6 +87,7 @@ public class BankMovement extends FromServer {
 		addAttribute ( "method", FromServer.INTEGER );
 		addAttribute ( "cro", FromServer.STRING );
 		addAttribute ( "notes", FromServer.LONGSTRING );
+		addAttribute ( "obsolete", FromServer.BOOLEAN );
 
 		setDate ( "registrationdate", new Date ( System.currentTimeMillis () ) );
 		setObject ( "registrationperson", Session.getUser () );

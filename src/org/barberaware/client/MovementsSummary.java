@@ -106,6 +106,12 @@ public class MovementsSummary extends FromServerTable {
 				return new BankRemoveDialog ();
 			}
 		} );
+
+		setEditTest ( new FromServerValidateCallback () {
+			public boolean checkObject ( FromServer object ) {
+				return ( object.getBool ( "obsolete" ) == false );
+			}
+		} );
 	}
 
 	public void refresh ( ObjectRequest filters ) {

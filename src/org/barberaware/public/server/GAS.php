@@ -45,6 +45,12 @@ class GAS extends FromServer {
 		$this->addAttribute ( "current_cash_balance", "FLOAT" );
 		$this->addAttribute ( "current_orders_balance", "FLOAT" );
 		$this->addAttribute ( "current_deposit_balance", "FLOAT" );
+		$this->addAttribute ( "last_balance_date", "DATE" );
+		$this->addAttribute ( "last_balance", "FLOAT" );
+		$this->addAttribute ( "last_bank_balance", "FLOAT" );
+		$this->addAttribute ( "last_cash_balance", "FLOAT" );
+		$this->addAttribute ( "last_orders_balance", "FLOAT" );
+		$this->addAttribute ( "last_deposit_balance", "FLOAT" );
 		$this->addAttribute ( "files", "ARRAY::CustomFile" );
 		$this->addAttribute ( "emergency_access", "BOOLEAN" );
 	}

@@ -98,6 +98,8 @@ function map_type ( $type, $objtype, $default ) {
 
 		case "BOOLEAN":
 			$ret = 'boolean';
+			if ( $default == true )
+				$ret .= ' default false';
 			break;
 
 		case "ARRAY":

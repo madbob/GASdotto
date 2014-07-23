@@ -18,35 +18,18 @@
  */
 
 global $extra_root;
-$extra_root = "https://raw.github.com/madbob/GASdotto/master/extra";
+$extra_root = "https://raw.githubusercontent.com/madbob/GASdotto/master/extra";
 
 /*
 	Preso da:
 	http://www.infosys.tuwien.ac.at/staff/treiber/blog/2013/02/15/php-allow_url_fopen-workaround/
 */
 function file_get_contents_remote ( $url ) {
-	if ( !ini_get ( "allow_url_fopen" ) ) {
-		$f = curl_init ( $url );
-		curl_setopt ( $f, CURLOPT_RETURNTRANSFER, true );
-		$c = curl_exec ( $f );
-		curl_close ( $f );
-		return $c;
-	}
-
-	if ( !function_exists ( "file_get_contents" ) ) {
-		function file_get_contents ( $path ) {
-			$c = "";
-			$f = fopen ( $path, "r" );
-
-			while ( !feof ( $f ) )
-				$c .= fread ( $f, 1024 );
-
-			fclose ( $f );
-			return $c;
-		}
-	}
-
-	return file_get_contents ( $url );
+	$f = curl_init ( $url );
+	curl_setopt ( $f, CURLOPT_RETURNTRANSFER, true );
+	$c = curl_exec ( $f );
+	curl_close ( $f );
+	return $c;
 }
 
 function check_package ( $file, $url ) {

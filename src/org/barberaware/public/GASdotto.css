@@ -215,6 +215,7 @@ body {
 
 .element-details .gwt-Label {
 	font-size:		12px;
+	display:		inline-block;
 }
 
 .element-details .gwt-TextBox {

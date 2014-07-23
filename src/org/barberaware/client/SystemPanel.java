@@ -32,6 +32,7 @@ public class SystemPanel extends GenericPanel {
 	private DummyTextBox		mailList;
 	private RIDConfigurator		ridConf;
 	private FeeConfigurator		feeConf;
+	private BankConfUtils		bankUtils;
 
 	public SystemPanel () {
 		super ();
@@ -41,7 +42,6 @@ public class SystemPanel extends GenericPanel {
 		VerticalPanel ver;
 		MultiGasEnabler multigas;
 		ImportButton importer;
-		Button fixer;
 
 		sframe = new CaptionPanel ( "Configurazione GAS" );
 		ver = new VerticalPanel ();
@@ -99,28 +99,6 @@ public class SystemPanel extends GenericPanel {
 		ver.add ( importer );
 		sframe.add ( ver );
 		add ( sframe );
-
-		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
-			sframe = new CaptionPanel ( "Revisione Saldi" );
-			ver = new VerticalPanel ();
-			ver.add ( new HTML ( "Con questa funzione è possibile ricalcolare tutti i saldi salvati nell'applicazione. Da usare qualora i conti non tornassero o per operazioni di verifica periodica. Cliccando il pulsante sottostante la procedura verrà automaticamente avviata, nota che potrebbe richiedere un pò di tempo." ) );
-
-			fixer = new Button ( "Revisiona" );
-			fixer.addClickHandler ( new ClickHandler () {
-				public void onClick ( ClickEvent event ) {
-					BankRevisionDialog dialog;
-
-					dialog = new BankRevisionDialog ();
-					dialog.center ();
-					dialog.show ();
-				}
-			} );
-
-			fixer.addStyleName ( "top-spaced" );
-			ver.add ( fixer );
-			sframe.add ( ver );
-			add ( sframe );
-		}
 
 		if ( Session.getSystemConf ().getBool ( "has_multigas" ) == false ) {
 			sframe = new CaptionPanel ( "Multi-GAS" );
@@ -210,7 +188,7 @@ public class SystemPanel extends GenericPanel {
 		FromServerForm ver;
 		CustomCaptionPanel frame;
 		CaptionPanel sframe;
-		BooleanSelector rid;
+		BooleanSelector boolsel;
 
 		gas = Session.getGAS ();
 		ver = new FromServerForm ( gas );
@@ -234,32 +212,49 @@ public class SystemPanel extends GenericPanel {
 		frame = new CustomCaptionPanel ( "Attributi" );
 		ver.add ( frame );
 
-		rid = new BooleanSelector ();
-		rid.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+		///////////////
+
+		boolsel = new BooleanSelector ();
+		boolsel.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
 			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
 				feeConf.setEnabled ( event.getValue () );
 			}
 		} );
-		frame.addPair ( "Abilita Gestione Quote", ver.getPersonalizedWidget ( "payments", rid ) );
+		frame.addPair ( "Abilita Gestione Quote", ver.getPersonalizedWidget ( "payments", boolsel ) );
 		
 		feeConf = new FeeConfigurator ( gas );
 		frame.addPair ( "", feeConf );
 		ver.addChild ( feeConf );
 		feeConf.setEnabled ( Session.getGAS ().getBool ( "payments" ) );
 
-		rid = new BooleanSelector ();
-		rid.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+		///////////////
+
+		boolsel = new BooleanSelector ();
+		boolsel.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
 			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
 				ridConf.setEnabled ( event.getValue () );
 			}
 		} );
-		frame.addPair ( "Abilita Pagamenti RID", ver.getPersonalizedWidget ( "use_rid", rid ) );
+		frame.addPair ( "Abilita Pagamenti RID", ver.getPersonalizedWidget ( "use_rid", boolsel ) );
 
 		ridConf = new RIDConfigurator ();
 		frame.addPair ( "", ver.getPersonalizedWidget ( "rid_conf", ridConf ) );
 		ridConf.setEnabled ( Session.getGAS ().getBool ( "use_rid" ) );
 
-		frame.addPair ( "Abilita Gestione Cassa", ver.getWidget ( "use_bank" ) );
+		///////////////
+
+		boolsel = new BooleanSelector ();
+		boolsel.addValueChangeHandler ( new ValueChangeHandler<Boolean> () {
+			public void onValueChange ( ValueChangeEvent<Boolean> event ) {
+				bankUtils.setEnabled ( event.getValue () );
+			}
+		} );
+		frame.addPair ( "Abilita Gestione Cassa", ver.getPersonalizedWidget ( "use_bank", boolsel ) );
+
+		bankUtils = new BankConfUtils ( gas );
+		frame.addPair ( "", bankUtils );
+		ver.addChild ( bankUtils );
+		bankUtils.setEnabled ( Session.getGAS ().getBool ( "use_bank" ) );
 
 		return ver;
 	}

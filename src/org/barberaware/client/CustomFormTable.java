@@ -30,14 +30,24 @@ public class CustomFormTable extends FlexTable {
 
 	public void addPair ( String name, String help, Widget element, int row, String css ) {
 		Label lab;
+		VerticalPanel block;
 
 		lab = new Label ( name );
 		setWidget ( row, 0, lab );
-		setWidget ( row, 1, element );
-		formatter.addStyleName ( row, 0, css );
 
-		if ( help != null )
-			lab.setTitle ( help );
+		if ( help != null ) {
+			block = new VerticalPanel ();
+			block.add ( element );
+			lab = new Label ( help );
+			lab.setStyleName ( "smaller-text" );
+			block.add ( lab );
+			setWidget ( row, 1, block );
+		}
+		else {
+			setWidget ( row, 1, element );
+		}
+
+		formatter.addStyleName ( row, 0, css );
 	}
 
 	public void addPair ( String name, Widget element, int row ) {

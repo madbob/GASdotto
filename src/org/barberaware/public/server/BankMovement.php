@@ -40,6 +40,7 @@ class BankMovement extends FromServer {
 		$this->addAttribute ( "method", "INTEGER" );
 		$this->addAttribute ( "cro", "STRING" );
 		$this->addAttribute ( "notes", "STRING" );
+		$this->addAttribute ( "obsolete", "BOOLEAN" );
 
 		$this->preserveAttribute ( "registrationperson" );
 		$this->noBackDestroy ();
@@ -294,8 +295,12 @@ class BankMovement extends FromServer {
 			$this->getAttribute ( "registrationperson" )->value = $current_user;
 
 		$id = $this->getAttribute ( "id" )->value;
-		if ( $id != -1 )
+		if ( $id != -1 ) {
+			if ( $this->getAttribute ( "obsolete" )->value == true )
+				error_exit ( "Non è concesso modificare un movimento precedente l'ultima chiusura di bilancio" );
+
 			$this->revertById ( $id );
+		}
 
 		$id = parent::save ( $obj );
 
@@ -363,13 +368,13 @@ class BankMovement extends FromServer {
 		}
 
 		if ( $offset == 0 || $offset == -1 ) {
-			$query = sprintf ( "UPDATE Users SET current_balance = 0 WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
+			$query = sprintf ( "UPDATE Users SET current_balance = last_balance " . $this->filter_by_current_gas ( 'id' ) );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-			$query = sprintf ( "UPDATE Supplier SET current_balance = 0 WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
+			$query = sprintf ( "UPDATE Supplier SET current_balance = last_balance " . $this->filter_by_current_gas ( 'id' ) );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-			$query = sprintf ( "UPDATE GAS SET current_balance = 0, current_cash_balance = 0, current_bank_balance = 0, current_orders_balance = 0, current_deposit_balance = 0 WHERE id = $current_gas" );
+			$query = sprintf ( "UPDATE GAS SET current_balance = last_balance, current_cash_balance = last_cash_balance, current_bank_balance = last_bank_balance, current_orders_balance = last_orders_balance, current_deposit_balance = last_deposit_balance WHERE id = $current_gas" );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 		}
 
@@ -378,7 +383,7 @@ class BankMovement extends FromServer {
 				esplicitando nell'oggetto a quale gruppo fa riferimento
 		*/
 
-		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 ORDER BY date $query_limit", $this->tablename );
+		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true ORDER BY date $query_limit", $this->tablename );
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
 		if ( $returned->rowCount () == 0 ) {
@@ -392,6 +397,28 @@ class BankMovement extends FromServer {
 
 			return $offset + 1;
 		}
+	}
+
+	public function close () {
+		global $current_gas;
+
+		$query = sprintf ( "UPDATE Users SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		$query = sprintf ( "UPDATE Supplier SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		$query = sprintf ( "UPDATE GAS SET last_balance = current_balance, last_cash_balance = current_cash_balance, last_bank_balance = current_bank_balance, last_orders_balance = current_orders_balance, last_deposit_balance = current_deposit_balance, last_balance_date = NOW() WHERE id = $current_gas" );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		/*
+			TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
+				esplicitando nell'oggetto a quale gruppo fa riferimento
+		*/
+		$query = sprintf ( "UPDATE BankMovement SET obsolete = true" );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+
+		return 'done';
 	}
 }
 

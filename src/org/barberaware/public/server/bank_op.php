@@ -31,10 +31,12 @@ switch ( $type ) {
 		$tmp = new BankMovement ();
 		echo $tmp->fix ( $offset );
 		break;
-}
 
-if ( $ret != null )
-	echo json_encode ( $ret ) . "\n";
+	case 'close':
+		$tmp = new BankMovement ();
+		echo $tmp->close ();
+		break;
+}
 
 exit ( 0 );
 

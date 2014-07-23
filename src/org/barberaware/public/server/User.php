@@ -43,6 +43,7 @@ class User extends FromServer {
 		$this->addAttribute ( "leaving_date", "DATE" );
 		$this->addAttribute ( "bank_account", "STRING" );
 		$this->addAttribute ( "current_balance", "FLOAT" );
+		$this->addAttribute ( "last_balance", "FLOAT" );
 		$this->addAttribute ( "deposit", "OBJECT::BankMovement" );
 		$this->addAttribute ( "sepa_subscribe", "DATE" );
 		$this->addAttribute ( "first_sepa", "DATE" );
