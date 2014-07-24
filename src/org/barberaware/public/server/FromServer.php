@@ -565,9 +565,12 @@ abstract class FromServer {
 				break;
 
 			case "INTEGER":
-			case "FLOAT":
 			case "BOOLEAN":
 				$ret = $attr->value;
+				break;
+
+			case "FLOAT":
+				$ret = round ( $attr->value, 3 );
 				break;
 
 			case "OBJECT":

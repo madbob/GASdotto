@@ -165,18 +165,30 @@ function products_data ( $supplier, $startdate, $enddate ) {
 	$products = $returned->fetchAll ( PDO::FETCH_NUM );
 	unset ( $returned );
 
+	/*
+		Vado a pescare solo i prodotti inclusi in ordini aperti dalla data di partenza in
+		poi, quando ne trovo uno con ID minore di quello piu' piccolo rientro.
+		Se non ci sono ordini, setto l'array di prodotti a 0 e rientro subito.
+	*/
+	$query = sprintf ( "SELECT MIN(Orders_products.target) FROM Orders, Orders_products
+				WHERE Orders.startdate >= '%s' AND Orders.supplier = %d AND Orders_products.parent = Orders.id",
+					$startdate, $supplier );
+	$returned = query_and_check ( $query, "Impossibile recuperare prodotto minimo" );
+	$limits = $returned->fetchAll ( PDO::FETCH_NUM );
+	if ( count ( $limits ) == 0 ) {
+		foreach ( $products as $p )
+			$ret [] = array ( $p [ 0 ], "0", "0" );
+
+		unset ( $products );
+		return $ret;
+	}
+
+	$limit = $limits [0] [0];
+	unset ( $returned );
+
 	$ret = array ();
 
 	foreach ( $products as $p ) {
-		/*
-			La query ricorsiva per ricostruire la lista di prodotti logicamente
-			concatenati potrebbe essere risolta con una query WITH
-			( http://www.postgresql.org/docs/8.4/static/queries-with.html ), che
-			pero' e' supportata solo a partire da PostgreSQL 8.4 . Si rimanda il
-			perfezionamento a quando tale versione di database server sara'
-			abbastanza diffusa
-		*/
-
 		$id = $p [ 1 ];
 		$tot = 0;
 		$val = 0;
@@ -269,7 +281,10 @@ function products_data ( $supplier, $startdate, $enddate ) {
 			$returned = query_and_check ( "SELECT id " . $query, "Impossibile recuperare prodotto successivo" );
 			$array = $returned->fetchAll ( PDO::FETCH_NUM );
 			unset ( $returned );
+
 			$id = $array [ 0 ] [ 0 ];
+			if ( $id < $limit )
+				break;
 
 			unset ( $query );
 			unset ( $array );
