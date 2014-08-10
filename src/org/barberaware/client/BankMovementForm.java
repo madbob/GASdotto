@@ -26,11 +26,13 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class BankMovementForm extends BankMovementComponent {
 	private CustomFormTable		main;
+	private PriceBox		amount;
 	private CyclicToggle		method;
 
 	public BankMovementForm () {
 		main = new CustomFormTable ();
 		initWidget ( main );
+		amount = null;
 	}
 
 	private void populateWidgets () {
@@ -40,7 +42,8 @@ public class BankMovementForm extends BankMovementComponent {
 			if ( justDate == false ) {
 				if ( editable == true ) {
 					main.addPair ( "Data", getWidget ( "date" ) );
-					main.addPair ( "Importo", getWidget ( "amount" ) );
+					amount = new PriceBox ();
+					main.addPair ( "Importo", getPersonalizedWidget ( "amount", amount ) );
 				}
 				else {
 					main.addPair ( "Data", getPersonalizedWidget ( "date", new DateViewer () ) );
@@ -131,6 +134,11 @@ public class BankMovementForm extends BankMovementComponent {
 
 	public void showMethod ( boolean show ) {
 		main.showByLabel ( "Metodo", show );
+	}
+
+	public void acceptsNegativeAmounts ( boolean accepts ) {
+		if ( amount != null )
+			amount.acceptsNegative ( accepts );
 	}
 
 	private void renderCro () {

@@ -39,19 +39,20 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		sana per tener conto del rapporto tra gli indici sequenziali e
 		la loro rappresentazione tipo + metodo
 	*/
-	private int				USER_CREDIT_CASH	= 100;
-	private int				USER_CREDIT_BANK	= 100;
-	private int				GAS_BANK_TO_CASH	= 100;
-	private int				GAS_CASH_TO_BANK	= 100;
-	private int				GAS_BUY_BY_BANK		= 100;
-	private int				GAS_BUY_BY_CASH		= 100;
-	private int				GENERIC_PUT_CASH	= 100;
-	private int				GENERIC_GET_CASH	= 100;
-	private int				USER_ANNUAL_BANK	= 100;
-	private int				USER_ANNUAL_CASH	= 100;
-	private int				USER_DEPOSIT_PAY	= 100;
-	private int				USER_DEPOSIT_RETURN	= 100;
-	private int				ROUNDING_DISCOUNT	= 100;
+	private int				USER_CREDIT_CASH		= 100;
+	private int				USER_CREDIT_BANK		= 100;
+	private int				GAS_BANK_TO_CASH		= 100;
+	private int				GAS_CASH_TO_BANK		= 100;
+	private int				GAS_BUY_BY_BANK			= 100;
+	private int				GAS_BUY_BY_CASH			= 100;
+	private int				GENERIC_PUT_CASH		= 100;
+	private int				GENERIC_GET_CASH		= 100;
+	private int				USER_ANNUAL_BANK		= 100;
+	private int				USER_ANNUAL_CASH		= 100;
+	private int				USER_DEPOSIT_PAY		= 100;
+	private int				USER_DEPOSIT_RETURN_CASH	= 100;
+	private int				USER_DEPOSIT_RETURN_BANK	= 100;
+	private int				ROUNDING_DISCOUNT		= 100;
 
 	private CustomFormTable			header;
 	private ListBox				reason;
@@ -110,8 +111,10 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 		reason.addItem ( "Cauzione Utente" );
 		USER_DEPOSIT_PAY = item_index++;
-		reason.addItem ( "Restituzione Cauzione" );
-		USER_DEPOSIT_RETURN = item_index++;
+		reason.addItem ( "Restituzione Cauzione in Contanti" );
+		USER_DEPOSIT_RETURN_CASH = item_index++;
+		reason.addItem ( "Restituzione Cauzione da Conto" );
+		USER_DEPOSIT_RETURN_BANK = item_index++;
 		header.addPair ( "Tipo", reason );
 
 		user = new FromServerSelector ( "User", true, true, false );
@@ -123,11 +126,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 
 		reason.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
-				int selected;
-
-				selected = reason.getSelectedIndex ();
-				testSelectableHeaders ( reasonToType ( selected ) );
-				info.setDefaultMethod ( reasonToMethod ( selected ) );
+				alterLayoutOnChange ();
 			}
 		}, ChangeEvent.getType () );
 
@@ -135,11 +134,12 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		pan.add ( info );
 		info.setValue ( new BankMovement () );
 		info.showMethod ( false );
+
 		/*
 			Di default il pagamento e' settato su "Versamento Utente", che si intende
 			in contanti, dunque a prescindere lo imposto cosi'
 		*/
-		info.setDefaultMethod ( BankMovement.BY_CASH );
+		// info.setDefaultMethod ( BankMovement.BY_CASH );
 
 		info.setDefaultDate ( new Date ( System.currentTimeMillis () ) );
 
@@ -174,6 +174,20 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		);
 
 		pan.add ( buttons );
+
+		alterLayoutOnChange ();
+	}
+
+	private void alterLayoutOnChange () {
+		int selected;
+		int type;
+
+		selected = reason.getSelectedIndex ();
+		type = reasonToType ( selected );
+
+		testNegativeAmount ( type );
+		testSelectableHeaders ( type );
+		info.setDefaultMethod ( reasonToMethod ( selected ) );
 	}
 
 	private int reasonToType ( int selected ) {
@@ -191,7 +205,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			return BankMovement.ANNUAL_PAYMENT;
 		else if ( selected == USER_DEPOSIT_PAY )
 			return BankMovement.DEPOSIT_PAYMENT;
-		else if ( selected == USER_DEPOSIT_RETURN )
+		else if ( selected == USER_DEPOSIT_RETURN_CASH || selected == USER_DEPOSIT_RETURN_BANK )
 			return BankMovement.DEPOSIT_RETURN;
 		else if ( selected == ROUNDING_DISCOUNT )
 			return BankMovement.ROUND_SUPPLIER;
@@ -207,7 +221,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				selected == GENERIC_GET_CASH ||
 				selected == USER_ANNUAL_CASH ||
 				selected == USER_DEPOSIT_PAY ||
-				selected == USER_DEPOSIT_RETURN ||
+				selected == USER_DEPOSIT_RETURN_CASH ||
 
 				/*
 					L'arrotondamento e' una operazione che
@@ -223,7 +237,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		else if ( selected == USER_CREDIT_BANK ||
 				selected == GAS_BANK_TO_CASH ||
 				selected == GAS_BUY_BY_BANK ||
-				selected == USER_ANNUAL_BANK ) {
+				selected == USER_ANNUAL_BANK ||
+				selected == USER_DEPOSIT_RETURN_BANK ) {
 
 			return BankMovement.BY_BANK;
 		}
@@ -231,10 +246,18 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		return -1;
 	}
 
+	private void testNegativeAmount ( int selected ) {
+		boolean negative;
+
+		negative = ( selected == BankMovement.ROUND_SUPPLIER || selected == BankMovement.USER_CREDIT );
+		info.acceptsNegativeAmounts ( negative );
+	}
+
 	private void testSelectableHeaders ( int selected ) {
 		if ( selected == BankMovement.USER_CREDIT ||
 		     selected == BankMovement.ANNUAL_PAYMENT ||
-		     selected == BankMovement.DEPOSIT_PAYMENT ) {
+		     selected == BankMovement.DEPOSIT_PAYMENT ||
+		     selected == BankMovement.DEPOSIT_RETURN ) {
 
 			header.showByLabel ( "Socio", true );
 		}
@@ -296,7 +319,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			else if ( type == BankMovement.DEPOSIT_PAYMENT )
 				reason.setSelectedIndex ( USER_DEPOSIT_PAY );
 			else if ( type == BankMovement.DEPOSIT_RETURN )
-				reason.setSelectedIndex ( USER_DEPOSIT_RETURN );
+				reason.setSelectedIndex ( USER_DEPOSIT_RETURN_CASH );
 			else
 				header.showByLabel ( "Tipo", false );
 		}
@@ -309,6 +332,8 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 				reason.setSelectedIndex ( GAS_BUY_BY_BANK );
 			else if ( type == BankMovement.ANNUAL_PAYMENT )
 				reason.setSelectedIndex ( USER_ANNUAL_BANK );
+			else if ( type == BankMovement.DEPOSIT_RETURN )
+				reason.setSelectedIndex ( USER_DEPOSIT_RETURN_BANK );
 			else if ( type == BankMovement.ROUND_SUPPLIER )
 				reason.setSelectedIndex ( ROUNDING_DISCOUNT );
 			else
@@ -318,6 +343,7 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 		info.setDefaultMethod ( method );
 		reason.setEnabled ( false );
 		testSelectableHeaders ( type );
+		testNegativeAmount ( type );
 
 		user.setValue ( Utils.getServer ().getObjectFromCache ( "User", selected.getInt ( "payuser" ) ) );
 		info.setValue ( selected );
@@ -335,20 +361,19 @@ public class BankManualUpdate extends DialogBox implements SavingDialog, ObjectW
 			selected = reason.getSelectedIndex ();
 			movement.setInt ( "movementtype", reasonToType ( selected ) );
 
-			if ( selected == USER_CREDIT_CASH )
+			if ( selected == USER_CREDIT_CASH ||
+			     selected == USER_CREDIT_BANK ||
+			     selected == USER_ANNUAL_BANK ||
+			     selected == USER_ANNUAL_CASH ||
+			     selected == USER_DEPOSIT_PAY ||
+			     selected == USER_DEPOSIT_RETURN_CASH ||
+			     selected == USER_DEPOSIT_RETURN_BANK ) {
+
 				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			else if ( selected == USER_CREDIT_BANK )
-				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			else if ( selected == USER_ANNUAL_BANK )
-				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			else if ( selected == USER_ANNUAL_CASH )
-				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			else if ( selected == USER_DEPOSIT_PAY )
-				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			else if ( selected == USER_DEPOSIT_RETURN )
-				movement.setInt ( "payuser", user.getValue ().getLocalID () );
-			else if ( selected == ROUNDING_DISCOUNT )
+			}
+			else if ( selected == ROUNDING_DISCOUNT ) {
 				movement.setInt ( "paysupplier", supplier.getValue ().getLocalID () );
+			}
 		}
 		else {
 			movement.setInt ( "movementtype", originalReason );

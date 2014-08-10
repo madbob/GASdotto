@@ -26,10 +26,12 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class PriceBox extends TextBox implements FloatWidget {
 	private float			currentValue;
+	private boolean			negative;
 
 	public PriceBox () {
 		setText ( Utils.priceToString ( 0 ) );
 		currentValue = 0;
+		negative = false;
 
 		addFocusHandler ( new FocusHandler () {
 			public void onFocus ( FocusEvent event ) {
@@ -70,6 +72,16 @@ public class PriceBox extends TextBox implements FloatWidget {
 
 				keycode = event.getNativeKeyCode();
 
+				if ( negative == true ) {
+					/*
+						Il pulsante '-' viene mappato in modi diversi su Firefox e Chrome, non
+						ho trovato modo per uniformare questi codici (neanche chiedendo la
+						stringa nativamente con getCodeAt())
+					*/
+					if ( keycode == 45 || keycode == 189 )
+						return;
+				}
+
 				if ( ( keycode < 48 || keycode > 57 ) && (
 						( keycode != (char) KeyCodes.KEY_TAB ) &&
 						( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
@@ -87,6 +99,10 @@ public class PriceBox extends TextBox implements FloatWidget {
 		} );
 
 		setVisibleLength ( 6 );
+	}
+
+	public void acceptsNegative ( boolean accepts ) {
+		negative = accepts;
 	}
 
 	/****************************************************************** FloatWidget */
