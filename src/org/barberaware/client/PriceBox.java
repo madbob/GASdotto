@@ -78,7 +78,7 @@ public class PriceBox extends TextBox implements FloatWidget {
 						ho trovato modo per uniformare questi codici (neanche chiedendo la
 						stringa nativamente con getCodeAt())
 					*/
-					if ( keycode == 45 || keycode == 189 )
+					if ( keycode == 189 || keycode == 173 )
 						return;
 				}
 

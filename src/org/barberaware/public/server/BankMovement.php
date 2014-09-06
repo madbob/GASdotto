@@ -49,7 +49,7 @@ class BankMovement extends FromServer {
 	private function manageSums ( $type, $method, $amount, $user, $supplier, $revert = false ) {
 		if ( $amount == 0 )
 			return;
-			
+
 		global $current_gas;
 
 		$add = array ();
@@ -296,8 +296,22 @@ class BankMovement extends FromServer {
 
 		$id = $this->getAttribute ( "id" )->value;
 		if ( $id != -1 ) {
-			if ( $this->getAttribute ( "obsolete" )->value == true )
-				error_exit ( "Non è concesso modificare un movimento precedente l'ultima chiusura di bilancio" );
+			if ( (string) $this->getAttribute ( "obsolete" )->value == "true" ) {
+				/*
+					Questo e' per verificare che effettivamente i contenuti siano cambiati,
+					infatti capita spesso che qui si passi anche per movimenti che comunque non
+					sono stati realmente stati modificati (e per i quali non occorre attivare
+					l'errore)
+				*/
+				$test = new BankMovement ();
+				$test->readFromDB ( $id );
+				if ( $this->getAttribute ( "amount" )->value != $test->getAttribute ( "amount" )->value ||
+						$this->getAttribute ( "movementtype" )->value != $test->getAttribute ( "movementtype" )->value ||
+						$this->getAttribute ( "method" )->value != $test->getAttribute ( "method" )->value ||
+						$this->getAttribute ( "payuser" )->value != $test->getAttribute ( "payuser" )->value ||
+						$this->getAttribute ( "paysupplier" )->value != $test->getAttribute ( "paysupplier" )->value )
+					error_exit ( "Non è concesso modificare un movimento precedente l'ultima chiusura di bilancio" );
+			}
 
 			$this->revertById ( $id );
 		}
