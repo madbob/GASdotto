@@ -1,7 +1,5 @@
-<?php
-
 /*  GASdotto
- *  Copyright (C) 2013 Roberto -MadBob- Guido <bob4job@gmail.com>
+ *  Copyright (C) 2014 Roberto -MadBob- Guido <bob4job@gmail.com>
  *
  *  This is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -17,27 +15,19 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-require_once ( "utils.php" );
+package org.barberaware.client;
 
-if ( check_session () == false )
-	error_exit ( "Sessione non autenticata" );
+import java.util.*;
+import com.google.gwt.user.client.*;
 
-$ret = null;
-$type = require_param ( 'type' );
+import com.allen_sauer.gwt.log.client.Log;
 
-switch ( $type ) {
-	case 'fix':
-		$offset = require_param ( 'offset' );
-		$tmp = new BankMovement ();
-		echo $tmp->fix ( $offset );
-		break;
+public class BankMovementType extends FromServer {
+	public BankMovementType () {
+		super ();
 
-	case 'close':
-		$date = require_param ( 'date' );
-		$tmp = new BankMovement ();
-		echo $tmp->close ( $date );
-		break;
+		addAttribute ( "name", FromServer.STRING );
+		addAttribute ( "identifier", FromServer.INTEGER );
+	}
 }
-
-exit ( 0 );
 

@@ -352,6 +352,8 @@ class BankMovement extends FromServer {
 				$query [] = sprintf ( "payuser = %d", $request->payuser );
 			if ( property_exists ( $request, 'paysupplier' ) )
 				$query [] = sprintf ( "paysupplier = %d", $request->paysupplier );
+			if ( property_exists ( $request, 'movementtype' ) )
+				$query [] = sprintf ( "movementtype = %d", $request->movementtype );
 
 			/*
 				Non filtrare sempre per amount != 0: buona parte dei BankMovement
@@ -368,7 +370,7 @@ class BankMovement extends FromServer {
 		return parent::getByQuery ( $request, $compress, $query );
 	}
 
-	public function fix ( $offset ) {
+	public function fix ( $offset, $date = null ) {
 		global $current_gas;
 
 		if ( $offset == -1 ) {
@@ -397,7 +399,11 @@ class BankMovement extends FromServer {
 				esplicitando nell'oggetto a quale gruppo fa riferimento
 		*/
 
-		$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true ORDER BY date $query_limit", $this->tablename );
+		if ( $date == null )
+			$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true ORDER BY date $query_limit", $this->tablename );
+		else
+			$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true AND date < '$date' ORDER BY date $query_limit", $this->tablename );
+
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
 		if ( $returned->rowCount () == 0 ) {
@@ -413,8 +419,27 @@ class BankMovement extends FromServer {
 		}
 	}
 
-	public function close () {
+	/*
+		In questa funzione:
+
+		- ricalcolo tutti i saldi fino alla data desiderata
+		- marco come obsoleti i movimenti piu' vecchi
+		- aggiorno i saldi
+		- ricalcolo nuovamente i saldi: a questo punto prendo per validi
+		  solo i movimenti non marcati nel passo precedente (e dunque
+		  piu' recenti)
+	*/
+	public function close ( $date ) {
 		global $current_gas;
+
+		$this->fix ( -1, $date );
+
+		/*
+			TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
+				esplicitando nell'oggetto a quale gruppo fa riferimento
+		*/
+		$query = sprintf ( "UPDATE BankMovement SET obsolete = true WHERE date < '$date'" );
+		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
 		$query = sprintf ( "UPDATE Users SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
 		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
@@ -425,12 +450,7 @@ class BankMovement extends FromServer {
 		$query = sprintf ( "UPDATE GAS SET last_balance = current_balance, last_cash_balance = current_cash_balance, last_bank_balance = current_bank_balance, last_orders_balance = current_orders_balance, last_deposit_balance = current_deposit_balance, last_balance_date = NOW() WHERE id = $current_gas" );
 		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		/*
-			TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
-				esplicitando nell'oggetto a quale gruppo fa riferimento
-		*/
-		$query = sprintf ( "UPDATE BankMovement SET obsolete = true" );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+		$this->fix ( -1, null );
 
 		return 'done';
 	}

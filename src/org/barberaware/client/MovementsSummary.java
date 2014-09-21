@@ -70,6 +70,9 @@ public class MovementsSummary extends FromServerTable {
 			}
 		} );
 
+		index = addColumn ( "Utente", "registrationperson", false );
+		setColumnStyle ( index, "leftalign" );
+
 		if ( show_ref == true ) {
 			index = addColumn ( "Riferimento", "payreference", false );
 			setColumnStyle ( index, "leftalign" );

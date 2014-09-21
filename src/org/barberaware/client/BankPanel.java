@@ -30,6 +30,7 @@ public class BankPanel extends GenericPanel {
 	private DateRange		dates;
 	private FromServerSelector	userFilter;
 	private FromServerSelector	supplierFilter;
+	private FromServerSelector	typeFilter;
 
 	public BankPanel () {
 		super ();
@@ -105,6 +106,10 @@ public class BankPanel extends GenericPanel {
 		supplierFilter.addAllSelector ();
 		frame.addPair ( "Filtra Fornitore", supplierFilter );
 
+		typeFilter = new FromServerSelector ( "BankMovementType", true, true, true );
+		typeFilter.addAllSelector ();
+		frame.addPair ( "Filtra Tipologia", typeFilter );
+
 		search = new Button ( "Cerca", new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				loadData ();
@@ -159,6 +164,10 @@ public class BankPanel extends GenericPanel {
 		if ( target != null )
 			params.add ( "paysupplier", Integer.toString ( target.getLocalID () ) );
 
+		target = typeFilter.getValue ();
+		if ( target != null )
+			params.add ( "movementtype", Integer.toString ( target.getInt ( "identifier" ) ) );
+
 		mainTable.refresh ( params );
 	}
 
@@ -190,8 +199,18 @@ public class BankPanel extends GenericPanel {
 
 				Utils.getServer ().serverGet ( params, new ServerResponse () {
 					public void onComplete ( JSONValue response ) {
-						supplierFilter.unlock ();
-						userFilter.unlock ();
+						ObjectRequest params;
+
+						Utils.getServer ().responseToObjects ( response );
+						params = new ObjectRequest ( "BankMovementType" );
+
+						Utils.getServer ().serverGet ( params, new ServerResponse () {
+							public void onComplete ( JSONValue response ) {
+								supplierFilter.unlock ();
+								userFilter.unlock ();
+								typeFilter.unlock ();
+							}
+						} );
 					}
 				} );
 			}

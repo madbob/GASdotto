@@ -27,13 +27,25 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class BankCloseBalanceDialog extends PasswordValidateDialog {
+	private DateSelector	date;
+
 	public BankCloseBalanceDialog () {
+		CustomFormTable form;
+
 		this.setText ( "Conferma Chiusura Bilancio" );
-		this.add ( new HTML ( "Sicuro di voler procedere?" ) );
+
+		form = new CustomFormTable ();
+		date = new DateSelector ();
+		form.addPair ( "Data Chiusura", date );
+		this.add ( form );
 	}
 
 	protected void confirmedExecution () {
-		Utils.getServer ().rawGet ( "bank_op.php?type=close", new RequestCallback () {
+		String d;
+
+		d = Utils.encodeDate ( date.getValue () );
+
+		Utils.getServer ().rawGet ( "bank_op.php?type=close&date=" + d, new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
 			}

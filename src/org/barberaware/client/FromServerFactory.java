@@ -79,6 +79,9 @@ public class FromServerFactory {
 		else if ( name.equals ( "BankMovement" ) ) {
 			return new BankMovement ();
 		}
+		else if ( name.equals ( "BankMovementType" ) ) {
+			return new BankMovementType ();
+		}
 		else if ( name.equals ( "Measure" ) ) {
 			return new Measure ();
 		}
@@ -135,6 +138,7 @@ public class FromServerFactory {
 		names.add ( "Supplier" );
 		names.add ( "User" );
 		names.add ( "BankMovement" );
+		names.add ( "BankMovementType" );
 		names.add ( "CustomFile" );
 		names.add ( "Notification" );
 		names.add ( "Link" );
