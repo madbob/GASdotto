@@ -438,7 +438,14 @@ class BankMovement extends FromServer {
 			TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
 				esplicitando nell'oggetto a quale gruppo fa riferimento
 		*/
-		$query = sprintf ( "UPDATE BankMovement SET obsolete = true WHERE date < '$date'" );
+
+		/*
+			Salto i movimenti con amount = 0, considerati comunque insignificanti.
+			Nella maggior parte dei casi sono placeholders assegnati in giro, che assumeranno
+			significato solo in una data successiva e dunque da non considerare in questa
+			chiusura di saldo
+		*/
+		$query = sprintf ( "UPDATE BankMovement SET obsolete = true WHERE date < '$date' AND amount != 0" );
 		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
 		$query = sprintf ( "UPDATE Users SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
@@ -447,7 +454,7 @@ class BankMovement extends FromServer {
 		$query = sprintf ( "UPDATE Supplier SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
 		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		$query = sprintf ( "UPDATE GAS SET last_balance = current_balance, last_cash_balance = current_cash_balance, last_bank_balance = current_bank_balance, last_orders_balance = current_orders_balance, last_deposit_balance = current_deposit_balance, last_balance_date = NOW() WHERE id = $current_gas" );
+		$query = sprintf ( "UPDATE GAS SET last_balance = current_balance, last_cash_balance = current_cash_balance, last_bank_balance = current_bank_balance, last_orders_balance = current_orders_balance, last_deposit_balance = current_deposit_balance, last_balance_date = '$date' WHERE id = $current_gas" );
 		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
 		$this->fix ( -1, null );
