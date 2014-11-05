@@ -110,7 +110,7 @@ public class OrderDetails extends FromServerRappresentationFull {
 			startdate = new DateViewer ();
 			enddate = new DateViewer ();
 			shippingdate = new DateViewer ();
-			payment = new NameLabelWidget ();
+			payment = new BankMovementCellViewer ();
 		}
 
 		frame.addPair ( "Data apertura", widgetWarp ( "startdate", ( Widget ) startdate ) );

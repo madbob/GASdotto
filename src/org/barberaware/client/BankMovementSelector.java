@@ -102,7 +102,7 @@ public class BankMovementSelector extends BankMovementComponent {
 
 		rebuildObject ();
 		movement = ( BankMovement ) super.getValue ();
-		
+
 		if ( movement.getFloat ( "amount" ) == 0 ) {
 			Utils.showNotification ( "Importo a 0 non valido" );
 			return;
@@ -124,10 +124,13 @@ public class BankMovementSelector extends BankMovementComponent {
 
 		obj = getValue ();
 
-		if ( obj == null )
+		if ( obj == null ) {
 			main.setText ( "Mai" );
-		else
+		}
+		else {
+			main.addStyleName ( "bankmovement-selector-" + obj.getInt ( "method" ) );
 			main.setText ( obj.getString ( "name" ) );
+		}
 	}
 
 	/****************************************************************** FromServerRappresentation */

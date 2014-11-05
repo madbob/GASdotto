@@ -391,6 +391,14 @@ body {
 	border:			1px solid #DDD;
 }
 
+.bankmovement-selector-0 {
+	background:		#FFFFFF url('images/bankmovement_selector-bank.png') no-repeat scroll 0pt 50%;
+}
+
+.bankmovement-selector-1 {
+	background:		#FFFFFF url('images/bankmovement_selector-cash.png') no-repeat scroll 0pt 50%;
+}
+
 .password-selector {
 	font-size:		12px;
 	margin:			1px;
