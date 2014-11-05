@@ -327,6 +327,7 @@ public class DeliveryPanel extends GenericPanel {
 		HorizontalPanel downloads;
 		final FromServerForm ver;
 		FromServer ord;
+		FromServer payment;
 		DeliverySummary summary;
 		CashCount cash;
 		LinksDialog files;

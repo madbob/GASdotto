@@ -496,10 +496,24 @@ public class DeliverySummary extends Composite {
 	}
 
 	private void setStatusIcon ( FromServerForm form ) {
+		int status;
 		EmblemsBar bar;
+		FromServer order;
+		FromServer payment;
+
+		order = form.getValue ();
+		status = order.getInt ( "status" );
 
 		bar = form.emblems ();
-		bar.activate ( "status", form.getValue ().getInt ( "status" ) );
+		bar.activate ( "status", status );
+
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true && status != OrderUser.TO_DELIVER ) {
+			payment = order.getObject ( "payment_event" );
+			if ( payment != null )
+				bar.activate ( "paymethod", payment.getInt ( "method" ) + 1 );
+			else
+				bar.activate ( "paymethod", 0 );
+		}
 	}
 
 	private void setCreditIcon ( FromServerForm form ) {

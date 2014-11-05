@@ -143,6 +143,18 @@ public class Utils {
 		desc.add ( "Consegna Salvata" );
 		info.addSymbol ( "status", paths, desc );
 
+		if ( Session.getGAS ().getBool ( "use_bank" ) == true ) {
+			paths = new ArrayList ();
+			desc = new ArrayList ();
+			paths.add ( "" );
+			desc.add ( "" );
+			paths.add ( "images/notifications/pay_by_bank.png" );
+			desc.add ( "Pagato con Credito" );
+			paths.add ( "images/notifications/pay_by_cash.png" );
+			desc.add ( "Pagato in Contanti" );
+			info.addSymbol ( "paymethod", paths, desc );
+		}
+
 		if ( Session.getGAS ().getBool ( "payments" ) == true )
 			info.addSymbol ( "paying", "images/notifications/user_not_paying.png", "L'Utente non ha Pagato l'Iscrizione" );
 

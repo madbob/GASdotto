@@ -24,26 +24,49 @@ import com.google.gwt.event.logical.shared.*;
 
 import com.allen_sauer.gwt.log.client.Log;
 
-public class BankMovementCellViewer extends Label implements ObjectWidget {
+public class BankMovementCellViewer extends HorizontalPanel implements ObjectWidget {
+	private Label			label;
+	private Image			icon;
 	private FromServer		object;
 
 	public BankMovementCellViewer () {
-		setText ( "Mai" );
+		setWidth ( "auto" );
+		setVerticalAlignment ( HasVerticalAlignment.ALIGN_MIDDLE );
+
+		label = new Label ();
+		label.setText ( "Mai" );
+		icon = new Image ();
+		icon.setVisible ( false );
+
+		this.add ( label );
+		this.add ( icon );
 	}
 
 	/****************************************************************** ObjectWidget */
 
 	public void setValue ( FromServer obj ) {
+		int method;
+
 		object = obj;
 
-		if ( obj == null )
-			setText ( "Mai" );
-		else
-			setText ( obj.getString ( "name" ) );
+		if ( obj == null ) {
+			label.setText ( "Mai" );
+			icon.setVisible ( false );
+		}
+		else {
+			label.setText ( obj.getString ( "name" ) );
+
+			method = obj.getInt ( "method" );
+			if ( method == BankMovement.BY_CASH )
+				icon.setUrl ( "images/notifications/pay_by_bank.png" );
+			else
+				icon.setUrl ( "images/notifications/pay_by_cash.png" );
+
+			icon.setVisible ( true );
+		}
 	}
 
 	public FromServer getValue () {
 		return object;
 	}
 }
-
