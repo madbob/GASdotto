@@ -186,7 +186,8 @@ for ( $i = 0; $i < count ( $contents ); $i++ ) {
 
 	$user_products = $order_user->products;
 	if ( is_array ( $user_products ) == false )
-		continue;
+		if ( is_array ( $order_user->friends ) == false )
+			continue;
 
 	$user_total = 0;
 
