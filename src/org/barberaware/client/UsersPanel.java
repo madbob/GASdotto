@@ -139,7 +139,6 @@ public class UsersPanel extends GenericPanel {
 				CustomCaptionPanel frame;
 				CyclicToggle privileges;
 				DateSelector custom_date;
-				BankMovementSelector bms;
 				FilteredMovementsSummary movements;
 
 				/*
@@ -232,21 +231,8 @@ public class UsersPanel extends GenericPanel {
 					ricaricato
 				*/
 				if ( handlePayments == true ) {
-					bms = new BankMovementSelector ();
-					bms.setDefaultType ( BankMovement.DEPOSIT_PAYMENT );
-					bms.setDefaultTargetUser ( user );
-					bms.setDefaultAmount ( Session.getGAS ().getFloat ( "default_deposit" ) );
-					bms.setDefaultNote ( "Cauzione " + user.getString ( "name" ) );
-					bms.showJustDate ( Session.getGAS ().getBool ( "use_bank" ) == false );
-					frame.addPair ( "Cauzione", form.getPersonalizedWidget ( "deposit", bms ) );
-
-					bms = new BankMovementSelector ();
-					bms.setDefaultType ( BankMovement.ANNUAL_PAYMENT );
-					bms.setDefaultTargetUser ( user );
-					bms.setDefaultAmount ( Session.getGAS ().getFloat ( "default_fee" ) );
-					bms.setDefaultNote ( "Quota pagata " + user.getString ( "name" ) );
-					bms.showJustDate ( Session.getGAS ().getBool ( "use_bank" ) == false );
-					frame.addPair ( "Quota pagata", form.getPersonalizedWidget ( "paying", bms ) );
+					frame.addPair ( "Cauzione", form.getPersonalizedWidget ( "deposit", new BankMovementCellViewer () ) );
+					frame.addPair ( "Quota pagata", form.getPersonalizedWidget ( "paying", new BankMovementCellViewer () ) );
 				}
 
 				privileges = new CyclicToggle ( true );
