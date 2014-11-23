@@ -85,12 +85,27 @@ public class OrdersEditPanel extends GenericPanel {
 
 					ver.setCallback ( new FromServerFormCallbacks ( "notification" ) {
 						public void onSaved ( FromServerRappresentationFull form ) {
-							if ( form.getValue ().getInt ( "status" ) == Order.OPENED ) {
+							ObjectRequest params;
+							FromServer order;
+
+							order = form.getValue ();
+
+							if ( order.getInt ( "status" ) == Order.OPENED ) {
 								Utils.showNotification ( "Un nuovo ordine è ora disponibile nel pannello 'Ordini'",
 												Notification.INFO );
 
 								form.removeCallback ( "notification" );
 							}
+
+							/*
+								Questo è per forzare il ricaricamento dei prodotti del fornitore.
+								I prodotti contemplati nell'ordine vengono alterati e duplicati,
+								dunque i riferimenti locali non sono più validi ed è necessario
+								aggiornarli
+							*/
+							params = new ObjectRequest ( "Product" );
+							params.add ( "supplier", order.getObject ( "supplier" ).getLocalID () );
+							Utils.getServer ().testObjectReceive ( params );
 						}
 					} );
 

@@ -417,6 +417,40 @@ public class ServerHook {
 		}
 	}
 
+	private void testIterationBehaviour ( FromServer child ) {
+		FromServer test;
+
+		test = getObjectFromCache ( child.getType (), child.getLocalID () );
+		if ( test != null )
+			triggerObjectModification ( child );
+		else
+			triggerObjectCreation ( child );
+	}
+
+	private void iterateObjectNotification ( FromServer object ) {
+		int type;
+		ArrayList<String> subnames;
+		FromServer child;
+		ArrayList<FromServer> children;
+
+		subnames = object.getContainedObjectsName ();
+		for ( String attribute : subnames ) {
+			type = object.getAttributeType ( attribute );
+
+			if ( type == FromServer.OBJECT ) {
+				child = object.getObject ( attribute );
+				if ( child != null && child.isValid () )
+					testIterationBehaviour ( child );
+			}
+			else if ( type == FromServer.ARRAY ) {
+				children = object.getArray ( attribute );
+				if ( children != null )
+					for ( FromServer iter : children )
+						testIterationBehaviour ( iter );
+			}
+		}
+	}
+
 	public void triggerObjectCreation ( FromServer object ) {
 		ServerMonitor tmp;
 
@@ -427,6 +461,8 @@ public class ServerHook {
 		tmp = getMonitor ( object.getType () );
 		if ( addObjectIntoMonitorCache ( tmp, object ) == true )
 			executeReceivingCallbacks ( tmp, object );
+
+		iterateObjectNotification ( object );
 	}
 
 	/*
@@ -480,18 +516,8 @@ public class ServerHook {
 			callback.onModify ( object );
 		}
 
-		if ( object.alwaysReload () || force_propagation ) {
-			ArrayList<String> subnames;
-			FromServer child;
-
-			subnames = object.getContainedObjectsName ();
-			for ( String attribute : subnames ) {
-				child = object.getObject ( attribute );
-				if ( child != null && child.isValid () ) {
-					triggerObjectModification ( child, true );
-				}
-			}
-		}
+		if ( object.alwaysReload () || force_propagation )
+			iterateObjectNotification ( object );
 
 		object.executeLocalObjectEvent ( FromServerResponse.ACTION_MODIFY );
 	}
