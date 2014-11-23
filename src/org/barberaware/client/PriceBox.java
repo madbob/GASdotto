@@ -82,13 +82,19 @@ public class PriceBox extends TextBox implements FloatWidget {
 						return;
 				}
 
-				if ( ( keycode < 48 || keycode > 57 ) && (
+				/*
+					Attenzione: le cifre sul tastierino numerico producono dei keycode diversi
+					che quelle sopra le lettere della tastiera!
+				*/
+				if ( ( keycode < 48 || keycode > 57 ) &&
+						( keycode < 96 || keycode > 105 ) && (
 						( keycode != (char) KeyCodes.KEY_TAB ) &&
 						( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
 						( keycode != (char) KeyCodes.KEY_LEFT ) &&
 						( keycode != (char) KeyCodes.KEY_UP ) &&
 						( keycode != (char) KeyCodes.KEY_RIGHT ) &&
 						( keycode != (char) KeyCodes.KEY_DOWN ) &&
+						( keycode != 110 ) &&
 						( keycode != 188 ) )
 					) {
 

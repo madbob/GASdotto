@@ -46,11 +46,11 @@ public class DeliveryPanel extends GenericPanel {
 
 				fdate = first.getDate ( "shippingdate" );
 				if ( fdate == null )
-					return 1;
+					fdate = first.getDate ( "enddate" );
 
 				sdate = second.getDate ( "shippingdate" );
 				if ( sdate == null )
-					return -1;
+					sdate = second.getDate ( "enddate" );
 
 				return sdate.compareTo ( fdate );
 			}

@@ -39,7 +39,8 @@ public class NumberBox extends TextBox implements IntNumericWidget {
 
 				keycode = event.getNativeKeyCode();
 
-				if ( ( keycode < 48 || keycode > 57 ) && (
+				if ( ( keycode < 48 || keycode > 57 ) &&
+						( keycode < 96 || keycode > 105 ) && (
 						( keycode != (char) KeyCodes.KEY_TAB ) &&
 						( keycode != (char) KeyCodes.KEY_BACKSPACE ) &&
 						( keycode != (char) KeyCodes.KEY_LEFT ) &&
