@@ -27,11 +27,12 @@ import com.allen_sauer.gwt.log.client.Log;
 public abstract class BankMovementComponent extends FromServerRappresentation {
 	protected int			defaultMethod		= 0;
 	protected float			defaultAmount		= 0;
+    	protected float			forceAmount		= 0;
 	protected Date			defaultDate		= null;
 	protected FromServer		defaultTargetUser	= null;
 	protected FromServer		defaultTargetSupplier	= null;
 	protected boolean		defaultCro		= true;
-	protected int			defaultType		= 0;
+	protected int			defaultType		= -1;
 	protected String		defaultNote		= "";
 
 	protected boolean		editable		= true;
@@ -51,6 +52,10 @@ public abstract class BankMovementComponent extends FromServerRappresentation {
 
 	public void setDefaultAmount ( float amount ) {
 		defaultAmount = amount;
+	}
+
+    	public void forceDefaultAmount ( float amount ) {
+		forceAmount = amount;
 	}
 
 	public float getDefaultAmount () {
@@ -91,6 +96,7 @@ public abstract class BankMovementComponent extends FromServerRappresentation {
 		destination.setDefaultMethod ( defaultMethod );
 		destination.setDefaultDate ( defaultDate );
 		destination.setDefaultAmount ( defaultAmount );
+		destination.forceDefaultAmount ( forceAmount );
 		destination.setDefaultTargetUser ( defaultTargetUser );
 		destination.setDefaultTargetSupplier ( defaultTargetSupplier );
 		destination.setDefaultNote ( defaultNote );
@@ -125,7 +131,7 @@ public abstract class BankMovementComponent extends FromServerRappresentation {
 		rebuildObject ();
 
 		ret = super.getValue ();
-		if ( ret != null )
+		if ( ret != null && defaultType != -1 )
 			ret.setInt ( "movementtype", defaultType );
 
 		return ret;

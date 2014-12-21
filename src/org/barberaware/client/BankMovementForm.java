@@ -78,16 +78,40 @@ public class BankMovementForm extends BankMovementComponent {
 		}
 	}
 
-	public void setDefaultAmount ( float amount ) {
+	/*
+		setDefaultAmount() setta un ammontare di riferimento, che viene ignorato se il widget
+		viene inizializzato con un movimento valido
+		forceDefaultAmount() setta un ammontare fisso, che viene sovrascritto in ogni caso
+	*/
+
+	private boolean setAmount ( float amount, boolean force ) {
 		FromServer movement;
 
-		defaultAmount = amount;
 		movement = getValue ();
 
-		if ( movement != null && ( movement.getFloat ( "amount" ) == 0 ) ) {
+		if ( movement != null && ( ( force == true && amount != 0 ) || ( movement.getFloat ( "amount" ) == 0 ) ) ) {
 			movement.setFloat ( "amount", defaultAmount );
 			refreshContents ( movement );
+			return true;
 		}
+		else if ( movement == null ) {
+			return true;
+		}
+		else {
+			return false;
+		}
+	}
+
+	public void setDefaultAmount ( float amount ) {
+		defaultAmount = amount;
+		setAmount ( amount, false );
+	}
+
+	public void forceDefaultAmount ( float amount ) {
+		forceAmount = amount;
+
+		if ( setAmount ( amount, true ) == true )
+			defaultAmount = amount;
 	}
 
 	public void setDefaultDate ( Date date ) {
@@ -174,6 +198,7 @@ public class BankMovementForm extends BankMovementComponent {
 		super.setValue ( obj );
 		setDefaultDate ( defaultDate );
 		setDefaultAmount ( defaultAmount );
+		forceDefaultAmount ( forceAmount );
 		setDefaultNote ( defaultNote );
 		setDefaultMethod ( defaultMethod );
 		populateWidgets ();

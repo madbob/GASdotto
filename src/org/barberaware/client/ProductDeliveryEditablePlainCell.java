@@ -27,7 +27,7 @@ import com.allen_sauer.gwt.log.client.Log;
 
 public class ProductDeliveryEditablePlainCell extends Composite implements ProductDeliveryEditableCell {
 	private FloatBox		box;
-	private ArrayList		currentProducts;
+	private ArrayList<FromServer>	currentProducts;
 
 	public ProductDeliveryEditablePlainCell () {
 		box = new FloatBox ();
@@ -39,7 +39,7 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 			}
 		}, ChangeEvent.getType () );
 
-		currentProducts = new ArrayList ();
+		currentProducts = new ArrayList<FromServer> ();
 	}
 
 	private void triggerChange () {
@@ -63,14 +63,11 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 
 	public float shipAll () {
 		float total;
-		FromServer prod;
 
 		total = 0;
 
-		for ( int i = 0; i < currentProducts.size (); i++ ) {
-			prod = ( FromServer ) currentProducts.get ( i );
+		for ( FromServer prod : currentProducts )
 			total += prod.getFloat ( "quantity" );
-		}
 
 		box.setVal ( total );
 		return total;
@@ -84,7 +81,7 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 		total = getCurrentQuantity ();
 
 		for ( int i = 0; i < currentProducts.size (); i++ ) {
-			prod = ( FromServer ) currentProducts.get ( i );
+			prod = currentProducts.get ( i );
 			quantity = prod.getFloat ( "quantity" );
 
 			if ( total > quantity ) {
@@ -104,7 +101,7 @@ public class ProductDeliveryEditablePlainCell extends Composite implements Produ
 		}
 
 		if ( total > 0 ) {
-			prod = ( FromServer ) currentProducts.get ( 0 );
+			prod = currentProducts.get ( 0 );
 			prod.setFloat ( "delivered", prod.getFloat ( "quantity" ) + total );
 		}
 	}

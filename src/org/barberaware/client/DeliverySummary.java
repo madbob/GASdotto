@@ -99,7 +99,7 @@ public class DeliverySummary extends Composite {
 				products = uorder.getArray ( "allproducts" );
 
 				if ( products != null && Session.getGAS ().getBool ( "use_bank" ) == true ) {
-					topay = ProductUser.sumProductUserArray ( products, "delivered" );
+					topay = currentTotalInForm ( row );
 
 					if ( topay == 0 && Window.confirm ( "Non ci sono prodotti consegnati in questo ordine. Vuoi chiuderlo?" ) ) {
 						row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
@@ -143,6 +143,7 @@ public class DeliverySummary extends Composite {
 					dialog.setDefaultMethod ( BankMovement.BY_CASH );
 
 					dialog.setDefaultAmount ( topay );
+					dialog.forceDefaultAmount ( topay );
 					dialog.showCro ( false );
 					dialog.setDefaultType ( BankMovement.ORDER_USER_PAYMENT );
 					dialog.setDefaultDate ( new Date ( System.currentTimeMillis () ) );
@@ -212,6 +213,7 @@ public class DeliverySummary extends Composite {
 			products.setValue ( ( OrderUser ) uorder );
 			row.add ( products );
 			row.addChild ( products );
+			row.setWrap ( products );
 		}
 		else if ( uorder instanceof OrderUserAggregate ) {
 			addAllSubOrders ( uord, row );
@@ -271,6 +273,10 @@ public class DeliverySummary extends Composite {
 		uord.addRelatedInfo ( "DeliverySummary", row );
 	}
 
+	/*
+		Questa funzione viene chiamata anche quando l'ordine viene salvato (essendo
+		OrderUser in alwaysReload viene sempre considerato modificato)
+	*/
 	public void modOrder ( OrderUserInterface uorder ) {
 		FromServer uord;
 		FromServerRappresentation widget;
@@ -278,6 +284,11 @@ public class DeliverySummary extends Composite {
 
 		uord = ( FromServer ) uorder;
 
+		/*
+			Arrivati a questo punto, "widget" potrebbe essere un FromServerForm (se si
+			tratta di un ordine singolo) o un ProductsDeliveryTable (se qui c'e' un
+			ordine aggregato)
+		*/
 		widget = ( FromServerRappresentation ) uord.getRelatedInfo ( "DeliverySummary" );
 		if ( widget != null ) {
 			widget.setValue ( uord );
@@ -286,6 +297,7 @@ public class DeliverySummary extends Composite {
 				form = ( FromServerForm ) widget;
 				main.insert ( form, getSortedIndex ( uord ) );
 				setStatusIcon ( form );
+				setCreditIcon ( form );
 			}
 		}
 	}
@@ -493,6 +505,7 @@ public class DeliverySummary extends Composite {
 		row.savingObject ();
 		row.open ( false );
 		setStatusIcon ( row );
+		setCreditIcon ( row );
 	}
 
 	private void setStatusIcon ( FromServerForm form ) {

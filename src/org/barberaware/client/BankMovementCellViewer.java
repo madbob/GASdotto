@@ -58,9 +58,9 @@ public class BankMovementCellViewer extends HorizontalPanel implements ObjectWid
 
 			method = obj.getInt ( "method" );
 			if ( method == BankMovement.BY_CASH )
-				icon.setUrl ( "images/notifications/pay_by_bank.png" );
-			else
 				icon.setUrl ( "images/notifications/pay_by_cash.png" );
+			else
+				icon.setUrl ( "images/notifications/pay_by_bank.png" );
 
 			icon.setVisible ( true );
 		}
