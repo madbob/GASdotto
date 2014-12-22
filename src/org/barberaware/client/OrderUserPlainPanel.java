@@ -57,7 +57,9 @@ public class OrderUserPlainPanel extends OrderUserManagerMode {
 		if ( selection == null ) {
 			selection = new ProductsUserSelection ( baseOrder.getArray ( "products" ), editable, freeEditable );
 			main.add ( getPersonalizedWidget ( "products", selection ) );
-			main.add ( getPersonalizedWidget ( "notes", new DummyTextArea () ) );
+
+			if ( editable == true )
+				main.add ( getPersonalizedWidget ( "notes", new DummyTextArea () ) );
 		}
 
 		friends = element.getArray ( "friends" );
