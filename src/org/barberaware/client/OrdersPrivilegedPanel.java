@@ -25,6 +25,7 @@ import com.google.gwt.json.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class OrdersPrivilegedPanel extends GenericPanel {
+	private boolean		inited;
 	private boolean		hasOrders;
 	private GenericPanel	myself;
 
@@ -42,306 +43,7 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 		checkNoAvailableOrders ();
 
-		/**
-			TODO	Sarebbe cosa buona usare un FormGroup, ma c'e' da badare al fatto
-				che i form per i vari ordini sono di due tipi: editabile e non
-		*/
-
-		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				findAndAlign ( ( OrderUser ) object, 2 );
-			}
-
-			protected String debugName () {
-				return "OrderUser in OrdersPrivilegedPanel";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				findAndAlignAggregate ( ( OrderUserAggregate ) object, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				findAndAlignAggregate ( ( OrderUserAggregate ) object, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				findAndAlignAggregate ( ( OrderUserAggregate ) object, 2 );
-			}
-
-			protected String debugName () {
-				return "OrderUserAggregate in OrdersPrivilegedPanel";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				int index;
-				int status;
-				boolean multi;
-				FromServerForm form;
-				Order ord;
-
-				if ( object.getBool ( "parent_aggregate" ) == true )
-					return;
-
-				if ( object.getRelatedInfo ( "OrdersPrivilegedPanel" ) == null ) {
-					ord = ( Order ) object;
-					status = object.getInt ( "status" );
-					multi = canMultiUser ( object );
-
-					if ( status == Order.OPENED ) {
-						index = getSortedPosition ( object );
-						form = doOrderRow ( ord, multi );
-						insert ( form, index );
-					}
-					else if ( status == Order.CLOSED ) {
-						if ( multi == true ) {
-							index = getSortedPosition ( object );
-							form = doOrderRow ( ord, true );
-							closedOrderAlert ( form, true );
-							insert ( form, index );
-						}
-
-						/*
-							Se l'ordine e' chiuso e l'utente corrente non e' abilitato a
-							ritoccare le altrui quantita', il pannello puo' comunque
-							essere aggiunto all'arrivo del relativo OrderUser in
-							findAndAlign()
-						*/
-					}
-				}
-			}
-
-			public void onModify ( FromServer object ) {
-				int index;
-				int status;
-				FromServerRappresentation form;
-				FromServerForm f;
-
-				if ( object.getBool ( "parent_aggregate" ) == true ) {
-					form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-					if ( form != null ) {
-						if ( form instanceof FromServerForm )
-							onDestroy ( object );
-						else
-							form.refreshContents ( object );
-					}
-				}
-				else {
-					form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-					status = object.getInt ( "status" );
-
-					if ( form != null && form instanceof FromServerForm ) {
-						f = ( FromServerForm ) form;
-
-						if ( status == Order.OPENED ) {
-							closedOrderAlert ( f, false );
-							f.emblems ().activate ( "status", status );
-
-							/*
-								Il refresh dell'ordine serve sostanzialmente a correggere
-								l'intestazione del form qualora vengano cambiate le date
-								dell'ordine di riferimento
-							*/
-							form.refreshContents ( null );
-
-							syncProductsInForm ( form, object );
-						}
-						else if ( status == Order.CLOSED ) {
-							if ( canMultiUser ( object ) == true ) {
-								f.emblems ().activate ( "status", status );
-								closedOrderAlert ( f, true );
-							}
-							else {
-								/**
-									TODO	Questo non e' corretto: se l'ordine viene
-										chiuso repentinamente, e sono un utente
-										normale, non dovrebbe sparire dal pannello ma
-										diventare non editabile. Considerando che la
-										situazione e' ben rara al momento lo lascio
-										cosi', ma sarebbe da correggere prima o dopo
-								*/
-
-								f.invalidate ();
-								checkNoAvailableOrders ();
-							}
-						}
-						else {
-							f.invalidate ();
-							checkNoAvailableOrders ();
-						}
-					}
-					else if ( form != null && form instanceof OrderUserManager ) {
-						form.removeFromParent ();
-						if ( status == Order.OPENED )
-							onReceive ( object );
-					}
-					else {
-						/*
-							Questo per gestire il ben raro caso in
-							cui un ordine viene ri-aperto oppure
-							viene rimosso da un aggregato
-						*/
-						if ( status == Order.OPENED )
-							onReceive ( object );
-					}
-				}
-			}
-
-			public void onDestroy ( FromServer object ) {
-				FromServerRappresentation rappr;
-
-				rappr = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-				if ( rappr != null ) {
-					rappr.invalidate ();
-					checkNoAvailableOrders ();
-				}
-			}
-
-			protected String debugName () {
-				return "Order in OrdersPrivilegedPanel";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "OrderAggregate", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				int index;
-				int status;
-				FromServerForm form;
-
-				form = ( FromServerForm ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-				if ( form == null ) {
-					status = object.getInt ( "status" );
-
-					if ( status == Order.OPENED ) {
-						/*
-							N.B. la funzione doMultiOrderRow() provvede ad eliminare gli
-							Order che sono contemplati all'interno dell'aggregato, in
-							modo da evitare la doppia citazione, ma per questo motivo la
-							funzione getSortedPosition() deve necessariamente essere
-							chiamata dopo affinche' i controlli sulla posizione siano
-							effettuati sulla lista finali di voci che appaiono nel pannello
-						*/
-						form = doOrderRow ( object, true );
-						index = getSortedPosition ( object );
-						insert ( form, index );
-					}
-					else if ( status == Order.CLOSED ) {
-						if ( canMultiUser ( object ) == true ) {
-							form = doOrderRow ( object, true );
-							index = getSortedPosition ( object );
-							closedOrderAlert ( form, true );
-							insert ( form, index );
-						}
-					}
-				}
-			}
-
-			public void onModify ( FromServer object ) {
-				int index;
-				int status;
-				Order ord;
-				FromServerForm form;
-
-				form = ( FromServerForm ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-				status = object.getInt ( "status" );
-
-				if ( form != null ) {
-					if ( status == Order.OPENED ) {
-						closedOrderAlert ( form, false );
-
-						/*
-							Il refresh dell'ordine serve sostanzialmente a correggere
-							l'intestazione del form qualora vengano cambiate le date
-							dell'ordine di riferimento
-						*/
-						form.refreshContents ( null );
-
-						/*
-							TODO	Controllare se questo serve davvero...
-						*/
-						form.emblems ().activate ( "status", status );
-
-						syncProductsInForm ( form, object );
-					}
-					else if ( status == Order.CLOSED ) {
-						if ( canMultiUser ( object ) == true ) {
-							form.emblems ().activate ( "status", status );
-							closedOrderAlert ( form, true );
-						}
-						else {
-							/**
-								TODO	Questo non e' corretto: se l'ordine viene
-									chiuso repentinamente, e sono un utente
-									normale, non dovrebbe sparire dal pannello ma
-									diventare non editabile. Considerando che la
-									situazione e' ben rara al momento lo lascio
-									cosi', ma sarebbe da correggere prima o dopo
-							*/
-							form.invalidate ();
-							checkNoAvailableOrders ();
-						}
-					}
-					else {
-						form.invalidate ();
-						checkNoAvailableOrders ();
-					}
-				}
-				else {
-					/*
-						Questo per gestire il ben raro caso in cui un
-						ordine viene ri-aperto, oppure quando viene
-						escluso da un aggregato
-					*/
-					if ( status == Order.OPENED )
-						onReceive ( object );
-				}
-			}
-
-			public void onDestroy ( FromServer object ) {
-				ArrayList children;
-				FromServerRappresentation form;
-				FromServerRappresentation child;
-
-				form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
-				if ( form != null ) {
-					children = form.getChildren ();
-
-					/*
-						Non basta sperare nell'invalidazione in cascata del
-						FromServerRappresentation, in quanto i vari elementi qui
-						rappresentati hanno come oggetto di riferimento un OrderUser
-						assegnato all'ordine anziche' l'ordine stesso dunque invalidate(form)
-						non funge e dagli ordini non vengono correttamente rimossi i
-						riferimenti al form (forzati programmaticamente alla loro creazione).
-						Dunque devo ripassarmi a mano la lista degli ordini e togliere da
-						ciascuno il riferimento al form esistente
-					*/
-					for ( int i = 0; i < children.size (); i++ ) {
-						child = ( FromServerRappresentation ) children.get ( i );
-						child.getValue ().getObject ( "baseorder" ).delRelatedInfo ( "OrdersPrivilegedPanel" );
-					}
-
-					form.invalidate ();
-					checkNoAvailableOrders ();
-				}
-			}
-
-			protected String debugName () {
-				return "OrderAggregate in OrdersPrivilegedPanel";
-			}
-		} );
-
+		inited = false;
 		myself = this;
 	}
 
@@ -689,6 +391,310 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 	public void initView () {
 		ObjectRequest params;
+
+		if ( inited == false ) {
+			/**
+				TODO	Sarebbe cosa buona usare un FormGroup, ma c'e' da badare al fatto
+					che i form per i vari ordini sono di due tipi: editabile e non
+			*/
+
+			Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					findAndAlign ( ( OrderUser ) object, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					findAndAlign ( ( OrderUser ) object, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					findAndAlign ( ( OrderUser ) object, 2 );
+				}
+
+				protected String debugName () {
+					return "OrderUser in OrdersPrivilegedPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					findAndAlignAggregate ( ( OrderUserAggregate ) object, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					findAndAlignAggregate ( ( OrderUserAggregate ) object, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					findAndAlignAggregate ( ( OrderUserAggregate ) object, 2 );
+				}
+
+				protected String debugName () {
+					return "OrderUserAggregate in OrdersPrivilegedPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					int index;
+					int status;
+					boolean multi;
+					FromServerForm form;
+					Order ord;
+
+					if ( object.getBool ( "parent_aggregate" ) == true )
+						return;
+
+					if ( object.getRelatedInfo ( "OrdersPrivilegedPanel" ) == null ) {
+						ord = ( Order ) object;
+						status = object.getInt ( "status" );
+						multi = canMultiUser ( object );
+
+						if ( status == Order.OPENED ) {
+							index = getSortedPosition ( object );
+							form = doOrderRow ( ord, multi );
+							insert ( form, index );
+						}
+						else if ( status == Order.CLOSED ) {
+							if ( multi == true ) {
+								index = getSortedPosition ( object );
+								form = doOrderRow ( ord, true );
+								closedOrderAlert ( form, true );
+								insert ( form, index );
+							}
+
+							/*
+								Se l'ordine e' chiuso e l'utente corrente non e' abilitato a
+								ritoccare le altrui quantita', il pannello puo' comunque
+								essere aggiunto all'arrivo del relativo OrderUser in
+								findAndAlign()
+							*/
+						}
+					}
+				}
+
+				public void onModify ( FromServer object ) {
+					int index;
+					int status;
+					FromServerRappresentation form;
+					FromServerForm f;
+
+					if ( object.getBool ( "parent_aggregate" ) == true ) {
+						form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+						if ( form != null ) {
+							if ( form instanceof FromServerForm )
+								onDestroy ( object );
+							else
+								form.refreshContents ( object );
+						}
+					}
+					else {
+						form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+						status = object.getInt ( "status" );
+
+						if ( form != null && form instanceof FromServerForm ) {
+							f = ( FromServerForm ) form;
+
+							if ( status == Order.OPENED ) {
+								closedOrderAlert ( f, false );
+								f.emblems ().activate ( "status", status );
+
+								/*
+									Il refresh dell'ordine serve sostanzialmente a correggere
+									l'intestazione del form qualora vengano cambiate le date
+									dell'ordine di riferimento
+								*/
+								form.refreshContents ( null );
+
+								syncProductsInForm ( form, object );
+							}
+							else if ( status == Order.CLOSED ) {
+								if ( canMultiUser ( object ) == true ) {
+									f.emblems ().activate ( "status", status );
+									closedOrderAlert ( f, true );
+								}
+								else {
+									/**
+										TODO	Questo non e' corretto: se l'ordine viene
+											chiuso repentinamente, e sono un utente
+											normale, non dovrebbe sparire dal pannello ma
+											diventare non editabile. Considerando che la
+											situazione e' ben rara al momento lo lascio
+											cosi', ma sarebbe da correggere prima o dopo
+									*/
+
+									f.invalidate ();
+									checkNoAvailableOrders ();
+								}
+							}
+							else {
+								f.invalidate ();
+								checkNoAvailableOrders ();
+							}
+						}
+						else if ( form != null && form instanceof OrderUserManager ) {
+							form.removeFromParent ();
+							if ( status == Order.OPENED )
+								onReceive ( object );
+						}
+						else {
+							/*
+								Questo per gestire il ben raro caso in
+								cui un ordine viene ri-aperto oppure
+								viene rimosso da un aggregato
+							*/
+							if ( status == Order.OPENED )
+								onReceive ( object );
+						}
+					}
+				}
+
+				public void onDestroy ( FromServer object ) {
+					FromServerRappresentation rappr;
+
+					rappr = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+					if ( rappr != null ) {
+						rappr.invalidate ();
+						checkNoAvailableOrders ();
+					}
+				}
+
+				protected String debugName () {
+					return "Order in OrdersPrivilegedPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderAggregate", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					int index;
+					int status;
+					FromServerForm form;
+
+					form = ( FromServerForm ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+					if ( form == null ) {
+						status = object.getInt ( "status" );
+
+						if ( status == Order.OPENED ) {
+							/*
+								N.B. la funzione doMultiOrderRow() provvede ad eliminare gli
+								Order che sono contemplati all'interno dell'aggregato, in
+								modo da evitare la doppia citazione, ma per questo motivo la
+								funzione getSortedPosition() deve necessariamente essere
+								chiamata dopo affinche' i controlli sulla posizione siano
+								effettuati sulla lista finali di voci che appaiono nel pannello
+							*/
+							form = doOrderRow ( object, true );
+							index = getSortedPosition ( object );
+							insert ( form, index );
+						}
+						else if ( status == Order.CLOSED ) {
+							if ( canMultiUser ( object ) == true ) {
+								form = doOrderRow ( object, true );
+								index = getSortedPosition ( object );
+								closedOrderAlert ( form, true );
+								insert ( form, index );
+							}
+						}
+					}
+				}
+
+				public void onModify ( FromServer object ) {
+					int index;
+					int status;
+					Order ord;
+					FromServerForm form;
+
+					form = ( FromServerForm ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+					status = object.getInt ( "status" );
+
+					if ( form != null ) {
+						if ( status == Order.OPENED ) {
+							closedOrderAlert ( form, false );
+
+							/*
+								Il refresh dell'ordine serve sostanzialmente a correggere
+								l'intestazione del form qualora vengano cambiate le date
+								dell'ordine di riferimento
+							*/
+							form.refreshContents ( null );
+
+							/*
+								TODO	Controllare se questo serve davvero...
+							*/
+							form.emblems ().activate ( "status", status );
+
+							syncProductsInForm ( form, object );
+						}
+						else if ( status == Order.CLOSED ) {
+							if ( canMultiUser ( object ) == true ) {
+								form.emblems ().activate ( "status", status );
+								closedOrderAlert ( form, true );
+							}
+							else {
+								/**
+									TODO	Questo non e' corretto: se l'ordine viene
+										chiuso repentinamente, e sono un utente
+										normale, non dovrebbe sparire dal pannello ma
+										diventare non editabile. Considerando che la
+										situazione e' ben rara al momento lo lascio
+										cosi', ma sarebbe da correggere prima o dopo
+								*/
+								form.invalidate ();
+								checkNoAvailableOrders ();
+							}
+						}
+						else {
+							form.invalidate ();
+							checkNoAvailableOrders ();
+						}
+					}
+					else {
+						/*
+							Questo per gestire il ben raro caso in cui un
+							ordine viene ri-aperto, oppure quando viene
+							escluso da un aggregato
+						*/
+						if ( status == Order.OPENED )
+							onReceive ( object );
+					}
+				}
+
+				public void onDestroy ( FromServer object ) {
+					ArrayList children;
+					FromServerRappresentation form;
+					FromServerRappresentation child;
+
+					form = ( FromServerRappresentation ) object.getRelatedInfo ( "OrdersPrivilegedPanel" );
+					if ( form != null ) {
+						children = form.getChildren ();
+
+						/*
+							Non basta sperare nell'invalidazione in cascata del
+							FromServerRappresentation, in quanto i vari elementi qui
+							rappresentati hanno come oggetto di riferimento un OrderUser
+							assegnato all'ordine anziche' l'ordine stesso dunque invalidate(form)
+							non funge e dagli ordini non vengono correttamente rimossi i
+							riferimenti al form (forzati programmaticamente alla loro creazione).
+							Dunque devo ripassarmi a mano la lista degli ordini e togliere da
+							ciascuno il riferimento al form esistente
+						*/
+						for ( int i = 0; i < children.size (); i++ ) {
+							child = ( FromServerRappresentation ) children.get ( i );
+							child.getValue ().getObject ( "baseorder" ).delRelatedInfo ( "OrdersPrivilegedPanel" );
+						}
+
+						form.invalidate ();
+						checkNoAvailableOrders ();
+					}
+				}
+
+				protected String debugName () {
+					return "OrderAggregate in OrdersPrivilegedPanel";
+				}
+			} );
+
+			inited = true;
+		}
 
 		params = new ObjectRequest ( "Order" );
 		params.add ( "status", Order.OPENED );

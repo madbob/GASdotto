@@ -25,6 +25,7 @@ import com.google.gwt.event.dom.client.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class SuppliersEditPanel extends GenericPanel {
+	private boolean			inited;
 	private FormCluster		main;
 	private CheckBox		toggleHiddenView;
 
@@ -130,45 +131,10 @@ public class SuppliersEditPanel extends GenericPanel {
 			}
 		};
 
-		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				SuppliersPanel.sharedOrderManagement ( object, main, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				SuppliersPanel.sharedOrderManagement ( object, main, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				SuppliersPanel.sharedOrderManagement ( object, main, 2 );
-			}
-
-			protected String debugName () {
-				return "SuppliersEditPanel";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				SuppliersPanel.sharedOrderUserManagement ( object, main, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				SuppliersPanel.sharedOrderUserManagement ( object, main, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				SuppliersPanel.sharedOrderUserManagement ( object, main, 2 );
-			}
-
-			protected String debugName () {
-				return "SuppliersEditPanel";
-			}
-		} );
-
 		addTop ( Utils.getEmblemsCache ( "supplier" ).getLegend () );
 		addTop ( main );
 
+		inited = false;
 		doFilterOptions ();
 
 		Utils.getServer ().testObjectReceive ( "Supplier" );
@@ -489,6 +455,46 @@ public class SuppliersEditPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		if ( inited == false ) {
+			Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					SuppliersPanel.sharedOrderManagement ( object, main, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					SuppliersPanel.sharedOrderManagement ( object, main, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					SuppliersPanel.sharedOrderManagement ( object, main, 2 );
+				}
+
+				protected String debugName () {
+					return "SuppliersEditPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					SuppliersPanel.sharedOrderUserManagement ( object, main, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					SuppliersPanel.sharedOrderUserManagement ( object, main, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					SuppliersPanel.sharedOrderUserManagement ( object, main, 2 );
+				}
+
+				protected String debugName () {
+					return "SuppliersEditPanel";
+				}
+			} );
+
+			inited = true;
+		}
+
 		Utils.getServer ().testObjectReceive ( "Supplier" );
 	}
 }

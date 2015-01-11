@@ -24,6 +24,7 @@ import com.google.gwt.user.client.ui.*;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class DeliveryPanel extends GenericPanel {
+	private boolean		inited;
 	private boolean		hasOrders;
 	private FormGroup	main;
 	private OrdersHubWidget	filter;
@@ -55,172 +56,6 @@ public class DeliveryPanel extends GenericPanel {
 				return sdate.compareTo ( fdate );
 			}
 		};
-
-		Utils.getServer ().onObjectEvent ( "OrderAggregate", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				ArrayList orders;
-				FromServer tmp;
-
-				orders = object.getArray ( "orders" );
-				for ( int i = 0; i < orders.size (); i++ ) {
-					tmp = ( FromServer ) orders.get ( i );
-					main.deleteElement ( tmp );
-				}
-
-				addAndHide ( object );
-			}
-
-			public void onModify ( FromServer object ) {
-				main.updateElement ( object );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				String identifier;
-				ArrayList orders;
-				FromServer order;
-
-				identifier = main.getIdentifier ();
-				orders = Utils.getServer ().getObjectsFromCache ( "Order" );
-
-				for ( int i = 0; i < orders.size (); i++ ) {
-					order = ( FromServer ) orders.get ( i );
-					order.delRelatedInfo ( identifier );
-				}
-
-				main.deleteElement ( object );
-			}
-
-			protected String debugName () {
-				return "DeliveryPanel per OrderAggregate";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
-			public void onReceive ( FromServer object ) {
-				Supplier supp;
-
-				if ( object.getBool ( "parent_aggregate" ) == true && filter.isVisible () == false )
-					return;
-
-				supp = ( Supplier ) object.getObject ( "supplier" );
-				if ( supp.iAmReference () == false && supp.iAmCarrier () == false )
-					return;
-
-				addAndHide ( object );
-			}
-
-			public void onModify ( FromServer object ) {
-				int status;
-				int index;
-				OrderUser uord;
-				ArrayList uorders;
-				FromServerForm form;
-				FromServerForm f;
-				CashCount cash;
-
-				if ( object.getBool ( "parent_aggregate" ) == true ) {
-					onDestroy ( object );
-				}
-				else {
-					status = object.getInt ( "status" );
-					form = ( FromServerForm ) main.retrieveForm ( object );
-
-					if ( form == null ) {
-						main.putElement ( object );
-						form = ( FromServerForm ) main.retrieveForm ( object );
-					}
-
-					form.emblems ().activate ( "status", object.getInt ( "status" ) );
-
-					cash = ( CashCount ) form.retriveInternalWidget ( "cash" );
-					cash.clean ();
-
-					uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
-					for ( int i = 0; i < uorders.size (); i++ ) {
-						uord = ( OrderUser ) uorders.get ( i );
-						if ( uord.getObject ( "baseorder" ).equals ( object ) )
-							syncUserOrder ( form, uord, 0 );
-					}
-				}
-			}
-
-			public void onDestroy ( FromServer object ) {
-				FromServerRappresentation form;
-
-				form = main.retrieveForm ( object );
-				if ( form != null && form.getValue ().equals ( object ) )
-					main.deleteElement ( object );
-			}
-
-			protected String debugName () {
-				return "DeliveryPanel";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-			private void findAndDo ( FromServer uord, int action ) {
-				FromServer ord;
-				FromServerRappresentation form;
-
-				ord = uord.getObject ( "baseorder" );
-				if ( ord == null )
-					return;
-
-				if ( action == 0 && ord.getBool ( "parent_aggregate" ) == true )
-					return;
-
-				form = main.retrieveForm ( ord );
-				if ( form != null )
-					syncUserOrder ( form, ( OrderUser ) uord, action );
-			}
-
-			public void onReceive ( FromServer object ) {
-				findAndDo ( object, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				findAndDo ( object, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				findAndDo ( object, 2 );
-			}
-
-			protected String debugName () {
-				return "DeliveryPanel";
-			}
-		} );
-
-		Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
-			private void findAndDo ( FromServer uord, int action ) {
-				FromServer ord;
-				FromServerRappresentation form;
-
-				ord = uord.getObject ( "baseorder" );
-				if ( ord == null )
-					return;
-
-				form = main.retrieveForm ( ord );
-				if ( form != null )
-					syncUserOrder ( form, ( OrderUserAggregate ) uord, action );
-			}
-
-			public void onReceive ( FromServer object ) {
-				findAndDo ( object, 0 );
-			}
-
-			public void onModify ( FromServer object ) {
-				findAndDo ( object, 1 );
-			}
-
-			public void onDestroy ( FromServer object ) {
-				findAndDo ( object, 2 );
-			}
-
-			protected String debugName () {
-				return "DeliveryPanel";
-			}
-		} );
 
 		Utils.getServer ().onObjectEvent ( "User", new ServerObjectReceive () {
 			public void onReceive ( FromServer object ) {
@@ -255,6 +90,8 @@ public class DeliveryPanel extends GenericPanel {
 
 		hasOrders = false;
 		addTop ( new Label ( "Non ci sono ordini chiusi di cui effettuare consegne" ) );
+
+		inited = false;
 
 		doFilterOptions ();
 	}
@@ -557,6 +394,176 @@ public class DeliveryPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		if ( inited == false ) {
+			Utils.getServer ().onObjectEvent ( "OrderAggregate", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					ArrayList orders;
+					FromServer tmp;
+
+					orders = object.getArray ( "orders" );
+					for ( int i = 0; i < orders.size (); i++ ) {
+						tmp = ( FromServer ) orders.get ( i );
+						main.deleteElement ( tmp );
+					}
+
+					addAndHide ( object );
+				}
+
+				public void onModify ( FromServer object ) {
+					main.updateElement ( object );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					String identifier;
+					ArrayList orders;
+					FromServer order;
+
+					identifier = main.getIdentifier ();
+					orders = Utils.getServer ().getObjectsFromCache ( "Order" );
+
+					for ( int i = 0; i < orders.size (); i++ ) {
+						order = ( FromServer ) orders.get ( i );
+						order.delRelatedInfo ( identifier );
+					}
+
+					main.deleteElement ( object );
+				}
+
+				protected String debugName () {
+					return "DeliveryPanel per OrderAggregate";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					Supplier supp;
+
+					if ( object.getBool ( "parent_aggregate" ) == true && filter.isVisible () == false )
+						return;
+
+					supp = ( Supplier ) object.getObject ( "supplier" );
+					if ( supp.iAmReference () == false && supp.iAmCarrier () == false )
+						return;
+
+					addAndHide ( object );
+				}
+
+				public void onModify ( FromServer object ) {
+					int status;
+					int index;
+					OrderUser uord;
+					ArrayList uorders;
+					FromServerForm form;
+					FromServerForm f;
+					CashCount cash;
+
+					if ( object.getBool ( "parent_aggregate" ) == true ) {
+						onDestroy ( object );
+					}
+					else {
+						status = object.getInt ( "status" );
+						form = ( FromServerForm ) main.retrieveForm ( object );
+
+						if ( form == null ) {
+							main.putElement ( object );
+							form = ( FromServerForm ) main.retrieveForm ( object );
+						}
+
+						form.emblems ().activate ( "status", object.getInt ( "status" ) );
+
+						cash = ( CashCount ) form.retriveInternalWidget ( "cash" );
+						cash.clean ();
+
+						uorders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+						for ( int i = 0; i < uorders.size (); i++ ) {
+							uord = ( OrderUser ) uorders.get ( i );
+							if ( uord.getObject ( "baseorder" ).equals ( object ) )
+								syncUserOrder ( form, uord, 0 );
+						}
+					}
+				}
+
+				public void onDestroy ( FromServer object ) {
+					FromServerRappresentation form;
+
+					form = main.retrieveForm ( object );
+					if ( form != null && form.getValue ().equals ( object ) )
+						main.deleteElement ( object );
+				}
+
+				protected String debugName () {
+					return "DeliveryPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+				private void findAndDo ( FromServer uord, int action ) {
+					FromServer ord;
+					FromServerRappresentation form;
+
+					ord = uord.getObject ( "baseorder" );
+					if ( ord == null )
+						return;
+
+					if ( action == 0 && ord.getBool ( "parent_aggregate" ) == true )
+						return;
+
+					form = main.retrieveForm ( ord );
+					if ( form != null )
+						syncUserOrder ( form, ( OrderUser ) uord, action );
+				}
+
+				public void onReceive ( FromServer object ) {
+					findAndDo ( object, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					findAndDo ( object, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					findAndDo ( object, 2 );
+				}
+
+				protected String debugName () {
+					return "DeliveryPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
+				private void findAndDo ( FromServer uord, int action ) {
+					FromServer ord;
+					FromServerRappresentation form;
+
+					ord = uord.getObject ( "baseorder" );
+					if ( ord == null )
+						return;
+
+					form = main.retrieveForm ( ord );
+					if ( form != null )
+						syncUserOrder ( form, ( OrderUserAggregate ) uord, action );
+				}
+
+				public void onReceive ( FromServer object ) {
+					findAndDo ( object, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					findAndDo ( object, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					findAndDo ( object, 2 );
+				}
+
+				protected String debugName () {
+					return "DeliveryPanel";
+				}
+			} );
+
+			inited = true;
+		}
+
 		Utils.getServer ().testObjectReceive ( "OrderAggregate" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 		filter.doFilter ();

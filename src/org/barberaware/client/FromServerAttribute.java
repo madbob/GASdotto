@@ -122,6 +122,18 @@ public class FromServerAttribute {
 		addr = value;
 	}
 
+	public void setDefault () {
+		/*
+			Negli altri casi, il default viene gia' settato dal costruttore
+		*/
+		if ( type == FromServer.ARRAY )
+			setArray ( new ArrayList<FromServer> () );
+		else if ( type == FromServer.OBJECT )
+			setObject ( FromServerFactory.create ( attr.objectType.getName () ) );
+		else if ( type == FromServer.ADDRESS )
+			setAddress ( new Address () );
+	}
+
 	public void setValue ( FromServerAttribute cpy ) {
 		if ( type == FromServer.STRING || type == FromServer.LONGSTRING || type == FromServer.PERCENTAGE ) {
 			string = cpy.string;

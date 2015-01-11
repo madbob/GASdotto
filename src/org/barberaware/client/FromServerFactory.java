@@ -18,6 +18,7 @@
 package org.barberaware.client;
 
 import java.util.*;
+import java.lang.reflect.*;
 
 public class FromServerFactory {
 	private static HashMap<String, FromServer>	dummyInstances		= null;

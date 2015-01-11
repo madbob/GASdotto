@@ -562,8 +562,6 @@ public abstract class FromServer implements Comparator {
 		ServerHook server;
 
 		ret = null;
-		server = Utils.getServer ();
-
 		child = value.isObject ();
 
 		if ( child != null ) {
@@ -574,6 +572,7 @@ public abstract class FromServer implements Comparator {
 			child_id = value.isString ();
 
 			if ( child_id != null ) {
+				server = Utils.getServer ();
 				ret = server.getObjectFromCache ( attr.getClassName (),
 								Integer.parseInt ( child_id.stringValue () ) );
 			}
@@ -629,20 +628,7 @@ public abstract class FromServer implements Comparator {
 			value = obj.get ( k );
 
 			if ( value == null ) {
-				if ( attr.type == FromServer.INTEGER )
-					attr.setInt ( 0 );
-
-				else if ( attr.type == FromServer.FLOAT || attr.type == FromServer.PRICE )
-					attr.setFloat ( 0 );
-
-				else if ( attr.type == FromServer.ARRAY )
-					attr.setArray ( new ArrayList<FromServer> () );
-
-				else if ( attr.type == FromServer.OBJECT )
-					attr.setObject ( FromServerFactory.create ( attr.objectType.getName () ) );
-
-				else if ( attr.type == FromServer.ADDRESS )
-					attr.setAddress ( new Address () );
+				attr.setDefault ();
 			}
 			else {
 				if ( attr.type == FromServer.STRING ||

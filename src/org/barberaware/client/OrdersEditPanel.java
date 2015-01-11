@@ -40,7 +40,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 		HorizontalPanel filters;
 
-		main = new FormCluster ( "Order", "Nuovo Ordine" ) {
+		main = new FormCluster ( "Order", "Nuovo Ordine", true, true ) {
 				protected FromServerForm doEditableRow ( FromServer ord ) {
 					FromServerForm ret;
 
@@ -1021,6 +1021,7 @@ public class OrdersEditPanel extends GenericPanel {
 	}
 
 	public void initView () {
+		main.unlock ();
 		Utils.getServer ().testObjectReceive ( "OrderAggregate" );
 		Utils.getServer ().testObjectReceive ( "Order" );
 		Utils.getServer ().testObjectReceive ( "Supplier" );
