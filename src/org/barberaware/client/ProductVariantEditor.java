@@ -194,7 +194,7 @@ public class ProductVariantEditor extends DialogBox implements ObjectWidget, Sav
 	}
 
 	private void fireCallbacks () {
-		Utils.triggerSaveCallbacks ( callbacks, this, 1 );
+		Utils.triggerSaveCallbacks ( callbacks, this, 0 );
 	}
 
 	/****************************************************************** ObjectWidget */
