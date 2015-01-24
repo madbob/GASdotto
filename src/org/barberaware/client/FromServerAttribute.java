@@ -129,7 +129,7 @@ public class FromServerAttribute {
 		if ( type == FromServer.ARRAY )
 			setArray ( new ArrayList<FromServer> () );
 		else if ( type == FromServer.OBJECT )
-			setObject ( FromServerFactory.create ( attr.objectType.getName () ) );
+			setObject ( FromServerFactory.create ( objectType.getName () ) );
 		else if ( type == FromServer.ADDRESS )
 			setAddress ( new Address () );
 	}

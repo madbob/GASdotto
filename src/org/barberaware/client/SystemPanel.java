@@ -172,7 +172,7 @@ public class SystemPanel extends GenericPanel {
 		frame.addPair ( "Indirizzo Mailing List", ver.getPersonalizedWidget ( "mailinglist", mailList ) );
 		mailList.setEnabled ( Session.getGAS ().getBool ( "use_mail" ) );
 
-		frame.addPair ( "Luoghi di Consegna", ver.getWidget ( "use_shipping" ) );
+		frame.addPair ( "Luoghi di Consegna", "Da abilitare in caso di molteplici luoghi di consegna degli ordini, ogni utente potrà specificare il proprio", ver.getWidget ( "use_shipping" ) );
 		frame.addPair ( "Elenco Utenti", "Abilita il pannello dell'elenco utenti a tutti (in sola lettura) o solo agli amministratori", ver.getWidget ( "use_fullusers" ) );
 		frame.addPair ( "Accesso Limitato", "Quando abilitato, solo gli amministratori possono accedere all'istanza", ver.getWidget ( "emergency_access" ) );
 
@@ -182,7 +182,7 @@ public class SystemPanel extends GenericPanel {
 
 		return ver;
 	}
-	
+
 	private FromServerForm doAdministrationConfForm () {
 		FromServer gas;
 		FromServerForm ver;
@@ -203,7 +203,7 @@ public class SystemPanel extends GenericPanel {
 				*/
 				Window.Location.reload ();
 			}
-			
+
 			public String getName ( FromServerRappresentationFull form ) {
 				return "Configurazione Amministrativa";
 			}
@@ -221,7 +221,7 @@ public class SystemPanel extends GenericPanel {
 			}
 		} );
 		frame.addPair ( "Abilita Gestione Quote", ver.getPersonalizedWidget ( "payments", boolsel ) );
-		
+
 		feeConf = new FeeConfigurator ( gas );
 		frame.addPair ( "", feeConf );
 		ver.addChild ( feeConf );

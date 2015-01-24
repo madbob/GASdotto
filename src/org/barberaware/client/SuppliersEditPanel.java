@@ -20,6 +20,7 @@ package org.barberaware.client;
 import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
+import com.google.gwt.json.client.*;
 import com.google.gwt.event.dom.client.*;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -398,6 +399,29 @@ public class SuppliersEditPanel extends GenericPanel {
 			files = new FilesGroup ();
 			files_pan.add ( ver.getPersonalizedWidget ( "files", files ) );
 		}
+
+		ver.setCallback ( new FromServerFormCallbacks () {
+			public boolean onDelete ( FromServerRappresentationFull form ) {
+				FromServer supp;
+				OpenedOrdersList list;
+
+				list = ( OpenedOrdersList ) form.retriveInternalWidget ( "orders" );
+				if ( list.latestIterableIndex () != 0 ) {
+					supp = form.getValue ();
+					supp.setBool ( "hidden", true );
+					supp.save ( new ServerResponse () {
+						public void onComplete ( JSONValue response ) {
+							Utils.showNotification ( "Il fornitore non è stato eliminato ma nascosto, avendo degli ordini associati. Puoi recuperarlo con la funzione \"Fornitori Disattivati\"", Notification.INFO );
+						}
+					} );
+
+					return false;
+				}
+				else {
+					return true;
+				}
+			}
+		} );
 
 		tabs.selectTab ( 0 );
 		return ver;
