@@ -565,8 +565,17 @@ abstract class FromServer {
 				break;
 
 			case "INTEGER":
+				if ( $attr->value == '' )
+					$ret = '0';
+				else
+					$ret = $attr->value;
+				break;
+
 			case "BOOLEAN":
-				$ret = $attr->value;
+				if ( $attr->value == '' )
+					$ret = 'false';
+				else
+					$ret = $attr->value;
 				break;
 
 			case "FLOAT":

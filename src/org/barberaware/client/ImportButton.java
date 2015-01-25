@@ -111,6 +111,7 @@ public class ImportButton extends FileUploadDialog {
 		Request response;
 
 		builder = new RequestBuilder ( RequestBuilder.POST, Utils.getServer ().getURL () + "importer.php?action=" + action );
+		Utils.getServer ().loadingAlert ( true );
 
 		try {
 			response = builder.sendRequest ( originalResponse.toString (), new ServerResponse () {
@@ -118,6 +119,7 @@ public class ImportButton extends FileUploadDialog {
 					JSONString s;
 
 					s = response.isString ();
+					Utils.getServer ().loadingAlert ( false );
 
 					if ( s != null && s.stringValue () == "ok" )
 						Utils.showNotification ( "Importazione avvenuta", Notification.INFO );
@@ -125,6 +127,7 @@ public class ImportButton extends FileUploadDialog {
 			} );
 		}
 		catch ( RequestException e ) {
+			Utils.getServer ().loadingAlert ( false );
       			Utils.showNotification ( "Fallito invio richiesta: " + e.getMessage () );
 		}
 	}

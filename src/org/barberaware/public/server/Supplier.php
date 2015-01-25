@@ -77,12 +77,12 @@ class Supplier extends SharableFromServer {
 		$ret .= "\t<supplier>\n";
 		$ret .= "\t\t<taxCode>" . self::getAttribute ( 'tax_code' )->value . "</taxCode>\n";
 		$ret .= "\t\t<vatNumber>" . self::getAttribute ( 'vat_number' )->value . "</vatNumber>\n";
-		$ret .= "\t\t<name>" . self::getAttribute ( 'name' )->value . "</name>\n";
+		$ret .= "\t\t<name>" . htmlspecialchars ( self::getAttribute ( 'name' )->value ) . "</name>\n";
 
 		$address = self::getAttribute ( 'address' )->value;
 		$ret .= "\t\t<address>\n";
-		$ret .= "\t\t\t<street>" . $address->street . "</street>\n";
-		$ret .= "\t\t\t<locality>" . $address->city . "</locality>\n";
+		$ret .= "\t\t\t<street>" . htmlspecialchars ( $address->street ) . "</street>\n";
+		$ret .= "\t\t\t<locality>" . htmlspecialchars ( $address->city ) . "</locality>\n";
 		$ret .= "\t\t\t<zipCode>" . $address->cap . "</zipCode>\n";
 		$ret .= "\t\t\t<country>IT</country>\n";
 		$ret .= "\t\t</address>\n";
@@ -93,12 +93,12 @@ class Supplier extends SharableFromServer {
 		$ret .= "\t\t\t\t\t<phoneNumber>" . self::getAttribute ( 'phone' )->value . "</phoneNumber>\n";
 		$ret .= "\t\t\t\t\t<faxNumber>" . self::getAttribute ( 'fax' )->value . "</faxNumber>\n";
 		$ret .= "\t\t\t\t\t<emailAddress>" . self::getAttribute ( 'mail' )->value . "</emailAddress>\n";
-		$ret .= "\t\t\t\t\t<webSite>" . self::getAttribute ( 'website' )->value . "</webSite>\n";
+		$ret .= "\t\t\t\t\t<webSite>" . htmlspecialchars ( self::getAttribute ( 'website' )->value ) . "</webSite>\n";
 		$ret .= "\t\t\t\t</primary>\n";
 		$ret .= "\t\t\t</contact>\n";
 		$ret .= "\t\t</contacts>\n";
 
-		$ret .= "\t\t<note>" . join ( ' / ', array ( self::getAttribute ( 'order_mode' )->value, self::getAttribute ( 'paying_mode' )->value ) ) . "</note>\n";
+		$ret .= "\t\t<note>" . htmlspecialchars ( join ( ' / ', array ( self::getAttribute ( 'order_mode' )->value, self::getAttribute ( 'paying_mode' )->value ) ) ) . "</note>\n";
 
 		if ( array_key_exists ( 'products', $options ) == FALSE || $options [ 'products' ] === TRUE ) {
 			$r = new stdClass ();

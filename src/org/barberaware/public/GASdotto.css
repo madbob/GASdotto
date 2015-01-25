@@ -700,7 +700,7 @@ input, select {
 	width:			100%;
 }
 
-.gwt-CheckBox input {
+.gwt-CheckBox input, .gwt-RadioButton input {
 	width:			auto;
 }
 

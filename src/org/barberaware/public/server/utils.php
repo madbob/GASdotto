@@ -777,12 +777,15 @@ function exportable_products ( $products ) {
 		if ( property_exists ( $product, 'code' ) && $product->code != '' )
 			$ret .= "\t\t\t\t<sku>" . $product->code . "</sku>\n";
 
-		$ret .= "\t\t\t\t<name>" . $product->name . "</name>\n";
-		$ret .= "\t\t\t\t<category>" . $product->category->name . "</category>\n";
-		$ret .= "\t\t\t\t<um>" . $product->measure->name . "</um>\n";
+		$category = get_actual_object ( $product->category, 'Category' );
+		$measure = get_actual_object ( $product->measure, 'Measure' );
+
+		$ret .= "\t\t\t\t<name>" . htmlspecialchars ( $product->name ) . "</name>\n";
+		$ret .= "\t\t\t\t<category>" . htmlspecialchars ( $category->name ) . "</category>\n";
+		$ret .= "\t\t\t\t<um>" . htmlspecialchars ( $measure->name ) . "</um>\n";
 
 		if ( property_exists ( $product, 'description' ) && $product->description != '' )
-			$ret .= "\t\t\t\t<description>" . $product->description . "</description>\n";
+			$ret .= "\t\t\t\t<description>" . htmlspecialchars ( $product->description ) . "</description>\n";
 
 		$ret .= "\t\t\t\t<orderInfo>\n";
 
@@ -802,10 +805,10 @@ function exportable_products ( $products ) {
 			$ret .= "\t\t\t\t\t<variants>\n";
 
 			foreach ( $product->variants as $variant ) {
-				$ret .= "\t\t\t\t\t\t<variant name=\"" . $variant->name . "\">\n";
+				$ret .= "\t\t\t\t\t\t<variant name=\"" . htmlspecialchars ( $variant->name ) . "\">\n";
 
 				foreach ( $variant->values as $value )
-					$ret .= "\t\t\t\t\t\t\t<value>" . $value->name . "</value>\n";
+					$ret .= "\t\t\t\t\t\t\t<value>" . htmlspecialchars ( $value->name ) . "</value>\n";
 
 				$ret .= "\t\t\t\t\t\t</variant>\n";
 			}

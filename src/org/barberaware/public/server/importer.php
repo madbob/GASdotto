@@ -69,7 +69,7 @@ function decode_file ( $path ) {
 						if ( $tmp == null )
 							error_exit ( 'Contenuto file non valido' );
 						else
-							$tmp->import ( &$ret, $root->$name );
+							$tmp->import ( $ret, $root->$name );
 					}
 				}
 			}
