@@ -32,16 +32,16 @@ public abstract class FromServerAggregate extends FromServer {
 		writeBacks = new HashMap<String, WritebackInOutClosure> ();
 	}
 
-	public void setObjects ( ArrayList objects ) {
+	public void setObjects ( ArrayList<FromServer> objects ) {
 		setArray ( indexAttribute, objects );
 	}
 
-	public ArrayList getObjects () {
-		ArrayList ret;
+	public ArrayList<FromServer> getObjects () {
+		ArrayList<FromServer> ret;
 
 		ret = getArray ( indexAttribute );
 		if ( ret == null )
-			ret = new ArrayList ();
+			ret = new ArrayList<FromServer> ();
 
 		return ret;
 	}

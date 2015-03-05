@@ -149,6 +149,22 @@ public class Order extends FromServer implements OrderInterface {
 		return false;
 	}
 
+	public boolean hasOrdersUser () {
+		ArrayList cached_orders;
+		FromServer user_ord;
+		FromServer order;
+
+		cached_orders = Utils.getServer ().getObjectsFromCache ( "OrderUser" );
+		for ( int i = 0; i < cached_orders.size (); i++ ) {
+			user_ord = ( FromServer ) cached_orders.get ( i );
+			order = user_ord.getObject ( "baseorder" );
+			if ( order != null && order.getLocalID () == this.getLocalID () )
+				return true;
+		}
+
+		return false;
+	}
+
 	/****************************************************************** Comparator */
 
 	public int compare ( Object first, Object second ) {

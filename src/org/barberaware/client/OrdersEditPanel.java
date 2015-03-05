@@ -51,6 +51,33 @@ public class OrdersEditPanel extends GenericPanel {
 					else
 						ret = null;
 
+					if ( ret != null ) {
+						ret.setCallback ( new FromServerFormCallbacks () {
+							public boolean onDelete ( FromServerRappresentationFull form ) {
+								FromServer realord;
+								OrderInterface ord;
+
+								ord = ( OrderInterface ) form.getValue ();
+
+								if ( ord.hasOrdersUser () ) {
+									realord = form.getValue ();
+									realord.setInt ( "status", Order.SHIPPED );
+									realord.save ( new ServerResponse () {
+										public void onComplete ( JSONValue response ) {
+											Utils.showNotification ( "L'ordine non è stato eliminato ma marcato come consegnato, avendo degli ordini associati. Puoi recuperarlo con la funzione \"Modalità Ricerca Ordini\"", Notification.INFO );
+										}
+									} );
+
+									main.deleteElement ( realord );
+									return false;
+								}
+								else {
+									return true;
+								}
+							}
+						} );
+					}
+
 					return ret;
 				}
 
@@ -391,7 +418,7 @@ public class OrdersEditPanel extends GenericPanel {
 		aggregator = new OrdersAggregator ();
 		aggregator.addDomHandler ( new ChangeHandler () {
 			public void onChange ( ChangeEvent event ) {
-				aggregateToggle.setChecked ( false );
+				aggregateToggle.setValue ( false );
 				container.showWidget ( 0 );
 				filter.setVisible ( true );
 			}
@@ -420,13 +447,13 @@ public class OrdersEditPanel extends GenericPanel {
 				public void onComplete ( JSONValue response ) {
 					int num_products;
 					ArrayList products;
-					ArrayList final_products;
+					ArrayList<FromServer> final_products;
 					FromServer prod;
 					FromServerTable table;
 
 					Utils.getServer ().responseToObjects ( response );
 
-					final_products = new ArrayList ();
+					final_products = new ArrayList<FromServer> ();
 					products = Utils.getServer ().getObjectsFromCache ( "Product" );
 					num_products = products.size ();
 
@@ -714,7 +741,7 @@ public class OrdersEditPanel extends GenericPanel {
 
 						container.addTableListener ( new TableListener () {
 							public void onCellClicked ( SourcesTableEvents sender, int row, int cell ) {
-								ArrayList products;
+								ArrayList<FromServer> products;
 								FlexTable tab;
 								Hidden hidden;
 								FromServer order;

@@ -21,8 +21,8 @@ import java.util.*;
 
 public interface FromServerArray {
 	public void addElement ( FromServer element );
-	public void setElements ( ArrayList elements );
+	public void setElements ( ArrayList<FromServer> elements );
 	public void removeElement ( FromServer element );
-	public ArrayList getElements ();
+	public ArrayList<FromServer> getElements ();
 	public void refreshElement ( FromServer element );
 }

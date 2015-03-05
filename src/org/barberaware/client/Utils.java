@@ -269,17 +269,17 @@ public class Utils {
 
 	/****************************************************** datatype */
 
-	public static ArrayList duplicateFromServerArray ( ArrayList array ) {
+	public static ArrayList<FromServer> duplicateFromServerArray ( ArrayList<FromServer> array ) {
 		FromServer iter;
 		ArrayList ret;
 
 		if ( array == null )
 			return null;
 
-		ret = new ArrayList ();
+		ret = new ArrayList<FromServer> ();
 
 		for ( int i = 0; i < array.size (); i++ ) {
-			iter = ( FromServer ) array.get ( i );
+			iter = array.get ( i );
 			ret.add ( iter.duplicate () );
 		}
 
@@ -314,8 +314,8 @@ public class Utils {
 		return true;
 	}
 
-	public static ArrayList sortArrayByName ( ArrayList array ) {
-		ArrayList ret;
+	public static ArrayList<FromServer> sortArrayByName ( ArrayList<FromServer> array ) {
+		ArrayList<FromServer> ret;
 
 		ret = Utils.duplicateFromServerArray ( array );
 		Collections.sort ( ret, new Comparator () {

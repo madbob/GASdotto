@@ -61,7 +61,7 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 			}
 		} );
 
-		addFakeAttribute ( "status", FromServer.INTEGER, new ValueFromObjectClosure () {
+		addWritebackFakeAttribute ( "status", FromServer.INTEGER, new WritebackInOutClosure () {
 			public int retriveInteger ( FromServer obj ) {
 				int ret;
 				int check;
@@ -304,14 +304,29 @@ public class OrderAggregate extends FromServerAggregate implements OrderInterfac
 	}
 
 	public boolean hasProduct ( Product product ) {
-		ArrayList orders;
-		Order iter;
+		ArrayList<FromServer> orders;
+		Order child;
 
-		orders = this.getArray ( "orders" );
+		orders = getObjects ();
 
-		for ( int i = 0; i < orders.size (); i++ ) {
-			iter = ( Order ) orders.get ( i );
-			if ( iter.hasProduct ( product ) )
+		for ( FromServer iter : orders ) {
+			child = ( Order ) iter;
+			if ( child.hasProduct ( product ) )
+				return true;
+		}
+
+		return false;
+	}
+
+	public boolean hasOrdersUser () {
+		ArrayList<FromServer> orders;
+		Order child;
+
+		orders = getObjects ();
+
+		for ( FromServer iter : orders ) {
+			child = ( Order ) iter;
+			if ( child.hasOrdersUser () )
 				return true;
 		}
 
