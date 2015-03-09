@@ -173,6 +173,7 @@ public class ProductUserSelector extends Composite implements ObjectWidget {
 
 					if ( freeEditable == false ) {
 						val = prod.getFloat ( "minimum_order" );
+
 						if ( val != 0 && input < val ) {
 							Utils.showNotification ( "La quantità specificata è inferiore al minimo consentito" );
 							undoChange ();

@@ -370,20 +370,21 @@ class BankMovement extends FromServer {
 		return parent::getByQuery ( $request, $compress, $query );
 	}
 
+	/*
+		Con $offset == -1 vengono pescati ed elaborati tutti i movimenti,
+		se $offset != -1 viene trattato solo un blocco di 1000 alla volta
+	*/
 	public function fix ( $offset, $date = null ) {
 		global $current_gas;
 
-		if ( $offset == -1 ) {
-			$page = -1;
-			$query_limit = '';
-		}
-		else {
-			$slice = 1000;
-			$page = $offset * $slice;
-			$query_limit = " LIMIT $slice OFFSET $page";
-		}
+		$slice = 1000;
 
-		if ( $offset == 0 || $offset == -1 ) {
+		if ( $offset == -1 )
+			$query_limit = '';
+		else
+			$query_limit = " LIMIT $slice";
+
+		if ( $offset == 0 ) {
 			$query = sprintf ( "UPDATE Users SET current_balance = last_balance " . $this->filter_by_current_gas ( 'id' ) );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
@@ -400,9 +401,9 @@ class BankMovement extends FromServer {
 		*/
 
 		if ( $date == null )
-			$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true ORDER BY date $query_limit", $this->tablename );
+			$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true ORDER BY id $query_limit", $this->tablename );
 		else
-			$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true AND date < '$date' ORDER BY date $query_limit", $this->tablename );
+			$query = sprintf ( "SELECT * FROM %s WHERE amount != 0 AND obsolete != true AND date < '$date' ORDER BY id $query_limit", $this->tablename );
 
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
@@ -410,9 +411,17 @@ class BankMovement extends FromServer {
 			return 'done';
 		}
 		else {
+			$ids = array ();
+
 			while ( $row = $returned->fetch ( PDO::FETCH_ASSOC ) ) {
 				$this->manageSums ( $row [ 'movementtype' ], $row [ 'method' ], $row [ 'amount' ], $row [ 'payuser' ], $row [ 'paysupplier' ], false );
+				$ids [] = $row [ 'id' ];
 				unset ( $row );
+			}
+
+			if ( $offset != -1 ) {
+				$query = sprintf ( "UPDATE %s SET obsolete = true WHERE id IN (" . join ( ',', $ids ) . ")", $this->tablename );
+				query_and_check ( $query, "Impossibile aggiornare movimenti " . $this->classname );
 			}
 
 			return $offset + 1;
@@ -429,37 +438,41 @@ class BankMovement extends FromServer {
 		  solo i movimenti non marcati nel passo precedente (e dunque
 		  piu' recenti)
 	*/
-	public function close ( $date ) {
+	public function close ( $offset, $date ) {
 		global $current_gas;
 
-		$this->fix ( -1, $date );
+		$r = $this->fix ( $offset, $date );
+		if ( $r == 'done' ) {
+			/*
+				TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
+					esplicitando nell'oggetto a quale gruppo fa riferimento
+			*/
 
-		/*
-			TODO	i movimenti bancari devono essere isolati per GAS, sfruttando il meccanismo di ACL o
-				esplicitando nell'oggetto a quale gruppo fa riferimento
-		*/
+			/*
+				Salto i movimenti con amount = 0, considerati comunque insignificanti.
+				Nella maggior parte dei casi sono placeholders assegnati in giro, che assumeranno
+				significato solo in una data successiva e dunque da non considerare in questa
+				chiusura di saldo
+			*/
+			$query = sprintf ( "UPDATE BankMovement SET obsolete = true WHERE date < '$date' AND amount != 0" );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		/*
-			Salto i movimenti con amount = 0, considerati comunque insignificanti.
-			Nella maggior parte dei casi sono placeholders assegnati in giro, che assumeranno
-			significato solo in una data successiva e dunque da non considerare in questa
-			chiusura di saldo
-		*/
-		$query = sprintf ( "UPDATE BankMovement SET obsolete = true WHERE date < '$date' AND amount != 0" );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+			$query = sprintf ( "UPDATE Users SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		$query = sprintf ( "UPDATE Users SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+			$query = sprintf ( "UPDATE Supplier SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		$query = sprintf ( "UPDATE Supplier SET last_balance = current_balance WHERE current_balance != 0 " . $this->filter_by_current_gas ( 'id' ) );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+			$query = sprintf ( "UPDATE GAS SET last_balance = current_balance, last_cash_balance = current_cash_balance, last_bank_balance = current_bank_balance, last_orders_balance = current_orders_balance, last_deposit_balance = current_deposit_balance, last_balance_date = '$date' WHERE id = $current_gas" );
+			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
-		$query = sprintf ( "UPDATE GAS SET last_balance = current_balance, last_cash_balance = current_cash_balance, last_bank_balance = current_bank_balance, last_orders_balance = current_orders_balance, last_deposit_balance = current_deposit_balance, last_balance_date = '$date' WHERE id = $current_gas" );
-		query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
+			$this->fix ( -1, null );
 
-		$this->fix ( -1, null );
-
-		return 'done';
+			return 'done';
+		}
+		else {
+			echo $r;
+		}
 	}
 }
 

@@ -41,20 +41,33 @@ public class BankCloseBalanceDialog extends PasswordValidateDialog {
 	}
 
 	protected void confirmedExecution () {
-		String d;
+		final String d;
+		Date dat;
+		RequestCallback myCallback;
 
-		d = Utils.encodeDate ( date.getValue () );
+		dat = date.getValue ();
+		if ( dat != null )
+			d = Utils.encodeDate ( null );
+		else
+			d = Utils.encodeDate ( new Date ( System.currentTimeMillis () ) );
 
-		Utils.getServer ().rawGet ( "bank_op.php?type=close&date=" + d, new RequestCallback () {
+		myCallback = new RequestCallback () {
 			public void onError ( Request request, Throwable exception ) {
 				Utils.showNotification ( "Errore sulla connessione: accertarsi che il server sia raggiungibile" );
 			}
 
 			public void onResponseReceived ( Request request, Response response ) {
-				if ( response.getText () == "done" )
+				String res;
+
+				res = response.getText ();
+				if ( res == "done" )
 					Window.Location.reload ();
+				else
+					Utils.getServer ().rawGet ( "bank_op.php?type=close&date=" + d + "&offset=" + res, this );
 			}
-		} );
+		};
+
+		Utils.getServer ().rawGet ( "bank_op.php?type=close&date=" + d, myCallback );
 	}
 }
 
