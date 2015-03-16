@@ -561,9 +561,11 @@ function aggregate_variants ( $variants ) {
 				*/
 
 				$var_comp = $var->components [ $i ];
+				$val = get_actual_object ( $var_comp->value->id, 'ProductVariantValue' );
 				$test_comp = $test->components [ $i ];
+				$testval = get_actual_object ( $test_comp->value->id, 'ProductVariantValue' );
 
-				if ( $var_comp->value->id != $test_comp->value->id ) {
+				if ( $val->id != $testval->id ) {
 					$equals = false;
 					break;
 				}
@@ -579,7 +581,8 @@ function aggregate_variants ( $variants ) {
 
 		if ( $exists == false ) {
 			$tmp_variants [] = $var;
-			$ret_quantities [] = 1;
+			$i = count ( $tmp_variants ) - 1;
+			$ret_quantities [ $i ] = 1;
 		}
 		else {
 			$ret_quantities [ $i ] = $ret_quantities [ $i ] + 1;
@@ -591,8 +594,11 @@ function aggregate_variants ( $variants ) {
 	foreach ( $tmp_variants as $var ) {
 		$desc = array ();
 
-		foreach ( $var->components as $comp )
-			$desc [] = $comp->variant->name . ': ' . $comp->value->name;
+		foreach ( $var->components as $comp ) {
+			$var = get_actual_object ( $comp->variant, 'ProductVariant' );
+			$val = get_actual_object ( $comp->value, 'ProductVariantValue' );
+			$desc [] = $var->name . ': ' . $val->name;
+		}
 
 		$ret_variants [] = join ( '; ', $desc );
 		unset ( $desc );
