@@ -21,6 +21,8 @@ import java.util.*;
 import com.google.gwt.user.client.*;
 import com.google.gwt.user.client.ui.*;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 public class DateViewer extends Label implements DateWidget {
 	private boolean		doHour			= false;
 	private Date		currentDate		= null;

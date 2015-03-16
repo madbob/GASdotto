@@ -213,7 +213,7 @@ public class DeliverySummary extends Composite {
 			products.setValue ( ( OrderUser ) uorder );
 			row.add ( products );
 			row.addChild ( products );
-			row.setWrap ( products );
+			// row.setWrap ( products );
 		}
 		else if ( uorder instanceof OrderUserAggregate ) {
 			addAllSubOrders ( uord, row );

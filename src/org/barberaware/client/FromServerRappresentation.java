@@ -256,7 +256,7 @@ public abstract class FromServerRappresentation extends Composite implements Obj
 
 					if ( child.getValue ().equals ( subobj ) ) {
 						found = true;
-						break;					
+						break;
 					}
 				}
 
