@@ -398,42 +398,6 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					che i form per i vari ordini sono di due tipi: editabile e non
 			*/
 
-			Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
-				public void onReceive ( FromServer object ) {
-					findAndAlign ( ( OrderUser ) object, 0 );
-				}
-
-				public void onModify ( FromServer object ) {
-					findAndAlign ( ( OrderUser ) object, 1 );
-				}
-
-				public void onDestroy ( FromServer object ) {
-					findAndAlign ( ( OrderUser ) object, 2 );
-				}
-
-				protected String debugName () {
-					return "OrderUser in OrdersPrivilegedPanel";
-				}
-			} );
-
-			Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
-				public void onReceive ( FromServer object ) {
-					findAndAlignAggregate ( ( OrderUserAggregate ) object, 0 );
-				}
-
-				public void onModify ( FromServer object ) {
-					findAndAlignAggregate ( ( OrderUserAggregate ) object, 1 );
-				}
-
-				public void onDestroy ( FromServer object ) {
-					findAndAlignAggregate ( ( OrderUserAggregate ) object, 2 );
-				}
-
-				protected String debugName () {
-					return "OrderUserAggregate in OrdersPrivilegedPanel";
-				}
-			} );
-
 			Utils.getServer ().onObjectEvent ( "Order", new ServerObjectReceive () {
 				public void onReceive ( FromServer object ) {
 					int index;
@@ -690,6 +654,42 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 
 				protected String debugName () {
 					return "OrderAggregate in OrdersPrivilegedPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderUser", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					findAndAlign ( ( OrderUser ) object, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					findAndAlign ( ( OrderUser ) object, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					findAndAlign ( ( OrderUser ) object, 2 );
+				}
+
+				protected String debugName () {
+					return "OrderUser in OrdersPrivilegedPanel";
+				}
+			} );
+
+			Utils.getServer ().onObjectEvent ( "OrderUserAggregate", new ServerObjectReceive () {
+				public void onReceive ( FromServer object ) {
+					findAndAlignAggregate ( ( OrderUserAggregate ) object, 0 );
+				}
+
+				public void onModify ( FromServer object ) {
+					findAndAlignAggregate ( ( OrderUserAggregate ) object, 1 );
+				}
+
+				public void onDestroy ( FromServer object ) {
+					findAndAlignAggregate ( ( OrderUserAggregate ) object, 2 );
+				}
+
+				protected String debugName () {
+					return "OrderUserAggregate in OrdersPrivilegedPanel";
 				}
 			} );
 
