@@ -561,9 +561,9 @@ function aggregate_variants ( $variants ) {
 				*/
 
 				$var_comp = $var->components [ $i ];
-				$val = get_actual_object ( $var_comp->value->id, 'ProductVariantValue' );
+				$val = get_actual_object ( $var_comp->value, 'ProductVariantValue' );
 				$test_comp = $test->components [ $i ];
-				$testval = get_actual_object ( $test_comp->value->id, 'ProductVariantValue' );
+				$testval = get_actual_object ( $test_comp->value, 'ProductVariantValue' );
 
 				if ( $val->id != $testval->id ) {
 					$equals = false;

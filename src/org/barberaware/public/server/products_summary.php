@@ -58,8 +58,8 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 
 				if ( count ( $references [ $e ] [ 1 ] ) == 0 ) {
 					foreach ( $v->components as $c ) {
-						$references [ $e ] [ 1 ] [] = $c->variant->id;
-						$references [ $e ] [ 2 ] [] = $c->value->id;
+						$references [ $e ] [ 1 ] [] = get_actual_id ( $c->variant );
+						$references [ $e ] [ 2 ] [] = get_actual_id ( $c->value );
 						$found = true;
 					}
 				}
@@ -70,8 +70,8 @@ function manage_product ( $prod, $prod_user, &$references, $a ) {
 					for ( $z = 0; $z < count ( $comps ); $z++ ) {
 						$c = $comps [ $z ];
 
-						if ( $references [ $e ] [ 1 ] [ $z ] != $c->variant->id ||
-								$references [ $e ] [ 2 ] [ $z ] != $c->value->id ) {
+						if ( $references [ $e ] [ 1 ] [ $z ] != get_actual_id ( $c->variant ) ||
+								$references [ $e ] [ 2 ] [ $z ] != get_actual_id ( $c->value ) ) {
 							$found = false;
 							break;
 						}
