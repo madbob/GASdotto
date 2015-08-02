@@ -384,7 +384,7 @@ class BankMovement extends FromServer {
 		else
 			$query_limit = " LIMIT $slice";
 
-		if ( $offset == 0 ) {
+		if ( $offset == -1 || $offset == 0 ) {
 			$query = sprintf ( "UPDATE Users SET current_balance = last_balance " . $this->filter_by_current_gas ( 'id' ) );
 			query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 

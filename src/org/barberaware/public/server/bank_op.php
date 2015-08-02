@@ -28,9 +28,8 @@ $type = require_param ( 'type' );
 switch ( $type ) {
 	case 'fix':
 		$offset = require_param ( 'offset' );
-		$date = require_param ( 'date' );
 		$tmp = new BankMovement ();
-		echo $tmp->close ( $offset, $date );
+		echo $tmp->fix ( $offset, $date, null );
 		break;
 
 	case 'close':
@@ -42,4 +41,3 @@ switch ( $type ) {
 }
 
 exit ( 0 );
-

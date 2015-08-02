@@ -295,8 +295,20 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 							ordaggr.removeMyself ();
 						}
 
-						if ( aggr.isValid () )
+						if ( aggr.isValid () ) {
+							ArrayList orders;
+							Order child_ord;
+
+							orders = aggr.getArray ( "orders" );
+
+							for ( int a = 0; a < orders.size (); a++ ) {
+								child_ord = ( Order ) orders.get ( a );
+								child_ord.setBool ( "parent_aggregate", false );
+								child_ord.save ( null );
+							}
+
 							aggr.destroy ( null );
+						}
 					}
 					else {
 						aggr.save ( new ServerResponse () {
