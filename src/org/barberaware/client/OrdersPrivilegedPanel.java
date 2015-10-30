@@ -204,6 +204,15 @@ public class OrdersPrivilegedPanel extends GenericPanel {
 					return false;
 
 				filterEmptyOrders ( obj );
+
+				if ( obj.getObject ( "payment_event" ) == null ) {
+					BankMovement movement;
+
+					movement = new BankMovement ();
+					movement.setInt ( "movementtype", BankMovement.ORDER_USER_PAYMENT );
+					obj.setObject ( "payment_event", movement );
+				}
+
 				return true;
 			}
 

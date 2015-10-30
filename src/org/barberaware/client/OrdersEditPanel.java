@@ -90,6 +90,7 @@ public class OrdersEditPanel extends GenericPanel {
 					Date now;
 					FromServerSelector suppliers;
 					DateWidget date;
+					BankMovement movement;
 
 					suppliers = new FromServerSelector ( "Supplier", true, true, false );
 					suppliers.addFilter ( new FromServerValidateCallback () {
@@ -173,6 +174,10 @@ public class OrdersEditPanel extends GenericPanel {
 					date.setValue ( now );
 
 					addStaticProductsList ( ver, suppliers );
+
+					movement = new BankMovement ();
+					movement.setInt ( "movementtype", BankMovement.ORDER_PAYMENT );
+					order.setObject ( "payment_event", movement );
 
 					return ver;
 				}
