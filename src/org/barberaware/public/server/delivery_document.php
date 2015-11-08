@@ -189,6 +189,13 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 					$measure = $prod->getAttribute ( "measure" )->value;
 					$q = ( comma_format ( $q ) ) . ' ' . ( $measure->getAttribute ( "name" )->value );
 				}
+
+				if ( count ( $variants ) != 0 ) {
+					list ( $variants, $quantities ) = aggregate_variants ( $variants );
+
+					for ( $j = 0; $j < count ( $variants ); $j++ )
+						$q .= $content_sep . ( $quantities [ $j ] ) . ' ' . ( $variants [ $j ] );
+				}
 			}
 
 			$quprice = ( $quantity * $uprice );
