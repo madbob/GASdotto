@@ -47,8 +47,22 @@ class SystemConf extends FromServer {
 	}
 
 	private function probe_multigas () {
-		$query = "FROM Users WHERE privileges = 4";
-		return ( db_row_count ( $query ) > 0 );
+		global $db;
+
+		/*
+			In alcune circostanze SystemConf può essere
+			inizializzato anche senza una connessione al database,
+			magari per leggere la versione attuale del codice.
+			In tali casi, ignoro i parametri leggibili solo dal
+			database stesso e faccio finta di niente.
+		*/
+		if ( $db != null ) {
+			$query = "FROM Users WHERE privileges = 4";
+			return ( db_row_count ( $query ) > 0 );
+		}
+		else {
+			return false;
+		}
 	}
 
 	public function get ( $request, $compress ) {

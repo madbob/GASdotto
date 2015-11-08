@@ -36,9 +36,21 @@ function local_query_and_check ( $query, $error ) {
 }
 
 function linking_table_query ( $obj, $name, $objtype ) {
-	$tmp = new $objtype;
-	return sprintf ( 'CREATE TABLE %s_%s ( parent int references %s (id), target int references %s (id) )',
-				$obj->tablename, $name, $obj->tablename, $tmp->tablename );
+	global $db;
+
+	$mix_table = sprintf ( "%s_%s", $obj->tablename, $name );
+
+	$query = 'SELECT * FROM ' . $mix_table . ' ORDER BY id LIMIT 1';
+	$ret = $db->query ( $query );
+
+	if ( $ret == false ) {
+		$tmp = new $objtype;
+		return sprintf ( 'CREATE TABLE %s ( parent int references %s (id), target int references %s (id) )',
+					$mix_table, $obj->tablename, $tmp->tablename );
+	}
+	else {
+		return null;
+	}
 }
 
 function update_column ( $table, $column, $type ) {
@@ -118,11 +130,7 @@ function check_type ( $correct_type, $t ) {
 	global $dbdriver;
 
 	$change = null;
-
-	if ( strstr ( $correct_type, '::' ) == false )
-		$type = $correct_type;
-	else
-		list ( $type, $objtype ) = explode ( "::", $correct_type );
+	list ( $type, $objtype ) = unpack_type ( $correct_type );
 
 	switch ( $type ) {
 		case "STRING":
@@ -180,6 +188,13 @@ function check_type ( $correct_type, $t ) {
 	return $change;
 }
 
+function unpack_type ( $datatype ) {
+	if ( strstr ( $datatype, '::' ) == false )
+		return [ $datatype, null ];
+	else
+		return explode ( "::", $datatype );
+}
+
 function create_table_class ( $obj ) {
 	$columns = array ();
 	$extras = array ();
@@ -191,28 +206,19 @@ function create_table_class ( $obj ) {
 		if ( $attr->name == 'id' )
 			continue;
 
-		if ( strstr ( $attr->type, '::' ) == false ) {
-			$type = $attr->type;
-			$objtype = null;
-		}
-		else {
-			list ( $type, $objtype ) = explode ( "::", $attr->type );
-		}
+		list ( $type, $objtype ) = unpack_type ( $attr->type );
 
-		if ( $type == 'ARRAY' ) {
-			$tmp = new $objtype;
-			$extras [] = linking_table_query ( $obj, $attr->name, $objtype );
-		}
-		else {
+		/*
+			Vengono deliberatamente saltate le relazioni con altri tipi.
+			Cfr. check_db_schema() per maggiori dettagli
+		*/
+
+		if ( $type != 'ARRAY' && $type != 'OBJECT' )
 			$columns [] = $attr->name . ' ' . map_type ( $type, $objtype, true );
-		}
 	}
 
 	$query .= ( join ( ', ', $columns ) ) . ' )';
 	local_query_and_check ( $query, "Impossibile creare nuova tabella" );
-
-	foreach ( $extras as $extra )
-		local_query_and_check ( $extra, "Impossibile eseguire query di supporto a creazione nuova tabella" );
 
 	$obj->install ();
 }
@@ -276,13 +282,7 @@ function test_class ( $class ) {
 				}
 
 			if ( $ok == false ) {
-				if ( strstr ( $attr->type, '::' ) == false ) {
-					$type = $attr->type;
-					$objtype = null;
-				}
-				else {
-					list ( $type, $objtype ) = explode ( '::', $attr->type );
-				}
+				list ( $type, $objtype ) = unpack_type ( $attr->type );
 
 				if ( $type == 'ARRAY' ) {
 					$query = sprintf ( 'SELECT * FROM %s_%s ORDER BY parent LIMIT 1', $obj->tablename, $attr->name );
@@ -290,7 +290,8 @@ function test_class ( $class ) {
 
 					if ( $subret == false ) {
 						$query = linking_table_query ( $obj, $attr->name, $objtype );
-						local_query_and_check ( $query, "Impossibile creare tabella di collegamento" );
+						if ( $query != null )
+							local_query_and_check ( $query, "Impossibile creare tabella di collegamento" );
 					}
 				}
 				else {
@@ -426,12 +427,7 @@ function check_manual_columns ( $tablename, $columns, $ret ) {
 
 		if ( $ok == false ) {
 			$type = $columns [ $i + 1 ];
-
-			if ( strstr ( $type, '::' ) == false )
-				$type = $type;
-			else
-				list ( $type, $objtype ) = explode ( '::', $type );
-
+			list ( $type, $objtype ) = unpack_type ( $type );
 			$type = map_type ( $type, $objtype, true );
 			$query = sprintf ( 'ALTER TABLE %s ADD COLUMN %s %s', $tablename, $columns [ $i ], $type );
 			local_query_and_check ( $query, "Impossibile aggiungere colonna" );
@@ -499,43 +495,66 @@ function test_static_tables () {
 }
 
 function check_db_schema () {
-	test_class ( 'GAS' );
-	test_class ( 'ShippingPlace' );
-	test_class ( 'BankMovementType' );
-	test_class ( 'BankMovement' );
-	migrate_table ( 'User' );
-	test_class ( 'User' );
-	test_class ( 'CustomFile' );
-	test_class ( 'Notification' );
-	test_class ( 'Link' );
-	test_class ( 'Supplier' );
-	test_class ( 'Measure' );
-	test_class ( 'Category' );
-	test_class ( 'ProductVariantValue' );
-	test_class ( 'ProductVariant' );
-	test_class ( 'Product' );
-	test_class ( 'Order' );
-	test_class ( 'OrderAggregate' );
-	test_class ( 'ProductUserVariantComponent' );
-	test_class ( 'ProductUserVariant' );
-	test_class ( 'ProductUser' );
-	test_class ( 'OrderUserFriend' );
-	test_class ( 'OrderUser' );
+	$classes = [
+		'GAS',
+		'ShippingPlace',
+		'BankMovementType',
+		'BankMovement',
+		'User',
+		'CustomFile',
+		'Notification',
+		'Link',
+		'Supplier',
+		'Measure',
+		'Category',
+		'ProductVariantValue',
+		'ProductVariant',
+		'Product',
+		'Order',
+		'OrderAggregate',
+		'ProductUserVariantComponent',
+		'ProductUserVariant',
+		'ProductUser',
+		'OrderUserFriend',
+		'OrderUser'
+	];
+
+	$redo = [];
+
+	/*
+		Se la tabella che rappresenta il tipo di dato non esiste,
+		test_class() invoca create_table_class(), la quale
+		deliberatamente non crea attributi e tabelle per le relazioni.
+		In tali casi, test_class() viene nuovamente chiamata nel ciclo
+		qui sotto sulle stesse tabelle, a questo punto aggiungendo tali
+		relazioni.
+		Questo è per far si di non trovarsi in cicli ricorsivi di
+		dipendenze (e.g. Users che dipende da BankMovement che dipende
+		da Users): la prima volta che installo GASdotto creo prima tutte
+		le tabelle senza relazioni, dopodiché quando le tabelle ci sono
+		tutte le aggiusto
+	*/
+
+	foreach ( $classes as $c )
+		if ( test_class ( $c ) == false )
+			$redo [] = $c;
+
+	foreach ( $redo as $c )
+		test_class ( $c );
+
+	foreach ( $classes as $c )
+		migrate_table ( $c );
 
 	test_static_tables ();
 
 	if ( test_class ( 'ACL' ) == false ) {
+		test_class ( 'ACL' );
+
 		align_acl ( 'Supplier' );
 		align_acl ( 'User', 'Users' );
 		align_acl ( 'Order', 'Orders' );
 		align_acl ( 'OrderAggregate' );
 	}
-
-	/*
-		Nel dubbio in chiusura do anche una controllata ai conti...
-	*/
-	$tmp = new BankMovement ();
-	$tmp->fix ( -1 );
 }
 
 /*

@@ -131,7 +131,7 @@ class Probe extends FromServer {
 			Inizializzo utente root
 		*/
 
-		$query = sprintf ( "INSERT INTO Users ( login, firstname, paying, privileges ) VALUES ( 'root', 'Root', now(), 2 )" );
+		$query = sprintf ( "INSERT INTO Users ( login, firstname, paying, privileges ) VALUES ( 'root', 'Root', null, 2 )" );
 		query_and_check ( $query, "Impossibile inizializzare tabella utenti" );
 
 		$query = sprintf ( "INSERT INTO accounts ( password, username ) VALUES ( '%s', ( SELECT id FROM Users WHERE login = 'root' ) )", md5 ( $obj->rootpassword ) );
