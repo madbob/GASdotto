@@ -88,7 +88,7 @@ public abstract class OrdersHubWidget extends Composite {
 		now = new Date ( System.currentTimeMillis () );
 		enddate.setValue ( now );
 		now = ( Date ) now.clone ();
-		now.setYear ( now.getYear () - 1 );
+		now.setMonth ( now.getMonth () - 1 );
 		startdate.setValue ( now );
 
 		toggle.addClickHandler ( new ClickHandler () {
