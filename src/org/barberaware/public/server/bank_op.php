@@ -29,7 +29,7 @@ switch ( $type ) {
 	case 'fix':
 		$offset = require_param ( 'offset' );
 		$tmp = new BankMovement ();
-		echo $tmp->fix ( $offset, $date, null );
+		echo $tmp->fix ( $offset, null );
 		break;
 
 	case 'close':

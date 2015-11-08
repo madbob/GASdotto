@@ -47,7 +47,7 @@ public class BankCloseBalanceDialog extends PasswordValidateDialog {
 
 		dat = date.getValue ();
 		if ( dat != null )
-			d = Utils.encodeDate ( null );
+			d = Utils.encodeDate ( dat );
 		else
 			d = Utils.encodeDate ( new Date ( System.currentTimeMillis () ) );
 
@@ -70,4 +70,3 @@ public class BankCloseBalanceDialog extends PasswordValidateDialog {
 		Utils.getServer ().rawGet ( "bank_op.php?type=close&date=" + d, myCallback );
 	}
 }
-
