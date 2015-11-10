@@ -71,7 +71,7 @@ function check_package ( $file, $url ) {
 }
 
 if ( file_exists ( 'extra' ) )
-	ini_set ( 'include_path', ini_get ( 'include_path' ) . ':' . getcwd () . '/extra' );
+	ini_set ( 'include_path', ini_get ( 'include_path' ) . PATH_SEPARATOR . getcwd () . '/extra' );
 
 check_package ( 'Mail.php', "$extra_root/Mail.txt" );
 check_package ( 'Mail/mime.php', "$extra_root/Mail.txt" );
