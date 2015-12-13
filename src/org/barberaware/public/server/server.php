@@ -86,6 +86,15 @@ else if ( $type == "Reset" ) {
 		$notice .= sprintf ( "Con essa potrai accedere nuovamente alle informazioni del tuo GAS. Ti suggeriamo di cambiarla al più presto dal pannello 'Profilo Utente'.\n" );
 		$notice .= sprintf ( "\n" );
 
+		/*
+			Se l'utente non è autenticato non so quale sia il GAS di riferimento, e
+			dunque la relativa configurazione per l'invio della posta.
+			Il problema viene qui mitigato forzando il primo GAS esistente; non
+			necessariamente funziona in caso di setup multi-GAS.
+		*/
+		global $current_gas;
+		$current_gas = 1;
+
 		my_send_mail ( array ( $mail ), "Password resettata", true, $notice );
 	}
 }
