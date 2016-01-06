@@ -80,8 +80,6 @@ class BankMovement extends FromServer {
 
 					case 2:
 						$sub [] = array ( 'Users', 'current_balance', $user );
-						$add [] = array ( 'GAS', 'current_balance', $current_gas );
-						$add [] = array ( 'GAS', 'current_bank_balance', $current_gas );
 						break;
 
 					case 3:
@@ -408,6 +406,23 @@ class BankMovement extends FromServer {
 		$returned = query_and_check ( $query, "Impossibile recuperare oggetto " . $this->classname );
 
 		if ( $returned->rowCount () == 0 ) {
+			/*
+				Se la data di riferimento è null sto effettuando un ricalcolo dei saldi (altrimenti sto
+				facendo la chiusura dell'anno).
+				In tal caso, i movimenti elaboratori non devono essere marcati come "obsoleti" ma sono ancora
+				validi (per quando dovro' effettivamente fare la chiusura).
+				Per facilitare le cose, non altero l'algoritmo di cui sopra ma qui, a fine elaborazione,
+				risistemo tutto ri-marcando i movimenti successivi alla data dell'ultima chiusura come
+				"non obsoleti"
+			*/
+			if ( $date == null ) {
+				$tmp = new GAS ();
+				$tmp->readFromDB ( $current_gas );
+				$last = $tmp->getAttribute('last_balance_date')->value;
+				$query = sprintf ( "UPDATE %s SET obsolete = FALSE WHERE date > '%s'", $this->tablename, $last );
+				query_and_check ( $query, "Impossibile aggiornare movimenti " . $this->classname );
+			}
+
 			return 'done';
 		}
 		else {
