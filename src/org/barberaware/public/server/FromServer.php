@@ -119,6 +119,9 @@ class FromServerAttribute {
 			if ( $filter === null )
 				$filter = new stdClass ();
 
+			if ( method_exists ( $object, 'getAttribute' ) == false )
+				return $object;
+
 			$id = $object->getAttribute ( "id" )->value;
 			$id_name = 'has_' . $object->classname;
 
