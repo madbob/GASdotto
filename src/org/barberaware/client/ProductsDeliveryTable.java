@@ -92,7 +92,7 @@ public class ProductsDeliveryTable extends FromServerRappresentation implements 
 	private Button createAutoCompleteButton () {
 		Button ret;
 
-		ret = new Button ( "Consegna Tutto" );
+		ret = new Button ( "Proponi Quantità Ordinate" );
 		ret.addClickHandler ( new ClickHandler () {
 			public void onClick ( ClickEvent event ) {
 				float total_sum;
