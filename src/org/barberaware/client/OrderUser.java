@@ -130,6 +130,15 @@ public class OrderUser extends FromServer implements OrderUserInterface {
 			return ProductUser.sumProductUserArray ( products, "quantity" );
 	}
 
+	public void setObject ( String name, FromServer value ) {
+		if ( name == "payment_event" && value != null ) {
+			if ( value.getInt ( "movementtype" ) != BankMovement.ORDER_USER_PAYMENT )
+				value.setInt ( "movementtype", BankMovement.ORDER_USER_PAYMENT );
+		}
+
+		super.setObject ( name, value );
+	}
+
 	/****************************************************************** OrderUserInterface */
 
 	public boolean hasFriends () {
