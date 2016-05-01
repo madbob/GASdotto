@@ -406,16 +406,18 @@ public class OrdersAggregator extends Composite implements FromServerArray {
 	/****************************************************************** FromServerArray */
 
 	public void addElement ( FromServer element ) {
+		int status;
 		ArrayList orders;
 		FromServer order;
 		DroppableAggregate aggr_box;
 		DraggableOrder order_box;
 
-		if ( element.getInt ( "status" ) == Order.SHIPPED )
+		status = element.getInt ( "status" );
+		if ( status == Order.SHIPPED || status == Order.SUSPENDED )
 			return;
 
 		if ( element.getType () == "Order" ) {
-			if ( element.getInt ( "status" ) == Order.OPENED && retrieveOrderBox ( element ) == null )
+			if ( retrieveOrderBox ( element ) == null )
 				ordersList.add ( new DraggableOrder ( dragController, element ) );
 		}
 		else {

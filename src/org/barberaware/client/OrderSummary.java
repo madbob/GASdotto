@@ -54,8 +54,9 @@ public class OrderSummary extends Composite implements Lockable {
 	private int			PRODUCT_TOTALPRICE_COLUMN	= 10;
 	private int			PRODUCT_TOTALTRANSPORT_COLUMN	= 11;
 	private int			PRODUCT_TOTALOVERPRICE_COLUMN	= 12;
-	private int			PRODUCT_SHIPQUANT_COLUMN	= 13;
-	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 14;
+	private int			PRODUCT_SHIPTOT_COLUMN		= 13;
+	private int			PRODUCT_SHIPQUANT_COLUMN	= 14;
+	private int			PRODUCT_NOTIFICATIONS_COLUMN	= 15;
 
 	public OrderSummary () {
 		VerticalPanel container;
@@ -103,6 +104,7 @@ public class OrderSummary extends Composite implements Lockable {
 		int user_product_ref;
 		float [] quantities;
 		float [] delivered;
+		float [] delivered_prices;
 		float [] prices;
 		float [] details;
 		float [] overprices;
@@ -144,6 +146,7 @@ public class OrderSummary extends Composite implements Lockable {
 
 			quantities = new float [ products.size () ];
 			delivered = new float [ products.size () ];
+			delivered_prices = new float [ products.size () ];
 			prices = new float [ products.size () ];
 			details = new float [ products.size () ];
 			overprices = new float [ products.size () ];
@@ -151,6 +154,7 @@ public class OrderSummary extends Composite implements Lockable {
 			for ( int i = 0; i < products.size (); i++ ) {
 				quantities [ i ] = 0;
 				delivered [ i ] = 0;
+				delivered_prices [ i ] = 0;
 				prices [ i ] = 0;
 				details [ i ] = 0;
 				overprices [ i ] = 0;
@@ -179,6 +183,7 @@ public class OrderSummary extends Composite implements Lockable {
 								if ( order_product.getBool ( "available" ) == true ) {
 									quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
 									delivered [ e ] = delivered [ e ] + user_product.getFloat ( "delivered" );
+									delivered_prices [ e ] = delivered_prices [ e ] + user_product.getDeliveredPrice ();
 
 									/*
 										Il total_price lo ricostruisco prodotto per
@@ -208,7 +213,7 @@ public class OrderSummary extends Composite implements Lockable {
 				}
 			}
 
-			syncTable ( order, products, quantities, delivered, prices, details, overprices );
+			syncTable ( order, products, quantities, delivered, delivered_prices, prices, details, overprices );
 		}
 
 		totalLabel.setVal ( total_price );
@@ -276,6 +281,7 @@ public class OrderSummary extends Composite implements Lockable {
 		main.setWidget ( 0, PRODUCT_TOTALPRICE_COLUMN, new Label ( "Totale Prezzo" ) );
 		main.setWidget ( 0, PRODUCT_TOTALTRANSPORT_COLUMN, new Label ( "Totale Trasporto" ) );
 		main.setWidget ( 0, PRODUCT_TOTALOVERPRICE_COLUMN, new Label ( "Totale Sovrapprezzo" ) );
+		main.setWidget ( 0, PRODUCT_SHIPTOT_COLUMN, new Label ( "Totale Consegnato" ) );
 		main.setWidget ( 0, PRODUCT_SHIPQUANT_COLUMN, new Label ( "Quantità Consegnata" ) );
 		main.setWidget ( 0, PRODUCT_NOTIFICATIONS_COLUMN, new Label ( "Notifiche" ) );
 
@@ -387,7 +393,7 @@ public class OrderSummary extends Composite implements Lockable {
 			totalOverpriceLabel.removeStyleName ( "hidden" );
 	}
 
-	private void syncTable ( Order order, ArrayList products, float [] quantities, float [] delivered,
+	private void syncTable ( Order order, ArrayList products, float [] quantities, float [] delivered, float [] delivered_prices,
 					float [] prices, float [] prices_details, float [] overprices_details ) {
 		int i;
 		int e;
@@ -412,7 +418,7 @@ public class OrderSummary extends Composite implements Lockable {
 				new_row = false;
 			}
 
-			setDataRow ( e, order, product, quantities [ i ], delivered [ i ], prices [ i ],
+			setDataRow ( e, order, product, quantities [ i ], delivered [ i ], delivered_prices [ i ], prices [ i ],
 					prices_details [ i ], overprices_details [ i ], new_row );
 		}
 
@@ -574,7 +580,7 @@ public class OrderSummary extends Composite implements Lockable {
 		}
 	}
 
-	private void setDataRow ( int index, FromServer order, FromServer product, float quantity, float delivered, float price, float price_details, float overprice, boolean new_row ) {
+	private void setDataRow ( int index, FromServer order, FromServer product, float quantity, float delivered, float delivered_price, float price, float price_details, float overprice, boolean new_row ) {
 		float stock;
 		float max_avail;
 		float transport;
@@ -682,6 +688,9 @@ public class OrderSummary extends Composite implements Lockable {
 		lab = editableLabel ( index, PRODUCT_SHIPQUANT_COLUMN, new_row );
 		lab.setText ( Utils.floatToString ( delivered ) );
 
+		lab = editableLabel ( index, PRODUCT_SHIPTOT_COLUMN, new_row );
+		lab.setText ( Utils.priceToString ( delivered_price ) );
+
 		if ( ( stock != 0 ) && ( quantity != 0 ) ) {
 			unit_size = product.getFloat ( "unit_size" );
 			if ( unit_size <= 0 )
@@ -720,7 +729,7 @@ public class OrderSummary extends Composite implements Lockable {
 			if ( prod.getBool ( "available" ) == false )
 				continue;
 
-			setDataRow ( e, order, prod, 0, 0, 0, 0, 0, true );
+			setDataRow ( e, order, prod, 0, 0, 0, 0, 0, 0, true );
 			e++;
 		}
 
