@@ -143,6 +143,10 @@ public abstract class OrdersHubWidget extends Composite {
 		toggle.setEnabled ( enable );
 	}
 
+	public boolean getEnabled () {
+		return toggle.isChecked ();
+	}
+
 	public void doFilter () {
 		boolean show;
 		Date s;
