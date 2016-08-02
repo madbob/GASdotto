@@ -310,7 +310,7 @@ for ( $i = 0; $i < count ( $all_contents ); $i++ ) {
 		$row [] = $emptycell;
 
 	if ( property_exists ( $order_user, 'deliveryperson' ) ) {
-		$reference = $order_user->deliveryperson;
+		$reference = get_actual_object ( $order_user->deliveryperson, 'User' );
 		if ( property_exists ( $reference, 'surname' ) )
 			$row [] = sprintf ( "%s%s%s", $reference->surname, $double_line_sep, $reference->firstname );
 		else
