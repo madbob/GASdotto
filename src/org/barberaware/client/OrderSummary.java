@@ -32,6 +32,7 @@ public class OrderSummary extends Composite implements Lockable {
 	private PriceViewer		totalLabel;
 	private PriceViewer		totalshipLabel;
 	private PriceViewer		totalOverpriceLabel;
+	private PriceViewer		totalDeliveredLabel;
 	private ArrayList		ordersUsers;
 	private OrderNotesDialog	notes;
 
@@ -76,6 +77,7 @@ public class OrderSummary extends Composite implements Lockable {
 		totalLabel = null;
 		totalshipLabel = null;
 		totalOverpriceLabel = null;
+		totalDeliveredLabel = null;
 		ordersUsers = new ArrayList ();
 	}
 
@@ -111,9 +113,11 @@ public class OrderSummary extends Composite implements Lockable {
 		float prod_total_price;
 		float det;
 		float over;
+		float del;
 		float total_price;
 		float total_ship_price;
 		float total_overprice;
+		float total_delivered_price;
 		ArrayList cached_orders;
 		ArrayList products;
 		ArrayList user_products;
@@ -137,6 +141,7 @@ public class OrderSummary extends Composite implements Lockable {
 		total_price = 0;
 		total_ship_price = 0;
 		total_overprice = 0;
+		total_delivered_price = 0;
 		ordersUsers.clear ();
 
 		for ( int j = 0; j < currentOrders.size (); j++ ) {
@@ -183,7 +188,8 @@ public class OrderSummary extends Composite implements Lockable {
 								if ( order_product.getBool ( "available" ) == true ) {
 									quantities [ e ] = quantities [ e ] + user_product.getFloat ( "quantity" );
 									delivered [ e ] = delivered [ e ] + user_product.getFloat ( "delivered" );
-									delivered_prices [ e ] = delivered_prices [ e ] + user_product.getDeliveredPrice ();
+									del = user_product.getDeliveredPrice ();
+									delivered_prices [ e ] = delivered_prices [ e ] + del;
 
 									/*
 										Il total_price lo ricostruisco prodotto per
@@ -202,6 +208,7 @@ public class OrderSummary extends Composite implements Lockable {
 									total_price += prod_total_price;
 									total_ship_price += det;
 									total_overprice += over;
+									total_delivered_price += del;
 								}
 
 								break;
@@ -219,6 +226,7 @@ public class OrderSummary extends Composite implements Lockable {
 		totalLabel.setVal ( total_price );
 		totalshipLabel.setVal ( total_ship_price );
 		totalOverpriceLabel.setVal ( total_overprice );
+		totalDeliveredLabel.setVal ( total_delivered_price );
 		notes.setOrders ( ordersUsers );
 	}
 
@@ -780,16 +788,19 @@ public class OrderSummary extends Composite implements Lockable {
 			totalLabel = new PriceViewer ();
 			totalshipLabel = new PriceViewer ();
 			totalOverpriceLabel = new PriceViewer ();
+			totalDeliveredLabel = new PriceViewer ();
 		}
 		else {
 			totalLabel.setVal ( 0 );
 			totalshipLabel.setVal ( 0 );
 			totalOverpriceLabel.setVal ( 0 );
+			totalDeliveredLabel.setVal ( 0 );
 		}
 
 		main.setWidget ( e, PRODUCT_TOTALPRICE_COLUMN, totalLabel );
 		main.setWidget ( e, PRODUCT_TOTALTRANSPORT_COLUMN, totalshipLabel );
 		main.setWidget ( e, PRODUCT_TOTALOVERPRICE_COLUMN, totalOverpriceLabel );
+		main.setWidget ( e, PRODUCT_SHIPTOT_COLUMN, totalDeliveredLabel );
 
 		checkHiddenColumns ();
 	}

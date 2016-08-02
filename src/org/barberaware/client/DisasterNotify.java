@@ -40,6 +40,8 @@ public class DisasterNotify extends Composite {
 		main.add ( new HTML ( "<p>Non si tratta di nulla di grave, ma è consigliato ricaricare questa pagina web onde evitare di perdere i dati su cui si sta lavorando.</p>" ) );
 		main.add ( new HTML ( "<p>Se l'errore dovesse ripetersi, si raccomanda di segnalare il problema al proprio amministratore di sistema e al team GASdotto.</p>" ) );
 		main.add ( new HTML ( "<hr>" ) );
+		main.add ( new HTML ( message ) );
+		main.add ( new HTML ( "<hr>" ) );
 		main.add ( new HTML ( "<p><a href=\"GASdotto.html\">Clicca qui per ricaricare la pagina.</a></p>" ) );
 	}
 
