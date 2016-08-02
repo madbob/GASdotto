@@ -65,7 +65,10 @@ public class Supplier extends FromServer {
 		myself = Session.getUser ();
 		privileges = myself.getInt ( "privileges" );
 
-		if ( privileges == User.USER_RESPONSABLE || privileges == User.USER_ADMIN ) {
+		if ( privileges == User.USER_ADMIN )
+			return true;
+
+		if ( privileges == User.USER_RESPONSABLE ) {
 			references = getArray ( "references" );
 			if ( references == null )
 				return false;
