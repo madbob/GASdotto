@@ -147,6 +147,11 @@ public class DeliverySummary extends Composite {
 					dialog.addCallback ( new SavingDialogCallback () {
 						public void onSave ( SavingDialog dialog ) {
 							BankMovementCellViewer payment;
+							FromServer p;
+
+							p = ( ( BankMovementComponent ) dialog ).getValue ();
+							p.setDate ( "registrationdate", new Date ( System.currentTimeMillis () ) );
+							p.setObject ( "registrationperson", Session.getUser () );
 
 							/*
 								Assegno il BankMovement appena creato al widget che, nel form,
@@ -155,7 +160,7 @@ public class DeliverySummary extends Composite {
 								stesso per il salvataggio
 							*/
 							payment = ( BankMovementCellViewer ) row.retriveInternalWidget ( "payment_event" );
-							payment.setValue ( ( ( BankMovementComponent ) dialog ).getValue () );
+							payment.setValue ( p );
 
 							row.getValue ().setInt ( "status", OrderUser.COMPLETE_DELIVERY );
 							commonActionsOnEdit ( row );
