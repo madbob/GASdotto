@@ -92,7 +92,7 @@ public class BankMovement extends FromServer {
 		setDate ( "registrationdate", new Date ( System.currentTimeMillis () ) );
 		setObject ( "registrationperson", Session.getUser () );
 
-		alwaysReload ( true );
+		// alwaysReload ( true );
 	}
 
 	public int compare ( Object first, Object second ) {
@@ -141,7 +141,7 @@ public class BankMovement extends FromServer {
 
 	public boolean testAmounts () {
 		FromServer user;
-		
+
 		if ( getInt ( "method" ) == BY_CASH )
 			return true;
 
@@ -157,7 +157,7 @@ public class BankMovement extends FromServer {
 
 	public void save ( ServerResponse callback ) {
 		ServerResponse mine;
-		
+
 		mine = new ServerResponse () {
 			public void onComplete ( JSONValue response ) {
 				/*
@@ -170,7 +170,7 @@ public class BankMovement extends FromServer {
 				fetchDep ( "Supplier", "paysupplier" );
 			}
 		};
-		
+
 		if ( callback == null )
 			callback = mine;
 		else
@@ -180,10 +180,10 @@ public class BankMovement extends FromServer {
 		setObject ( "registrationperson", Session.getUser () );
 		super.save ( callback );
 	}
-	
+
 	private void fetchDep ( String classname, String attribute ) {
 		int ref;
-		
+
 		ref = getInt ( attribute );
 		if ( ref != 0 )
 			Utils.getServer ().forceObjectReload ( classname, ref );

@@ -59,7 +59,7 @@ public class GASBankSummary extends FromServerRappresentationActive {
 			}
 
 			public void onModify ( FromServer object ) {
-				Utils.getServer ().forceObjectReload ( Session.getGAS () );
+				// Utils.getServer ().forceObjectReload ( Session.getGAS () );
 			}
 
 			public void onDestroy ( FromServer object ) {
@@ -68,4 +68,3 @@ public class GASBankSummary extends FromServerRappresentationActive {
 		} );
 	}
 }
-
